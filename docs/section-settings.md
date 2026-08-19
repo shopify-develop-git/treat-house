@@ -320,7 +320,7 @@ gutter ladder is in `CLAUDE.md`.
 | Block | What the merchant sets | Used by |
 | --- | --- | --- |
 | `_ui-heading` | richtext heading, size, mobile size, max width, colour, accent colour | `home-hero`, `our-story`, `shop-by-occasion`, `partner-story`, `best-sellers` (static), `testimonials` (static) |
-| `_ui-text` | richtext copy, size, max width, colour | `home-hero`, `our-story`, `shop-by-occasion`, `partner-story` |
+| `_ui-text` | richtext copy, size, mobile size, max width, colour | `home-hero`, `our-story`, `shop-by-occasion`, `partner-story`, `newsletter` |
 | `_ui-link` | label, url, variant, full width, new tab | `home-hero`, `shop-by-occasion`, `partner-story`, `best-sellers` (static), `_ui-link-row` |
 | `_ui-link-row` | gap; hosts link blocks | `home-hero` |
 | `_ui-review-line` | stars, rating, review count, layout, gap; hosts avatar blocks | `home-hero`, `testimonials` (static) |
@@ -328,6 +328,13 @@ gutter ladder is in `CLAUDE.md`.
 | `_ui-stat-row` | gap; hosts statistic blocks | `corporate-gifts`, static |
 | `_ui-stat` | figure, label | `_ui-stat-row` |
 | `_ui-testimonial` | quote, star count, name, role, photo | `testimonials` |
+| `_ui-newsletter-form` | placeholder, button label, accessible label | `newsletter`, static |
+
+`_ui-heading` and `_ui-text` carry the section's decisions as inherited custom
+properties rather than settings: `--ui-heading-color`, `--ui-text-color`,
+`--ui-text-weight` and the two max widths. A block writes its own only when the
+merchant moves the matching control, so a section can hand it the drawn figure
+and still be overruled by hand.
 
 `_ui-heading` replaced `snippets/ui-section-heading.liquid`, which held the same
 type at the same steps but took the accent as a second string. One richtext field

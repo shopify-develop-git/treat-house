@@ -21,6 +21,7 @@
     class="ui-text"
     style="
       --ui-text-size: {{ block.settings.text_size }}px;
+      --ui-text-size-mobile: {{ block.settings.text_size_mobile }}px;
       {%- if block.settings.max_width > 0 %} --ui-text-max-width: {{ block.settings.max_width }}px;{% endif -%}
       {%- if block.settings.color != blank %} --ui-text-color: {{ block.settings.color }};{% endif -%}
       {%- if padding_start > 0 %} --ui-text-padding-start: {{ padding_start }}px;{% endif -%}
@@ -38,9 +39,20 @@
     padding-block: var(--ui-text-padding-start, 0px) var(--ui-text-padding-end, 0px);
     color: var(--ui-text-color, var(--ui-color-gray));
     font-family: var(--ui-font-body);
-    font-size: var(--ui-text-size, 16px);
-    font-weight: var(--ui-font-body-weight);
+    font-size: var(--ui-text-size-mobile, 16px);
+
+    /*
+     * A hook rather than a setting: where the copy is set in the bold cut it is
+     * the section that says so, the same way it says what colour the copy is.
+     */
+    font-weight: var(--ui-text-weight, var(--ui-font-body-weight));
     line-height: var(--ui-line-height);
+  }
+
+  @media screen and (min-width: 750px) {
+    .ui-text {
+      font-size: var(--ui-text-size, 16px);
+    }
   }
 
   .ui-text > * {
@@ -73,6 +85,16 @@
       "type": "range",
       "id": "text_size",
       "label": "t:settings.size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "text_size_mobile",
+      "label": "t:content.mobile_size",
       "min": 12,
       "max": 28,
       "step": 1,

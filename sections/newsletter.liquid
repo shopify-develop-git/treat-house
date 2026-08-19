@@ -1,0 +1,236 @@
+{% comment %}
+  Newsletter — Figma: Work Page → Newsletter (desktop 491:15345,
+  mobile 491:14692).
+
+  A purple card inset by the page gutter, holding a star, the copy and the
+  signup. The page behind it stays as it is — unlike the partner band, nothing
+  here runs to the window edge.
+
+  The section owns the card and the arrangement; the heading and the sentence are
+  blocks, and the form is a static block because it has to stay under them.
+  See `docs/section-settings.md`.
+
+  The field is the kit's own, wearing the hooks set on the card below. A field on
+  a purple band is the same control in different clothes, not a second snippet.
+{% endcomment %}
+
+<div
+  class="newsletter"
+  style="
+    --newsletter-block-padding: {{ section.settings.vertical_padding_mobile }}px;
+    --newsletter-block-padding-desktop: {{ section.settings.vertical_padding }}px;
+  "
+  data-testid="newsletter-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div class="newsletter__inner">
+    <div class="newsletter__card">
+      <span class="newsletter__sparkle" aria-hidden="true">
+        {{- 'icon-ui-sparkle-24.svg' | inline_asset_content -}}
+      </span>
+
+      <div class="newsletter__content">
+        <div class="newsletter__text">
+          {% content_for 'blocks' %}
+        </div>
+
+        {% content_for 'block', type: '_ui-newsletter-form', id: 'signup' %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  /*
+   * Newsletter. Mobile first. The card's own padding steps at 990px rather than
+   * the theme's 750px: the file sets it to 80 either side, and until the card is
+   * about 690px wide that leaves the 527px field-and-button row nowhere to go.
+   */
+  .newsletter {
+    --newsletter-card-padding-inline: 32px;
+    --newsletter-card-padding-end: 64px;
+    --newsletter-radius: 20px;
+  }
+
+  .newsletter__inner {
+    box-sizing: border-box;
+    max-width: var(--page-width, 90rem);
+    margin-inline: auto;
+    padding-block: var(--newsletter-block-padding, 64px);
+    padding-inline: var(--ui-page-margin);
+  }
+
+  .newsletter__card {
+    /*
+     * The kit's field, inverted. Every one of these is a hook `ui-input` already
+     * reads with its own figure behind it, so the control is the same component
+     * the contact form uses rather than a second one written for a dark band.
+     */
+    --ui-input-background: transparent;
+    --ui-input-border-width: var(--ui-hairline-width);
+    --ui-input-border-color: var(--ui-color-white);
+    --ui-input-border-color-engaged: var(--ui-color-white);
+    --ui-input-color: var(--ui-color-white);
+    --ui-input-placeholder-color: var(--ui-color-white);
+    --ui-input-text-align: center;
+    --ui-input-font-size: 12px;
+    --ui-input-line-height: 1.1;
+    --ui-input-padding-inline: 16px;
+    --ui-newsletter-form-message-color: var(--ui-color-white);
+    --ui-newsletter-form-error-color: var(--ui-color-sky-blue);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    gap: 48px;
+    padding-block: 32px var(--newsletter-card-padding-end);
+    padding-inline: var(--newsletter-card-padding-inline);
+    border-radius: var(--newsletter-radius);
+    background-color: var(--ui-color-primary);
+  }
+
+  .newsletter__sparkle {
+    display: block;
+    flex: 0 0 auto;
+    width: 24px;
+    height: 24px;
+    color: var(--ui-color-white);
+  }
+
+  .newsletter__sparkle > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .newsletter__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    width: 100%;
+
+    /* The column the file gives the copy on the widest frame it draws. */
+    max-width: 634px;
+  }
+
+  .newsletter__text {
+    --ui-heading-color: var(--ui-color-white);
+    --ui-text-color: var(--ui-color-white);
+    --ui-text-max-width: 300px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    text-align: center;
+  }
+
+  @media screen and (min-width: 750px) {
+    .newsletter__card {
+      --ui-input-font-size: 14px;
+      --ui-input-line-height: var(--ui-line-height);
+      --ui-input-padding-inline: 24px;
+
+      /* The file sets the desktop field and sentence in the bold cut. */
+      --ui-input-font-weight: 700;
+    }
+
+    .newsletter__text {
+      --ui-heading-max-width: 586px;
+      --ui-text-max-width: 512px;
+      --ui-text-weight: 700;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    .newsletter {
+      --newsletter-card-padding-inline: 80px;
+      --newsletter-card-padding-end: 80px;
+    }
+
+    .newsletter__inner {
+      padding-block: var(--newsletter-block-padding-desktop, 80px);
+    }
+  }
+
+  /*
+   * The kit turns an outlined button purple on hover, which on a purple card
+   * would be the button disappearing. It takes the fill the kit's own filled
+   * button takes instead, so the pair still behave like one family.
+   *
+   * Weighed one class heavier than the kit's rule, which is `:not()` and `:is()`
+   * deep, so this does not come down to stylesheet order.
+   */
+  .newsletter__card .ui-button--secondary:not(:disabled, [aria-disabled='true']):is(:hover, :focus-visible) {
+    --ui-button-background: var(--ui-color-sky-blue);
+    --ui-button-color: var(--ui-color-primary);
+    --ui-button-border-color: var(--ui-color-sky-blue);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "tag": "section",
+  "blocks": [
+    { "type": "_ui-heading" },
+    { "type": "_ui-text" }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding",
+      "label": "t:settings.vertical_padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding_mobile",
+      "label": "Vertical padding on mobile",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "presets": [
+    {
+      "name": "Newsletter",
+      "category": "t:categories.forms",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Newsletter</h2>"
+          }
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Subscribe to our newsletter and be the first to hear about new arrivals, exclusive offers, seasonal collections, and special promotions.</p>",
+            "text_size": 16,
+            "text_size_mobile": 14
+          }
+        },
+        "signup": {
+          "type": "_ui-newsletter-form",
+          "static": true
+        }
+      },
+      "block_order": ["heading", "body"]
+    }
+  ]
+}
+{% endschema %}

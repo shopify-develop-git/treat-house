@@ -148,42 +148,56 @@
     color: var(--ui-color-black);
   }
 
-  .ui-input__control {
+  /*
+   * Every value below is a hook with the kit's own figure behind it, so a section
+   * standing this field on a coloured band can invert it without a second
+   * snippet. Unset, the field is exactly what the Field/* family draws.
+   */
+  /*
+    * Reached through the wrapper, not on its own. `base.css` paints every input
+    * with `input:not([type='checkbox'], [type='radio'])`, which is one element
+    * heavier than a lone class, so a single-class rule here lost its background
+    * and its border colour to the theme's while keeping its own border width —
+    * a field that looked almost right and was not.
+    */
+  .ui-input .ui-input__control {
     width: 100%;
     height: var(--ui-input-height);
-    padding: var(--ui-input-padding);
-    border: 1px solid var(--ui-color-border-gray);
+    padding-block: var(--ui-input-padding);
+    padding-inline: var(--ui-input-padding-inline, var(--ui-input-padding));
+    border: var(--ui-input-border-width, 1px) solid var(--ui-input-border-color, var(--ui-color-border-gray));
     border-radius: var(--ui-radius-sm);
-    background-color: var(--ui-color-white);
+    background-color: var(--ui-input-background, var(--ui-color-white));
     font-family: var(--ui-font-body);
-    font-weight: var(--ui-font-body-weight);
-    font-size: 15px;
-    line-height: 1.35;
-    color: var(--ui-color-primary);
+    font-weight: var(--ui-input-font-weight, var(--ui-font-body-weight));
+    font-size: var(--ui-input-font-size, 15px);
+    line-height: var(--ui-input-line-height, 1.35);
+    text-align: var(--ui-input-text-align, start);
+    color: var(--ui-input-color, var(--ui-color-primary));
     transition: border-color var(--animation-speed) ease;
   }
 
-  .ui-input__control::placeholder {
-    color: var(--ui-color-gray);
+  .ui-input .ui-input__control::placeholder {
+    color: var(--ui-input-placeholder-color, var(--ui-color-gray));
   }
 
   /* The border stays engaged once the field holds a value, not only while focused. */
-  .ui-input__control:hover,
-  .ui-input__control:focus,
-  .ui-input__control:not(:placeholder-shown) {
-    border-color: var(--ui-color-primary);
+  .ui-input .ui-input__control:hover,
+  .ui-input .ui-input__control:focus,
+  .ui-input .ui-input__control:not(:placeholder-shown) {
+    border-color: var(--ui-input-border-color-engaged, var(--ui-color-primary));
   }
 
   /* Pins the engaged border for the kit preview; no place in real page markup. */
   .ui-input--force-hover .ui-input__control {
-    border-color: var(--ui-color-primary);
+    border-color: var(--ui-input-border-color-engaged, var(--ui-color-primary));
   }
 
   /* The border change is the design's focus indicator, and it measures 6.4:1 between
      the idle and focused states — above the 3:1 WCAG 2.4.11 asks for — so the theme's
      generic ring is dropped here. It stays as a transparent outline rather than none,
      because forced-colours modes ignore borders and would otherwise show nothing. */
-  .ui-input__control:focus-visible {
+  .ui-input .ui-input__control:focus-visible {
     outline: 2px solid transparent;
     outline-offset: 2px;
   }
@@ -193,7 +207,7 @@
     display: block;
   }
 
-  .ui-input__control--textarea {
+  .ui-input .ui-input__control--textarea {
     display: block;
     height: var(--ui-input-textarea-height);
     resize: vertical;
@@ -247,7 +261,7 @@
   }
 
   /* Kept for assistive technology, hidden from view — the ghost draws the remainder. */
-  .ui-input__control--masked::placeholder {
+  .ui-input .ui-input__control--masked::placeholder {
     color: transparent;
   }
 

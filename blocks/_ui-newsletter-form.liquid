@@ -1,0 +1,175 @@
+{%- doc -%}
+  The newsletter signup: an email field and a submit button
+  (Figma: Newsletter → Email).
+
+  A real `customer` form, not a mock-up. A signup box that does not sign anyone
+  up is worse than no box, and Shopify's own form is five lines.
+
+  The field is `ui-input` wearing the hooks the section sets, not a second text
+  field written here. The kit draws no label beside it, so the label is carried
+  on `aria-label` and the placeholder is what a sighted visitor reads.
+
+  The hidden `contact[id]` is how the block knows the reply belongs to it:
+  Shopify posts the whole page back, and without it two signup forms would both
+  claim the same message.
+{%- enddoc -%}
+
+{%- liquid
+  assign form_id = 'ui-newsletter-' | append: block.id
+  assign field_id = form_id | append: '-email'
+
+  assign field_label = block.settings.field_label
+  if field_label == blank
+    assign field_label = 'blocks.email_signup.label' | t
+  endif
+
+-%}
+
+<div class="ui-newsletter-form" {{ block.shopify_attributes }}>
+  {%- form 'customer', class: 'ui-newsletter-form__form' -%}
+    <input type="hidden" name="contact[id]" value="{{ form_id }}">
+    <input type="hidden" name="contact[tags]" value="newsletter">
+
+    <div class="ui-newsletter-form__row">
+      {%- capture field_attributes -%}
+        aria-label="{{ field_label | escape }}"
+        autocomplete="email"
+        autocorrect="off"
+        autocapitalize="off"
+      {%- endcapture -%}
+
+      {% render 'ui-input',
+        type: 'email',
+        name: 'contact[email]',
+        id: field_id,
+        placeholder: block.settings.placeholder,
+        required: true,
+        class: 'ui-newsletter-form__field',
+        attributes: field_attributes
+      %}
+
+      {% render 'ui-button',
+        variant: 'secondary',
+        label: block.settings.button_label,
+        type: 'submit',
+        class: 'ui-newsletter-form__button'
+      %}
+    </div>
+
+    {%- liquid
+      # `form` only exists inside the form tag, so the comparison lives here
+      # rather than at the top of the file.
+      assign posted = false
+      if form.posted_successfully? and form.id == form_id
+        assign posted = true
+      endif
+    -%}
+
+    {%- if posted -%}
+      <p class="ui-newsletter-form__message" role="status">
+        {{- 'blocks.email_signup.success' | t -}}
+      </p>
+    {%- elsif form.errors -%}
+      <p class="ui-newsletter-form__message ui-newsletter-form__message--error" role="alert">
+        {{- form.errors.messages['email'] | default: form.errors.messages['form'] -}}
+      </p>
+    {%- endif -%}
+  {%- endform -%}
+</div>
+
+{% stylesheet %}
+  .ui-newsletter-form {
+    width: 100%;
+  }
+
+  .ui-newsletter-form__form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+  }
+
+  /*
+   * The file stacks the pair on a phone and sets them side by side above it, and
+   * gives them 10 between at both sizes.
+   */
+  .ui-newsletter-form__row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ui-newsletter-form__row {
+      flex-direction: row;
+      justify-content: center;
+      width: auto;
+    }
+
+    /* The file draws both, so neither is left to size itself by its label. */
+    .ui-newsletter-form .ui-input.ui-newsletter-form__field {
+      flex: 0 0 auto;
+      width: var(--ui-newsletter-form-field-width, 350px);
+    }
+  }
+
+  /*
+   * Reached through the block's own root as well as the component class. The kit
+   * sets `width` on `.ui-input` and `.ui-button` at one class each, and matching
+   * that count would leave the winner to whichever stylesheet the theme
+   * concatenates last — which is not something a block can know.
+   */
+  .ui-newsletter-form .ui-button.ui-newsletter-form__button {
+    width: 100%;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ui-newsletter-form .ui-button.ui-newsletter-form__button {
+      width: var(--ui-newsletter-form-button-width, 167px);
+    }
+  }
+
+  .ui-newsletter-form__message {
+    margin: 0;
+    color: var(--ui-newsletter-form-message-color, var(--ui-color-black));
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+    text-align: center;
+  }
+
+  .ui-newsletter-form__message--error {
+    color: var(--ui-newsletter-form-error-color, var(--ui-color-error));
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Signup form",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "placeholder",
+      "label": "Field placeholder",
+      "default": "Your email"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Subscribe"
+    },
+    {
+      "type": "text",
+      "id": "field_label",
+      "label": "Accessible field label",
+      "info": "Read by a screen reader in place of the label the design does not draw. Left empty, the theme's own \"Email\" is used."
+    }
+  ]
+}
+{% endschema %}

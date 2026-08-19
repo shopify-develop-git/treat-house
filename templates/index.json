@@ -316,6 +316,34 @@
         "four"
       ],
       "settings": {}
+    },
+    "newsletter_preview": {
+      "type": "newsletter",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Newsletter</h2>"
+          }
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Subscribe to our newsletter and be the first to hear about new arrivals, exclusive offers, seasonal collections, and special promotions.</p>",
+            "text_size": 16,
+            "text_size_mobile": 14
+          }
+        },
+        "signup": {
+          "type": "_ui-newsletter-form",
+          "static": true
+        }
+      },
+      "block_order": [
+        "heading",
+        "body"
+      ],
+      "settings": {}
     }
   },
   "order": [
@@ -326,6 +354,7 @@
     "our_story_Vt6Rw1",
     "corporate_gifts_preview",
     "partner_story_preview",
-    "testimonials_preview"
+    "testimonials_preview",
+    "newsletter_preview"
   ]
 }
