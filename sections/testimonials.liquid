@@ -46,7 +46,7 @@
         class: 'testimonials__arrow',
         attributes: 'data-carousel-prev'
       %}
-      <div class="testimonials__dots" data-carousel-dots></div>
+      <div class="ui-carousel__dots" data-carousel-dots></div>
       {% render 'ui-pagination-arrow',
         direction: 'right',
         class: 'testimonials__arrow',
@@ -56,7 +56,7 @@
   </ui-carousel>
 </div>
 
-<script src="{{ 'ui-carousel.js' | asset_url }}" type="module"></script>
+{% render 'ui-carousel' %}
 
 {% stylesheet %}
   .testimonials {
@@ -124,50 +124,6 @@
     align-items: center;
     justify-content: center;
     gap: 16px;
-  }
-
-  .testimonials__dots {
-    display: flex;
-    align-items: center;
-  }
-
-  /* The dot is drawn inside the button rather than being the button, so the thing a
-     thumb has to hit is 24px even though the mark is 10. The file spaces the dots
-     about 22px apart, which is just under what a 24px target needs to clear its
-     neighbour, so they sit 24 apart here — a couple of pixels wider than drawn,
-     which is the side to err on for a control this small. */
-  .ui-carousel__dot {
-    display: grid;
-    place-items: center;
-    width: 24px;
-    height: 24px;
-    padding: 0;
-    border: 0;
-    background: none;
-    cursor: pointer;
-  }
-
-  .ui-carousel__dot::before {
-    content: '';
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: var(--ui-color-primary);
-    opacity: 0.3;
-    transition: width var(--ui-duration-short, 150ms), height var(--ui-duration-short, 150ms),
-      opacity var(--ui-duration-short, 150ms);
-  }
-
-  .ui-carousel__dot[data-current]::before {
-    width: 12px;
-    height: 12px;
-    opacity: 1;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .ui-carousel__dot::before {
-      transition: none;
-    }
   }
 
   @media screen and (min-width: 750px) {

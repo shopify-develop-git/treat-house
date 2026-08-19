@@ -1,0 +1,67 @@
+/**
+ * The carousel's own presentation: the grab cursor that says the row can be
+ * dragged, and the dots that say how long it is.
+ *
+ * These live with the script rather than in a section because both belong to the
+ * component — the dot is markup ui-carousel.js creates, and the cursor tracks
+ * attributes it sets. A section styles its own track: width, gap, padding.
+ */
+
+/* Only while there is somewhere to go. Above the breakpoint where a track becomes
+   a grid the attribute is dropped and the cursor goes back to normal. */
+ui-carousel[data-scrollable] [data-carousel-track] {
+  cursor: grab;
+}
+
+ui-carousel[data-dragging] [data-carousel-track] {
+  cursor: grabbing;
+
+  /* A drag across a card would otherwise sweep a selection through the quote. */
+  user-select: none;
+}
+
+.ui-carousel__dots {
+  display: flex;
+  align-items: center;
+}
+
+/* The dot is drawn inside the button rather than being the button, so the thing a
+   thumb has to hit is 24px even though the mark is 10. The file spaces the dots
+   about 22px apart, which is just under what a 24px target needs to clear its
+   neighbour, so they sit 24 apart here — a couple of pixels wider than drawn,
+   which is the side to err on for a control this small. */
+.ui-carousel__dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.ui-carousel__dot::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--ui-color-primary);
+  opacity: 0.3;
+  transition:
+    width var(--ui-duration-short, 150ms),
+    height var(--ui-duration-short, 150ms),
+    opacity var(--ui-duration-short, 150ms);
+}
+
+.ui-carousel__dot[data-current]::before {
+  width: 12px;
+  height: 12px;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-carousel__dot::before {
+    transition: none;
+  }
+}

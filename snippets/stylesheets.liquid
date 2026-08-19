@@ -1,2 +1,11 @@
 {{ 'overflow-list.css' | asset_url | preload_tag: as: 'style' }}
 {{ 'base.css' | asset_url | stylesheet_tag: preload: true }}
+
+{% comment %}
+  The carousel's stylesheet loads with the theme's rather than with the component,
+  because a page carries several carousels and a snippet cannot tell whether an
+  earlier one already asked for it. Its script is loaded per section by
+  `snippets/ui-carousel.liquid`, where a repeat costs nothing — a module runs once
+  however many tags point at it.
+{% endcomment %}
+{{ 'ui-carousel.css' | asset_url | stylesheet_tag }}

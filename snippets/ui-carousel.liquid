@@ -1,0 +1,22 @@
+{%- doc -%}
+  Loads the carousel component's script.
+
+  Rendered by any section holding a `<ui-carousel>`. Rendering it more than once on
+  a page is harmless — a module runs once however many tags point at it. Its
+  stylesheet, `assets/ui-carousel.css`, loads with the theme's in
+  `snippets/stylesheets.liquid`, where a page with several carousels asks for it
+  once.
+
+  The element itself is markup the section writes:
+
+  @example
+  <ui-carousel>
+    <div data-carousel-track>…</div>
+    <button data-carousel-prev></button>
+    <div data-carousel-dots></div>
+    <button data-carousel-next></button>
+  </ui-carousel>
+  {% render 'ui-carousel' %}
+{%- enddoc -%}
+
+<script src="{{ 'ui-carousel.js' | asset_url }}" type="module"></script>
