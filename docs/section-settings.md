@@ -319,9 +319,9 @@ gutter ladder is in `CLAUDE.md`.
 
 | Block | What the merchant sets | Used by |
 | --- | --- | --- |
-| `_ui-heading` | richtext heading, size, mobile size, max width, colour, accent colour | `home-hero`, `our-story`, `shop-by-occasion`, `best-sellers` (static) |
-| `_ui-text` | richtext copy, size, max width, colour | `home-hero`, `our-story`, `shop-by-occasion` |
-| `_ui-link` | label, url, variant, full width, new tab | `home-hero`, `shop-by-occasion`, `best-sellers` (static), `_ui-link-row` |
+| `_ui-heading` | richtext heading, size, mobile size, max width, colour, accent colour | `home-hero`, `our-story`, `shop-by-occasion`, `partner-story`, `best-sellers` (static) |
+| `_ui-text` | richtext copy, size, max width, colour | `home-hero`, `our-story`, `shop-by-occasion`, `partner-story` |
+| `_ui-link` | label, url, variant, full width, new tab | `home-hero`, `shop-by-occasion`, `partner-story`, `best-sellers` (static), `_ui-link-row` |
 | `_ui-link-row` | gap; hosts link blocks | `home-hero` |
 | `_ui-review-line` | stars, rating, review count, gap; hosts avatar blocks | `home-hero`, static |
 | `_ui-avatar` | image | `_ui-review-line` |

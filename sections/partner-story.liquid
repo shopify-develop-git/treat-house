@@ -1,0 +1,268 @@
+{% comment %}
+  Partner story — Figma: Work Page → B+ Foundation (desktop 491:15088,
+  mobile 491:14573).
+
+  A coloured band the width of the window, holding a white card. On desktop the
+  copy takes the left of the card and the photograph the right; below 990px the
+  copy sits centred with the photograph flush across the foot of the card.
+
+  Named for the shape rather than for the partner, because the words are blocks:
+  the preset ships the B+ Foundation piece, and a second page can put another
+  partner in the same frame without a deploy. See `docs/section-settings.md`.
+
+  The photograph is a cut-out. The file scales it past three of the card's edges
+  and lets the card clip it, so the treat is drawn at its own size rather than
+  shrinking with the copy beside it.
+{% endcomment %}
+
+<div
+  class="partner-story partner-story--{{ section.settings.background }}"
+  style="
+    --partner-story-block-padding: {{ section.settings.vertical_padding_mobile }}px;
+    --partner-story-block-padding-desktop: {{ section.settings.vertical_padding }}px;
+  "
+  data-testid="partner-story-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div class="partner-story__inner">
+    <div class="partner-story__card">
+      <div class="partner-story__content">
+        {% content_for 'blocks' %}
+      </div>
+
+      <div class="partner-story__media">
+        {%- if section.settings.image != blank -%}
+          {% render 'image', image: section.settings.image, height: 665, class: 'partner-story__image' %}
+        {%- else -%}
+          {%- comment -%} Photography is not in yet; hold the frame so the card reads true. {%- endcomment -%}
+          <span class="partner-story__image-placeholder" aria-hidden="true"></span>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  /*
+   * Partner story. Mobile first. The two-column card starts at 990px rather than
+   * the theme's usual 750px: the file reserves 44% of the card for the
+   * photograph, and at 750px that leaves the copy 341px — not a column a 48px
+   * heading can stand in.
+   */
+  .partner-story {
+    --partner-story-card-padding: 32px;
+    --partner-story-radius: 20px;
+
+    background-color: var(--ui-color-primary);
+  }
+
+  .partner-story--light-blue {
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .partner-story__inner {
+    box-sizing: border-box;
+    max-width: var(--page-width, 90rem);
+    margin-inline: auto;
+    padding-block: var(--partner-story-block-padding, 64px);
+    padding-inline: var(--ui-page-margin);
+  }
+
+  .partner-story__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: var(--partner-story-card-padding);
+    border-radius: var(--partner-story-radius);
+    background-color: var(--ui-color-white);
+
+    /* The photograph is drawn past the card's edges and cropped by them. */
+    overflow: hidden;
+  }
+
+  /*
+   * The blocks. The copy is the brand colour throughout, and the measurements
+   * the file draws reach the blocks as custom properties — a block writes its
+   * own only when the merchant moves the matching setting.
+   */
+  .partner-story__content {
+    --ui-heading-color: var(--ui-color-primary);
+    --ui-text-color: var(--ui-color-primary);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+
+    /*
+     * The card runs the full page width, and between 750px and 990px that is
+     * more than twice the measure the file sets. The cap is the width the copy
+     * has on the widest frame drawn; on a phone nothing reaches it.
+     */
+    max-width: 634px;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  /*
+   * Stacked: the photograph is flush with the card's left, right and bottom
+   * edges, so it eats the padding on those three sides. The file leaves 3px
+   * between the last line and the top of it, which is no gap at all.
+   */
+  .partner-story__media {
+    width: calc(100% + var(--partner-story-card-padding) * 2);
+    margin-inline: calc(var(--partner-story-card-padding) * -1);
+    margin-block-end: calc(var(--partner-story-card-padding) * -1);
+    aspect-ratio: 358 / 360;
+  }
+
+  .partner-story__image,
+  .partner-story__image-placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    /*
+     * Contain, not cover: the photograph is a product cut-out standing in its
+     * own air, and a merchant's file will not share the drawn proportion. At the
+     * size the file draws, the box already carries the image's ratio and the two
+     * are the same picture.
+     */
+    object-fit: contain;
+  }
+
+  .partner-story__image-placeholder {
+    background-color: var(--ui-color-border-gray);
+  }
+
+  @media screen and (min-width: 990px) {
+    .partner-story {
+      --partner-story-card-padding: 80px;
+    }
+
+    .partner-story__inner {
+      padding-block: var(--partner-story-block-padding-desktop, 80px);
+    }
+
+    /*
+     * 44.22% is the 566 of 1280 the file keeps clear on the right, as a share so
+     * the two columns hold their proportion at every width above the breakpoint.
+     * The card's height is drawn rather than derived: the copy fills 443 of the
+     * 588 and the rest is the room the photograph bleeds into.
+     */
+    .partner-story__card {
+      padding-inline-end: 44.22%;
+      min-height: 588px;
+    }
+
+    .partner-story__content {
+      --ui-heading-max-width: 586px;
+      --ui-text-max-width: 505px;
+
+      align-items: flex-start;
+      gap: 32px;
+      max-width: none;
+      margin-inline: 0;
+      text-align: start;
+    }
+
+    /*
+     * Anchored to the card's midpoint and 51.65% wide, so it runs 1.65% past the
+     * right edge, and inset -6.58% top and bottom so it stands 38px proud of
+     * each. All three are cropped by the card.
+     */
+    .partner-story__media {
+      position: absolute;
+      inset-block: -6.58%;
+      inset-inline-start: 50%;
+      width: 51.65%;
+      margin: 0;
+      aspect-ratio: auto;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Partner story",
+  "tag": "section",
+  "blocks": [
+    { "type": "_ui-heading" },
+    { "type": "_ui-text" },
+    { "type": "_ui-link" }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:content.media"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image",
+      "info": "A cut-out on a transparent background, as the file draws it. Left empty, the frame is held with a placeholder."
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Band",
+      "info": "The colour around the card. The card itself is always white.",
+      "options": [
+        { "value": "purple", "label": "Purple" },
+        { "value": "light-blue", "label": "Light blue" }
+      ],
+      "default": "purple"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding",
+      "label": "t:settings.vertical_padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding_mobile",
+      "label": "Vertical padding on mobile",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "presets": [
+    {
+      "name": "Partner story",
+      "category": "t:categories.storytelling",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>We are partnered with the Andrew McDonough B+ Foundation</h2>"
+          }
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>The Andrew McDonough B+ Foundation honors the life of Andrew McDonough. Andrew battled leukemia, septic shock, and complications of childhood cancer for 167 days before passing away on July 14, 2007, at the age of 14.</p><p>Andrew's B+ blood type became his family's and friends' motto throughout his fight against childhood cancer — to \"Be Positive\". The B+ Foundation is the largest provider of financial assistance to families of kids with cancer nationwide.</p><p>Additionally, The B+ Foundation funds cutting-edge childhood cancer research and advocates on behalf of kids with cancer.</p>"
+          }
+        }
+      },
+      "block_order": ["heading", "body"]
+    }
+  ]
+}
+{% endschema %}
