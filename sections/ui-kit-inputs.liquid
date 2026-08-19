@@ -1,0 +1,359 @@
+{% comment %}
+  QA harness for the UI kit input fields. Mirrors the INPUT section of the Figma
+  file so the implementation can be compared against the design side by side.
+
+  "Hovered" columns are pinned with the `--force-hover` modifiers; the "default"
+  columns react to a real pointer, so both can be checked at once. States CSS
+  cannot pin are absent rather than faked: the select's open list is drawn by the
+  browser, and the upload progress state waits on a script.
+
+  Input Email is not here. It is the one INPUT component that maps onto an
+  existing theme block rather than a kit snippet, so it is exercised through
+  email-signup on a real page instead.
+{% endcomment %}
+
+{%- liquid
+  assign field_states = 'default,hovered,entered,error' | split: ','
+-%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="ui-kit-inputs-{{ section.id }}"
+>
+  <div class="ui-kit-inputs">
+    <section class="ui-kit-inputs__family">
+      <h3 class="ui-kit-inputs__title">Field/Name</h3>
+      <div class="ui-kit-inputs__row">
+        {%- for state in field_states -%}
+          <div class="ui-kit-inputs__cell">
+            <span class="ui-kit-inputs__state">{{ state }}</span>
+            {%- case state -%}
+              {%- when 'hovered' -%}
+                {% render 'ui-input', label: 'Name', id: 'kit-name-hovered', class: 'ui-input--force-hover' %}
+              {%- when 'entered' -%}
+                {% render 'ui-input', label: 'Name', id: 'kit-name-entered', value: 'Name' %}
+              {%- when 'error' -%}
+                {% render 'ui-input', label: 'Name', id: 'kit-name-error', error: 'Please enter your name.' %}
+              {%- else -%}
+                {% render 'ui-input', label: 'Name', id: 'kit-name-default' %}
+            {%- endcase -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    </section>
+
+    <section class="ui-kit-inputs__family">
+      <h3 class="ui-kit-inputs__title">Field/Estimated quantity</h3>
+      <p class="ui-kit-inputs__note">
+        The hint under the field is replaced by the error rather than stacked with it.
+      </p>
+      <div class="ui-kit-inputs__row">
+        <div class="ui-kit-inputs__cell">
+          <span class="ui-kit-inputs__state">default</span>
+          {% render 'ui-input',
+            label: 'Estimated quantity',
+            id: 'kit-qty-default',
+            type: 'number',
+            hint: 'Minimum order setup: 25 boxes'
+          %}
+        </div>
+        <div class="ui-kit-inputs__cell">
+          <span class="ui-kit-inputs__state">entered</span>
+          {% render 'ui-input',
+            label: 'Estimated quantity',
+            id: 'kit-qty-entered',
+            type: 'number',
+            value: '25',
+            hint: 'Minimum order setup: 25 boxes'
+          %}
+        </div>
+        <div class="ui-kit-inputs__cell">
+          <span class="ui-kit-inputs__state">entered error</span>
+          {% render 'ui-input',
+            label: 'Estimated quantity',
+            id: 'kit-qty-error',
+            type: 'number',
+            value: '2',
+            error: 'Minimum initial request quantity is 25 units.'
+          %}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-kit-inputs__family">
+      <h3 class="ui-kit-inputs__title">Field/Preferred delivery date</h3>
+      <p class="ui-kit-inputs__note">
+        A masked text field in the kit, not a native date control. The mask itself needs a script.
+      </p>
+      <div class="ui-kit-inputs__row">
+        <div class="ui-kit-inputs__cell">
+          <span class="ui-kit-inputs__state">default</span>
+          {% render 'ui-input', label: 'Preferred delivery date', id: 'kit-date-default', placeholder: 'MM/DD/YYYY' %}
+        </div>
+        <div class="ui-kit-inputs__cell">
+          <span class="ui-kit-inputs__state">entered</span>
+          {% render 'ui-input',
+            label: 'Preferred delivery date',
+            id: 'kit-date-entered',
+            placeholder: 'MM/DD/YYYY',
+            value: '24/07/2026'
+          %}
+        </div>
+        <div class="ui-kit-inputs__cell">
+          <span class="ui-kit-inputs__state">entered error</span>
+          {% render 'ui-input',
+            label: 'Preferred delivery date',
+            id: 'kit-date-error',
+            placeholder: 'MM/DD/YYYY',
+            value: '247',
+            error: 'Please use the format MM/DD/YYYY.'
+          %}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-kit-inputs__family">
+      <h3 class="ui-kit-inputs__title">Field/Gift type &amp; Budget range</h3>
+      <p class="ui-kit-inputs__note">
+        The open list is drawn by the browser, so it cannot be shown pinned here.
+      </p>
+      <div class="ui-kit-inputs__row">
+        <div class="ui-kit-inputs__cell">
+          <span class="ui-kit-inputs__state">default</span>
+          {% render 'ui-select',
+            label: 'Gift type',
+            id: 'kit-gift-default',
+            placeholder: 'Select gift type...',
+            options: 'Logo treats, Gift boxes, Gift cards, Custom order'
+          %}
+        </div>
+        <div class="ui-kit-inputs__cell">
+          <span class="ui-kit-inputs__state">hovered</span>
+          {% render 'ui-select',
+            label: 'Gift type',
+            id: 'kit-gift-hovered',
+            placeholder: 'Select gift type...',
+            options: 'Logo treats, Gift boxes, Gift cards, Custom order',
+            class: 'ui-select--force-hover'
+          %}
+        </div>
+        <div class="ui-kit-inputs__cell">
+          <span class="ui-kit-inputs__state">selected</span>
+          {% render 'ui-select',
+            label: 'Gift type',
+            id: 'kit-gift-selected',
+            placeholder: 'Select gift type...',
+            options: 'Logo treats, Gift boxes, Gift cards, Custom order',
+            selected: 'Gift boxes'
+          %}
+        </div>
+        <div class="ui-kit-inputs__cell">
+          <span class="ui-kit-inputs__state">error</span>
+          {% render 'ui-select',
+            label: 'Budget range',
+            id: 'kit-budget-error',
+            placeholder: 'Select budget range...',
+            options: 'Under $500, $500-$2000, $2000+',
+            error: 'This field is required.'
+          %}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-kit-inputs__family">
+      <h3 class="ui-kit-inputs__title">Field/Flavor notes or recipient needs</h3>
+      <div class="ui-kit-inputs__row">
+        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--wide">
+          <span class="ui-kit-inputs__state">default</span>
+          {% render 'ui-input',
+            label: 'Flavor notes or recipient needs',
+            id: 'kit-notes-default',
+            textarea: true,
+            placeholder: 'Tell us about the occasion, design theme directives, or specific requirements...'
+          %}
+        </div>
+        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--wide">
+          <span class="ui-kit-inputs__state">error</span>
+          {% render 'ui-input',
+            label: 'Flavor notes or recipient needs',
+            id: 'kit-notes-error',
+            textarea: true,
+            placeholder: 'Tell us about the occasion, design theme directives, or specific requirements...',
+            error: 'Minimum 5 characters required.'
+          %}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-kit-inputs__family">
+      <h3 class="ui-kit-inputs__title">Field/Artwork</h3>
+      <p class="ui-kit-inputs__note">
+        Click or drop a file on the default zone — both work without a script. Progress and
+        the attached row are shown here as rendered states; driving them needs one.
+      </p>
+      <div class="ui-kit-inputs__row">
+        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--wide">
+          <span class="ui-kit-inputs__state">default</span>
+          {% render 'ui-file', label: 'Artwork', id: 'kit-artwork-default', accept: 'image/jpeg,image/png,image/webp' %}
+        </div>
+        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--wide">
+          <span class="ui-kit-inputs__state">hovered</span>
+          {% render 'ui-file', label: 'Artwork', id: 'kit-artwork-hovered', class: 'ui-file--force-hover' %}
+        </div>
+        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--wide">
+          <span class="ui-kit-inputs__state">progress upload</span>
+          {% render 'ui-file', label: 'Artwork', id: 'kit-artwork-progress', state: 'uploading', filename: 'File Name.jpg' %}
+        </div>
+        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--wide">
+          <span class="ui-kit-inputs__state">added</span>
+          {% render 'ui-file', label: 'Artwork', id: 'kit-artwork-added', state: 'added', filename: 'File Name.jpg' %}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-kit-inputs__family">
+      <h3 class="ui-kit-inputs__title">Input Message</h3>
+      <p class="ui-kit-inputs__note">Type in the box — the counter is live.</p>
+      <div class="ui-kit-inputs__row">
+        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--message">
+          <span class="ui-kit-inputs__state">default</span>
+          {% render 'ui-message', label: 'Gift message', id: 'kit-message-default', placeholder: 'Write your message here...' %}
+        </div>
+        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--message">
+          <span class="ui-kit-inputs__state">entered</span>
+          {% render 'ui-message', label: 'Gift message', id: 'kit-message-entered', value: 'Write your message here.' %}
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+{% stylesheet %}
+  .ui-kit-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 44px;
+  }
+
+  .ui-kit-inputs__family {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ui-kit-inputs__title {
+    margin: 0;
+    padding-block-end: 8px;
+    border-block-end: 2px solid currentcolor;
+    font-family: var(--font-accent--family);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .ui-kit-inputs__note {
+    margin: -8px 0 0;
+    max-width: 60ch;
+    font-size: 13px;
+    opacity: 0.7;
+  }
+
+  .ui-kit-inputs__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  .ui-kit-inputs__cell {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    /* The kit draws these fields at a fixed width; the harness keeps it. */
+    width: 305px;
+  }
+
+  .ui-kit-inputs__cell--wide {
+    width: 630px;
+  }
+
+  .ui-kit-inputs__cell--message {
+    width: 546px;
+  }
+
+  .ui-kit-inputs__state {
+    font-family: var(--font-accent--family);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "UI kit — inputs",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "QA harness for the UI kit input fields. Not intended for a live storefront page."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "full-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "UI kit — inputs"
+    }
+  ]
+}
+{% endschema %}

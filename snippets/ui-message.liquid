@@ -1,0 +1,130 @@
+{%- doc -%}
+  Renders the message box from the UI kit (Figma: INPUT → Input Message).
+
+  Despite sitting in the INPUT section this is not one of the Field/* family: it
+  carries no label of its own, sits on the kit's light blue rather than white, sets
+  its text two sizes smaller, and counts characters. It reads as a gift-message box
+  rather than a form field, so it gets its own snippet instead of a flag on
+  ui-input.
+
+  The counter is rendered server-side and then kept in step by
+  ui-character-count.js, so a blocked script leaves the count correct but frozen
+  rather than empty. It is hidden from assistive technology — `maxlength` already
+  tells a screen reader the limit, and a live count would interrupt on every
+  keystroke.
+
+  The kit draws the box exactly one line tall, which leaves no room under the text
+  for the counter it also draws. The bottom padding here reserves that room, so
+  wrapping text stops above the counter instead of running beneath it.
+
+  @param {string} [label] - Accessible label. Rendered visually hidden, since the kit draws none.
+  @param {string} [value] - The current value.
+  @param {string} [placeholder] - Placeholder text.
+  @param {number} [maxlength] - Character limit. Defaults to 200, the figure in the kit.
+  @param {string} [name] - The `name` attribute.
+  @param {string} [id] - The `id` attribute. Defaults to `ui-message`.
+  @param {boolean} [required] - Marks the control required.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the control.
+
+  @example
+  {% render 'ui-message', label: 'Gift message', placeholder: 'Write your message here...' %}
+  {% render 'ui-message', label: 'Gift message', value: 'Happy birthday!', maxlength: 120 %}
+{%- enddoc -%}
+
+{%- liquid
+  assign ui_id = id | default: 'ui-message'
+  assign ui_limit = maxlength | default: 200
+  assign ui_used = value | default: '' | size
+-%}
+
+<div class="ui-message{% if class != blank %} {{ class }}{% endif %}">
+  {%- if label != blank -%}
+    <label class="visually-hidden" for="{{ ui_id }}">{{ label }}</label>
+  {%- endif -%}
+
+  <ui-character-count class="ui-message__box">
+    <textarea
+      class="ui-message__control"
+      id="{{ ui_id }}"
+      maxlength="{{ ui_limit }}"
+      {%- if name != blank %} name="{{ name }}"{% endif -%}
+      {%- if placeholder != blank %} placeholder="{{ placeholder }}"{% endif -%}
+      {%- if required %} required{% endif -%}
+      {%- if attributes != blank %} {{ attributes }}{% endif -%}
+    >{{- value -}}</textarea>
+
+    <span class="ui-message__count" data-character-count aria-hidden="true">
+      {{- ui_used }} / {{ ui_limit -}}
+    </span>
+  </ui-character-count>
+</div>
+
+<script src="{{ 'ui-character-count.js' | asset_url }}" type="module"></script>
+
+{% stylesheet %}
+  :root {
+    --ui-message-height: 95px;
+    --ui-message-padding: 12px;
+    --ui-message-count-size: 8px;
+  }
+
+  .ui-message {
+    display: flex;
+    width: 100%;
+  }
+
+  .ui-message__box {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: var(--ui-message-height);
+    border: var(--ui-hairline-width) solid var(--ui-color-border-gray);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-light-blue);
+    transition: border-color var(--animation-speed) ease;
+  }
+
+  /* Idle sits on the kit's hairline; interaction brings the border up to a full pixel. */
+  .ui-message__box:hover,
+  .ui-message__box:has(.ui-message__control:focus),
+  .ui-message__box:has(.ui-message__control:not(:placeholder-shown)) {
+    border-color: var(--ui-color-primary);
+    border-width: 1px;
+  }
+
+  .ui-message__control {
+    width: 100%;
+    height: 100%;
+    padding: var(--ui-message-padding);
+
+    /* Keeps wrapping text clear of the counter in the corner. */
+    padding-block-end: calc(
+      var(--ui-message-padding) * 2 + var(--ui-message-count-size)
+    );
+    border: none;
+    background: none;
+    resize: none;
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 12px;
+    line-height: 1.1;
+    color: var(--ui-color-primary);
+  }
+
+  .ui-message__control::placeholder {
+    color: var(--ui-color-gray);
+  }
+
+  .ui-message__count {
+    position: absolute;
+    inset-block-end: var(--ui-message-padding);
+    inset-inline-end: var(--ui-message-padding);
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: var(--ui-message-count-size);
+    line-height: 1.1;
+    color: var(--ui-color-gray);
+    pointer-events: none;
+  }
+{% endstylesheet %}

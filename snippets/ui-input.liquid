@@ -19,6 +19,9 @@
   `type: 'text'` with that placeholder for the styling. The progressive mask needs
   JavaScript and is not part of this snippet.
 
+  Passing `class: 'ui-input--force-hover'` pins the engaged border, the way ui-button
+  does, so the kit preview can show that state beside the others.
+
   @param {string} [label] - The field label, rendered above the control in caps.
   @param {string} [type] - Any text-like input type. Defaults to `text`. Ignored when `textarea` is set.
   @param {boolean} [textarea] - Renders the taller multi-line box instead of an input.
@@ -137,6 +140,11 @@
   .ui-input__control:hover,
   .ui-input__control:focus,
   .ui-input__control:not(:placeholder-shown) {
+    border-color: var(--ui-color-primary);
+  }
+
+  /* Pins the engaged border for the kit preview; no place in real page markup. */
+  .ui-input--force-hover .ui-input__control {
     border-color: var(--ui-color-primary);
   }
 

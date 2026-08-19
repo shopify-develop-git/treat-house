@@ -18,6 +18,9 @@
   Colours come entirely from the `--ui-*` layer, so the field follows whatever
   palette that layer settles on without edits here.
 
+  Passing `class: 'ui-select--force-hover'` pins the engaged border, the way ui-button
+  does, so the kit preview can show that state beside the others.
+
   @param {string} [label] - The field label, rendered above the control in caps.
   @param {string} [options] - Comma-separated option labels.
   @param {string} [placeholder] - The empty first option. Without it the field starts on the first real option.
@@ -138,6 +141,11 @@
 
   .ui-select__control:hover,
   .ui-select__control:focus {
+    border-color: var(--ui-color-primary);
+  }
+
+  /* Pins the engaged border for the kit preview; no place in real page markup. */
+  .ui-select--force-hover .ui-select__control {
     border-color: var(--ui-color-primary);
   }
 
