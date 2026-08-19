@@ -24,6 +24,7 @@
     --ui-color-black: #000000;
     --ui-color-sky-blue: #a3d8f6;
     --ui-color-orange: #ea6f36;
+    --ui-color-yellow: #ffbd42;
     --ui-color-light-blue: #ddf2ff;
     --ui-color-border-gray: #d1d1d1;
     --ui-color-gray: #555555;
@@ -43,9 +44,28 @@
     --ui-font-accent: var(--font-accent--family);
     --ui-line-height: 1.3;
 
+    /*
+     * Page gutter. The file draws 80px at 1440; narrower than about 1200 that
+     * crowds a two-column layout, so it steps down through the theme's own
+     * --page-margin before landing on the mobile 16.
+     */
+    --ui-page-margin: 16px;
+
     /* Shared shape */
     --ui-radius-sm: 2px;
     --ui-hairline-width: 0.5px;
     --ui-disabled-opacity: 0.3;
+  }
+
+  @media screen and (min-width: 750px) {
+    :root {
+      --ui-page-margin: 40px;
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    :root {
+      --ui-page-margin: 80px;
+    }
   }
 {% endstylesheet %}

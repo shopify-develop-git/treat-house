@@ -1,0 +1,220 @@
+{% comment %}
+  Our story — Figma: Work Page → Our story (desktop 491:15093, mobile 491:14837).
+
+  A tinted band with the copy beside the photograph on desktop and stacked on
+  mobile. The band runs the full width of the viewport while the content stops at
+  the page width, so the colour reaches the edges on a wide screen without the
+  text following it out.
+
+  Mobile centres the text; desktop sets it to the left. That is the file, not an
+  oversight.
+{% endcomment %}
+
+{%- liquid
+  assign heading = section.settings.heading | default: 'Our'
+  assign heading_accent = section.settings.heading_accent | default: 'story'
+-%}
+
+<div
+  class="our-story"
+  data-testid="our-story-{{ section.id }}"
+>
+  <div class="our-story__inner">
+    <div class="our-story__text">
+      <h2 class="our-story__heading">
+        <span class="our-story__heading-lead">{{ heading }}</span>
+        <span class="our-story__heading-accent">{{ heading_accent }}</span>
+      </h2>
+      {%- if section.settings.body != blank -%}
+        <div class="our-story__body">{{ section.settings.body }}</div>
+      {%- endif -%}
+    </div>
+
+    <div class="our-story__media">
+      {%- if section.settings.image != blank -%}
+        {% render 'image', image: section.settings.image, height: 552, class: 'our-story__image' %}
+      {%- else -%}
+        {%- comment -%} Photography is not in yet; hold the frame so the band reads true. {%- endcomment -%}
+        <span class="our-story__image-placeholder" aria-hidden="true"></span>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  /* Our story. Mobile first; the two-column layout starts at the theme's 750px. */
+  .our-story {
+    --our-story-block-padding: 64px;
+    --our-story-gap: 32px;
+    --our-story-text-gap: 24px;
+    --our-story-heading-size: 32px;
+    --our-story-heading-leading: 1.2;
+    --our-story-text-align: center;
+    --our-story-radius: 16px;
+
+    background-color: var(--ui-color-light-blue);
+  }
+
+  @media screen and (min-width: 750px) {
+    .our-story {
+      --our-story-block-padding: 32px;
+      --our-story-text-gap: 32px;
+      --our-story-heading-size: 48px;
+      --our-story-heading-leading: 1.1;
+      --our-story-text-align: start;
+    }
+  }
+
+  .our-story__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-sizing: border-box;
+    gap: var(--our-story-gap);
+    max-width: var(--page-width, 90rem);
+    margin-inline: auto;
+    padding-block: var(--our-story-block-padding);
+    padding-inline: var(--ui-page-margin);
+  }
+
+  @media screen and (min-width: 750px) {
+    /*
+     * The file sets the two columns 562 and 618 wide inside 1280 and lets the
+     * space fall between them, which is what `space-between` does at any width.
+     */
+    .our-story__inner {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--our-story-gap);
+    }
+  }
+
+  .our-story__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--our-story-text-gap);
+    width: 100%;
+    text-align: var(--our-story-text-align);
+  }
+
+  @media screen and (min-width: 750px) {
+    .our-story__text {
+      flex: 0 1 562px;
+      width: auto;
+    }
+  }
+
+  .our-story__heading {
+    margin: 0;
+    width: 100%;
+    color: var(--ui-color-black);
+    font-family: var(--font-heading--family);
+    font-size: var(--our-story-heading-size);
+    font-weight: 800;
+    line-height: var(--our-story-heading-leading);
+    /* The file states -4%; as an em it holds at both sizes. */
+    letter-spacing: -0.04em;
+  }
+
+  .our-story__heading-accent {
+    color: var(--ui-color-primary);
+  }
+
+  .our-story__body {
+    width: 100%;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  @media screen and (min-width: 750px) {
+    /* The copy stops short of the column it sits in, as the file draws it. */
+    .our-story__body {
+      max-width: 521px;
+    }
+  }
+
+  .our-story__body > :first-child {
+    margin-block-start: 0;
+  }
+
+  .our-story__body > :last-child {
+    margin-block-end: 0;
+  }
+
+  /*
+   * The file separates paragraphs with an empty line rather than a margin, so
+   * the gap is exactly one line of body copy.
+   */
+  .our-story__body > * + * {
+    margin-block-start: calc(var(--ui-line-height, 1.3) * 1em);
+  }
+
+  .our-story__media {
+    width: 100%;
+  }
+
+  @media screen and (min-width: 750px) {
+    .our-story__media {
+      flex: 0 0 618px;
+      width: 618px;
+    }
+  }
+
+  .our-story__image,
+  .our-story__image-placeholder {
+    display: block;
+    width: 100%;
+    /* Both sizes in the file share this ratio, so one rule covers them. */
+    aspect-ratio: 345 / 308;
+    border-radius: var(--our-story-radius);
+    object-fit: cover;
+  }
+
+  .our-story__image-placeholder {
+    background-color: var(--ui-color-border-gray);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Our story",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Our"
+    },
+    {
+      "type": "text",
+      "id": "heading_accent",
+      "label": "Heading, accented word",
+      "info": "Shown in purple.",
+      "default": "story"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Body copy",
+      "default": "<p>The idea for Treat House was inspired by a charitable bake sale that Daniel and Eli Russell had in 2011. The proceeds went to provide athletic equipment for impoverished children in Africa.</p><p>Giving back to our greater community has always been key to Treat House's mission. For the first year of business, Treat House donated 10 cents for every treat sold to the Food Bank of NY.</p><p>Starting in 2015 Treat House formed a partnership with the Lymphoma and Leukemia Society. Now we are thrilled to also partner with The Andrew McDonough B+ Foundation. We have been blown away by their commitment to help fight those affected by childhood cancer.</p>"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image",
+      "info": "Left empty, the frame is held with a placeholder."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Our story"
+    }
+  ]
+}
+{% endschema %}

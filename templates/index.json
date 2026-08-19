@@ -286,11 +286,22 @@
       "type": "home-hero",
       "name": "Home hero",
       "settings": {}
+    },
+    "our_story_Vt6Rw1": {
+      "type": "our-story",
+      "name": "Our story",
+      "settings": {}
+    },
+    "best_sellers_preview": {
+      "type": "best-sellers",
+      "settings": {}
     }
   },
   "order": [
     "home_hero_Kx9Ln4",
     "shop_by_occasion_preview",
+    "best_sellers_preview",
+    "our_story_Vt6Rw1",
     "hero_jVaWmY",
     "product_list_fa6P9H"
   ]

@@ -167,12 +167,10 @@
    * Home hero. Mobile first; the desktop layout starts at the theme's 750px
    * breakpoint.
    *
-   * The inline margin is the section's own rather than the theme's --page-margin,
-   * because it steps three times: 16 on mobile, the theme's 40 once the columns
-   * split, and the 80 the file draws once the viewport can carry it.
+   * The gutter comes from --ui-page-margin so every section built from the file
+   * steps at the same widths.
    */
   .home-hero {
-    --home-hero-margin: 16px;
     --home-hero-gap: 16px;
     --home-hero-radius: 20px;
     --home-hero-panel-padding: 24px;
@@ -209,7 +207,6 @@
 
   @media screen and (min-width: 750px) {
     .home-hero {
-      --home-hero-margin: 40px;
       --home-hero-gap: 20px;
       --home-hero-panel-padding: 32px;
       --home-hero-panel-gap: 0px;
@@ -232,17 +229,6 @@
     }
   }
 
-  /*
-   * The file draws 80px sides at 1440. Below that it crowds the columns, so the
-   * margin steps down to the theme's own --page-margin value and the hero lines
-   * up with every other section on the page until there is room for the full 80.
-   */
-  @media screen and (min-width: 1200px) {
-    .home-hero {
-      --home-hero-margin: 80px;
-    }
-  }
-
   /* The header is not built; this holds its place at the heights the file draws. */
   .home-hero__header-space {
     height: 74px;
@@ -258,7 +244,7 @@
     box-sizing: border-box;
     max-width: var(--page-width, 90rem);
     margin-inline: auto;
-    padding-inline: var(--home-hero-margin);
+    padding-inline: var(--ui-page-margin);
   }
 
   .home-hero__grid {
