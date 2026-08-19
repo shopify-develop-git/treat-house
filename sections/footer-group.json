@@ -6,8 +6,7 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */
-{
+ */{
   "type": "footer",
   "name": "Footer",
   "sections": {
@@ -120,7 +119,7 @@
             "color_scheme": "",
             "border_style": "all",
             "border_width": 1,
-            "border_radius": 100,
+            "border_radius": 2,
             "input_type_preset": "paragraph",
             "style_class": "button-unstyled",
             "display_type": "arrow",

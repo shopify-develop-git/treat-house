@@ -121,6 +121,14 @@
       echo accent_font_bold_italic | font_face: font_display: 'swap'
       assign rendered_fonts = rendered_fonts | append: accent_font_bold_italic_face_id
     endunless
+
+    assign accent_font_semibold = accent_font | font_modify: 'weight', '600'
+    assign accent_font_semibold_face_id = '[accent_font_semibold_family]-[accent_font_semibold_weight]-[accent_font_semibold_style]|' | replace: '[accent_font_semibold_family]', accent_font_semibold.family | replace: '[accent_font_semibold_weight]', accent_font_semibold.weight | replace: '[accent_font_semibold_style]', accent_font_semibold.style
+
+    unless rendered_fonts contains accent_font_semibold_face_id
+      echo accent_font_semibold | font_face: font_display: 'swap'
+      assign rendered_fonts = rendered_fonts | append: accent_font_semibold_face_id
+    endunless
   %}
 
   :root {
@@ -168,6 +176,7 @@
     --font-accent--family: {{ settings.type_accent_font.family }}, {{ settings.type_accent_font.fallback_families }};
     --font-accent--style: {{ settings.type_accent_font.style }};
     --font-accent--weight: {{ settings.type_accent_font.weight }};
+    --font-accent--weight-semibold: {{ accent_font_semibold.weight | default: 600 }};
 
     /* Margin sizes */
     --font-h1--spacing: 0.25em;
@@ -379,7 +388,7 @@
     --menu-font-2xl--line-height: calc(1.1 + 0.5 * min(16 / 28));
 
     /* Colors */
-    --color-error: #8B0000;
+    --color-error: #E6281A;
     --color-success: #006400;
     --color-white: #FFFFFF;
     --color-white-rgb: 255 255 255;

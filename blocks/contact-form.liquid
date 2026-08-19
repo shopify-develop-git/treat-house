@@ -49,79 +49,92 @@
     {%- endif -%}
 
     <div class="contact-form__form-row">
+      <div class="contact-form__field">
+        <label
+          class="contact-form__label"
+          for="ContactForm-name"
+        >
+          {{- 'blocks.contact_form.name' | t -}}
+        </label>
+        <input
+          type="text"
+          id="ContactForm-name"
+          class="contact-form__input"
+          autocomplete="name"
+          name="contact[name]"
+          value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
+          placeholder=" "
+        >
+      </div>
+
+      <div class="contact-form__field">
+        <label
+          class="contact-form__label"
+          for="ContactForm-email"
+        >
+          {{- 'blocks.contact_form.email' | t -}}
+          <span aria-hidden="true">*</span>
+        </label>
+        <input
+          type="email"
+          id="ContactForm-email"
+          class="contact-form__input"
+          autocomplete="email"
+          name="contact[email]"
+          spellcheck="false"
+          autocapitalize="off"
+          value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+          aria-required="true"
+          {% if form.errors contains 'email' and form.id == form_id %}
+            aria-invalid="true"
+            aria-describedby="ContactForm-email-error"
+          {% endif %}
+          placeholder=" "
+        >
+        {%- if form.errors contains 'email' and form.id == form_id -%}
+          <p class="contact-form__field-error" id="ContactForm-email-error">
+            {{- form.errors.messages.email -}}
+          </p>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="contact-form__field">
       <label
-        class="visually-hidden"
-        for="ContactForm-name"
+        class="contact-form__label"
+        for="ContactForm-phone"
       >
-        {{- 'blocks.contact_form.name' | t -}}
+        {{- 'blocks.contact_form.phone' | t -}}
       </label>
       <input
-        type="text"
-        id="ContactForm-name"
+        type="tel"
+        id="ContactForm-phone"
         class="contact-form__input"
-        autocomplete="name"
-        name="contact[name]"
-        value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
-        placeholder="{{ 'blocks.contact_form.name' | t }}"
-      >
-
-      <label
-        class="visually-hidden"
-        for="ContactForm-email"
-      >
-        {{- 'blocks.contact_form.email' | t -}}
-        <span aria-hidden="true">*</span></label
-      >
-      <input
-        type="email"
-        id="ContactForm-email"
-        class="contact-form__input"
-        autocomplete="email"
-        name="contact[email]"
-        spellcheck="false"
-        autocapitalize="off"
-        value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
-        aria-required="true"
-        {% if form.errors contains 'email' and form.id == form_id %}
-          aria-invalid="true"
-          aria-describedby="ContactForm-email-error"
-        {% endif %}
-        placeholder="{{ 'blocks.contact_form.email' | t }}"
+        autocomplete="tel"
+        name="contact[phone]"
+        pattern="[0-9\-]*"
+        value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
+        placeholder=" "
       >
     </div>
 
-    <label
-      class="visually-hidden"
-      for="ContactForm-phone"
-    >
-      {{- 'blocks.contact_form.phone' | t -}}
-    </label>
-    <input
-      type="tel"
-      id="ContactForm-phone"
-      class="contact-form__input"
-      autocomplete="tel"
-      name="contact[phone]"
-      pattern="[0-9\-]*"
-      value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
-      placeholder="{{ 'blocks.contact_form.phone' | t }}"
-    >
-
-    <label
-      class="visually-hidden"
-      for="ContactForm-body"
-    >
-      {{- 'blocks.contact_form.comment' | t -}}
-    </label>
-    <textarea
-      rows="10"
-      id="ContactForm-body"
-      class="contact-form__input contact-form__input--textarea"
-      name="contact[body]"
-      placeholder="{{ 'blocks.contact_form.comment' | t }}"
-    >
-      {{- form.body -}}
-    </textarea>
+    <div class="contact-form__field">
+      <label
+        class="contact-form__label"
+        for="ContactForm-body"
+      >
+        {{- 'blocks.contact_form.comment' | t -}}
+      </label>
+      <textarea
+        rows="10"
+        id="ContactForm-body"
+        class="contact-form__input contact-form__input--textarea"
+        name="contact[body]"
+        placeholder="{{ 'blocks.contact_form.comment' | t }}"
+      >
+        {{- form.body -}}
+      </textarea>
+    </div>
 
     {{ submit_button }}
   {%- endform -%}
@@ -141,25 +154,72 @@
 
     @media screen and (min-width: 750px) {
       flex-direction: row;
-      align-items: center;
+      align-items: flex-start;
     }
+  }
+
+  .contact-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4375rem;
+    width: 100%;
+  }
+
+  .contact-form__label {
+    font-family: var(--font-accent--family);
+    font-weight: var(--font-accent--weight-semibold);
+    font-size: 0.75rem;
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: var(--color-foreground-heading);
   }
 
   .contact-form__input {
     width: 100%;
+    min-height: 2.75rem;
     overflow: hidden;
     text-overflow: ellipsis;
     color: var(--color-input-text);
     background-color: var(--color-input-background);
-    padding: var(--padding-lg) var(--padding-xl);
+    padding: 0.75rem;
     border-radius: var(--style-border-radius-inputs);
     border: var(--style-border-width-inputs) solid var(--color-input-border);
+    font-family: var(--font-body--family);
+    font-size: 0.9375rem;
+    line-height: 1.35;
+    transition: border-color var(--animation-speed) ease;
     -webkit-font-smoothing: antialiased;
+  }
+
+  .contact-form__input::placeholder {
+    color: rgb(var(--color-input-text-rgb) / var(--opacity-60));
+  }
+
+  /* A field keeps the darker border once it holds a value, not only while focused.
+     The fill stays put on hover — in the design the border alone carries the state. */
+  .contact-form__input:hover,
+  .contact-form__input:focus,
+  .contact-form__input:not(:placeholder-shown) {
+    border-color: var(--color-input-border-focus);
+    background-color: var(--color-input-background);
+  }
+
+  .contact-form__input[aria-invalid='true'] {
+    border-color: var(--color-error);
   }
 
   .contact-form__input--textarea {
     resize: vertical;
-    min-height: var(--input-textarea-min-height);
+    overflow: auto;
+    min-height: 10.0625rem;
+  }
+
+  .contact-form__field-error {
+    margin: 0;
+    font-family: var(--font-body--family);
+    font-size: 0.75rem;
+    line-height: 1.1;
+    color: var(--color-error);
   }
 
   .contact-form__error,

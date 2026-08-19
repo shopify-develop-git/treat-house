@@ -56,6 +56,17 @@
         --color-input-text-rgb: {{ scheme.settings.input_text_color.rgb }};
         --color-input-border: rgb({{ scheme.settings.input_border_color.rgba }});
         --color-input-hover-background: rgb({{ scheme.settings.input_hover_background.rgba }});
+
+        /* The design focuses a field by darkening its border rather than tinting it, so the
+           focus ring follows the scheme's heading colour and stays visible on dark schemes. */
+        --color-input-border-focus: rgb({{ scheme.settings.foreground_heading.rgba }});
+        {%- if scheme.settings.background.alpha > 0 %}
+          {%- assign error_contrast = scheme.settings.background | color_contrast: '#E6281A' %}
+          {%- if error_contrast < 3 %}
+            /* Brand red would disappear against this background — fall back to the heading colour. */
+            --color-error: rgb({{ scheme.settings.foreground_heading.rgba }});
+          {%- endif %}
+        {%- endif %}
         --color-variant-background: rgb({{ scheme.settings.variant_background_color.rgba }});
         --color-variant-border: rgb({{ scheme.settings.variant_border_color.rgba }});
         --color-variant-text: rgb({{ scheme.settings.variant_text_color.rgba }});
