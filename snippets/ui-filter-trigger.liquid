@@ -88,4 +88,14 @@
     width: 100%;
     height: 100%;
   }
+  /*
+   * These controls are a fixed height by design, so a long value has to be cut
+   * rather than wrapped — a second line would burst the box. The kit sets every
+   * one of these labels nowrap for the same reason.
+   */
+  .ui-filter-trigger__label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 {% endstylesheet %}

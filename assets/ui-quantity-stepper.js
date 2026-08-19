@@ -19,6 +19,8 @@ class UiQuantityStepper extends HTMLElement {
 
   disconnectedCallback() {
     this.removeEventListener('click', this.#onClick);
+    // Both listeners, or a re-attached element stacks a second input handler.
+    this.input?.removeEventListener('input', this.#syncDisabled);
   }
 
   #onClick = (event) => {

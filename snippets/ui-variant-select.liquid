@@ -87,6 +87,7 @@
     --ui-variant-select-media: 44px;
     --ui-variant-select-gap: 12px;
     --ui-variant-select-offset: 10px;
+    --ui-variant-select-row-gap: 2px;
     --ui-variant-select-font-size: 16px;
   }
 
@@ -99,6 +100,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    /* Same as the row: keeps a truncated label off the chevron. */
+    gap: var(--ui-variant-select-gap);
     box-sizing: border-box;
     height: var(--ui-variant-select-height);
     padding: 2px 12px 2px 2px;
@@ -162,6 +165,12 @@
     height: 100%;
   }
 
+  /*
+   * The panel carries no fill of its own: the kit gives every row its white and
+   * sets them 2px apart, so the seams are meant to show through. Its outline is
+   * the same 0.5px hairline as the trigger, not the 1px the filter and sort
+   * panels use.
+   */
   .ui-variant-select__panel {
     position: absolute;
     /* Out of flow so the open list overlays the page instead of pushing it down. */
@@ -170,8 +179,18 @@
     inset-inline: 0;
     display: flex;
     flex-direction: column;
+    gap: var(--ui-variant-select-row-gap);
     border-radius: var(--ui-radius-sm);
-    box-shadow: inset 0 0 0 1px var(--ui-color-border-gray);
-    background-color: var(--ui-color-white);
+    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-border-gray);
+  }
+  /*
+   * These controls are a fixed height by design, so a long value has to be cut
+   * rather than wrapped — a second line would burst the box. The kit sets every
+   * one of these labels nowrap for the same reason.
+   */
+  .ui-variant-select__label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 {% endstylesheet %}

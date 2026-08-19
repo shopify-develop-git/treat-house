@@ -58,6 +58,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    /* Only shows once the label truncates; without it the text meets the dot. */
+    gap: var(--ui-variant-item-gap);
     box-sizing: border-box;
     height: var(--ui-variant-item-height);
     /* The thumbnail sits 2px in; without one the row uses even 12px sides. */
@@ -135,5 +137,15 @@
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
+  }
+  /*
+   * These controls are a fixed height by design, so a long value has to be cut
+   * rather than wrapped — a second line would burst the box. The kit sets every
+   * one of these labels nowrap for the same reason.
+   */
+  .ui-variant-item__label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 {% endstylesheet %}

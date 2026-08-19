@@ -131,4 +131,14 @@
     box-shadow: inset 0 0 0 1px var(--ui-color-border-gray);
     background-color: var(--ui-color-white);
   }
+  /*
+   * These controls are a fixed height by design, so a long value has to be cut
+   * rather than wrapped — a second line would burst the box. The kit sets every
+   * one of these labels nowrap for the same reason.
+   */
+  .ui-sort-dropdown__label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 {% endstylesheet %}
