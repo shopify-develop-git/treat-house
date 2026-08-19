@@ -1,0 +1,226 @@
+{%- doc -%}
+  Renders a collection card from the UI kit
+  (Figma: COMPONENTS → Collection Card 1 and Collection Card 2).
+
+  The kit draws two cards. They share the frame, the body and every type style,
+  and differ in the media box and whether a call to action follows the copy, so
+  `variant` selects between them: `default` is Collection Card 1, `cta` is
+  Collection Card 2.
+
+  The two variants are built differently on purpose. `default` makes the whole
+  card one link. `cta` cannot — a button inside a link is not valid markup and
+  leaves both controls ambiguous to a keyboard — so there the button carries the
+  link and the card is a plain container.
+
+  @param {string} title - The collection name.
+  @param {string} [description] - The supporting copy.
+  @param {object} [image] - A Shopify image object for the media box.
+  @param {string} [link] - The collection URL.
+  @param {string} [variant] - `default` or `cta`. Defaults to `default`.
+  @param {string} [button_label] - The button text for the `cta` variant.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the card.
+
+  @example
+  {% render 'ui-collection-card',
+    title: collection.title,
+    description: collection.description,
+    image: collection.featured_image,
+    link: collection.url
+  %}
+  {% render 'ui-collection-card', variant: 'cta', title: 'Logo Treats', button_label: 'Shop now' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign card_variant = variant | default: 'default'
+  unless card_variant == 'cta'
+    assign card_variant = 'default'
+  endunless
+
+  assign card_classes = 'ui-collection-card ui-collection-card--' | append: card_variant
+  if class != blank
+    assign card_classes = card_classes | append: ' ' | append: class
+  endif
+
+  assign media_height = 158
+  if card_variant == 'cta'
+    assign media_height = 200
+  endif
+-%}
+
+{%- capture card_media -%}
+  <div class="ui-collection-card__media">
+    {%- if image != blank -%}
+      {% render 'image', image: image, height: media_height, class: 'ui-collection-card__image' %}
+    {%- else -%}
+      {{ 'collection-1' | placeholder_svg_tag: 'ui-collection-card__image ui-collection-card__image--placeholder' }}
+    {%- endif -%}
+  </div>
+{%- endcapture -%}
+
+{%- capture card_body -%}
+  <div class="ui-collection-card__body">
+    <p class="ui-collection-card__title">{{ title }}</p>
+    {%- if description != blank -%}
+      <p class="ui-collection-card__copy">{{ description }}</p>
+    {%- endif -%}
+  </div>
+{%- endcapture -%}
+
+{%- if card_variant == 'cta' -%}
+  <div class="{{ card_classes }}"{% if attributes != blank %} {{ attributes }}{% endif %}>
+    {{ card_media }}
+    {{ card_body }}
+    <div class="ui-collection-card__actions">
+      {% render 'ui-button',
+        variant: 'secondary',
+        label: button_label,
+        link: link,
+        full_width: true
+      %}
+    </div>
+  </div>
+{%- elsif link != blank -%}
+  <a href="{{ link }}" class="{{ card_classes }}"{% if attributes != blank %} {{ attributes }}{% endif %}>
+    {{ card_media }}
+    {{ card_body }}
+  </a>
+{%- else -%}
+  <div class="{{ card_classes }}"{% if attributes != blank %} {{ attributes }}{% endif %}>
+    {{ card_media }}
+    {{ card_body }}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  :root {
+    /*
+     * Mobile first. Note the media inset: the kit tucks the image 13.5px in from
+     * each side on desktop but only 1px on mobile. That asymmetry is what the file
+     * draws, so it is reproduced here rather than smoothed over.
+     */
+    --ui-collection-card-media-height: 122px;
+    --ui-collection-card-media-inset: 1px;
+    --ui-collection-card-body-padding: 14px;
+    --ui-collection-card-body-gap: 8px;
+    --ui-collection-card-title-size: 14px;
+    --ui-collection-card-copy-size: 12px;
+    --ui-collection-card-copy-line-height: 1.1;
+    --ui-collection-card-actions-padding: 16px;
+  }
+
+  @media screen and (min-width: 750px) {
+    :root {
+      --ui-collection-card-media-height: 158px;
+      --ui-collection-card-media-inset: 13.5px;
+      --ui-collection-card-body-padding: 16px;
+      --ui-collection-card-body-gap: 10px;
+      --ui-collection-card-title-size: 24px;
+      --ui-collection-card-copy-size: 14px;
+      --ui-collection-card-copy-line-height: 1.3;
+    }
+  }
+
+  .ui-collection-card {
+    --ui-collection-card-border-color: var(--ui-color-border-gray);
+    --ui-collection-card-border-width: var(--ui-hairline-width);
+
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    /* The kit offsets the media a pixel from the top edge. */
+    padding-block-start: 1px;
+    border-radius: var(--ui-radius-sm);
+    /* Inset shadow again: the border thickens on hover and a real border would shift the layout. */
+    box-shadow: inset 0 0 0 var(--ui-collection-card-border-width) var(--ui-collection-card-border-color);
+    background-color: var(--ui-color-white);
+    color: var(--ui-color-black);
+    text-decoration: none;
+    transition: box-shadow var(--animation-values);
+  }
+
+  .ui-collection-card:is(:hover, .ui-collection-card--force-hover) {
+    --ui-collection-card-border-color: var(--ui-color-primary);
+    --ui-collection-card-border-width: 1px;
+  }
+
+  /* Collection Card 2 runs its media wider and taller, at every width. */
+  .ui-collection-card--cta {
+    --ui-collection-card-media-height: 200px;
+    --ui-collection-card-media-inset: 1px;
+  }
+
+  /*
+   * The kit's mobile card is a fixed 220px with the media absorbing whatever the
+   * body does not use, while the desktop card sizes to its content. Growing from
+   * a min-height covers both: left alone the media is exactly the height drawn,
+   * and when a grid fixes the card's height the media takes up the slack instead
+   * of the copy being clipped.
+   */
+  .ui-collection-card__media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Basis is the drawn height, so with no spare room the box is exactly that. */
+    flex: 1 1 var(--ui-collection-card-media-height);
+    min-height: 0;
+    margin-inline: var(--ui-collection-card-media-inset);
+    overflow: hidden;
+  }
+
+  .ui-collection-card__image--placeholder {
+    /* The placeholder is a flat drawing; letterboxing it would look like a bug. */
+    object-fit: cover;
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .ui-collection-card__image {
+    width: 100%;
+    height: 100%;
+    /* The kit centres the artwork and fits it by height rather than cropping. */
+    object-fit: contain;
+  }
+
+  .ui-collection-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-collection-card-body-gap);
+    padding: var(--ui-collection-card-body-padding);
+  }
+
+  .ui-collection-card__title {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: var(--ui-collection-card-title-size);
+    font-weight: var(--font-heading--weight);
+    line-height: 1.1;
+  }
+
+  .ui-collection-card__copy {
+    margin: 0;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-collection-card-copy-size);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-collection-card-copy-line-height);
+  }
+
+  /*
+   * The kit gives the button its own frame with 16px on every side, so it sits
+   * 32px below the copy — the body's own bottom padding plus this one.
+   */
+  .ui-collection-card__actions {
+    padding: var(--ui-collection-card-actions-padding);
+  }
+
+  /*
+   * The kit fills the card's button when the card is hovered, not only when the
+   * button itself is. Re-declaring the two properties keeps that coupling here
+   * rather than teaching ui-button about the containers it might sit in.
+   */
+  .ui-collection-card--cta:is(:hover, .ui-collection-card--force-hover) .ui-button--secondary {
+    --ui-button-background: var(--ui-color-primary);
+    --ui-button-color: var(--ui-color-white);
+  }
+{% endstylesheet %}

@@ -158,6 +158,36 @@
       </section>
     {%- endfor -%}
 
+    {%- assign card_variants = 'default,cta' | split: ',' -%}
+    {%- for card_variant in card_variants -%}
+      <section class="ui-kit-components__family">
+        <h3 class="ui-kit-components__title">Collection card — {{ card_variant }}</h3>
+        <div class="ui-kit-components__row">
+          <div class="ui-kit-components__cell ui-kit-components__cell--card">
+            <span class="ui-kit-components__state">Default</span>
+            {% render 'ui-collection-card',
+              variant: card_variant,
+              title: 'Birthday',
+              description: 'Custom treats for the moment people actually remember.',
+              button_label: 'Shop now',
+              link: '#'
+            %}
+          </div>
+          <div class="ui-kit-components__cell ui-kit-components__cell--card">
+            <span class="ui-kit-components__state">Hovered</span>
+            {% render 'ui-collection-card',
+              variant: card_variant,
+              title: 'Birthday',
+              description: 'Custom treats for the moment people actually remember.',
+              button_label: 'Shop now',
+              link: '#',
+              class: 'ui-collection-card--force-hover'
+            %}
+          </div>
+        </div>
+      </section>
+    {%- endfor -%}
+
     <section class="ui-kit-components__family">
       <h3 class="ui-kit-components__title">Item</h3>
       <div class="ui-kit-components__row">
@@ -226,6 +256,12 @@
   .ui-kit-components__cell--row {
     width: 254px;
     min-width: 254px;
+  }
+
+  /* The kit draws collection cards at 305px. */
+  .ui-kit-components__cell--card {
+    width: 305px;
+    min-width: 305px;
   }
 
   .ui-kit-components__state {
