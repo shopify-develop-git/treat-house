@@ -32,9 +32,9 @@
   assign onboarding_tones = 'orange,yellow,purple,sky-blue,purple' | split: ','
 -%}
 
-<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div class="section-background color-{{ section.settings.color_scheme }} best-sellers-bg best-sellers-bg--{{ section.settings.background }}"></div>
 <div
-  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }} best-sellers-section best-sellers-section--{{ section.settings.background }}"
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
   style="{% render 'spacing-style', settings: section.settings %}"
   data-testid="best-sellers-{{ section.id }}"
 >
@@ -115,11 +115,20 @@
 <script src="{{ 'ui-carousel.js' | asset_url }}" type="module"></script>
 
 {% stylesheet %}
-  .best-sellers-section--light-blue {
+  /*
+   * The tint goes on .section-background, not on .section. Horizon forces every
+   * section transparent from base.css at a specificity of four classes, because the
+   * background is this element's job — painting .section instead loses silently and
+   * the section comes out white.
+   *
+   * Compound with .section-background so this outranks the colour scheme's own
+   * background rather than depending on which stylesheet is concatenated last.
+   */
+  .section-background.best-sellers-bg--light-blue {
     background-color: var(--ui-color-light-blue);
   }
 
-  .best-sellers-section--white {
+  .section-background.best-sellers-bg--white {
     background-color: var(--ui-color-white);
   }
 
