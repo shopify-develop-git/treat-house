@@ -1,0 +1,258 @@
+{%- doc -%}
+  Renders a product card (Figma: Best Sellers → Product Card).
+
+  The file draws this one inside the Bestsellers section rather than in the kit,
+  but it is a card like any other — same hairline frame, same 2px corner, same 1px
+  top inset as ui-collection-card — and the next product grid will want it, so it
+  lives here.
+
+  The whole card is clickable through a stretched link on the title rather than by
+  wrapping everything in an `<a>`: the basket is a button, and a button inside a
+  link is not valid markup. The price row is raised above the stretched link so the
+  basket still takes its own clicks.
+
+  The basket is `ui-button`'s `basket` variant — the file uses the very same
+  component here as in the BUTTONS section.
+
+  Badge tones set their own text colour, and not the white the file draws. White
+  measures 1.53:1 on sky blue and 1.67:1 on yellow, against the 4.5:1 that 12px
+  text needs; black reads 13.71:1 and 12.61:1 on the same two. Purple keeps white,
+  which is the one tone where white is the better of the two at 9.83:1. To go back
+  to the drawing, set `--ui-product-card-badge-text` on the tone.
+
+  @param {string} title - The product name.
+  @param {string} [subtitle] - The supporting line under it.
+  @param {string} [price] - Formatted price. Pass it already formatted, so the card stays out of money filters.
+  @param {object} [image] - A Shopify image object for the media box.
+  @param {string} [link] - The product URL. Without it the card is not clickable.
+  @param {string} [badge] - Badge text, shown over the top-left of the media.
+  @param {string} [badge_tone] - `purple`, `orange`, `yellow` or `sky-blue`. Defaults to `purple`.
+  @param {boolean} [show_add] - Renders the basket button. Defaults to true.
+  @param {string} [add_label] - Accessible label for the basket. Defaults to the theme's add-to-cart string.
+  @param {string} [add_attributes] - Extra HTML attributes for the basket button, for wiring it to a form.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the card.
+
+  @example
+  {% render 'ui-product-card',
+    title: product.title,
+    subtitle: product.metafields.custom.tagline,
+    price: product.price | money,
+    image: product.featured_image,
+    link: product.url,
+    badge: 'Bestsellers',
+    badge_tone: 'orange'
+  %}
+{%- enddoc -%}
+
+{%- liquid
+  assign tones = 'purple,orange,yellow,sky-blue' | split: ','
+  assign card_tone = badge_tone | default: 'purple'
+  unless tones contains card_tone
+    assign card_tone = 'purple'
+  endunless
+
+  assign basket_label = add_label
+  if basket_label == blank
+    assign basket_label = 'actions.add_to_cart' | t
+  endif
+
+  assign card_classes = 'ui-product-card'
+  if class != blank
+    assign card_classes = card_classes | append: ' ' | append: class
+  endif
+-%}
+
+<article class="{{ card_classes }}"{% if attributes != blank %} {{ attributes }}{% endif %}>
+  <div class="ui-product-card__media">
+    {%- if image != blank -%}
+      {% render 'image', image: image, class: 'ui-product-card__image' %}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'ui-product-card__image ui-product-card__image--placeholder' }}
+    {%- endif -%}
+  </div>
+
+  <div class="ui-product-card__body">
+    <h3 class="ui-product-card__title">
+      {%- if link != blank -%}
+        <a class="ui-product-card__link" href="{{ link }}">{{ title }}</a>
+      {%- else -%}
+        {{ title }}
+      {%- endif -%}
+    </h3>
+    {%- if subtitle != blank -%}
+      <p class="ui-product-card__subtitle">{{ subtitle }}</p>
+    {%- endif -%}
+  </div>
+
+  {%- if price != blank or show_add != false -%}
+    <div class="ui-product-card__price-row">
+      <span class="ui-product-card__price">{{ price }}</span>
+      {%- if show_add != false -%}
+        {% render 'ui-button',
+          variant: 'basket',
+          label: basket_label,
+          class: 'ui-product-card__add',
+          attributes: add_attributes
+        %}
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if badge != blank -%}
+    <span class="ui-product-card__badge ui-product-card__badge--{{ card_tone }}">{{ badge }}</span>
+  {%- endif -%}
+</article>
+
+{% stylesheet %}
+  :root {
+    --ui-product-card-media-ratio: 240 / 215;
+    --ui-product-card-body-padding: 14px;
+    --ui-product-card-body-gap: 6px;
+    --ui-product-card-price-padding-block: 12px;
+    --ui-product-card-badge-inset: 9.5px;
+  }
+
+  .ui-product-card {
+    --ui-product-card-border-color: var(--ui-color-border-gray);
+    --ui-product-card-border-width: var(--ui-hairline-width);
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+
+    /* The file offsets the media a pixel from the top edge, as the collection card does. */
+    padding-block-start: 1px;
+    border-radius: var(--ui-radius-sm);
+
+    /* Inset shadow rather than a border: it thickens on hover and a real border
+       would shift the card's contents by half a pixel when it did. */
+    box-shadow: inset 0 0 0 var(--ui-product-card-border-width) var(--ui-product-card-border-color);
+    background-color: var(--ui-color-white);
+    transition: box-shadow var(--animation-values);
+  }
+
+  .ui-product-card:is(:hover, :focus-within, .ui-product-card--force-hover) {
+    --ui-product-card-border-color: var(--ui-color-primary);
+    --ui-product-card-border-width: 1px;
+  }
+
+  .ui-product-card__media {
+    display: block;
+    aspect-ratio: var(--ui-product-card-media-ratio);
+    overflow: hidden;
+  }
+
+  .ui-product-card__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ui-product-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-product-card-body-gap);
+
+    /* Takes the slack in a row of unequal cards, so every price row lines up. */
+    flex: 1 0 auto;
+    padding: var(--ui-product-card-body-padding);
+  }
+
+  .ui-product-card__title {
+    margin: 0;
+    font-family: var(--ui-font-body);
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.1;
+    color: var(--ui-color-black);
+  }
+
+  .ui-product-card__link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* One link covering the card, so the card is clickable without nesting the
+     basket button inside an anchor. */
+  .ui-product-card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--ui-radius-sm);
+  }
+
+  .ui-product-card__subtitle {
+    margin: 0;
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--ui-color-gray);
+  }
+
+  .ui-product-card__price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: var(--ui-product-card-price-padding-block) 12px
+      var(--ui-product-card-price-padding-block) var(--ui-product-card-body-padding);
+
+    /* Above the stretched link, or the basket would never receive a click. */
+    position: relative;
+    z-index: 1;
+  }
+
+  .ui-product-card__price {
+    font-family: var(--ui-font-body);
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--ui-color-black);
+  }
+
+  .ui-product-card__badge {
+    --ui-product-card-badge-background: var(--ui-color-primary);
+    --ui-product-card-badge-text: var(--ui-color-white);
+
+    position: absolute;
+    inset-block-start: var(--ui-product-card-badge-inset);
+    inset-inline-start: var(--ui-product-card-badge-inset);
+    z-index: 1;
+    padding: 4px 8px;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-product-card-badge-background);
+    font-family: var(--ui-font-accent);
+    font-weight: var(--font-accent--weight-semibold, 600);
+    font-size: 12px;
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: var(--ui-product-card-badge-text);
+  }
+
+  /*
+   * Text colour is set per tone, not white across the board as drawn. White reads
+   * 1.53:1 on sky blue and 1.67:1 on yellow, where 12px text wants 4.5:1; black
+   * reads 13.71:1 and 12.61:1. Purple is the one tone where white is the better
+   * choice, at 9.83:1.
+   */
+  .ui-product-card__badge--orange {
+    --ui-product-card-badge-background: var(--ui-color-orange);
+    --ui-product-card-badge-text: var(--ui-color-black);
+  }
+
+  .ui-product-card__badge--yellow {
+    --ui-product-card-badge-background: var(--ui-color-yellow);
+    --ui-product-card-badge-text: var(--ui-color-black);
+  }
+
+  .ui-product-card__badge--sky-blue {
+    --ui-product-card-badge-background: var(--ui-color-sky-blue);
+    --ui-product-card-badge-text: var(--ui-color-black);
+  }
+{% endstylesheet %}
