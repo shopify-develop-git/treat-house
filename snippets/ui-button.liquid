@@ -12,7 +12,7 @@
   The UI kit preview section uses it to show every state side by side; it has no
   place in real page markup.
 
-  @param {string} [variant] - One of `primary`, `secondary`, `secondary-alt`, `link`, `basket`, `social`. Defaults to `primary`.
+  @param {string} [variant] - One of `primary`, `secondary`, `secondary-alt`, `link`, `underline`, `basket`, `social`. Defaults to `primary`.
   @param {string} [label] - The button text. For `basket` and `social` it is used as the accessible label instead.
   @param {string} [link] - The URL to link to. When present, the button renders as a link.
   @param {string} [icon] - The network for the `social` variant: `facebook`, `instagram`, `x` or `pinterest`. Defaults to `facebook`.
@@ -29,12 +29,13 @@
   {% render 'ui-button', variant: 'secondary', label: 'Customize your own', link: '/pages/builder' %}
   {% render 'ui-button', variant: 'secondary-alt', label: 'Corporate gifting', disabled: true %}
   {% render 'ui-button', variant: 'link', label: 'Clear all' %}
+  {% render 'ui-button', variant: 'underline', label: 'Corporate gifting', link: '/pages/corporate' %}
   {% render 'ui-button', variant: 'basket', label: 'Add to cart', type: 'submit' %}
   {% render 'ui-button', variant: 'social', icon: 'instagram', link: 'https://instagram.com/treathouse' %}
 {%- enddoc -%}
 
 {%- liquid
-  assign ui_variants = 'primary,secondary,secondary-alt,link,basket,social' | split: ','
+  assign ui_variants = 'primary,secondary,secondary-alt,link,underline,basket,social' | split: ','
   assign ui_variant = variant | default: 'primary'
   unless ui_variants contains ui_variant
     assign ui_variant = 'primary'
@@ -247,6 +248,22 @@
     text-decoration-thickness: from-font;
     text-underline-position: from-font;
     text-decoration-skip-ink: none;
+  }
+
+  /*
+   * Underline — the hero's third call to action. The kit draws it as a Secondary
+   * Button 1 with the box taken away and a rule left under the label, so it keeps
+   * the button type and colour and drops everything else.
+   *
+   * The design defines no hover for it, so none is invented here.
+   */
+  .ui-button--underline {
+    --ui-button-background: transparent;
+    --ui-button-color: var(--ui-color-primary);
+
+    padding: 0 2px 2px;
+    border-block-end: 1px solid var(--ui-color-primary);
+    border-radius: 0;
   }
 
   /* Icon buttons */

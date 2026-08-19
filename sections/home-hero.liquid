@@ -1,0 +1,783 @@
+{% comment %}
+  Home hero — Figma: Work Page → Hero (desktop 491:14843, mobile 458:6526).
+
+  Two columns on desktop, stacked on mobile: a tinted panel carrying the headline,
+  the three calls to action and the review line, beside the product shot. A
+  full-bleed marquee closes the section.
+
+  The header is not built yet, so the section opens with a reserved band the
+  height of the one the design draws. Turn `reserve_header_space` off the moment
+  the real header lands, or the page gains a gap.
+
+  The marquee runs on the theme's own `marquee-component`, which already handles
+  cloning, speed and reduced motion — no new script.
+{% endcomment %}
+
+{%- liquid
+  assign heading = section.settings.heading | default: "Who doesn't love"
+  assign heading_accent = section.settings.heading_accent | default: 'a Krispie Treat?'
+  assign marquee_word = section.settings.marquee_text | default: 'krispie treat'
+  assign marquee_repeat = section.settings.marquee_repeat | default: 8
+  assign star_count = section.settings.rating_stars | default: 5
+-%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="home-hero color-{{ section.settings.color_scheme }}"
+  data-testid="home-hero-{{ section.id }}"
+>
+  {%- if section.settings.reserve_header_space -%}
+    {%- comment -%}
+      Stands in for the header that is not built yet, at the heights the file
+      draws. Switched off in one click once the real header ships.
+    {%- endcomment -%}
+    <div class="home-hero__header-space" aria-hidden="true"></div>
+  {%- endif -%}
+
+  <div class="home-hero__inner">
+    <div class="home-hero__grid">
+      <div class="home-hero__panel">
+        <span class="home-hero__sparkle" aria-hidden="true">
+          {{- 'icon-ui-sparkle.svg' | inline_asset_content -}}
+        </span>
+
+        <div class="home-hero__body">
+          <div class="home-hero__text">
+            <h1 class="home-hero__heading">
+              <span class="home-hero__heading-lead">{{ heading }}</span>
+              <span class="home-hero__heading-accent">{{ heading_accent }}</span>
+            </h1>
+            {%- if section.settings.copy != blank -%}
+              <p class="home-hero__copy">{{ section.settings.copy }}</p>
+            {%- endif -%}
+          </div>
+
+          <div class="home-hero__actions">
+            <div class="home-hero__buttons">
+              {% render 'ui-button',
+                variant: 'primary',
+                label: section.settings.primary_label,
+                link: section.settings.primary_link,
+                class: 'home-hero__cta'
+              %}
+              {% render 'ui-button',
+                variant: 'secondary',
+                label: section.settings.secondary_label,
+                link: section.settings.secondary_link,
+                class: 'home-hero__cta'
+              %}
+            </div>
+            {%- if section.settings.tertiary_label != blank -%}
+              {% render 'ui-button',
+                variant: 'underline',
+                label: section.settings.tertiary_label,
+                link: section.settings.tertiary_link
+              %}
+            {%- endif -%}
+          </div>
+        </div>
+
+        {%- if section.settings.show_reviews -%}
+          <div class="home-hero__reviews">
+            <div class="home-hero__avatars">
+              {%- for i in (1..5) -%}
+                {%- liquid
+                  case i
+                    when 1
+                      assign avatar = section.settings.avatar_1
+                    when 2
+                      assign avatar = section.settings.avatar_2
+                    when 3
+                      assign avatar = section.settings.avatar_3
+                    when 4
+                      assign avatar = section.settings.avatar_4
+                    else
+                      assign avatar = section.settings.avatar_5
+                  endcase
+                -%}
+                <span class="home-hero__avatar">
+                  {%- if avatar != blank -%}
+                    {% render 'image', image: avatar, height: 66, class: 'home-hero__avatar-image' %}
+                  {%- endif -%}
+                </span>
+              {%- endfor -%}
+            </div>
+
+            <div class="home-hero__rating">
+              <span class="home-hero__stars" aria-hidden="true">
+                {%- for i in (1..star_count) -%}
+                  {{- 'icon-ui-rating-star.svg' | inline_asset_content -}}
+                {%- endfor -%}
+              </span>
+              <p class="home-hero__rating-text">
+                <span>{{ section.settings.rating_text }}</span>
+                <span class="home-hero__rating-divider" aria-hidden="true"></span>
+                <span>{{ section.settings.reviews_text }}</span>
+              </p>
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="home-hero__media">
+        {%- if section.settings.image != blank -%}
+          {% render 'image', image: section.settings.image, height: 600, class: 'home-hero__image' %}
+        {%- else -%}
+          {%- comment -%} Photography is not in yet; hold the frame so the layout reads true. {%- endcomment -%}
+          <span class="home-hero__image-placeholder" aria-hidden="true"></span>
+        {%- endif -%}
+
+        {%- if section.settings.show_badge and section.settings.badge_text != blank -%}
+          <span class="home-hero__badge">
+            <span class="home-hero__badge-icon" aria-hidden="true">
+              {{- 'icon-ui-wheat-slash.svg' | inline_asset_content -}}
+            </span>
+            {{ section.settings.badge_text }}
+          </span>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+
+  {%- if section.settings.show_marquee -%}
+    <marquee-component
+      class="home-hero__marquee"
+      style="--marquee-direction: {{ section.settings.marquee_direction }};"
+      data-speed-factor="25"
+      data-movement-direction="{{ section.settings.marquee_direction }}"
+    >
+      <div class="marquee__wrapper" ref="wrapper">
+        <div class="marquee__content" ref="content">
+          <div class="marquee__repeated-items" ref="marqueeItems[]">
+            {%- for i in (1..marquee_repeat) -%}
+              <span class="home-hero__marquee-word">{{ marquee_word }}</span>
+              <span class="home-hero__marquee-star" aria-hidden="true">
+                {{- 'icon-ui-marquee-star.svg' | inline_asset_content -}}
+              </span>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+    </marquee-component>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  /*
+   * Home hero. Mobile first; the desktop layout starts at the theme's 750px
+   * breakpoint.
+   *
+   * The inline margin is the section's own rather than the theme's --page-margin.
+   * The design sets 80px at desktop where the theme currently sets 40px, so
+   * borrowing the theme token would put the hero out of step with the file.
+   */
+  .home-hero {
+    --home-hero-margin: 16px;
+    --home-hero-gap: 16px;
+    --home-hero-radius: 20px;
+    --home-hero-panel-padding: 24px;
+    --home-hero-panel-gap: 32px;
+    --home-hero-body-gap: 32px;
+    --home-hero-text-gap: 16px;
+    --home-hero-actions-gap: 16px;
+    --home-hero-heading-size: 32px;
+    --home-hero-heading-leading: 1.2;
+    --home-hero-copy-size: 16px;
+    /* The file constrains both blocks, which is what makes the headline break
+       after "love" and the copy sit on three lines. */
+    --home-hero-heading-width: 275px;
+    --home-hero-copy-width: 315px;
+    --home-hero-sparkle-size: 24px;
+    --home-hero-media-height: 416px;
+    --home-hero-badge-inset: 16px;
+
+    /* Reviews */
+    --home-hero-avatar-size: 26px;
+    --home-hero-avatar-step: 15.89px;
+    --home-hero-star-width: 10px;
+    --home-hero-star-gap: 3px;
+    --home-hero-stars-gap: 5px;
+
+    /* Marquee */
+    --home-hero-marquee-padding: 20px;
+    --home-hero-marquee-size: 16px;
+    --home-hero-marquee-star: 14px;
+
+    display: flow-root;
+    background-color: var(--ui-color-white);
+  }
+
+  @media screen and (min-width: 750px) {
+    .home-hero {
+      --home-hero-margin: 80px;
+      --home-hero-gap: 20px;
+      --home-hero-panel-padding: 32px;
+      --home-hero-panel-gap: 0px;
+      --home-hero-body-gap: 48px;
+      --home-hero-actions-gap: 24px;
+      --home-hero-heading-size: 48px;
+      --home-hero-heading-leading: 1.1;
+      --home-hero-heading-width: 410px;
+      --home-hero-copy-width: 416px;
+      --home-hero-sparkle-size: 32px;
+      --home-hero-media-height: 600px;
+      --home-hero-badge-inset: 20px;
+      --home-hero-avatar-size: 33px;
+      --home-hero-star-width: 12px;
+      --home-hero-star-gap: 3.5px;
+      --home-hero-stars-gap: 4px;
+      --home-hero-marquee-padding: 24px;
+      --home-hero-marquee-size: 20px;
+      --home-hero-marquee-star: 16px;
+    }
+  }
+
+  /* The header is not built; this holds its place at the heights the file draws. */
+  .home-hero__header-space {
+    height: 74px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .home-hero__header-space {
+      height: 67px;
+    }
+  }
+
+  .home-hero__inner {
+    box-sizing: border-box;
+    max-width: var(--page-width, 90rem);
+    margin-inline: auto;
+    padding-inline: var(--home-hero-margin);
+  }
+
+  .home-hero__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--home-hero-gap);
+  }
+
+  @media screen and (min-width: 750px) {
+    .home-hero__grid {
+      /* The file splits 1280 into two 630 columns with 20 between them. */
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* ---------- Panel ---------- */
+
+  .home-hero__panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    gap: var(--home-hero-panel-gap);
+    padding-block: var(--home-hero-panel-padding);
+    border-radius: var(--home-hero-radius);
+    background-color: var(--ui-color-light-blue);
+  }
+
+  @media screen and (min-width: 750px) {
+    /*
+     * The design distributes the panel's three parts rather than stacking them,
+     * which is what keeps the sparkle at the top and the reviews on the floor
+     * however tall the column ends up.
+     */
+    .home-hero__panel {
+      justify-content: space-between;
+      min-height: var(--home-hero-media-height);
+    }
+  }
+
+  .home-hero__sparkle {
+    display: block;
+    flex: 0 0 auto;
+    width: var(--home-hero-sparkle-size);
+    height: var(--home-hero-sparkle-size);
+    color: var(--ui-color-primary);
+  }
+
+  .home-hero__sparkle > svg,
+  .home-hero__badge-icon > svg,
+  .home-hero__marquee-star > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .home-hero__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--home-hero-body-gap);
+    width: 100%;
+  }
+
+  .home-hero__text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--home-hero-text-gap);
+    width: 100%;
+    padding-inline: var(--home-hero-panel-padding);
+  }
+
+  .home-hero__heading {
+    margin: 0;
+    max-width: var(--home-hero-heading-width);
+    color: var(--ui-color-black);
+    font-family: var(--font-heading--family);
+    font-size: var(--home-hero-heading-size);
+    font-weight: 800;
+    line-height: var(--home-hero-heading-leading);
+    /* The file states -4%; as an em it holds at both sizes. */
+    letter-spacing: -0.04em;
+    text-align: center;
+  }
+
+  .home-hero__heading-accent {
+    color: var(--ui-color-primary);
+  }
+
+  .home-hero__copy {
+    margin: 0;
+    max-width: var(--home-hero-copy-width);
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: var(--home-hero-copy-size);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+    text-align: center;
+  }
+
+  .home-hero__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--home-hero-actions-gap);
+  }
+
+  .home-hero__buttons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--home-hero-text-gap);
+    width: 310px;
+    max-width: 100%;
+  }
+
+  @media screen and (min-width: 750px) {
+    .home-hero__buttons {
+      flex-direction: row;
+      gap: var(--home-hero-text-gap);
+      width: auto;
+    }
+  }
+
+  /*
+   * The kit sizes a button by its label; the hero fixes both to one width. With
+   * the width fixed the labels have to stay on one line, which is what the file
+   * sets, and the secondary needs the tighter padding the file gives it or
+   * "Customize treats" will not fit inside 170px.
+   */
+  .home-hero__cta {
+    width: 100%;
+    white-space: nowrap;
+  }
+
+  .home-hero__cta.ui-button--secondary {
+    padding-inline: var(--ui-button-padding-inline-tight);
+  }
+
+  @media screen and (min-width: 750px) {
+    .home-hero__cta {
+      width: 170px;
+    }
+  }
+
+  /* ---------- Reviews ---------- */
+
+  .home-hero__reviews {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-block-start: var(--home-hero-panel-gap);
+    padding-inline: var(--home-hero-panel-padding);
+  }
+
+  @media screen and (min-width: 750px) {
+    .home-hero__reviews {
+      margin-block-start: 0;
+    }
+  }
+
+  .home-hero__avatars {
+    display: flex;
+    flex: 0 0 auto;
+  }
+
+  .home-hero__avatar {
+    display: block;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    width: var(--home-hero-avatar-size);
+    height: var(--home-hero-avatar-size);
+    border-radius: 50%;
+    /* The step is the same at both sizes, so the overlap falls out of it. */
+    margin-inline-start: calc(var(--home-hero-avatar-step) - var(--home-hero-avatar-size));
+    overflow: hidden;
+    box-shadow: inset 0 0 0 0.5px var(--ui-color-white);
+    background-color: var(--ui-color-border-gray);
+  }
+
+  .home-hero__avatar:first-child {
+    margin-inline-start: 0;
+  }
+
+  .home-hero__avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .home-hero__rating {
+    display: flex;
+    flex-direction: column;
+    gap: var(--home-hero-stars-gap);
+  }
+
+  .home-hero__stars {
+    display: flex;
+    gap: var(--home-hero-star-gap);
+    color: var(--ui-color-primary);
+  }
+
+  .home-hero__stars > svg {
+    display: block;
+    flex: 0 0 auto;
+    width: var(--home-hero-star-width);
+    height: auto;
+  }
+
+  .home-hero__rating-text {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+    white-space: nowrap;
+  }
+
+  .home-hero__rating-divider {
+    width: 1px;
+    height: 12px;
+    background-color: var(--ui-color-gray);
+  }
+
+  /* ---------- Media ---------- */
+
+  .home-hero__media {
+    position: relative;
+    border-radius: var(--home-hero-radius);
+    overflow: hidden;
+  }
+
+  .home-hero__image,
+  .home-hero__image-placeholder {
+    display: block;
+    width: 100%;
+    height: var(--home-hero-media-height);
+    object-fit: cover;
+  }
+
+  .home-hero__image-placeholder {
+    background-color: var(--ui-color-border-gray);
+  }
+
+  .home-hero__badge {
+    position: absolute;
+    inset-block-end: var(--home-hero-badge-inset);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-sizing: border-box;
+    padding: 14px 24px;
+    border-radius: 6px;
+    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-primary);
+    background-color: var(--ui-color-white);
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: var(--ui-line-height);
+    text-transform: uppercase;
+    white-space: nowrap;
+    /* Centred on mobile, tucked into the corner on desktop. */
+    inset-inline-start: 50%;
+    translate: -50% 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    .home-hero__badge {
+      inset-inline-start: auto;
+      inset-inline-end: var(--home-hero-badge-inset);
+      translate: none;
+    }
+  }
+
+  .home-hero__badge-icon {
+    display: block;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ---------- Marquee ---------- */
+
+  .home-hero__marquee {
+    --marquee-gap: 24px;
+
+    margin-block-start: var(--home-hero-gap);
+    padding-block: var(--home-hero-marquee-padding);
+    background-color: var(--ui-color-primary);
+  }
+
+  @media screen and (min-width: 750px) {
+    .home-hero__marquee {
+      --marquee-gap: 32px;
+    }
+  }
+
+  .home-hero__marquee-word {
+    color: var(--ui-color-white);
+    font-family: var(--ui-font-accent);
+    font-size: var(--home-hero-marquee-size);
+    font-weight: 700;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .home-hero__marquee-star {
+    display: block;
+    flex: 0 0 auto;
+    width: var(--home-hero-marquee-star);
+    height: var(--home-hero-marquee-star);
+    color: var(--ui-color-sky-blue);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Home hero",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Header space"
+    },
+    {
+      "type": "paragraph",
+      "content": "The site header is not built yet. This holds its place so the layout reads correctly; switch it off once the real header ships."
+    },
+    {
+      "type": "checkbox",
+      "id": "reserve_header_space",
+      "label": "Reserve space for the header",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Text"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Who doesn't love"
+    },
+    {
+      "type": "text",
+      "id": "heading_accent",
+      "label": "Heading, second line",
+      "info": "Shown in purple.",
+      "default": "a Krispie Treat?"
+    },
+    {
+      "type": "textarea",
+      "id": "copy",
+      "label": "Body copy",
+      "default": "Discover handcrafted Krispie treats made with premium ingredients, designed to celebrate life's biggest moments—from birthdays to corporate gifting."
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "text",
+      "id": "primary_label",
+      "label": "Primary button",
+      "default": "Shop treats"
+    },
+    {
+      "type": "url",
+      "id": "primary_link",
+      "label": "Primary link"
+    },
+    {
+      "type": "text",
+      "id": "secondary_label",
+      "label": "Secondary button",
+      "default": "Customize treats"
+    },
+    {
+      "type": "url",
+      "id": "secondary_link",
+      "label": "Secondary link"
+    },
+    {
+      "type": "text",
+      "id": "tertiary_label",
+      "label": "Underlined link",
+      "default": "Corporate gifting"
+    },
+    {
+      "type": "url",
+      "id": "tertiary_link",
+      "label": "Underlined link URL"
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Hero image",
+      "info": "Left empty, the frame is held with a placeholder."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badge",
+      "label": "Show badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge text",
+      "default": "Gluten-free"
+    },
+    {
+      "type": "header",
+      "content": "Reviews"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_reviews",
+      "label": "Show reviews",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "rating_stars",
+      "label": "Filled stars",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "text",
+      "id": "rating_text",
+      "label": "Rating",
+      "default": "4.9 rating"
+    },
+    {
+      "type": "text",
+      "id": "reviews_text",
+      "label": "Review count",
+      "default": "12,000+ reviews"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_1",
+      "label": "Reviewer 1"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_2",
+      "label": "Reviewer 2"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_3",
+      "label": "Reviewer 3"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_4",
+      "label": "Reviewer 4"
+    },
+    {
+      "type": "image_picker",
+      "id": "avatar_5",
+      "label": "Reviewer 5"
+    },
+    {
+      "type": "header",
+      "content": "Marquee"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_marquee",
+      "label": "Show marquee",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "marquee_text",
+      "label": "Marquee text",
+      "default": "krispie treat"
+    },
+    {
+      "type": "range",
+      "id": "marquee_repeat",
+      "label": "Repeats",
+      "info": "How many times the word is written before the strip is cloned to fill the screen.",
+      "min": 4,
+      "max": 16,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "select",
+      "id": "marquee_direction",
+      "label": "Direction",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Left"
+        },
+        {
+          "value": "reverse",
+          "label": "Right"
+        }
+      ],
+      "default": "normal"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Home hero"
+    }
+  ]
+}
+{% endschema %}
