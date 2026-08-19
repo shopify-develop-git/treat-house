@@ -1,0 +1,167 @@
+{%- doc -%}
+  Renders a text field from the UI kit (Figma: INPUT → the Field/* family).
+
+  Name, Company, Email, Estimated quantity, Preferred delivery date and Flavor
+  notes are one component in the kit, differing only by label, placeholder, hint
+  and control type, so they share this snippet. Pass `textarea: true` for the
+  taller Flavor notes box.
+
+  A field carries either a hint or an error, never both — the kit swaps the line
+  under the field rather than stacking two.
+
+  The kit shows a filled field keeping the brand border after focus leaves, which
+  CSS can only see through `:placeholder-shown`. Fields the design leaves visually
+  empty therefore still get a blank placeholder, so the selector has something to
+  test.
+
+  Preferred delivery date is a masked text field in the kit, not a native date
+  control: it shows `MM/DD/YYYY` and greys out the part not yet typed. Pass
+  `type: 'text'` with that placeholder for the styling. The progressive mask needs
+  JavaScript and is not part of this snippet.
+
+  @param {string} [label] - The field label, rendered above the control in caps.
+  @param {string} [type] - Any text-like input type. Defaults to `text`. Ignored when `textarea` is set.
+  @param {boolean} [textarea] - Renders the taller multi-line box instead of an input.
+  @param {string} [value] - The current value.
+  @param {string} [placeholder] - Placeholder text. Blank still emits a space, which the filled-state selector needs.
+  @param {string} [hint] - Helper line under the field. Hidden while an error is showing.
+  @param {string} [error] - The error message. Its presence puts the field in the error state.
+  @param {string} [name] - The `name` attribute.
+  @param {string} [id] - The `id` attribute. Defaults to a handle of the label.
+  @param {boolean} [required] - Marks the control required.
+  @param {string} [rows] - Row count for the textarea. Defaults to 5.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the control.
+
+  @example
+  {% render 'ui-input', label: 'Name', name: 'contact[name]' %}
+  {% render 'ui-input', label: 'Estimated quantity', type: 'number', hint: 'Minimum order setup: 25 boxes' %}
+  {% render 'ui-input', label: 'Preferred delivery date', placeholder: 'MM/DD/YYYY' %}
+  {% render 'ui-input', label: 'Flavor notes or recipient needs', textarea: true, placeholder: 'Tell us about the occasion...' %}
+  {% render 'ui-input', label: 'Name', error: 'Please enter your name.' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign ui_label = label | default: ''
+  assign ui_id = id
+  if ui_id == blank
+    assign ui_id = ui_label | handleize | prepend: 'ui-input-'
+  endif
+
+  assign ui_placeholder = placeholder
+  if ui_placeholder == blank
+    assign ui_placeholder = ' '
+  endif
+-%}
+
+<div class="ui-input{% if error != blank %} ui-input--error{% endif %}{% if class != blank %} {{ class }}{% endif %}">
+  {%- if ui_label != blank -%}
+    <label class="ui-input__label" for="{{ ui_id }}">{{ ui_label }}</label>
+  {%- endif -%}
+
+  {%- capture ui_shared_attributes -%}
+    id="{{ ui_id }}"
+    placeholder="{{ ui_placeholder }}"
+    {%- if name != blank %} name="{{ name }}"{% endif -%}
+    {%- if required %} required{% endif -%}
+    {%- if error != blank %} aria-invalid="true" aria-describedby="{{ ui_id }}-message"
+    {%- elsif hint != blank %} aria-describedby="{{ ui_id }}-message"{% endif -%}
+    {%- if attributes != blank %} {{ attributes }}{% endif -%}
+  {%- endcapture -%}
+
+  {%- if textarea -%}
+    <textarea
+      class="ui-input__control ui-input__control--textarea"
+      rows="{{ rows | default: 5 }}"
+      {{ ui_shared_attributes }}
+    >{{- value -}}</textarea>
+  {%- else -%}
+    <input
+      class="ui-input__control"
+      type="{{ type | default: 'text' }}"
+      value="{{ value }}"
+      {{ ui_shared_attributes }}
+    >
+  {%- endif -%}
+
+  {%- if error != blank -%}
+    <p class="ui-input__message ui-input__message--error" id="{{ ui_id }}-message">{{ error }}</p>
+  {%- elsif hint != blank -%}
+    <p class="ui-input__message" id="{{ ui_id }}-message">{{ hint }}</p>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  :root {
+    --ui-input-height: 44px;
+    --ui-input-textarea-height: 161px;
+    --ui-input-padding: 12px;
+  }
+
+  .ui-input {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+  }
+
+  .ui-input__label {
+    font-family: var(--ui-font-accent);
+    font-weight: var(--font-accent--weight-semibold, 600);
+    font-size: 12px;
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: var(--ui-color-black);
+  }
+
+  .ui-input__control {
+    width: 100%;
+    height: var(--ui-input-height);
+    padding: var(--ui-input-padding);
+    border: 1px solid var(--ui-color-border-gray);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--ui-color-primary);
+    transition: border-color var(--animation-speed) ease;
+  }
+
+  .ui-input__control::placeholder {
+    color: var(--ui-color-gray);
+  }
+
+  /* The border stays engaged once the field holds a value, not only while focused. */
+  .ui-input__control:hover,
+  .ui-input__control:focus,
+  .ui-input__control:not(:placeholder-shown) {
+    border-color: var(--ui-color-primary);
+  }
+
+  .ui-input__control--textarea {
+    height: var(--ui-input-textarea-height);
+    resize: vertical;
+  }
+
+  .ui-input__message {
+    margin: 0;
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 12px;
+    line-height: 1.1;
+    color: var(--ui-color-gray);
+  }
+
+  .ui-input__message--error {
+    color: var(--ui-color-error);
+  }
+
+  .ui-input--error .ui-input__control,
+  .ui-input--error .ui-input__control:hover,
+  .ui-input--error .ui-input__control:focus,
+  .ui-input--error .ui-input__control:not(:placeholder-shown) {
+    border-color: var(--ui-color-error);
+  }
+{% endstylesheet %}

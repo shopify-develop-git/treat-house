@@ -15,9 +15,8 @@
   cannot see. Clicking or tapping focuses and opens together, so the two agree
   except when tabbing through, where the chevron points up for a list that is closed.
 
-  Colours come from the `--ui-*` layer. `--ui-color-gray` and `--ui-color-error` are
-  not in ui-kit-tokens.liquid yet, so they carry their Figma values as fallbacks and
-  will pick up the tokens once those land.
+  Colours come entirely from the `--ui-*` layer, so the field follows whatever
+  palette that layer settles on without edits here.
 
   @param {string} [label] - The field label, rendered above the control in caps.
   @param {string} [options] - Comma-separated option labels.
@@ -133,7 +132,7 @@
     font-weight: var(--ui-font-body-weight);
     font-size: 15px;
     line-height: 1.35;
-    color: var(--ui-color-gray, #555555);
+    color: var(--ui-color-gray);
     transition: border-color var(--animation-speed) ease;
   }
 
@@ -184,12 +183,12 @@
     font-weight: var(--ui-font-body-weight);
     font-size: 12px;
     line-height: 1.1;
-    color: var(--ui-color-error, #e6281a);
+    color: var(--ui-color-error);
   }
 
   .ui-select--error .ui-select__control,
   .ui-select--error .ui-select__control:hover,
   .ui-select--error .ui-select__control:focus {
-    border-color: var(--ui-color-error, #e6281a);
+    border-color: var(--ui-color-error);
   }
 {% endstylesheet %}

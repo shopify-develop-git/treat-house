@@ -1,0 +1,236 @@
+{%- doc -%}
+  Renders the file upload field from the UI kit (Figma: INPUT → Field/Artwork).
+
+  The control is a real `<input type="file">` stretched across the drop zone at zero
+  opacity, so clicking and dragging a file both work with no JavaScript at all — the
+  browser handles a drop onto a file input natively.
+
+  What does need scripting is everything after the file is picked: reading its name,
+  showing progress, and clearing the input again. This snippet renders each of those
+  states on request via `state`, so the markup and styling are ready for a script to
+  drive; it does not ship the script.
+
+  The kit turns the border solid once a file is attached and drops the drop-zone
+  height, so `added` is a different shape rather than the same box with new text. In
+  that state the input stops taking pointer events, which is what lets Remove be
+  clicked.
+
+  Passing `class: 'ui-file--force-hover'` pins the hover styling, the same way
+  ui-button does, for the kit preview.
+
+  @param {string} [label] - The field label, rendered above the zone in caps.
+  @param {string} [state] - `default`, `uploading` or `added`. Defaults to `default`.
+  @param {string} [filename] - The attached file name, shown in `uploading` and `added`.
+  @param {string} [prompt] - The call to action inside the zone.
+  @param {string} [note] - The formats and size line under the prompt.
+  @param {string} [attached_label] - Prefix in front of the file name in `uploading` and `added`.
+  @param {string} [remove_label] - Text of the remove control in `added`.
+  @param {string} [accept] - The `accept` attribute of the input.
+  @param {string} [name] - The `name` attribute.
+  @param {string} [id] - The `id` attribute. Defaults to a handle of the label.
+  @param {boolean} [required] - Marks the control required.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the input.
+
+  @example
+  {% render 'ui-file', label: 'Artwork', accept: 'image/jpeg,image/png,image/webp' %}
+  {% render 'ui-file', label: 'Artwork', state: 'uploading', filename: 'File Name.jpg' %}
+  {% render 'ui-file', label: 'Artwork', state: 'added', filename: 'File Name.jpg' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign ui_label = label | default: ''
+  assign ui_id = id
+  if ui_id == blank
+    assign ui_id = ui_label | handleize | prepend: 'ui-file-'
+  endif
+
+  assign ui_states = 'default,uploading,added' | split: ','
+  assign ui_state = state | default: 'default'
+  unless ui_states contains ui_state
+    assign ui_state = 'default'
+  endunless
+
+  assign ui_prompt = prompt | default: 'Click or drag image to upload'
+  assign ui_note = note | default: 'Supports JPG, PNG, WEBP (Max 10MB)'
+  assign ui_remove = remove_label | default: 'Remove'
+  assign ui_attached = attached_label | default: 'Attached asset file:'
+-%}
+
+<div class="ui-file ui-file--{{ ui_state }}{% if class != blank %} {{ class }}{% endif %}">
+  {%- if ui_label != blank -%}
+    <label class="ui-file__label" for="{{ ui_id }}">{{ ui_label }}</label>
+  {%- endif -%}
+
+  <div class="ui-file__box">
+    <input
+      class="ui-file__input"
+      type="file"
+      id="{{ ui_id }}"
+      {%- if name != blank %} name="{{ name }}"{% endif -%}
+      {%- if accept != blank %} accept="{{ accept }}"{% endif -%}
+      {%- if required %} required{% endif -%}
+      {%- if attributes != blank %} {{ attributes }}{% endif -%}
+    >
+
+    {%- if ui_state == 'added' -%}
+      <p class="ui-file__filename">{{ ui_attached }} {{ filename }}</p>
+      <button type="button" class="ui-file__remove">{{ ui_remove }}</button>
+    {%- else -%}
+      <div class="ui-file__stack">
+        <span class="ui-file__icon" aria-hidden="true">
+          {%- if ui_state == 'uploading' -%}
+            {{- 'icon-ui-upload-progress.svg' | inline_asset_content -}}
+          {%- else -%}
+            {{- 'icon-ui-upload.svg' | inline_asset_content -}}
+          {%- endif -%}
+        </span>
+
+        <span class="ui-file__text">
+          {%- if ui_state == 'uploading' -%}
+            <span class="ui-file__prompt">{{ ui_attached }} {{ filename }}</span>
+          {%- else -%}
+            <span class="ui-file__prompt">{{ ui_prompt }}</span>
+            <span class="ui-file__note">{{ ui_note }}</span>
+          {%- endif -%}
+        </span>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  :root {
+    --ui-file-zone-height: 121px;
+    --ui-file-padding: 12px;
+    --ui-file-stack-width: 215px;
+    --ui-file-icon-width: 32px;
+    --ui-file-icon-height: 34px;
+  }
+
+  .ui-file {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+  }
+
+  .ui-file__label {
+    font-family: var(--ui-font-accent);
+    font-weight: var(--font-accent--weight-semibold, 600);
+    font-size: 12px;
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: var(--ui-color-black);
+  }
+
+  .ui-file__box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--ui-file-zone-height);
+    padding: var(--ui-file-padding);
+    border: 1px dashed var(--ui-color-border-gray);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
+    transition: border-color var(--animation-speed) ease;
+  }
+
+  /* The input covers the zone so the browser handles both the click and the drop. */
+  .ui-file__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .ui-file__box:hover,
+  .ui-file__box:has(.ui-file__input:focus-visible),
+  .ui-file--force-hover .ui-file__box,
+  .ui-file--uploading .ui-file__box {
+    border-color: var(--ui-color-primary);
+  }
+
+  /* An attached file is a settled row rather than a target, so the border goes solid
+     and the zone collapses to its content. */
+  .ui-file--added .ui-file__box {
+    height: auto;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-style: solid;
+    border-color: var(--ui-color-primary);
+  }
+
+  .ui-file--added .ui-file__input {
+    pointer-events: none;
+  }
+
+  .ui-file__stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: var(--ui-file-stack-width);
+  }
+
+  .ui-file__icon {
+    display: block;
+    color: var(--ui-color-primary);
+  }
+
+  .ui-file__icon svg {
+    display: block;
+    width: var(--ui-file-icon-width);
+    height: var(--ui-file-icon-height);
+  }
+
+  .ui-file--uploading .ui-file__icon svg {
+    height: var(--ui-file-icon-width);
+  }
+
+  .ui-file__text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .ui-file__prompt,
+  .ui-file__filename {
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--ui-color-black);
+  }
+
+  .ui-file__note {
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 12px;
+    line-height: 1.1;
+    color: var(--ui-color-gray);
+  }
+
+  .ui-file__filename {
+    margin: 0;
+  }
+
+  .ui-file__remove {
+    position: relative;
+    padding: 0;
+    border: none;
+    background: none;
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--ui-color-error);
+    cursor: pointer;
+  }
+{% endstylesheet %}
