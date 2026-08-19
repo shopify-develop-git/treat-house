@@ -319,12 +319,17 @@ gutter ladder is in `CLAUDE.md`.
 
 | Block | What the merchant sets | Used by |
 | --- | --- | --- |
-| `_ui-heading` | richtext heading, size, mobile size, max width, colour, accent colour | `home-hero` |
-| `_ui-text` | richtext copy, size, line height, max width, colour | `home-hero` |
-| `_ui-link` | label, url, variant, full width, new tab | `home-hero`, `_ui-link-row` |
+| `_ui-heading` | richtext heading, size, mobile size, max width, colour, accent colour | `home-hero`, `our-story`, `shop-by-occasion`, `best-sellers` (static) |
+| `_ui-text` | richtext copy, size, max width, colour | `home-hero`, `our-story`, `shop-by-occasion` |
+| `_ui-link` | label, url, variant, full width, new tab | `home-hero`, `shop-by-occasion`, `best-sellers` (static), `_ui-link-row` |
 | `_ui-link-row` | gap; hosts link blocks | `home-hero` |
 | `_ui-review-line` | stars, rating, review count, gap; hosts avatar blocks | `home-hero`, static |
-| `_ui-avatar` | image, alt | `_ui-review-line` |
+| `_ui-avatar` | image | `_ui-review-line` |
+
+`_ui-heading` replaced `snippets/ui-section-heading.liquid`, which held the same
+type at the same steps but took the accent as a second string. One richtext field
+carries both the accent and where it falls, so `heading_accent_position` went with
+it. The snippet has no callers left.
 
 Keep this table current. A block missing from it is a block that gets written a
 second time.

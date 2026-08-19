@@ -8,9 +8,13 @@
   and trails it in the other; the band is tinted in one and white in the other; and
   the media is a little shorter where titles run to two lines.
 
-  Built from the kit: ui-section-heading for the title, ui-button for the call to
-  action, ui-product-card for the tiles and ui-pagination-arrow for the carousel
-  controls. The section supplies the layout and the copy.
+  The section owns the row, the band and the arrangement. The title and the call
+  to action are static blocks, standing in the grid areas the layout puts them
+  in rather than in a content column, because the button moves from beside the
+  heading to under the row and back. See `docs/section-settings.md`.
+
+  Built from the kit: ui-product-card for the tiles and ui-pagination-arrow for
+  the carousel controls.
 
   Desktop and mobile are the same markup in a different grid. One button serves
   both — grid areas move it from beside the heading to under the row, so it is not
@@ -43,6 +47,7 @@
   class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
   style="{% render 'spacing-style', settings: section.settings %}"
   data-testid="best-sellers-{{ section.id }}"
+  {{ section.shopify_attributes }}
 >
   <div
     class="best-sellers best-sellers--cta-{{ section.settings.cta_position }} best-sellers--heading-{{ section.settings.heading_alignment }}"
@@ -53,15 +58,7 @@
       --best-sellers-columns-sm: {{ section.settings.columns_sm }};
     "
   >
-    {%- if section.settings.heading != blank -%}
-      {% render 'ui-section-heading',
-        text: section.settings.heading,
-        accent: section.settings.heading_accent,
-        accent_position: section.settings.heading_accent_position,
-        alignment: 'start',
-        class: 'best-sellers__heading'
-      %}
-    {%- endif -%}
+    {% content_for 'block', type: '_ui-heading', id: 'heading' %}
 
     <ui-carousel class="best-sellers__viewport">
       <ul class="best-sellers__track" role="list" data-carousel-track>
@@ -113,14 +110,7 @@
       %}
     </ui-carousel>
 
-    {%- if section.settings.cta_label != blank -%}
-      {% render 'ui-button',
-        variant: 'primary',
-        label: section.settings.cta_label,
-        link: section.settings.cta_link,
-        class: 'best-sellers__cta'
-      %}
-    {%- endif -%}
+    {% content_for 'block', type: '_ui-link', id: 'cta' %}
   </div>
 </div>
 
@@ -157,10 +147,13 @@
     gap: 32px;
   }
 
-  /* Centred over the row on mobile, beside it on desktop. Named with the component
-     class so the pair does not depend on which stylesheet the theme concatenates
-     last — equal specificity would leave it to chance. */
-  .ui-section-heading.best-sellers__heading {
+  /*
+   * Centred over the row on mobile, beside it on desktop. Reached as a child of
+   * the section rather than by a class of its own: the heading block owns its
+   * type and this owns where it stands, and a descendant selector outweighs the
+   * block's own rules without depending on which stylesheet is concatenated last.
+   */
+  .best-sellers > .ui-heading {
     grid-area: heading;
     text-align: center;
   }
@@ -214,8 +207,11 @@
     inset-inline-end: var(--page-margin);
   }
 
-  .ui-button.best-sellers__cta {
+  .best-sellers > .ui-link {
     grid-area: cta;
+  }
+
+  .best-sellers > .ui-link .ui-button {
     width: 100%;
   }
 
@@ -230,11 +226,11 @@
       gap: 48px 20px;
     }
 
-    .ui-section-heading.best-sellers__heading {
+    .best-sellers > .ui-heading {
       text-align: start;
     }
 
-    .best-sellers--heading-center .ui-section-heading.best-sellers__heading {
+    .best-sellers--heading-center.best-sellers > .ui-heading {
       text-align: center;
     }
 
@@ -249,7 +245,7 @@
       gap: 48px;
     }
 
-    .best-sellers--cta-below .ui-button.best-sellers__cta {
+    .best-sellers--cta-below > .ui-link {
       justify-self: center;
     }
 
@@ -275,7 +271,7 @@
       display: none;
     }
 
-    .ui-button.best-sellers__cta {
+    .best-sellers > .ui-link .ui-button {
       width: auto;
     }
   }
@@ -305,33 +301,8 @@
   "tag": "section",
   "settings": [
     {
-      "type": "text",
-      "id": "heading",
-      "label": "Heading",
-      "default": "Bestsellers"
-    },
-    {
-      "type": "text",
-      "id": "heading_accent",
-      "label": "Heading accent",
-      "info": "Rendered in the brand colour, after the heading."
-    },
-    {
-      "type": "select",
-      "id": "heading_accent_position",
-      "label": "Accent position",
-      "info": "Which end of the heading the brand colour falls on.",
-      "options": [
-        {
-          "value": "end",
-          "label": "After the heading"
-        },
-        {
-          "value": "start",
-          "label": "Before the heading"
-        }
-      ],
-      "default": "end"
+      "type": "header",
+      "content": "Products"
     },
     {
       "type": "product_list",
@@ -354,28 +325,13 @@
     },
     {
       "type": "header",
-      "content": "Call to action"
-    },
-    {
-      "type": "text",
-      "id": "cta_label",
-      "label": "Button label",
-      "default": "View all products"
-    },
-    {
-      "type": "url",
-      "id": "cta_link",
-      "label": "Button link"
-    },
-    {
-      "type": "header",
-      "content": "Layout"
+      "content": "t:content.layout"
     },
     {
       "type": "select",
       "id": "heading_alignment",
       "label": "Heading alignment",
-      "info": "Mobile always centres it.",
+      "info": "Above 750px only. Below it the heading is centred over the row.",
       "options": [
         {
           "value": "start",
@@ -430,26 +386,6 @@
       "default": "240 / 215"
     },
     {
-      "type": "select",
-      "id": "background",
-      "label": "Background",
-      "options": [
-        {
-          "value": "light-blue",
-          "label": "Light blue"
-        },
-        {
-          "value": "white",
-          "label": "White"
-        },
-        {
-          "value": "none",
-          "label": "Colour scheme"
-        }
-      ],
-      "default": "light-blue"
-    },
-    {
       "type": "range",
       "id": "columns",
       "label": "Columns from 1440px",
@@ -493,6 +429,30 @@
       "default": "page-width"
     },
     {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "options": [
+        {
+          "value": "light-blue",
+          "label": "Light blue"
+        },
+        {
+          "value": "white",
+          "label": "White"
+        },
+        {
+          "value": "none",
+          "label": "Colour scheme"
+        }
+      ],
+      "default": "light-blue"
+    },
+    {
       "type": "color_scheme",
       "id": "color_scheme",
       "label": "t:settings.color_scheme",
@@ -526,25 +486,56 @@
   "presets": [
     {
       "name": "Bestsellers",
+      "category": "t:categories.products",
       "settings": {
-        "heading": "Bestsellers",
-        "heading_accent": "",
         "heading_alignment": "start",
         "cta_position": "heading",
         "background": "light-blue",
         "media_ratio": "240 / 215"
+      },
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>Bestsellers</h2>"
+          }
+        },
+        "cta": {
+          "type": "_ui-link",
+          "static": true,
+          "settings": {
+            "label": "View all products",
+            "variant": "primary"
+          }
+        }
       }
     },
     {
       "name": "Custom treats",
+      "category": "t:categories.products",
       "settings": {
-        "heading": "Treats",
-        "heading_accent": "Custom",
-        "heading_accent_position": "start",
         "heading_alignment": "center",
         "cta_position": "below",
         "background": "white",
         "media_ratio": "4 / 3"
+      },
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2><em>Custom</em> Treats</h2>"
+          }
+        },
+        "cta": {
+          "type": "_ui-link",
+          "static": true,
+          "settings": {
+            "label": "View all products",
+            "variant": "primary"
+          }
+        }
       }
     }
   ]

@@ -2,9 +2,13 @@
   Shop by Occasion — a titled grid of collections (Figma: Shop by Occasion,
   desktop and mobile).
 
-  Everything visible comes from the kit: ui-section-heading for the title and
-  ui-collection-card for each tile. The section itself only supplies the grid and
-  the copy, which is why there is so little CSS here.
+  The section owns the grid and which collections fill it. The title, and
+  anything a merchant wants to stand above the tiles with it, are blocks — so a
+  second page can open the same grid with a different line. See
+  `docs/section-settings.md`.
+
+  Each tile is ui-collection-card from the kit, which is why there is so little
+  CSS here.
 
   The kit card is already responsive on its own — 171x220 on mobile, 305x263 above
   750px — so the grid sets column counts and gaps and lets the card size itself.
@@ -33,19 +37,15 @@
   class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
   style="{% render 'spacing-style', settings: section.settings %}"
   data-testid="shop-by-occasion-{{ section.id }}"
+  {{ section.shopify_attributes }}
 >
   <div
-    class="shop-by-occasion"
+    class="shop-by-occasion shop-by-occasion--{{ section.settings.heading_alignment }}"
     style="--shop-by-occasion-columns: {{ section.settings.columns }}; --shop-by-occasion-columns-tablet: {{ section.settings.tablet_columns }}; --shop-by-occasion-columns-mobile: {{ section.settings.mobile_columns }};"
   >
-    {%- if section.settings.heading != blank or section.settings.heading_accent != blank -%}
-      {% render 'ui-section-heading',
-        text: section.settings.heading,
-        accent: section.settings.heading_accent,
-        accent_position: section.settings.heading_accent_position,
-        alignment: section.settings.heading_alignment
-      %}
-    {%- endif -%}
+    <div class="shop-by-occasion__content">
+      {% content_for 'blocks' %}
+    </div>
 
     <ul class="shop-by-occasion__grid" role="list">
       {%- if chosen.size > 0 -%}
@@ -99,6 +99,26 @@
     gap: 32px;
   }
 
+  /*
+   * The blocks standing above the grid. The heading block sizes itself; what the
+   * section decides is where the column sits and how its parts are spaced.
+   */
+  .shop-by-occasion__content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .shop-by-occasion--center .shop-by-occasion__content {
+    align-items: center;
+    text-align: center;
+  }
+
+  .shop-by-occasion--start .shop-by-occasion__content {
+    align-items: flex-start;
+    text-align: start;
+  }
+
   .shop-by-occasion__grid {
     display: grid;
 
@@ -143,47 +163,14 @@
   "tag": "section",
   "settings": [
     {
-      "type": "text",
-      "id": "heading",
-      "label": "Heading",
-      "default": "Shop by"
-    },
-    {
-      "type": "text",
-      "id": "heading_accent",
-      "label": "Heading accent",
-      "info": "Rendered in the brand colour, after the heading.",
-      "default": "Occasion"
-    },
-    {
-      "type": "select",
-      "id": "heading_accent_position",
-      "label": "Accent position",
-      "info": "Which end of the heading the brand colour falls on.",
-      "options": [
-        {
-          "value": "end",
-          "label": "After the heading"
-        },
-        {
-          "value": "start",
-          "label": "Before the heading"
-        }
-      ],
-      "default": "end"
+      "type": "header",
+      "content": "Collections"
     },
     {
       "type": "collection_list",
       "id": "collections",
       "label": "Collections",
       "limit": 12
-    },
-    {
-      "type": "text",
-      "id": "description",
-      "label": "Card description",
-      "info": "Shown under every card. Leave empty to use each collection's own description.",
-      "default": "Custom treats for the moment people actually remember."
     },
     {
       "type": "range",
@@ -195,13 +182,20 @@
       "default": 8
     },
     {
+      "type": "text",
+      "id": "description",
+      "label": "Card description",
+      "info": "Shown under every card. Leave empty to use each collection's own description.",
+      "default": "Custom treats for the moment people actually remember."
+    },
+    {
       "type": "header",
-      "content": "Layout"
+      "content": "t:content.layout"
     },
     {
       "type": "select",
       "id": "heading_alignment",
-      "label": "Heading alignment",
+      "label": "Content alignment",
       "options": [
         {
           "value": "center",
@@ -212,27 +206,8 @@
           "label": "Left"
         }
       ],
-      "default": "center"
-    },
-    {
-      "type": "select",
-      "id": "background",
-      "label": "Background",
-      "options": [
-        {
-          "value": "none",
-          "label": "Colour scheme"
-        },
-        {
-          "value": "light-blue",
-          "label": "Light blue"
-        },
-        {
-          "value": "white",
-          "label": "White"
-        }
-      ],
-      "default": "none"
+      "default": "center",
+      "info": "Where the title and anything with it sit above the grid."
     },
     {
       "type": "range",
@@ -286,6 +261,30 @@
       "default": "page-width"
     },
     {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "options": [
+        {
+          "value": "none",
+          "label": "Colour scheme"
+        },
+        {
+          "value": "light-blue",
+          "label": "Light blue"
+        },
+        {
+          "value": "white",
+          "label": "White"
+        }
+      ],
+      "default": "none"
+    },
+    {
       "type": "color_scheme",
       "id": "color_scheme",
       "label": "t:settings.color_scheme",
@@ -318,7 +317,30 @@
   ],
   "presets": [
     {
-      "name": "Shop by Occasion"
+      "name": "Shop by Occasion",
+      "category": "t:categories.collections",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Shop by <em>Occasion</em></h2>"
+          }
+        }
+      },
+      "block_order": [
+        "heading"
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "_ui-heading"
+    },
+    {
+      "type": "_ui-text"
+    },
+    {
+      "type": "_ui-link"
     }
   ]
 }

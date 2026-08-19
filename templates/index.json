@@ -280,6 +280,17 @@
     },
     "shop_by_occasion_preview": {
       "type": "shop-by-occasion",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Shop by <em>Occasion</em></h2>"
+          }
+        }
+      },
+      "block_order": [
+        "heading"
+      ],
       "settings": {}
     },
     "home_hero_Kx9Ln4": {
@@ -390,19 +401,49 @@
     },
     "best_sellers_preview": {
       "type": "best-sellers",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>Bestsellers</h2>"
+          }
+        },
+        "cta": {
+          "type": "_ui-link",
+          "static": true,
+          "settings": {
+            "label": "View all products",
+            "variant": "primary"
+          }
+        }
+      },
       "settings": {}
     },
     "custom_treats_preview": {
       "type": "best-sellers",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2><em>Custom</em> Treats</h2>"
+          }
+        },
+        "cta": {
+          "type": "_ui-link",
+          "static": true,
+          "settings": {
+            "label": "View all products",
+            "variant": "primary"
+          }
+        }
+      },
       "settings": {
-        "heading": "Treats",
-        "heading_accent": "Custom",
-        "heading_accent_position": "start",
         "heading_alignment": "center",
         "cta_position": "below",
         "background": "white",
-        "media_ratio": "4 / 3",
-        "cta_label": "View all products"
+        "media_ratio": "4 / 3"
       }
     }
   },
