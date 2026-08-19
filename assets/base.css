@@ -393,7 +393,7 @@ p:empty {
   .page-width-normal,
   .page-width-narrow,
   .page-width-content {
-    --page-margin: 40px;
+    --page-margin: 80px;
   }
 }
 
@@ -410,7 +410,7 @@ p:empty {
 
 .page-width-narrow,
 .page-width-content {
-  /* NOTE: This results in a page width of 1400px because of how we set up margins with grid */
+  /* Design's page: 1280px of content between 80px gutters, so 1440px overall. */
   --page-content-width: var(--narrow-page-width);
   --page-width: calc(var(--page-content-width) + (var(--page-margin) * 2));
 }
