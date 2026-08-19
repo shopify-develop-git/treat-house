@@ -1,0 +1,293 @@
+{%- doc -%}
+  Renders a button from the Treat House UI kit (Figma: BUTTONS section).
+
+  Covers the five families of the kit — `primary`, `secondary`, `secondary-alt`,
+  `basket` and `social` — each with its default, hover and disabled state.
+
+  Renders an `<a>` when `link` is given, and a `<button>` otherwise.
+
+  Passing `class: 'ui-button--force-hover'` pins a button in its hover state.
+  The UI kit preview section uses it to show every state side by side; it has no
+  place in real page markup.
+
+  @param {string} [variant] - One of `primary`, `secondary`, `secondary-alt`, `basket`, `social`. Defaults to `primary`.
+  @param {string} [label] - The button text. For `basket` and `social` it is used as the accessible label instead.
+  @param {string} [link] - The URL to link to. When present, the button renders as a link.
+  @param {string} [icon] - The network for the `social` variant: `facebook`, `instagram`, `x` or `pinterest`. Defaults to `facebook`.
+  @param {boolean} [disabled] - Renders the disabled state.
+  @param {boolean} [full_width] - Stretches a text variant to the width of its container.
+  @param {string} [type] - The `type` attribute used when rendering a `<button>`. Defaults to `button`.
+  @param {boolean} [open_in_new_tab] - Opens the link in a new tab.
+  @param {string} [id] - The `id` attribute.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the element.
+
+  @example
+  {% render 'ui-button', variant: 'primary', label: 'Shop treats', link: '/collections/all' %}
+  {% render 'ui-button', variant: 'secondary', label: 'Customize your own', link: '/pages/builder' %}
+  {% render 'ui-button', variant: 'secondary-alt', label: 'Corporate gifting', disabled: true %}
+  {% render 'ui-button', variant: 'basket', label: 'Add to cart', type: 'submit' %}
+  {% render 'ui-button', variant: 'social', icon: 'instagram', link: 'https://instagram.com/treathouse' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign ui_variants = 'primary,secondary,secondary-alt,basket,social' | split: ','
+  assign ui_variant = variant | default: 'primary'
+  unless ui_variants contains ui_variant
+    assign ui_variant = 'primary'
+  endunless
+
+  assign is_icon_only = false
+  if ui_variant == 'basket' or ui_variant == 'social'
+    assign is_icon_only = true
+  endif
+
+  assign accessible_label = label
+
+  if ui_variant == 'basket'
+    assign icon_asset = 'icon-ui-basket.svg'
+    if accessible_label == blank
+      assign accessible_label = 'actions.add_to_cart' | t
+    endif
+  elsif ui_variant == 'social'
+    assign ui_icons = 'facebook,instagram,x,pinterest' | split: ','
+    assign ui_icon = icon | default: 'facebook'
+    unless ui_icons contains ui_icon
+      assign ui_icon = 'facebook'
+    endunless
+    assign icon_asset = 'icon-ui-' | append: ui_icon | append: '.svg'
+    if accessible_label == blank
+      assign accessible_label = ui_icon | capitalize
+    endif
+  endif
+
+  assign ui_classes = 'ui-button ui-button--' | append: ui_variant
+  if full_width and is_icon_only == false
+    assign ui_classes = ui_classes | append: ' ui-button--full'
+  endif
+  if class != blank
+    assign ui_classes = ui_classes | append: ' ' | append: class
+  endif
+-%}
+
+{%- capture ui_button_content -%}
+  {%- if is_icon_only -%}
+    <span class="ui-button__icon">{{- icon_asset | inline_asset_content -}}</span>
+  {%- else -%}
+    {{- label -}}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture ui_shared_attributes -%}
+  class="{{ ui_classes }}"
+  {%- if id != blank %} id="{{ id }}"{% endif -%}
+  {%- if is_icon_only %} aria-label="{{ accessible_label | escape }}"{% endif -%}
+  {%- if attributes != blank %} {{ attributes }}{% endif -%}
+{%- endcapture -%}
+
+{%- if link != blank -%}
+  <a
+    {%- if disabled %}
+      role="link"
+      aria-disabled="true"
+    {%- else %}
+      href="{{ link }}"
+    {%- endif %}
+    {%- if open_in_new_tab and disabled != true %}
+      target="_blank"
+      rel="noopener noreferrer"
+    {%- endif %}
+    {{ ui_shared_attributes }}
+  >
+    {{- ui_button_content -}}
+  </a>
+{%- else -%}
+  <button
+    type="{{ type | default: 'button' }}"
+    {%- if disabled %}
+      disabled
+    {%- endif %}
+    {{ ui_shared_attributes }}
+  >
+    {{- ui_button_content -}}
+  </button>
+{%- endif -%}
+
+{% stylesheet %}
+  /*
+   * Treat House UI kit — buttons.
+   * Ported from the BUTTONS section of the Figma UI kit. The tokens below are
+   * shared across the kit, so later kit components can build on them too.
+   */
+  :root {
+    --ui-color-primary: #6c276a;
+    --ui-color-primary-contrast: #ffffff;
+    --ui-color-sky: #a3d8f6;
+    --ui-color-surface: #ffffff;
+    --ui-color-ink: #000000;
+
+    --ui-button-radius: 2px;
+    --ui-button-padding-block: 14px;
+    --ui-button-padding-inline: 32px;
+    --ui-button-padding-inline-tight: 24px;
+    --ui-button-font-size: 12px;
+    --ui-button-line-height: 1.3;
+    --ui-button-font-weight: 500;
+    --ui-button-hairline-width: 0.5px;
+    --ui-button-disabled-opacity: 0.3;
+
+    /* Icon buttons are sized mobile first, then stepped down on desktop. */
+    --ui-button-basket-size: 48px;
+    --ui-button-basket-glyph: 20px;
+    --ui-button-social-size: 44px;
+    --ui-button-social-glyph: 24px;
+  }
+
+  @media screen and (min-width: 750px) {
+    :root {
+      --ui-button-basket-size: 40px;
+      --ui-button-basket-glyph: 16px;
+      --ui-button-social-size: 40px;
+      --ui-button-social-glyph: 20px;
+    }
+  }
+
+  .ui-button {
+    --ui-button-background: transparent;
+    --ui-button-color: currentcolor;
+    --ui-button-border-color: transparent;
+    --ui-button-border-width: 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: fit-content;
+    margin: 0;
+    padding: var(--ui-button-padding-block) var(--ui-button-padding-inline);
+    border: none;
+    border-radius: var(--ui-button-radius);
+    /*
+     * The outline is drawn as an inset shadow rather than a border so that a
+     * bordered button keeps exactly the same height as an unbordered one —
+     * primary and secondary buttons line up at 44px, as they do in the kit.
+     */
+    box-shadow: inset 0 0 0 var(--ui-button-border-width) var(--ui-button-border-color);
+    background-color: var(--ui-button-background);
+    color: var(--ui-button-color);
+    font-family: var(--font-accent--family);
+    font-size: var(--ui-button-font-size);
+    font-style: normal;
+    font-weight: var(--ui-button-font-weight);
+    line-height: var(--ui-button-line-height);
+    letter-spacing: 0;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    appearance: none;
+    transition: background-color var(--animation-values), color var(--animation-values),
+      box-shadow var(--animation-values), opacity var(--animation-values);
+  }
+
+  .ui-button:disabled,
+  .ui-button[aria-disabled='true'] {
+    opacity: var(--ui-button-disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  .ui-button--full {
+    width: 100%;
+  }
+
+  /* Primary */
+  .ui-button--primary {
+    --ui-button-background: var(--ui-color-primary);
+    --ui-button-color: var(--ui-color-primary-contrast);
+  }
+
+  .ui-button--primary:not(:disabled, [aria-disabled='true']):is(:hover, .ui-button--force-hover) {
+    --ui-button-background: var(--ui-color-sky);
+    --ui-button-color: var(--ui-color-primary);
+  }
+
+  /* Secondary — sits on a white surface */
+  .ui-button--secondary {
+    --ui-button-background: var(--ui-color-surface);
+    --ui-button-color: var(--ui-color-primary);
+    --ui-button-border-color: var(--ui-color-primary);
+    --ui-button-border-width: var(--ui-button-hairline-width);
+  }
+
+  /* Secondary alt — transparent, and set tighter than the other text buttons */
+  .ui-button--secondary-alt {
+    --ui-button-background: transparent;
+    --ui-button-color: var(--ui-color-primary);
+    --ui-button-border-color: var(--ui-color-primary);
+    --ui-button-border-width: var(--ui-button-hairline-width);
+
+    padding-inline: var(--ui-button-padding-inline-tight);
+  }
+
+  .ui-button--secondary:not(:disabled, [aria-disabled='true']):is(:hover, .ui-button--force-hover),
+  .ui-button--secondary-alt:not(:disabled, [aria-disabled='true']):is(:hover, .ui-button--force-hover) {
+    --ui-button-background: var(--ui-color-primary);
+    --ui-button-color: var(--ui-color-primary-contrast);
+  }
+
+  /* Icon buttons */
+  .ui-button--basket,
+  .ui-button--social {
+    flex: 0 0 auto;
+    padding: 0;
+  }
+
+  .ui-button--basket {
+    --ui-button-background: var(--ui-color-primary);
+    --ui-button-color: var(--ui-color-primary-contrast);
+
+    width: var(--ui-button-basket-size);
+    height: var(--ui-button-basket-size);
+  }
+
+  .ui-button--basket:not(:disabled, [aria-disabled='true']):is(:hover, .ui-button--force-hover) {
+    --ui-button-background: var(--ui-color-ink);
+  }
+
+  .ui-button--basket .ui-button__icon {
+    width: var(--ui-button-basket-glyph);
+    height: var(--ui-button-basket-glyph);
+  }
+
+  .ui-button--social {
+    --ui-button-background: transparent;
+    --ui-button-color: var(--ui-color-primary);
+    --ui-button-border-color: var(--ui-color-primary);
+    --ui-button-border-width: 1px;
+
+    width: var(--ui-button-social-size);
+    height: var(--ui-button-social-size);
+    border-radius: 50%;
+  }
+
+  .ui-button--social:not(:disabled, [aria-disabled='true']):is(:hover, .ui-button--force-hover) {
+    --ui-button-background: var(--ui-color-primary);
+    --ui-button-color: var(--ui-color-primary-contrast);
+  }
+
+  .ui-button--social .ui-button__icon {
+    width: var(--ui-button-social-glyph);
+    height: var(--ui-button-social-glyph);
+  }
+
+  .ui-button__icon {
+    display: block;
+    flex: 0 0 auto;
+  }
+
+  .ui-button__icon > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+{% endstylesheet %}

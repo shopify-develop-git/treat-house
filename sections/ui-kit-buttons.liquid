@@ -1,0 +1,253 @@
+{% comment %}
+  QA harness for the UI kit buttons. Mirrors the BUTTONS section of the Figma
+  file — every family across its default, hovered and disabled state — so the
+  implementation can be compared against the design side by side.
+
+  The "hovered" column is pinned with `ui-button--force-hover`; the "default"
+  column reacts to a real pointer, so both can be checked at once.
+{% endcomment %}
+
+{%- liquid
+  assign families = 'primary,secondary,secondary-alt,basket,social' | split: ','
+  assign titles = 'Button Primary/L,Button Secondary 1,Button Secondary 2,Button basket,Button social icon' | split: ','
+  assign labels = 'Shop treats,Customize your own,Corporate gifting,Add to cart,Facebook' | split: ','
+  assign states = 'Default,Hovered,Disable' | split: ','
+  assign glyphs = 'facebook,instagram,x,pinterest' | split: ','
+-%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="ui-kit-buttons-{{ section.id }}"
+>
+  <div class="ui-kit-buttons">
+    {%- for family in families -%}
+      {%- liquid
+        assign i = forloop.index0
+        assign family_title = titles[i]
+        assign family_label = labels[i]
+      -%}
+      <section class="ui-kit-buttons__family">
+        <h3 class="ui-kit-buttons__title">{{ family_title }}</h3>
+        <div class="ui-kit-buttons__row">
+          {%- for state in states -%}
+            <div class="ui-kit-buttons__cell">
+              <span class="ui-kit-buttons__state">{{ state }}</span>
+              {%- case state -%}
+                {%- when 'Hovered' -%}
+                  {% render 'ui-button',
+                    variant: family,
+                    label: family_label,
+                    icon: 'facebook',
+                    class: 'ui-button--force-hover'
+                  %}
+                {%- when 'Disable' -%}
+                  {% render 'ui-button',
+                    variant: family,
+                    label: family_label,
+                    icon: 'facebook',
+                    disabled: true
+                  %}
+                {%- else -%}
+                  {% render 'ui-button', variant: family, label: family_label, icon: 'facebook' %}
+              {%- endcase -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      </section>
+    {%- endfor -%}
+
+    <section class="ui-kit-buttons__family">
+      <h3 class="ui-kit-buttons__title">Social icons</h3>
+      <div class="ui-kit-buttons__row">
+        {%- for glyph in glyphs -%}
+          <div class="ui-kit-buttons__cell">
+            <span class="ui-kit-buttons__state">{{ glyph }}</span>
+            {% render 'ui-button', variant: 'social', icon: glyph %}
+          </div>
+        {%- endfor -%}
+      </div>
+    </section>
+
+    {%- if section.settings.show_extras -%}
+      <section class="ui-kit-buttons__family">
+        <h3 class="ui-kit-buttons__title">Extras</h3>
+        <p class="ui-kit-buttons__note">
+          Cases the Figma frames cannot show. Tab through these to check focus rings, and
+          confirm the disabled link is announced but does not navigate.
+        </p>
+        <div class="ui-kit-buttons__row">
+          <div class="ui-kit-buttons__cell">
+            <span class="ui-kit-buttons__state">Link &lt;a&gt;</span>
+            {% render 'ui-button', variant: 'primary', label: 'Shop treats', link: routes.all_products_collection_url %}
+          </div>
+          <div class="ui-kit-buttons__cell">
+            <span class="ui-kit-buttons__state">Disabled link</span>
+            {% render 'ui-button',
+              variant: 'primary',
+              label: 'Shop treats',
+              link: routes.all_products_collection_url,
+              disabled: true
+            %}
+          </div>
+          <div class="ui-kit-buttons__cell">
+            <span class="ui-kit-buttons__state">New tab</span>
+            {% render 'ui-button',
+              variant: 'secondary',
+              label: 'Opens elsewhere',
+              link: routes.all_products_collection_url,
+              open_in_new_tab: true
+            %}
+          </div>
+        </div>
+        <div class="ui-kit-buttons__row">
+          <div class="ui-kit-buttons__cell ui-kit-buttons__cell--wide">
+            <span class="ui-kit-buttons__state">Long label</span>
+            {% render 'ui-button',
+              variant: 'secondary',
+              label: 'Corporate gifting and bulk orders for the whole team'
+            %}
+          </div>
+          <div class="ui-kit-buttons__cell ui-kit-buttons__cell--wide">
+            <span class="ui-kit-buttons__state">full_width</span>
+            {% render 'ui-button', variant: 'primary', label: 'Shop treats', full_width: true %}
+          </div>
+        </div>
+      </section>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .ui-kit-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 44px;
+  }
+
+  .ui-kit-buttons__family {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ui-kit-buttons__title {
+    margin: 0;
+    padding-block-end: 8px;
+    border-block-end: 2px solid currentcolor;
+    font-family: var(--font-accent--family);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .ui-kit-buttons__note {
+    margin: -8px 0 0;
+    max-width: 60ch;
+    font-size: 13px;
+    opacity: 0.7;
+  }
+
+  .ui-kit-buttons__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px 40px;
+    align-items: flex-start;
+  }
+
+  .ui-kit-buttons__cell {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 0 0 auto;
+    min-width: 200px;
+  }
+
+  .ui-kit-buttons__cell--wide {
+    flex: 1 1 320px;
+    min-width: 260px;
+  }
+
+  .ui-kit-buttons__state {
+    font-family: var(--font-accent--family);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "UI kit — buttons",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "QA harness for the UI kit buttons. Not intended for a live storefront page."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_extras",
+      "label": "Show extras",
+      "info": "Link vs button, disabled link, new tab, long label and full width.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "UI kit — buttons"
+    }
+  ]
+}
+{% endschema %}
