@@ -1,0 +1,195 @@
+{%- doc -%}
+  Renders a select field from the UI kit (Figma: INPUT → Field/Gift type, Field/Budget range).
+
+  Both kit fields are the same component with different labels and option lists, so
+  they share this snippet.
+
+  The control is a real `<select>`. The kit draws its own option list, but an
+  OS-rendered list is what gives keyboard support, type-ahead and the native picker
+  on touch devices, and losing those costs more than the styling gains. Every closed
+  state the kit specifies — default, hovered, open, selected, error — is reproduced
+  here; the open list itself stays native. A custom listbox that also matches the
+  open state needs focus management and ARIA, and belongs in its own component.
+
+  The chevron flips on `:focus` rather than on a real open/closed signal, which CSS
+  cannot see. Clicking or tapping focuses and opens together, so the two agree
+  except when tabbing through, where the chevron points up for a list that is closed.
+
+  Colours come from the `--ui-*` layer. `--ui-color-gray` and `--ui-color-error` are
+  not in ui-kit-tokens.liquid yet, so they carry their Figma values as fallbacks and
+  will pick up the tokens once those land.
+
+  @param {string} [label] - The field label, rendered above the control in caps.
+  @param {string} [options] - Comma-separated option labels.
+  @param {string} [placeholder] - The empty first option. Without it the field starts on the first real option.
+  @param {string} [selected] - The option label to preselect.
+  @param {string} [error] - The error message. Its presence puts the field in the error state.
+  @param {string} [name] - The `name` attribute of the select.
+  @param {string} [id] - The `id` attribute. Defaults to a handle of the label.
+  @param {boolean} [required] - Marks the control required.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the select.
+
+  @example
+  {% render 'ui-select',
+    label: 'Gift type',
+    placeholder: 'Select gift type...',
+    options: 'Logo treats, Gift boxes, Gift cards, Custom order',
+    name: 'contact[gift_type]'
+  %}
+  {% render 'ui-select', label: 'Budget range', options: 'Under $500, $500-$2000', selected: 'Under $500' %}
+  {% render 'ui-select', label: 'Gift type', options: 'Gift boxes', error: 'This field is required.' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign ui_label = label | default: ''
+  assign ui_id = id
+  if ui_id == blank
+    assign ui_id = ui_label | handleize | prepend: 'ui-select-'
+  endif
+  assign ui_options = options | split: ','
+-%}
+
+<div class="ui-select{% if error != blank %} ui-select--error{% endif %}{% if class != blank %} {{ class }}{% endif %}">
+  {%- if ui_label != blank -%}
+    <label class="ui-select__label" for="{{ ui_id }}">{{ ui_label }}</label>
+  {%- endif -%}
+
+  <div class="ui-select__field">
+    <select
+      class="ui-select__control"
+      id="{{ ui_id }}"
+      {%- if name != blank %} name="{{ name }}"{% endif -%}
+      {%- if required %} required{% endif -%}
+      {%- if error != blank %} aria-invalid="true" aria-describedby="{{ ui_id }}-error"{% endif -%}
+      {%- if attributes != blank %} {{ attributes }}{% endif -%}
+    >
+      {%- if placeholder != blank -%}
+        <option value="" {% if selected == blank %}selected{% endif %}>{{ placeholder }}</option>
+      {%- endif -%}
+      {%- for option in ui_options -%}
+        {%- assign option_label = option | strip -%}
+        <option value="{{ option_label | escape }}" {% if selected == option_label %}selected{% endif %}>
+          {{- option_label -}}
+        </option>
+      {%- endfor -%}
+    </select>
+
+    <span class="ui-select__chevron" aria-hidden="true">
+      <span class="ui-select__chevron-closed">{{- 'icon-ui-chevron-down.svg' | inline_asset_content -}}</span>
+      <span class="ui-select__chevron-open">{{- 'icon-ui-chevron-up.svg' | inline_asset_content -}}</span>
+    </span>
+  </div>
+
+  {%- if error != blank -%}
+    <p class="ui-select__error" id="{{ ui_id }}-error">{{ error }}</p>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  :root {
+    --ui-select-height: 44px;
+    --ui-select-padding: 12px;
+    --ui-select-chevron-width: 14px;
+    --ui-select-chevron-height: 8px;
+    --ui-select-chevron-gap: 8px;
+  }
+
+  .ui-select {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+  }
+
+  .ui-select__label {
+    font-family: var(--ui-font-accent);
+    font-weight: var(--font-accent--weight-semibold, 600);
+    font-size: 12px;
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: var(--ui-color-black);
+  }
+
+  .ui-select__field {
+    position: relative;
+    display: flex;
+  }
+
+  .ui-select__control {
+    appearance: none;
+    width: 100%;
+    height: var(--ui-select-height);
+    padding: var(--ui-select-padding);
+
+    /* Room for the chevron and the gap the kit leaves in front of it. */
+    padding-inline-end: calc(
+      var(--ui-select-padding) + var(--ui-select-chevron-width) + var(--ui-select-chevron-gap)
+    );
+    border: 1px solid var(--ui-color-border-gray);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--ui-color-gray, #555555);
+    transition: border-color var(--animation-speed) ease;
+  }
+
+  .ui-select__control:hover,
+  .ui-select__control:focus {
+    border-color: var(--ui-color-primary);
+  }
+
+  /* A real choice — anything but the empty placeholder — carries the brand colour. */
+  .ui-select__control:not(:has(option[value='']:checked)) {
+    border-color: var(--ui-color-primary);
+    color: var(--ui-color-primary);
+  }
+
+  .ui-select__chevron {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: var(--ui-select-padding);
+    display: flex;
+    align-items: center;
+    color: var(--ui-color-black);
+
+    /* The click belongs to the select underneath. */
+    pointer-events: none;
+  }
+
+  .ui-select__chevron svg {
+    display: block;
+    width: var(--ui-select-chevron-width);
+    height: var(--ui-select-chevron-height);
+  }
+
+  .ui-select__chevron-open {
+    display: none;
+  }
+
+  .ui-select__field:has(.ui-select__control:focus) .ui-select__chevron-closed {
+    display: none;
+  }
+
+  .ui-select__field:has(.ui-select__control:focus) .ui-select__chevron-open {
+    display: block;
+  }
+
+  .ui-select__error {
+    margin: 0;
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 12px;
+    line-height: 1.1;
+    color: var(--ui-color-error, #e6281a);
+  }
+
+  .ui-select--error .ui-select__control,
+  .ui-select--error .ui-select__control:hover,
+  .ui-select--error .ui-select__control:focus {
+    border-color: var(--ui-color-error, #e6281a);
+  }
+{% endstylesheet %}
