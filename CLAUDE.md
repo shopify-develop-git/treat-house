@@ -31,10 +31,15 @@ Two things to avoid:
 
 ## Page geometry — read before laying out a section
 
-Sections sit in the `.section` grid, which puts the content in a central column
-between two gutters. **A section never adds horizontal padding of its own.** Use
-`section--page-width` and let the grid place it; anything else double-pads at some
-width and lines up with nothing else on the page.
+Most sections sit in the `.section` grid, which puts the content in a central
+column between two gutters. Those use `section--page-width` and **add no horizontal
+padding of their own** — the grid places them, and a second padding double-pads at
+some width and lines up with nothing else on the page.
+
+A full-bleed section that needs its background to reach the window edge stands
+outside that grid and pads itself. That is fine, but **take the value from
+`--page-margin` rather than retyping the numbers** — otherwise the page has two
+sources for one measurement and they drift the first time either moves.
 
 The gutter steps three times, in `assets/base.css`:
 
