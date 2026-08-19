@@ -154,11 +154,18 @@
    * snippet. Unset, the field is exactly what the Field/* family draws.
    */
   /*
-    * Reached through the wrapper, not on its own. `base.css` paints every input
-    * with `input:not([type='checkbox'], [type='radio'])`, which is one element
-    * heavier than a lone class, so a single-class rule here lost its background
-    * and its border colour to the theme's while keeping its own border width —
-    * a field that looked almost right and was not.
+    * Reached through the wrapper, not on its own. `base.css` paints every field
+    * with `textarea, input:not([type='checkbox'], [type='radio'])`, and a
+    * single-class rule here was losing its background and its border colour to
+    * that while keeping its own border width — a field that looked almost right
+    * and was not.
+    *
+    * Only half of that rule beats a class, though: a selector list is weighed
+    * one selector at a time, so `input:not(…)` is (0,1,1) and wins, while the
+    * bare `textarea` is (0,0,1) and never did. The wrapper is carried through
+    * every rule below anyway, because one weight across the file reads better
+    * than two — but do not take this as evidence that a lone class loses to the
+    * theme generally. It loses to an element plus an attribute.
     */
   .ui-input .ui-input__control {
     width: 100%;
