@@ -8,7 +8,8 @@
   keep them in one place instead of in every section that needs a title.
 
   `accent` renders inside the heading rather than beside it, so the line stays one
-  string to a screen reader and wraps as one.
+  string to a screen reader and wraps as one. It can lead or trail: the file colours
+  the last words in "Shop by Occasion" and the first in "Custom Treats".
 
   Tracking is set in `em`. Figma gives -4% of the size, which is -1.28px at the
   mobile step and -1.92px at the desktop one; an em holds that ratio at both
@@ -19,7 +20,8 @@
   the kit defines one this picks it up with no edit here.
 
   @param {string} text - The heading, in the foreground colour.
-  @param {string} [accent] - Trailing words rendered in the brand colour.
+  @param {string} [accent] - Words rendered in the brand colour.
+  @param {string} [accent_position] - `start` or `end`. Defaults to `end`.
   @param {string} [as] - Heading level: `h1`, `h2` or `h3`. Defaults to `h2`, since a section title normally sits under the page's own.
   @param {string} [alignment] - `center`, `start` or `end`. Defaults to `center`.
   @param {string} [id] - The `id` attribute.
@@ -28,6 +30,7 @@
 
   @example
   {% render 'ui-section-heading', text: 'Shop by', accent: 'Occasion' %}
+  {% render 'ui-section-heading', text: 'Treats', accent: 'Custom', accent_position: 'start' %}
   {% render 'ui-section-heading', text: 'Corporate gifting', as: 'h1', alignment: 'start' %}
 {%- enddoc -%}
 
@@ -36,6 +39,11 @@
   assign heading_tag = as | default: 'h2'
   unless heading_levels contains heading_tag
     assign heading_tag = 'h2'
+  endunless
+
+  assign accent_at = accent_position | default: 'end'
+  unless accent_at == 'start'
+    assign accent_at = 'end'
   endunless
 
   assign alignments = 'center,start,end' | split: ','
@@ -50,8 +58,11 @@
   {%- if id != blank %} id="{{ id }}"{% endif -%}
   {%- if attributes != blank %} {{ attributes }}{% endif -%}
 >
+  {%- if accent != blank and accent_at == 'start' -%}
+    <span class="ui-section-heading__accent">{{ accent }}</span>{{ ' ' }}
+  {%- endif -%}
   {{- text -}}
-  {%- if accent != blank %} <span class="ui-section-heading__accent">{{ accent }}</span>{% endif -%}
+  {%- if accent != blank and accent_at == 'end' %} <span class="ui-section-heading__accent">{{ accent }}</span>{% endif -%}
 </{{ heading_tag }}>
 
 {% stylesheet %}
