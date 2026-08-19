@@ -13,13 +13,17 @@
   tells a screen reader the limit, and a live count would interrupt on every
   keystroke.
 
+  The box keeps a blank placeholder when none is given, because the filled state is
+  read through `:placeholder-shown`; without one an empty box would claim the
+  engaged border.
+
   The kit draws the box exactly one line tall, which leaves no room under the text
   for the counter it also draws. The bottom padding here reserves that room, so
   wrapping text stops above the counter instead of running beneath it.
 
   @param {string} [label] - Accessible label. Rendered visually hidden, since the kit draws none.
   @param {string} [value] - The current value.
-  @param {string} [placeholder] - Placeholder text.
+  @param {string} [placeholder] - Placeholder text. Blank still emits a space, which the filled-state selector needs.
   @param {number} [maxlength] - Character limit. Defaults to 200, the figure in the kit.
   @param {string} [name] - The `name` attribute.
   @param {string} [id] - The `id` attribute. Defaults to `ui-message`.
@@ -36,6 +40,11 @@
   assign ui_id = id | default: 'ui-message'
   assign ui_limit = maxlength | default: 200
   assign ui_used = value | default: '' | size
+
+  assign ui_placeholder = placeholder
+  if ui_placeholder == blank
+    assign ui_placeholder = ' '
+  endif
 -%}
 
 <div class="ui-message{% if class != blank %} {{ class }}{% endif %}">
@@ -49,7 +58,7 @@
       id="{{ ui_id }}"
       maxlength="{{ ui_limit }}"
       {%- if name != blank %} name="{{ name }}"{% endif -%}
-      {%- if placeholder != blank %} placeholder="{{ placeholder }}"{% endif -%}
+      placeholder="{{ ui_placeholder }}"
       {%- if required %} required{% endif -%}
       {%- if attributes != blank %} {{ attributes }}{% endif -%}
     >{{- value -}}</textarea>
