@@ -205,6 +205,82 @@
         </div>
       </div>
     </section>
+    {%- liquid
+      assign sample_values = '$50 – $100,$100 – $150,$150 – $200,$200 – $250,$250 – $300' | split: ','
+      assign sample_sorts = 'Best Selling,Featured,Newest,Price Low → High,Price High → Low' | split: ','
+      assign bar_labels = 'Occasion,Recipient,Pack size,Custom image,Gift-ready,Delivery timing' | split: ','
+    -%}
+
+    {%- assign panel_types = 'checkbox,radio' | split: ',' -%}
+    {%- for panel_type in panel_types -%}
+      <section class="ui-kit-components__family">
+        <h3 class="ui-kit-components__title">Filter panel — {{ panel_type }}</h3>
+        <div class="ui-kit-components__row">
+          <div class="ui-kit-components__cell ui-kit-components__cell--row">
+            <span class="ui-kit-components__state">Variant={{ panel_type | capitalize }}</span>
+            {% render 'ui-filter-panel',
+              heading: 'Select recipient',
+              values: sample_values,
+              type: panel_type,
+              name: 'preview-panel'
+            %}
+          </div>
+        </div>
+      </section>
+    {%- endfor -%}
+
+    <section class="ui-kit-components__family">
+      <h3 class="ui-kit-components__title">Filter dropdown</h3>
+      <div class="ui-kit-components__row ui-kit-components__row--overlay">
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Closed</span>
+          {% render 'ui-filter-dropdown',
+            label: 'Occasion',
+            heading: 'Select occasion',
+            values: sample_values,
+            name: 'preview-dd-closed'
+          %}
+        </div>
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Open</span>
+          {% render 'ui-filter-dropdown',
+            label: 'Occasion',
+            heading: 'Select occasion',
+            values: sample_values,
+            name: 'preview-dd-open',
+            open: true
+          %}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-kit-components__family">
+      <h3 class="ui-kit-components__title">Filter bar</h3>
+      <div class="ui-filter-bar">
+        {%- for bar_label in bar_labels -%}
+          {% render 'ui-filter-dropdown',
+            label: bar_label,
+            heading: 'Select value',
+            values: sample_values,
+            name: bar_label
+          %}
+        {%- endfor -%}
+      </div>
+    </section>
+
+    <section class="ui-kit-components__family">
+      <h3 class="ui-kit-components__title">Sort by dropdown</h3>
+      <div class="ui-kit-components__row ui-kit-components__row--overlay">
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Default</span>
+          {% render 'ui-sort-dropdown', options: sample_sorts, label: 'Most Relevant' %}
+        </div>
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Open</span>
+          {% render 'ui-sort-dropdown', options: sample_sorts, label: 'Most Relevant', open: true %}
+        </div>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -256,6 +332,12 @@
   .ui-kit-components__cell--row {
     width: 254px;
     min-width: 254px;
+  }
+
+  /* An open disclosure overlays what follows, so its row needs the headroom. */
+  .ui-kit-components__row--overlay {
+    min-height: 360px;
+    align-items: flex-start;
   }
 
   /* The kit draws collection cards at 305px. */

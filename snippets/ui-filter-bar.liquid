@@ -1,0 +1,43 @@
+{%- doc -%}
+  Renders a row of filter groups (Figma: COMPONENTS → Filter Bar).
+
+  A thin wrapper: the kit's bar is its dropdowns set 12px apart, and everything
+  else about a group lives in [ui-filter-dropdown]. It wraps onto more lines
+  rather than scrolling, so a narrow screen keeps every group reachable.
+
+  `groups` takes Shopify's `filter` shape — each entry read through `.label`,
+  `.param_name` and `.values` — so it can be handed `collection.filters` directly.
+
+  @param {object[]} groups - The filter groups to show.
+  @param {string} [type] - `checkbox` or `radio` for every group. Defaults to `checkbox`.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-filter-bar', groups: collection.filters %}
+{%- enddoc -%}
+
+<div class="ui-filter-bar{% if class != blank %} {{ class }}{% endif %}">
+  {%- for group in groups -%}
+    {%- assign group_heading = group.heading | default: group.label -%}
+    {% render 'ui-filter-dropdown',
+      label: group.label,
+      heading: group_heading,
+      values: group.values,
+      name: group.param_name,
+      type: type
+    %}
+  {%- endfor -%}
+</div>
+
+{% stylesheet %}
+  :root {
+    --ui-filter-bar-gap: 12px;
+  }
+
+  .ui-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ui-filter-bar-gap);
+  }
+{% endstylesheet %}

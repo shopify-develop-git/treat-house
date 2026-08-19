@@ -1,0 +1,115 @@
+{%- doc -%}
+  Renders the open body of a filter group
+  (Figma: COMPONENTS → Filter Panel).
+
+  A heading, a list of choice rows, then Apply and Clear all.
+
+  `values` takes Shopify's `filter.values` shape directly — each entry is read
+  through `.label`, `.value` and `.active` — so the panel can be handed real facet
+  data unchanged. Plain strings work too, which is what the preview uses.
+
+  The kit squashes the Apply button to 32px, shorter than the primary button
+  anywhere else in the file. That is a panel decision rather than a new button
+  size, so the height is set here instead of growing a size onto [ui-button].
+
+  @param {string} heading - The group's label, e.g. "Select recipient".
+  @param {object[]} values - The filter values to list.
+  @param {string} [type] - `checkbox` or `radio`. Defaults to `checkbox`.
+  @param {string} [name] - The `name` shared by the group's inputs.
+  @param {string} [apply_label] - The Apply button's text.
+  @param {string} [clear_label] - The Clear all link's text.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-filter-panel', heading: 'Select recipient', values: filter.values, name: filter.param_name %}
+{%- enddoc -%}
+
+{%- liquid
+  assign panel_type = type | default: 'checkbox'
+  unless panel_type == 'radio'
+    assign panel_type = 'checkbox'
+  endunless
+
+  assign panel_apply = apply_label | default: 'Apply'
+  assign panel_clear = clear_label
+  if panel_clear == blank
+    assign panel_clear = 'actions.clear_all' | t
+  endif
+-%}
+
+<div class="ui-filter-panel{% if class != blank %} {{ class }}{% endif %}">
+  <p class="ui-filter-panel__heading">{{ heading }}</p>
+
+  <div class="ui-filter-panel__list">
+    {%- for value in values -%}
+      {%- liquid
+        # Resolved up here rather than in the render arguments: a filter inside a
+        # render argument is not something the theme does anywhere, and it stops
+        # the tooling reading the arguments that follow it.
+        assign value_label = value.label | default: value
+        assign value_value = value.value | default: value
+      -%}
+      {% render 'ui-choice-item',
+        type: panel_type,
+        label: value_label,
+        value: value_value,
+        checked: value.active,
+        name: name
+      %}
+    {%- endfor -%}
+  </div>
+
+  <div class="ui-filter-panel__footer">
+    {% render 'ui-button', variant: 'primary', label: panel_apply, class: 'ui-filter-panel__apply' %}
+    {% render 'ui-button', variant: 'link', label: panel_clear %}
+  </div>
+</div>
+
+{% stylesheet %}
+  :root {
+    --ui-filter-panel-width: 254px;
+    --ui-filter-panel-padding: 12px;
+    --ui-filter-panel-heading-size: 10px;
+    --ui-filter-panel-apply-height: 32px;
+  }
+
+  .ui-filter-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    box-sizing: border-box;
+    width: var(--ui-filter-panel-width);
+    border-radius: var(--ui-radius-sm);
+    /* Inset again so the rows can run the panel's full width, as the kit draws them. */
+    box-shadow: inset 0 0 0 1px var(--ui-color-border-gray);
+    background-color: var(--ui-color-white);
+  }
+
+  .ui-filter-panel__heading {
+    margin: 0;
+    padding: var(--ui-filter-panel-padding);
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-accent);
+    font-size: var(--ui-filter-panel-heading-size);
+    font-weight: var(--font-accent--weight-semibold, 600);
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .ui-filter-panel__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ui-filter-panel__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--ui-filter-panel-padding);
+  }
+
+  .ui-filter-panel__apply {
+    height: var(--ui-filter-panel-apply-height);
+    padding-block: 0;
+  }
+{% endstylesheet %}

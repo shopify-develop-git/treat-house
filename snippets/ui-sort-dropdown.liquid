@@ -1,0 +1,134 @@
+{%- doc -%}
+  Renders the sort control (Figma: COMPONENTS → Sort by Dropdown).
+
+  Kept apart from [ui-filter-dropdown] even though both are disclosures: the kit
+  gives this one a filled purple trigger with white text and a 32px gap, against
+  the filter trigger's white outline and 12px gap. Sharing one component would
+  mean a variant that changes every visual property, which is two components
+  wearing one name.
+
+  Built on `<details>` like the filter groups, so the open state, keyboard
+  operation and outside click all come from the theme rather than new script.
+
+  `options` takes entries read through `.label`, `.value` and `.active`, which is
+  the shape Shopify's `collection.sort_options` already has.
+
+  @param {object[]} options - The sort options to list.
+  @param {string} [label] - The trigger's text. Defaults to the current option.
+  @param {string} [prefix] - Text before the current option. Defaults to "Sort:".
+  @param {boolean} [open] - Renders the control already open.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-sort-dropdown', options: collection.sort_options %}
+{%- enddoc -%}
+
+{%- liquid
+  assign sort_prefix = prefix | default: 'Sort:'
+  assign sort_label = label
+
+  if sort_label == blank
+    for option in options
+      if option.active
+        assign sort_label = option.label
+        break
+      endif
+    endfor
+  endif
+
+  if sort_label == blank and options.size > 0
+    assign sort_label = options.first.label | default: options.first
+  endif
+-%}
+
+<details
+  class="ui-sort-dropdown{% if class != blank %} {{ class }}{% endif %}"
+  data-auto-close-details="desktop mobile"
+  {%- if open %} open{% endif -%}
+>
+  <summary class="ui-sort-dropdown__trigger">
+    <span class="ui-sort-dropdown__label">{{ sort_prefix }} {{ sort_label }}</span>
+    <span class="ui-sort-dropdown__chevron">{{- 'icon-ui-chevron.svg' | inline_asset_content -}}</span>
+  </summary>
+
+  <div class="ui-sort-dropdown__list">
+    {%- for option in options -%}
+      {%- liquid
+        assign option_label = option.label | default: option
+        assign option_link = option.link
+      -%}
+      {% render 'ui-menu-item', label: option_label, link: option_link, selected: option.active %}
+    {%- endfor -%}
+  </div>
+</details>
+
+{% stylesheet %}
+  :root {
+    --ui-sort-dropdown-width: 199px;
+    --ui-sort-dropdown-padding: 12px;
+    --ui-sort-dropdown-gap: 32px;
+    --ui-sort-dropdown-offset: 10px;
+    --ui-sort-dropdown-font-size: 12px;
+  }
+
+  .ui-sort-dropdown {
+    position: relative;
+    width: var(--ui-sort-dropdown-width);
+  }
+
+  .ui-sort-dropdown__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    gap: var(--ui-sort-dropdown-gap);
+    width: 100%;
+    padding: var(--ui-sort-dropdown-padding);
+    border-radius: var(--ui-radius-sm);
+    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-primary);
+    background-color: var(--ui-color-primary);
+    color: var(--ui-color-white);
+    font-family: var(--ui-font-accent);
+    font-size: var(--ui-sort-dropdown-font-size);
+    font-weight: 500;
+    line-height: var(--ui-line-height);
+    text-transform: uppercase;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .ui-sort-dropdown__trigger::-webkit-details-marker {
+    display: none;
+  }
+
+  .ui-sort-dropdown__chevron {
+    display: block;
+    flex: 0 0 auto;
+    width: 12px;
+    height: 6px;
+    transition: rotate var(--animation-values);
+  }
+
+  [open] > .ui-sort-dropdown__trigger .ui-sort-dropdown__chevron {
+    rotate: 180deg;
+  }
+
+  .ui-sort-dropdown__chevron > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ui-sort-dropdown__list {
+    position: absolute;
+    /* Out of flow so an open list overlays the grid instead of pushing it down. */
+    z-index: var(--layer-raised, 2);
+    inset-block-start: calc(100% + var(--ui-sort-dropdown-offset));
+    inset-inline: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--ui-radius-sm);
+    box-shadow: inset 0 0 0 1px var(--ui-color-border-gray);
+    background-color: var(--ui-color-white);
+  }
+{% endstylesheet %}

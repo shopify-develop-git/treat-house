@@ -1,0 +1,91 @@
+{%- doc -%}
+  Renders the opener of a filter dropdown (Figma: COMPONENTS → Filter Trigger).
+
+  Renders a `<summary>`, so it must sit inside a `<details>` — [ui-filter-dropdown]
+  is what puts it there. That is deliberate: the kit only ever draws this as the
+  opener of a dropdown, and a disclosure built from `<details>` gets keyboard
+  support and the open state for free, which is also how the theme's own facets
+  work.
+
+  The chevron flips on open through `[open]` on the parent, so the two states
+  never disagree with what the disclosure is actually doing.
+
+  @param {string} label - The filter group's name.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the element.
+
+  @example
+  {% render 'ui-filter-trigger', label: 'Occasion' %}
+{%- enddoc -%}
+
+<summary
+  class="ui-filter-trigger{% if class != blank %} {{ class }}{% endif %}"
+  {%- if attributes != blank %} {{ attributes }}{% endif -%}
+>
+  <span class="ui-filter-trigger__label">{{ label }}</span>
+  <span class="ui-filter-trigger__chevron">{{- 'icon-ui-chevron.svg' | inline_asset_content -}}</span>
+</summary>
+
+{% stylesheet %}
+  :root {
+    --ui-filter-trigger-padding-block: 12px;
+    --ui-filter-trigger-padding-inline: 16px;
+    --ui-filter-trigger-gap: 12px;
+    --ui-filter-trigger-font-size: 12px;
+    --ui-filter-trigger-chevron-width: 12px;
+    --ui-filter-trigger-chevron-height: 6px;
+  }
+
+  .ui-filter-trigger {
+    --ui-filter-trigger-border-color: var(--ui-color-border-gray);
+    --ui-filter-trigger-border-width: var(--ui-hairline-width);
+
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    gap: var(--ui-filter-trigger-gap);
+    width: fit-content;
+    padding: var(--ui-filter-trigger-padding-block) var(--ui-filter-trigger-padding-inline);
+    border-radius: var(--ui-radius-sm);
+    box-shadow: inset 0 0 0 var(--ui-filter-trigger-border-width) var(--ui-filter-trigger-border-color);
+    background-color: var(--ui-color-white);
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-accent);
+    font-size: var(--ui-filter-trigger-font-size);
+    font-weight: 500;
+    line-height: var(--ui-line-height);
+    text-transform: uppercase;
+    cursor: pointer;
+    list-style: none;
+    transition: box-shadow var(--animation-values);
+  }
+
+  /* Safari still paints a disclosure triangle without this. */
+  .ui-filter-trigger::-webkit-details-marker {
+    display: none;
+  }
+
+  .ui-filter-trigger:is(:hover, .ui-filter-trigger--force-hover),
+  [open] > .ui-filter-trigger {
+    --ui-filter-trigger-border-color: var(--ui-color-primary);
+    --ui-filter-trigger-border-width: 1px;
+  }
+
+  .ui-filter-trigger__chevron {
+    display: block;
+    flex: 0 0 auto;
+    width: var(--ui-filter-trigger-chevron-width);
+    height: var(--ui-filter-trigger-chevron-height);
+    transition: rotate var(--animation-values);
+  }
+
+  [open] > .ui-filter-trigger .ui-filter-trigger__chevron {
+    rotate: 180deg;
+  }
+
+  .ui-filter-trigger__chevron > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+{% endstylesheet %}

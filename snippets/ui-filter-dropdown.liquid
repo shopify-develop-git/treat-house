@@ -1,0 +1,59 @@
+{%- doc -%}
+  Renders one filter group as a disclosure
+  (Figma: COMPONENTS → Filter Dropdown).
+
+  Built on `<details>` rather than custom JavaScript. That is the pattern the
+  theme's own facets use, and it means the open state, keyboard operation and
+  Escape all work without a line of script. `data-auto-close-details` hands the
+  outside click to the theme's existing auto-close-details.js.
+
+  The panel is taken out of flow so an open group overlays the page instead of
+  pushing the grid down. The kit stands it 10px clear of the trigger.
+
+  @param {string} label - The filter group's name, shown on the trigger.
+  @param {string} heading - The panel's heading.
+  @param {object[]} values - The filter values to list.
+  @param {string} [type] - `checkbox` or `radio`. Defaults to `checkbox`.
+  @param {string} [name] - The `name` shared by the group's inputs.
+  @param {boolean} [open] - Renders the group already open.
+  @param {string} [align] - `start` or `end`; which edge the panel lines up with. Defaults to `start`.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-filter-dropdown', label: 'Occasion', heading: 'Select occasion', values: filter.values %}
+{%- enddoc -%}
+
+<details
+  class="ui-filter-dropdown{% if align == 'end' %} ui-filter-dropdown--align-end{% endif %}{% if class != blank %} {{ class }}{% endif %}"
+  data-auto-close-details="desktop mobile"
+  {%- if open %} open{% endif -%}
+>
+  {% render 'ui-filter-trigger', label: label %}
+  <div class="ui-filter-dropdown__panel">
+    {% render 'ui-filter-panel', heading: heading, values: values, type: type, name: name %}
+  </div>
+</details>
+
+{% stylesheet %}
+  :root {
+    --ui-filter-dropdown-offset: 10px;
+  }
+
+  .ui-filter-dropdown {
+    position: relative;
+    width: fit-content;
+  }
+
+  .ui-filter-dropdown__panel {
+    position: absolute;
+    /* Above the product grid, below the header and any drawer. */
+    z-index: var(--layer-raised, 2);
+    inset-block-start: calc(100% + var(--ui-filter-dropdown-offset));
+    inset-inline-start: 0;
+  }
+
+  .ui-filter-dropdown--align-end .ui-filter-dropdown__panel {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+  }
+{% endstylesheet %}
