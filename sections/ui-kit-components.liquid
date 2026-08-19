@@ -126,6 +126,55 @@
         </div>
       </section>
     {%- endfor -%}
+
+    {%- assign choice_types = 'checkbox,radio' | split: ',' -%}
+    {%- for choice_type in choice_types -%}
+      <section class="ui-kit-components__family">
+        <h3 class="ui-kit-components__title">{{ choice_type | capitalize }} item</h3>
+        <div class="ui-kit-components__row">
+          <div class="ui-kit-components__cell ui-kit-components__cell--row">
+            <span class="ui-kit-components__state">Default</span>
+            {% render 'ui-choice-item', type: choice_type, label: '$50 – $100', name: 'preview--default' %}
+          </div>
+          <div class="ui-kit-components__cell ui-kit-components__cell--row">
+            <span class="ui-kit-components__state">Hovered</span>
+            {% render 'ui-choice-item',
+              type: choice_type,
+              label: '$50 – $100',
+              name: 'preview--hovered',
+              class: 'ui-choice-item--force-hover'
+            %}
+          </div>
+          <div class="ui-kit-components__cell ui-kit-components__cell--row">
+            <span class="ui-kit-components__state">Selected</span>
+            {% render 'ui-choice-item',
+              type: choice_type,
+              label: '$50 – $100',
+              name: 'preview--selected',
+              checked: true
+            %}
+          </div>
+        </div>
+      </section>
+    {%- endfor -%}
+
+    <section class="ui-kit-components__family">
+      <h3 class="ui-kit-components__title">Item</h3>
+      <div class="ui-kit-components__row">
+        <div class="ui-kit-components__cell ui-kit-components__cell--row">
+          <span class="ui-kit-components__state">Default</span>
+          {% render 'ui-menu-item', label: 'Best Selling' %}
+        </div>
+        <div class="ui-kit-components__cell ui-kit-components__cell--row">
+          <span class="ui-kit-components__state">Hover</span>
+          {% render 'ui-menu-item', label: 'Best Selling', class: 'ui-menu-item--force-hover' %}
+        </div>
+        <div class="ui-kit-components__cell ui-kit-components__cell--row">
+          <span class="ui-kit-components__state">Selected</span>
+          {% render 'ui-menu-item', label: 'Best Selling', selected: true %}
+        </div>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -171,6 +220,12 @@
 
   .ui-kit-components__cell--wide {
     min-width: 280px;
+  }
+
+  /* List rows are container-sized in the kit; 254px is the width it draws them at. */
+  .ui-kit-components__cell--row {
+    width: 254px;
+    min-width: 254px;
   }
 
   .ui-kit-components__state {

@@ -1,0 +1,128 @@
+{%- doc -%}
+  Renders a selectable filter row from the UI kit
+  (Figma: COMPONENTS → Checkbox Item / Radio Item).
+
+  The kit draws these as two components, but they differ only in which indicator
+  sits at the front, so one snippet covers both through `type`.
+
+  The row is a real `<label>` around a real `<input>`, with the indicator styled
+  from the input's `:checked` state. That makes it clickable and keyboard
+  operable on its own, and it means a filter form can post it without any JS.
+  The input is visually hidden rather than `display: none`, which would take it
+  out of the tab order.
+
+  Selected does not tint the row — only the label turns purple and the indicator
+  fills. Only hover carries the light blue background.
+
+  @param {string} label - The row's visible text.
+  @param {string} [type] - `checkbox` or `radio`. Defaults to `checkbox`.
+  @param {string} [name] - The input's `name`.
+  @param {string} [value] - The input's `value`.
+  @param {boolean} [checked] - Marks the row selected.
+  @param {boolean} [disabled] - Disables the input.
+  @param {string} [id] - The input's `id`.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the input.
+
+  @example
+  {% render 'ui-choice-item', label: '$50 – $100', name: 'filter.v.price', value: '50-100' %}
+  {% render 'ui-choice-item', type: 'radio', label: 'Best selling', name: 'sort', checked: true %}
+{%- enddoc -%}
+
+{%- liquid
+  assign choice_type = type | default: 'checkbox'
+  unless choice_type == 'radio'
+    assign choice_type = 'checkbox'
+  endunless
+
+-%}
+
+<label class="ui-choice-item{% if class != blank %} {{ class }}{% endif %}">
+  <input
+    class="ui-choice-item__input"
+    type="{{ choice_type }}"
+    {%- if id != blank %} id="{{ id }}"{% endif -%}
+    {%- if name != blank %} name="{{ name }}"{% endif -%}
+    {%- if value != blank %} value="{{ value }}"{% endif -%}
+    {%- if checked %} checked{% endif -%}
+    {%- if disabled %} disabled{% endif -%}
+    {%- if attributes != blank %} {{ attributes }}{% endif -%}
+  >
+  {%- if choice_type == 'radio' -%}
+    {% render 'ui-radio' %}
+  {%- else -%}
+    {% render 'ui-checkbox' %}
+  {%- endif -%}
+  <span class="ui-choice-item__label">{{ label }}</span>
+</label>
+
+{% stylesheet %}
+  :root {
+    --ui-choice-item-padding-block: 10px;
+    --ui-choice-item-padding-inline: 12px;
+    --ui-choice-item-gap: 10px;
+    --ui-choice-item-font-size: 14px;
+  }
+
+  .ui-choice-item {
+    --ui-choice-item-background: transparent;
+    --ui-choice-item-color: var(--ui-color-black);
+
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    gap: var(--ui-choice-item-gap);
+    padding: var(--ui-choice-item-padding-block) var(--ui-choice-item-padding-inline);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-choice-item-background);
+    color: var(--ui-choice-item-color);
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-choice-item-font-size);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+    cursor: pointer;
+    transition: background-color var(--animation-values), color var(--animation-values);
+  }
+
+  .ui-choice-item:not(:has(.ui-choice-item__input:disabled)):is(
+      :hover,
+      .ui-choice-item--force-hover
+    ) {
+    --ui-choice-item-background: var(--ui-color-light-blue);
+  }
+
+  /* Selected recolours the label only — the kit leaves the row untinted. */
+  .ui-choice-item:has(.ui-choice-item__input:checked) {
+    --ui-choice-item-color: var(--ui-color-primary);
+  }
+
+  .ui-choice-item:has(.ui-choice-item__input:disabled) {
+    opacity: var(--ui-disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  /*
+   * The input carries focus but is invisible, so the ring has to be drawn on the
+   * row instead — otherwise keyboard users get no visible focus at all.
+   */
+  .ui-choice-item:has(.ui-choice-item__input:focus-visible) {
+    outline: var(--focus-outline-width) solid currentcolor;
+    outline-offset: var(--focus-outline-offset);
+  }
+
+  .ui-choice-item__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .ui-choice-item__label {
+    min-width: 0;
+  }
+{% endstylesheet %}

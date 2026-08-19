@@ -1,0 +1,82 @@
+{%- doc -%}
+  Renders an option row from the UI kit (Figma: COMPONENTS → Item).
+
+  Used inside the sort and filter dropdowns. Unlike [ui-choice-item] it carries no
+  indicator, and its selected state keeps the light blue background rather than
+  dropping it — the two rows follow different rules in the kit, which is why they
+  are separate snippets.
+
+  Renders an `<a>` when given a link and a `<button>` otherwise. The listbox
+  semantics belong to whichever dropdown owns the list, not to a single row, so
+  this snippet only marks the chosen row with `aria-current`.
+
+  @param {string} label - The option's visible text.
+  @param {string} [link] - The URL this option navigates to.
+  @param {boolean} [selected] - Marks the option as the chosen one.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the element.
+
+  @example
+  {% render 'ui-menu-item', label: 'Best selling', link: '?sort_by=best-selling' %}
+  {% render 'ui-menu-item', label: 'Newest', selected: true %}
+{%- enddoc -%}
+
+{%- capture menu_item_attributes -%}
+  class="ui-menu-item{% if selected %} ui-menu-item--selected{% endif %}{% if class != blank %} {{ class }}{% endif %}"
+  {%- if selected %} aria-current="true"{% endif -%}
+  {%- if attributes != blank %} {{ attributes }}{% endif -%}
+{%- endcapture -%}
+
+{%- if link != blank -%}
+  <a href="{{ link }}" {{ menu_item_attributes }}>{{- label -}}</a>
+{%- else -%}
+  <button type="button" {{ menu_item_attributes }}>{{- label -}}</button>
+{%- endif -%}
+
+{% stylesheet %}
+  :root {
+    --ui-menu-item-padding-block: 10px;
+    --ui-menu-item-padding-inline: 12px;
+    --ui-menu-item-font-size: 14px;
+  }
+
+  .ui-menu-item {
+    --ui-menu-item-background: var(--ui-color-white);
+    --ui-menu-item-color: var(--ui-color-black);
+
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding: var(--ui-menu-item-padding-block) var(--ui-menu-item-padding-inline);
+    border: none;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-menu-item-background);
+    color: var(--ui-menu-item-color);
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-menu-item-font-size);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+    appearance: none;
+    transition: background-color var(--animation-values), color var(--animation-values);
+  }
+
+  .ui-menu-item:not(:disabled):is(:hover, .ui-menu-item--force-hover) {
+    --ui-menu-item-background: var(--ui-color-light-blue);
+  }
+
+  /* Selected keeps the tint and recolours the label on top of it. */
+  .ui-menu-item--selected {
+    --ui-menu-item-background: var(--ui-color-light-blue);
+    --ui-menu-item-color: var(--ui-color-primary);
+  }
+
+  .ui-menu-item:disabled {
+    opacity: var(--ui-disabled-opacity);
+    cursor: not-allowed;
+  }
+{% endstylesheet %}

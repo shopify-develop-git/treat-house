@@ -49,7 +49,13 @@
     transition: background-color var(--animation-values);
   }
 
-  .ui-checkbox--checked {
+  /*
+   * The sibling selector is the contract for a real control: put an input
+   * immediately before the indicator and the browser drives the state, with
+   * no round trip and no JS. The modifier stays for static previews.
+   */
+  .ui-checkbox--checked,
+  :checked + .ui-checkbox {
     --ui-checkbox-background: var(--ui-color-primary);
     --ui-checkbox-tick-opacity: 1;
   }

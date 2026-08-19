@@ -43,7 +43,13 @@
     box-shadow: inset 0 0 0 1px var(--ui-color-primary);
   }
 
-  .ui-radio--checked {
+  /*
+   * The sibling selector is the contract for a real control: put an input
+   * immediately before the indicator and the browser drives the state, with
+   * no round trip and no JS. The modifier stays for static previews.
+   */
+  .ui-radio--checked,
+  :checked + .ui-radio {
     --ui-radio-dot-opacity: 1;
   }
 
