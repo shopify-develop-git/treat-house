@@ -9,6 +9,12 @@
   The kit card is already responsive on its own — 171x220 on mobile, 305x263 above
   750px — so the grid sets column counts and gaps and lets the card size itself.
 
+  Three column counts rather than two. The file draws only the ends, two columns at
+  390px and four at 1440px, and running four all the way down squeezes a card to
+  245px at 1200px and 128px at 750px against the 305px it is drawn at. The middle
+  tier holds three between 750px and 1200px, which keeps a card between 183px and
+  333px there.
+
   With no collections picked the section falls back to the eight occasions the file
   draws, so it is worth looking at in the editor before a merchant has chosen
   anything. Those placeholders carry no images by design; the card renders Shopify's
@@ -30,7 +36,7 @@
 >
   <div
     class="shop-by-occasion"
-    style="--shop-by-occasion-columns: {{ section.settings.columns }}; --shop-by-occasion-columns-mobile: {{ section.settings.mobile_columns }};"
+    style="--shop-by-occasion-columns: {{ section.settings.columns }}; --shop-by-occasion-columns-tablet: {{ section.settings.tablet_columns }}; --shop-by-occasion-columns-mobile: {{ section.settings.mobile_columns }};"
   >
     {%- if section.settings.heading != blank or section.settings.heading_accent != blank -%}
       {% render 'ui-section-heading',
@@ -104,8 +110,16 @@
     }
 
     .shop-by-occasion__grid {
-      grid-template-columns: repeat(var(--shop-by-occasion-columns, 4), minmax(0, 1fr));
+      grid-template-columns: repeat(var(--shop-by-occasion-columns-tablet, 3), minmax(0, 1fr));
       gap: 20px;
+    }
+  }
+
+  /* Four columns only once they stop crowding: at 1200px they are already down to
+     245px against the 305px drawn, and the card is wearing its desktop type by then. */
+  @media screen and (min-width: 1200px) {
+    .shop-by-occasion__grid {
+      grid-template-columns: repeat(var(--shop-by-occasion-columns, 4), minmax(0, 1fr));
     }
   }
 {% endstylesheet %}
@@ -162,6 +176,16 @@
       "max": 5,
       "step": 1,
       "default": 4
+    },
+    {
+      "type": "range",
+      "id": "tablet_columns",
+      "label": "Columns on tablet",
+      "info": "Between 750px and 1200px wide.",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
     },
     {
       "type": "select",

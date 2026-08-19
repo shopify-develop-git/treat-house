@@ -388,7 +388,22 @@ p:empty {
   --page-margin: 16px;
 }
 
+/*
+ * Page gutters step three times, not twice. The design's 80px gutter is drawn at
+ * 1440px and only earns its width there: held all the way down it takes 160px out
+ * of a 1000px viewport, and every section on the page pays for it. Below 1200px
+ * the gutter drops back so sections keep their room.
+ */
 @media screen and (min-width: 750px) {
+  .page-width-wide,
+  .page-width-normal,
+  .page-width-narrow,
+  .page-width-content {
+    --page-margin: 40px;
+  }
+}
+
+@media screen and (min-width: 1200px) {
   .page-width-wide,
   .page-width-normal,
   .page-width-narrow,
