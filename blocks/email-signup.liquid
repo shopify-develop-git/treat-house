@@ -182,6 +182,9 @@
   /* The newsletter field is an outline drawn on top of its section: the fill stays
      transparent and the border and text follow the scheme's foreground, so the same
      block reads correctly on a brand-coloured band and on a plain page alike. */
+  /* This field keeps the theme's focus ring on purpose. Its border is the scheme
+     foreground both idle and focused — only the width changes — so the border alone
+     carries no contrast between the two states and cannot serve as the indicator. */
   .email-signup__input.paragraph {
     color: var(--color-foreground);
     outline-color: var(--color-foreground);

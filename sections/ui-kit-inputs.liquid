@@ -1,19 +1,37 @@
 {% comment %}
-  QA harness for the UI kit input fields. Mirrors the INPUT section of the Figma
-  file so the implementation can be compared against the design side by side.
+  QA harness for the UI kit input fields, laid out the way the Figma INPUT section
+  is: states run across as columns, fields run down as rows, under the same group
+  headings the file uses — input email, input form, the selects, Artwork, Flavor
+  notes and input message.
 
-  "Hovered" columns are pinned with the `--force-hover` modifiers; the "default"
-  columns react to a real pointer, so both can be checked at once. States CSS
-  cannot pin are absent rather than faked: the select's open list is drawn by the
-  browser, and the upload progress state waits on a script.
+  Hovered columns are pinned with the `--force-hover` modifiers, so a real pointer
+  is still free to check the default column at the same time. Typing is shown as a
+  partially filled field: the caret the design draws is not something markup can
+  hold still.
 
-  Input Email is not here. It is the one INPUT component that maps onto an
-  existing theme block rather than a kit snippet, so it is exercised through
-  email-signup on a real page instead.
+  The select's open and hovered-item states only exist while the panel is open, so
+  those columns hold a prompt to open the field beside them rather than a still.
+
+  Input Email is the one component here that lives in a theme block rather than a
+  kit snippet. Its markup is repeated so the harness can show it, and it picks up
+  the real email-signup styles from the bundle.
 {% endcomment %}
 
 {%- liquid
-  assign field_states = 'default,hovered,entered,error' | split: ','
+  assign form_states = 'default|Hovered|Typing|Entered|Default error|Entered error' | split: '|'
+  assign select_states = 'default|Hovered|open|hovered item|selected|Default error' | split: '|'
+  assign file_states = 'default|Hovered|progress upload|Added' | split: '|'
+  assign message_states = 'default|Hovered|Typing|Entered' | split: '|'
+
+  assign form_labels = 'Name|Email|Company|Estimated quantity|Preferred delivery date' | split: '|'
+  assign form_types = 'text|email|text|number|text' | split: '|'
+  assign form_place = ' | | | | ' | split: '|'
+  assign form_masks = ' | | | |MM/DD/YYYY' | split: '|'
+  assign form_typing = 'Nam|name@gm|Treat Ho|2|24/0' | split: '|'
+  assign form_values = 'Name|name@gmail.com|Treat House|25|24/07/2026' | split: '|'
+  assign form_hints = ' | | |Minimum order setup: 25 boxes| ' | split: '|'
+  assign form_err1 = 'Please enter your name.|Please enter your email address.|Please enter your company.|Please enter estimated quantity.|Enter your preferred delivery date.' | split: '|'
+  assign form_err2 = 'Please enter a valid name.|Please enter a valid email address.|Please enter a valid company.|Minimum initial request quantity is 25 units.|Please use the format MM/DD/YYYY.' | split: '|'
 -%}
 
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
@@ -23,208 +41,256 @@
   data-testid="ui-kit-inputs-{{ section.id }}"
 >
   <div class="ui-kit-inputs">
-    <section class="ui-kit-inputs__family">
-      <h3 class="ui-kit-inputs__title">Field/Name</h3>
-      <div class="ui-kit-inputs__row">
-        {%- for state in field_states -%}
+    {%- comment -%} input email — the one block-based component {%- endcomment -%}
+    <section class="ui-kit-inputs__group">
+      <h3 class="ui-kit-inputs__title">input email</h3>
+      <p class="ui-kit-inputs__note">
+        Lives in the email-signup block, not a kit snippet. It is an outline over its
+        section, so it is shown here on a brand-coloured scheme the way the kit draws it.
+      </p>
+      <div class="ui-kit-inputs__grid ui-kit-inputs__grid--email color-scheme-4">
+        {%- for state in form_states -%}
+          <span class="ui-kit-inputs__state">{{ state }}</span>
+        {%- endfor -%}
+        {%- for state in form_states -%}
           <div class="ui-kit-inputs__cell">
-            <span class="ui-kit-inputs__state">{{ state }}</span>
-            {%- case state -%}
-              {%- when 'hovered' -%}
-                {% render 'ui-input', label: 'Name', id: 'kit-name-hovered', class: 'ui-input--force-hover' %}
-              {%- when 'entered' -%}
-                {% render 'ui-input', label: 'Name', id: 'kit-name-entered', value: 'Name' %}
-              {%- when 'error' -%}
-                {% render 'ui-input', label: 'Name', id: 'kit-name-error', error: 'Please enter your name.' %}
-              {%- else -%}
-                {% render 'ui-input', label: 'Name', id: 'kit-name-default' %}
-            {%- endcase -%}
+            <div class="email-signup__input-group">
+              <input
+                class="email-signup__input email-signup__input--all paragraph{% if state == 'Hovered' %} is-forced-hover{% endif %}"
+                type="email"
+                placeholder="Your email"
+                aria-label="Your email"
+                {% if state == 'Typing' %}value="email"{% elsif state == 'Entered' or state == 'Entered error' %}value="email@gmail.com"{% endif %}
+              >
+            </div>
+            {%- if state contains 'error' -%}
+              <p class="ui-kit-inputs__inline-error">
+                {%- if state == 'Entered error' -%}
+                  Please enter a valid email address.
+                {%- else -%}
+                  Please enter your email address.
+                {%- endif -%}
+              </p>
+            {%- endif -%}
           </div>
         {%- endfor -%}
       </div>
     </section>
 
-    <section class="ui-kit-inputs__family">
-      <h3 class="ui-kit-inputs__title">Field/Estimated quantity</h3>
-      <p class="ui-kit-inputs__note">
-        The hint under the field is replaced by the error rather than stacked with it.
-      </p>
-      <div class="ui-kit-inputs__row">
-        <div class="ui-kit-inputs__cell">
-          <span class="ui-kit-inputs__state">default</span>
-          {% render 'ui-input',
-            label: 'Estimated quantity',
-            id: 'kit-qty-default',
-            type: 'number',
-            hint: 'Minimum order setup: 25 boxes'
-          %}
-        </div>
-        <div class="ui-kit-inputs__cell">
-          <span class="ui-kit-inputs__state">entered</span>
-          {% render 'ui-input',
-            label: 'Estimated quantity',
-            id: 'kit-qty-entered',
-            type: 'number',
-            value: '25',
-            hint: 'Minimum order setup: 25 boxes'
-          %}
-        </div>
-        <div class="ui-kit-inputs__cell">
-          <span class="ui-kit-inputs__state">entered error</span>
-          {% render 'ui-input',
-            label: 'Estimated quantity',
-            id: 'kit-qty-error',
-            type: 'number',
-            value: '2',
-            error: 'Minimum initial request quantity is 25 units.'
-          %}
-        </div>
+    {%- comment -%} input form — five fields sharing one set of states {%- endcomment -%}
+    <section class="ui-kit-inputs__group">
+      <h3 class="ui-kit-inputs__title">input form</h3>
+      <div class="ui-kit-inputs__grid">
+        {%- for state in form_states -%}
+          <span class="ui-kit-inputs__state">{{ state }}</span>
+        {%- endfor -%}
+
+        {%- for field_label in form_labels -%}
+          {%- assign f = forloop.index0 -%}
+          {%- for state in form_states -%}
+            {%- liquid
+              assign cell_id = 'kit-' | append: f | append: '-' | append: forloop.index0
+              assign cell_class = ''
+              assign cell_value = ''
+              assign cell_error = ''
+              assign cell_hint = form_hints[f] | strip
+
+              case state
+                when 'Hovered'
+                  assign cell_class = 'ui-input--force-hover'
+                when 'Typing'
+                  assign cell_value = form_typing[f]
+                when 'Entered'
+                  assign cell_value = form_values[f]
+                when 'Default error'
+                  assign cell_error = form_err1[f]
+                when 'Entered error'
+                  assign cell_value = form_values[f]
+                  assign cell_error = form_err2[f]
+              endcase
+            -%}
+            <div class="ui-kit-inputs__cell">
+              {% render 'ui-input',
+                label: field_label,
+                id: cell_id,
+                type: form_types[f],
+                placeholder: form_place[f],
+                mask: form_masks[f],
+                value: cell_value,
+                hint: cell_hint,
+                error: cell_error,
+                class: cell_class
+              %}
+            </div>
+          {%- endfor -%}
+        {%- endfor -%}
       </div>
     </section>
 
-    <section class="ui-kit-inputs__family">
-      <h3 class="ui-kit-inputs__title">Field/Preferred delivery date</h3>
-      <p class="ui-kit-inputs__note">
-        A masked text field in the kit, not a native date control. The mask itself needs a script.
-      </p>
-      <div class="ui-kit-inputs__row">
-        <div class="ui-kit-inputs__cell">
-          <span class="ui-kit-inputs__state">default</span>
-          {% render 'ui-input', label: 'Preferred delivery date', id: 'kit-date-default', placeholder: 'MM/DD/YYYY' %}
-        </div>
-        <div class="ui-kit-inputs__cell">
-          <span class="ui-kit-inputs__state">entered</span>
-          {% render 'ui-input',
-            label: 'Preferred delivery date',
-            id: 'kit-date-entered',
-            placeholder: 'MM/DD/YYYY',
-            value: '24/07/2026'
-          %}
-        </div>
-        <div class="ui-kit-inputs__cell">
-          <span class="ui-kit-inputs__state">entered error</span>
-          {% render 'ui-input',
-            label: 'Preferred delivery date',
-            id: 'kit-date-error',
-            placeholder: 'MM/DD/YYYY',
-            value: '247',
-            error: 'Please use the format MM/DD/YYYY.'
-          %}
-        </div>
+    {%- comment -%} the two selects {%- endcomment -%}
+    <section class="ui-kit-inputs__group">
+      <h3 class="ui-kit-inputs__title">Field/Gift type &amp; Field/Budget range</h3>
+      <div class="ui-kit-inputs__grid">
+        {%- for state in select_states -%}
+          <span class="ui-kit-inputs__state">{{ state }}</span>
+        {%- endfor -%}
+
+        {%- assign select_labels = 'Gift type|Budget range' | split: '|' -%}
+        {%- assign select_places = 'Select gift type...|Select budget range...' | split: '|' -%}
+        {%- assign select_options = 'Logo treats, Gift boxes, Gift cards, Custom order|Under $500, $500-$2000, $2000+' | split: '|' -%}
+        {%- assign select_picked = 'Gift boxes|$500-$2000' | split: '|' -%}
+
+        {%- for select_label in select_labels -%}
+          {%- assign s = forloop.index0 -%}
+          {%- for state in select_states -%}
+            <div class="ui-kit-inputs__cell">
+              {%- if state == 'open' or state == 'hovered item' -%}
+                <p class="ui-kit-inputs__unavailable">
+                  Open the field to the left — arrows, Home, End, Escape and type-ahead all work.
+                </p>
+              {%- else -%}
+                {%- liquid
+                  assign cell_id = 'kit-sel-' | append: s | append: '-' | append: forloop.index0
+                  assign cell_class = ''
+                  assign cell_picked = ''
+                  assign cell_error = ''
+
+                  case state
+                    when 'Hovered'
+                      assign cell_class = 'ui-select--force-hover'
+                    when 'selected'
+                      assign cell_picked = select_picked[s]
+                    when 'Default error'
+                      assign cell_error = 'This field is required.'
+                  endcase
+                -%}
+                {% render 'ui-select',
+                  label: select_label,
+                  id: cell_id,
+                  placeholder: select_places[s],
+                  options: select_options[s],
+                  selected: cell_picked,
+                  error: cell_error,
+                  class: cell_class
+                %}
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        {%- endfor -%}
       </div>
     </section>
 
-    <section class="ui-kit-inputs__family">
-      <h3 class="ui-kit-inputs__title">Field/Gift type &amp; Budget range</h3>
-      <p class="ui-kit-inputs__note">
-        The open list is drawn by the browser, so it cannot be shown pinned here.
-      </p>
-      <div class="ui-kit-inputs__row">
-        <div class="ui-kit-inputs__cell">
-          <span class="ui-kit-inputs__state">default</span>
-          {% render 'ui-select',
-            label: 'Gift type',
-            id: 'kit-gift-default',
-            placeholder: 'Select gift type...',
-            options: 'Logo treats, Gift boxes, Gift cards, Custom order'
-          %}
-        </div>
-        <div class="ui-kit-inputs__cell">
-          <span class="ui-kit-inputs__state">hovered</span>
-          {% render 'ui-select',
-            label: 'Gift type',
-            id: 'kit-gift-hovered',
-            placeholder: 'Select gift type...',
-            options: 'Logo treats, Gift boxes, Gift cards, Custom order',
-            class: 'ui-select--force-hover'
-          %}
-        </div>
-        <div class="ui-kit-inputs__cell">
-          <span class="ui-kit-inputs__state">selected</span>
-          {% render 'ui-select',
-            label: 'Gift type',
-            id: 'kit-gift-selected',
-            placeholder: 'Select gift type...',
-            options: 'Logo treats, Gift boxes, Gift cards, Custom order',
-            selected: 'Gift boxes'
-          %}
-        </div>
-        <div class="ui-kit-inputs__cell">
-          <span class="ui-kit-inputs__state">error</span>
-          {% render 'ui-select',
-            label: 'Budget range',
-            id: 'kit-budget-error',
-            placeholder: 'Select budget range...',
-            options: 'Under $500, $500-$2000, $2000+',
-            error: 'This field is required.'
-          %}
-        </div>
-      </div>
-    </section>
-
-    <section class="ui-kit-inputs__family">
-      <h3 class="ui-kit-inputs__title">Field/Flavor notes or recipient needs</h3>
-      <div class="ui-kit-inputs__row">
-        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--wide">
-          <span class="ui-kit-inputs__state">default</span>
-          {% render 'ui-input',
-            label: 'Flavor notes or recipient needs',
-            id: 'kit-notes-default',
-            textarea: true,
-            placeholder: 'Tell us about the occasion, design theme directives, or specific requirements...'
-          %}
-        </div>
-        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--wide">
-          <span class="ui-kit-inputs__state">error</span>
-          {% render 'ui-input',
-            label: 'Flavor notes or recipient needs',
-            id: 'kit-notes-error',
-            textarea: true,
-            placeholder: 'Tell us about the occasion, design theme directives, or specific requirements...',
-            error: 'Minimum 5 characters required.'
-          %}
-        </div>
-      </div>
-    </section>
-
-    <section class="ui-kit-inputs__family">
+    {%- comment -%} Artwork {%- endcomment -%}
+    <section class="ui-kit-inputs__group">
       <h3 class="ui-kit-inputs__title">Field/Artwork</h3>
       <p class="ui-kit-inputs__note">
-        Click or drop a file on the default zone — both work without a script. Progress and
-        the attached row are shown here as rendered states; driving them needs one.
+        Click or drop a file on the default zone — both work with no script. Progress and
+        the attached row are rendered states; driving them needs one.
       </p>
-      <div class="ui-kit-inputs__row">
-        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--wide">
-          <span class="ui-kit-inputs__state">default</span>
-          {% render 'ui-file', label: 'Artwork', id: 'kit-artwork-default', accept: 'image/jpeg,image/png,image/webp' %}
-        </div>
-        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--wide">
-          <span class="ui-kit-inputs__state">hovered</span>
-          {% render 'ui-file', label: 'Artwork', id: 'kit-artwork-hovered', class: 'ui-file--force-hover' %}
-        </div>
-        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--wide">
-          <span class="ui-kit-inputs__state">progress upload</span>
-          {% render 'ui-file', label: 'Artwork', id: 'kit-artwork-progress', state: 'uploading', filename: 'File Name.jpg' %}
-        </div>
-        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--wide">
-          <span class="ui-kit-inputs__state">added</span>
-          {% render 'ui-file', label: 'Artwork', id: 'kit-artwork-added', state: 'added', filename: 'File Name.jpg' %}
-        </div>
+      <div class="ui-kit-inputs__grid ui-kit-inputs__grid--wide">
+        {%- for state in file_states -%}
+          <span class="ui-kit-inputs__state">{{ state }}</span>
+        {%- endfor -%}
+        {%- for state in file_states -%}
+          <div class="ui-kit-inputs__cell">
+            {%- liquid
+              assign cell_id = 'kit-art-' | append: forloop.index0
+              assign cell_state = 'default'
+              assign cell_class = ''
+
+              case state
+                when 'Hovered'
+                  assign cell_class = 'ui-file--force-hover'
+                when 'progress upload'
+                  assign cell_state = 'uploading'
+                when 'Added'
+                  assign cell_state = 'added'
+              endcase
+            -%}
+            {% render 'ui-file',
+              label: 'Artwork',
+              id: cell_id,
+              state: cell_state,
+              filename: 'File Name.jpg',
+              accept: 'image/jpeg,image/png,image/webp',
+              class: cell_class
+            %}
+          </div>
+        {%- endfor -%}
       </div>
     </section>
 
-    <section class="ui-kit-inputs__family">
-      <h3 class="ui-kit-inputs__title">Input Message</h3>
-      <p class="ui-kit-inputs__note">Type in the box — the counter is live.</p>
-      <div class="ui-kit-inputs__row">
-        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--message">
-          <span class="ui-kit-inputs__state">default</span>
-          {% render 'ui-message', label: 'Gift message', id: 'kit-message-default', placeholder: 'Write your message here...' %}
-        </div>
-        <div class="ui-kit-inputs__cell ui-kit-inputs__cell--message">
-          <span class="ui-kit-inputs__state">entered</span>
-          {% render 'ui-message', label: 'Gift message', id: 'kit-message-entered', value: 'Write your message here.' %}
-        </div>
+    {%- comment -%} Flavor notes {%- endcomment -%}
+    <section class="ui-kit-inputs__group">
+      <h3 class="ui-kit-inputs__title">Field/Flavor notes or recipient needs</h3>
+      <div class="ui-kit-inputs__grid ui-kit-inputs__grid--wide">
+        {%- for state in form_states -%}
+          <span class="ui-kit-inputs__state">{{ state }}</span>
+        {%- endfor -%}
+        {%- for state in form_states -%}
+          {%- liquid
+            assign cell_id = 'kit-notes-' | append: forloop.index0
+            assign cell_class = ''
+            assign cell_value = ''
+            assign cell_error = ''
+
+            case state
+              when 'Hovered'
+                assign cell_class = 'ui-input--force-hover'
+              when 'Typing'
+                assign cell_value = 'Text'
+              when 'Entered'
+                assign cell_value = 'Text'
+              when 'Default error'
+                assign cell_error = 'Please enter your message.'
+              when 'Entered error'
+                assign cell_value = '1'
+                assign cell_error = 'Minimum 5 characters required.'
+            endcase
+          -%}
+          <div class="ui-kit-inputs__cell">
+            {% render 'ui-input',
+              label: 'Flavor notes or recipient needs',
+              id: cell_id,
+              textarea: true,
+              placeholder: 'Tell us about the occasion, design theme directives, or specific requirements...',
+              value: cell_value,
+              error: cell_error,
+              class: cell_class
+            %}
+          </div>
+        {%- endfor -%}
+      </div>
+    </section>
+
+    {%- comment -%} input message {%- endcomment -%}
+    <section class="ui-kit-inputs__group">
+      <h3 class="ui-kit-inputs__title">input message</h3>
+      <p class="ui-kit-inputs__note">Type in any box — the counter is live.</p>
+      <div class="ui-kit-inputs__grid ui-kit-inputs__grid--message">
+        {%- for state in message_states -%}
+          <span class="ui-kit-inputs__state">{{ state }}</span>
+        {%- endfor -%}
+        {%- for state in message_states -%}
+          {%- liquid
+            assign cell_id = 'kit-msg-' | append: forloop.index0
+            assign cell_value = ''
+            case state
+              when 'Typing'
+                assign cell_value = 'Write your message'
+              when 'Entered'
+                assign cell_value = 'Write your message here.'
+            endcase
+          -%}
+          <div class="ui-kit-inputs__cell">
+            {% render 'ui-message',
+              label: 'Gift message',
+              id: cell_id,
+              placeholder: 'Write your message here...',
+              value: cell_value
+            %}
+          </div>
+        {%- endfor -%}
       </div>
     </section>
   </div>
@@ -234,10 +300,14 @@
   .ui-kit-inputs {
     display: flex;
     flex-direction: column;
-    gap: 44px;
+    gap: 56px;
+
+    /* The section runs full width so the state columns have room; the content still
+       needs a margin of its own or it sits against the window edge. */
+    padding-inline: 24px;
   }
 
-  .ui-kit-inputs__family {
+  .ui-kit-inputs__group {
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -256,33 +326,36 @@
 
   .ui-kit-inputs__note {
     margin: -8px 0 0;
-    max-width: 60ch;
+    max-width: 70ch;
     font-size: 13px;
     opacity: 0.7;
   }
 
-  .ui-kit-inputs__row {
-    display: flex;
-    flex-wrap: wrap;
+  /* States across, fields down — the arrangement the Figma section uses. */
+  .ui-kit-inputs__grid {
+    display: grid;
+    grid-template-columns: repeat(6, 305px);
     gap: 24px;
-    align-items: flex-start;
+    align-items: start;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    min-width: 0;
+    padding-block-end: 8px;
   }
 
-  .ui-kit-inputs__cell {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-
-    /* The kit draws these fields at a fixed width; the harness keeps it. */
-    width: 305px;
+  .ui-kit-inputs__grid--wide {
+    grid-template-columns: repeat(4, 630px);
   }
 
-  .ui-kit-inputs__cell--wide {
-    width: 630px;
+  .ui-kit-inputs__grid--message {
+    grid-template-columns: repeat(4, 546px);
   }
 
-  .ui-kit-inputs__cell--message {
-    width: 546px;
+  .ui-kit-inputs__grid--email {
+    grid-template-columns: repeat(6, 350px);
+    padding: 24px;
+    background-color: var(--color-background);
+    border-radius: 4px;
   }
 
   .ui-kit-inputs__state {
@@ -291,6 +364,33 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     opacity: 0.6;
+  }
+
+  .ui-kit-inputs__cell {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ui-kit-inputs__unavailable,
+  .ui-kit-inputs__inline-error {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.1;
+  }
+
+  .ui-kit-inputs__unavailable {
+    opacity: 0.5;
+  }
+
+  .ui-kit-inputs__inline-error {
+    color: var(--color-error);
+  }
+
+  /* Mirrors what a pointer does to the newsletter field, for the pinned column. */
+  .email-signup__input.is-forced-hover {
+    border-width: var(--border-width, 1px);
+    border-color: var(--color-foreground);
   }
 {% endstylesheet %}
 
@@ -301,7 +401,7 @@
   "settings": [
     {
       "type": "paragraph",
-      "content": "QA harness for the UI kit input fields. Not intended for a live storefront page."
+      "content": "QA harness for the UI kit input fields, laid out like the Figma INPUT section. Not intended for a live storefront page."
     },
     {
       "type": "color_scheme",

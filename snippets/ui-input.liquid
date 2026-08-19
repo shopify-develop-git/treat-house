@@ -9,15 +9,22 @@
   A field carries either a hint or an error, never both — the kit swaps the line
   under the field rather than stacking two.
 
+  The multi-line box draws its own grip in the corner instead of the browser's. The
+  native resizer is painted out rather than removed, so dragging still belongs to the
+  browser; the glyph sits on top and lets pointer events through. Firefox draws a
+  grip of its own that cannot be suppressed, so it shows both.
+
   The kit shows a filled field keeping the brand border after focus leaves, which
   CSS can only see through `:placeholder-shown`. Fields the design leaves visually
   empty therefore still get a blank placeholder, so the selector has something to
   test.
 
   Preferred delivery date is a masked text field in the kit, not a native date
-  control: it shows `MM/DD/YYYY` and greys out the part not yet typed. Pass
-  `type: 'text'` with that placeholder for the styling. The progressive mask needs
-  JavaScript and is not part of this snippet.
+  control. Pass `mask: 'MM/DD/YYYY'` and the field types into that shape: separators
+  are inserted for you, and the part still to come stays on screen in grey instead of
+  vanishing on the first keystroke, which is what the kit draws. A native placeholder
+  cannot shrink like that, so it is kept for assistive technology and painted
+  transparent, while a ghost element carries the visible remainder.
 
   Passing `class: 'ui-input--force-hover'` pins the engaged border, the way ui-button
   does, so the kit preview can show that state beside the others.
@@ -27,6 +34,7 @@
   @param {boolean} [textarea] - Renders the taller multi-line box instead of an input.
   @param {string} [value] - The current value.
   @param {string} [placeholder] - Placeholder text. Blank still emits a space, which the filled-state selector needs.
+  @param {string} [mask] - A date shape such as `MM/DD/YYYY`. Turns the field into a masked input.
   @param {string} [hint] - Helper line under the field. Hidden while an error is showing.
   @param {string} [error] - The error message. Its presence puts the field in the error state.
   @param {string} [name] - The `name` attribute.
@@ -39,7 +47,7 @@
   @example
   {% render 'ui-input', label: 'Name', name: 'contact[name]' %}
   {% render 'ui-input', label: 'Estimated quantity', type: 'number', hint: 'Minimum order setup: 25 boxes' %}
-  {% render 'ui-input', label: 'Preferred delivery date', placeholder: 'MM/DD/YYYY' %}
+  {% render 'ui-input', label: 'Preferred delivery date', mask: 'MM/DD/YYYY' %}
   {% render 'ui-input', label: 'Flavor notes or recipient needs', textarea: true, placeholder: 'Tell us about the occasion...' %}
   {% render 'ui-input', label: 'Name', error: 'Please enter your name.' %}
 {%- enddoc -%}
@@ -52,6 +60,9 @@
   endif
 
   assign ui_placeholder = placeholder
+  if mask != blank
+    assign ui_placeholder = mask
+  endif
   if ui_placeholder == blank
     assign ui_placeholder = ' '
   endif
@@ -73,11 +84,28 @@
   {%- endcapture -%}
 
   {%- if textarea -%}
-    <textarea
-      class="ui-input__control ui-input__control--textarea"
-      rows="{{ rows | default: 5 }}"
-      {{ ui_shared_attributes }}
-    >{{- value -}}</textarea>
+    <span class="ui-input__textarea-wrap">
+      <textarea
+        class="ui-input__control ui-input__control--textarea"
+        rows="{{ rows | default: 5 }}"
+        {{ ui_shared_attributes }}
+      >{{- value -}}</textarea>
+      <span class="ui-input__resize" aria-hidden="true">
+        {{- 'icon-ui-resize-field.svg' | inline_asset_content -}}
+      </span>
+    </span>
+  {%- elsif mask != blank -%}
+    <ui-date-mask class="ui-input__masked" data-mask="{{ mask }}">
+      <input
+        class="ui-input__control ui-input__control--masked"
+        type="text"
+        inputmode="numeric"
+        maxlength="{{ mask | size }}"
+        value="{{ value }}"
+        {{ ui_shared_attributes }}
+      >
+      <span class="ui-input__mask" data-mask-ghost aria-hidden="true">{{ mask }}</span>
+    </ui-date-mask>
   {%- else -%}
     <input
       class="ui-input__control"
@@ -94,11 +122,14 @@
   {%- endif -%}
 </div>
 
+<script src="{{ 'ui-date-mask.js' | asset_url }}" type="module"></script>
+
 {% stylesheet %}
   :root {
     --ui-input-height: 44px;
     --ui-input-textarea-height: 161px;
     --ui-input-padding: 12px;
+    --ui-input-resize-size: 24px;
   }
 
   .ui-input {
@@ -148,9 +179,76 @@
     border-color: var(--ui-color-primary);
   }
 
+  /* The border change is the design's focus indicator, and it measures 6.4:1 between
+     the idle and focused states — above the 3:1 WCAG 2.4.11 asks for — so the theme's
+     generic ring is dropped here. It stays as a transparent outline rather than none,
+     because forced-colours modes ignore borders and would otherwise show nothing. */
+  .ui-input__control:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
+  .ui-input__textarea-wrap {
+    position: relative;
+    display: block;
+  }
+
   .ui-input__control--textarea {
+    display: block;
     height: var(--ui-input-textarea-height);
     resize: vertical;
+  }
+
+  /* Painted out, not removed — the corner stays draggable, the glyph goes on top. */
+  .ui-input__control--textarea::-webkit-resizer {
+    background: transparent;
+  }
+
+  .ui-input__resize {
+    position: absolute;
+
+    /* Flush to the corner, inside the border, the way the kit places it. */
+    inset-block-end: 1px;
+    inset-inline-end: 1px;
+    display: block;
+    color: var(--ui-color-gray);
+    pointer-events: none;
+  }
+
+  .ui-input__resize svg {
+    display: block;
+    width: var(--ui-input-resize-size);
+    height: var(--ui-input-resize-size);
+  }
+
+  .ui-input__masked {
+    position: relative;
+    display: block;
+  }
+
+  /* The ghost sits under the field and must line up with it exactly, so it repeats
+     the control's box and type rather than inheriting a near-match. */
+  .ui-input__mask {
+    position: absolute;
+    inset: 0;
+    padding: var(--ui-input-padding);
+    border: 1px solid transparent;
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 15px;
+    line-height: 1.35;
+    color: transparent;
+    white-space: pre;
+    pointer-events: none;
+  }
+
+  .ui-input__mask-remainder {
+    color: var(--ui-color-border-gray);
+  }
+
+  /* Kept for assistive technology, hidden from view — the ghost draws the remainder. */
+  .ui-input__control--masked::placeholder {
+    color: transparent;
   }
 
   .ui-input__message {

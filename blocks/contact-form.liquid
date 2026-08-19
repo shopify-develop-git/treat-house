@@ -208,6 +208,15 @@
     border-color: var(--color-error);
   }
 
+  /* The border change is the design's focus indicator, and it measures 10.6:1 between
+     the idle and focused states — above the 3:1 WCAG 2.4.11 asks for — so the theme's
+     generic ring is dropped here. It stays as a transparent outline rather than none,
+     because forced-colours modes ignore borders and would otherwise show nothing. */
+  .contact-form__input:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
   .contact-form__input--textarea {
     resize: vertical;
     overflow: auto;

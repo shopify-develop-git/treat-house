@@ -4,16 +4,14 @@
   Both kit fields are the same component with different labels and option lists, so
   they share this snippet.
 
-  The control is a real `<select>`. The kit draws its own option list, but an
-  OS-rendered list is what gives keyboard support, type-ahead and the native picker
-  on touch devices, and losing those costs more than the styling gains. Every closed
-  state the kit specifies — default, hovered, open, selected, error — is reproduced
-  here; the open list itself stays native. A custom listbox that also matches the
-  open state needs focus management and ARIA, and belongs in its own component.
+  A real `<select>` carries the value and is what the form submits. On top of it
+  ui-select-menu.js builds the panel the kit draws, and hands back what a native list
+  gives for free: arrows, Home, End, Escape and type-ahead. With the script blocked
+  the custom parts never appear and the native select is simply what gets used.
 
-  The chevron flips on `:focus` rather than on a real open/closed signal, which CSS
-  cannot see. Clicking or tapping focuses and opens together, so the two agree
-  except when tabbing through, where the chevron points up for a list that is closed.
+  The panel floats over the page rather than pushing it down. The kit draws it inline
+  because a Figma variant has to grow to hold it, which is not the same as asking a
+  form to reflow every time a list opens.
 
   Colours come entirely from the `--ui-*` layer, so the field follows whatever
   palette that layer settles on without edits here.
@@ -54,10 +52,10 @@
 
 <div class="ui-select{% if error != blank %} ui-select--error{% endif %}{% if class != blank %} {{ class }}{% endif %}">
   {%- if ui_label != blank -%}
-    <label class="ui-select__label" for="{{ ui_id }}">{{ ui_label }}</label>
+    <label class="ui-select__label" id="{{ ui_id }}-label" for="{{ ui_id }}">{{ ui_label }}</label>
   {%- endif -%}
 
-  <div class="ui-select__field">
+  <ui-select-menu class="ui-select__field">
     <select
       class="ui-select__control"
       id="{{ ui_id }}"
@@ -77,16 +75,43 @@
       {%- endfor -%}
     </select>
 
-    <span class="ui-select__chevron" aria-hidden="true">
-      <span class="ui-select__chevron-closed">{{- 'icon-ui-chevron-down.svg' | inline_asset_content -}}</span>
-      <span class="ui-select__chevron-open">{{- 'icon-ui-chevron-up.svg' | inline_asset_content -}}</span>
-    </span>
-  </div>
+    <button
+      class="ui-select__trigger"
+      type="button"
+      data-select-trigger
+      aria-haspopup="listbox"
+      aria-expanded="false"
+      {% if ui_label != blank %}aria-labelledby="{{ ui_id }}-label {{ ui_id }}-value"{% endif %}
+    >
+      <span class="ui-select__value" id="{{ ui_id }}-value" data-select-value></span>
+      <span class="ui-select__chevron" aria-hidden="true">
+        <span class="ui-select__chevron-closed">{{- 'icon-ui-chevron-down.svg' | inline_asset_content -}}</span>
+        <span class="ui-select__chevron-open">{{- 'icon-ui-chevron-up.svg' | inline_asset_content -}}</span>
+      </span>
+    </button>
+
+    <ul class="ui-select__list" role="listbox" tabindex="-1" hidden>
+      {%- for option in ui_options -%}
+        {%- assign option_label = option | strip -%}
+        <li
+          class="ui-select__option"
+          role="option"
+          id="{{ ui_id }}-option-{{ forloop.index }}"
+          data-value="{{ option_label | escape }}"
+          aria-selected="{% if selected == option_label %}true{% else %}false{% endif %}"
+        >
+          {{- option_label -}}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </ui-select-menu>
 
   {%- if error != blank -%}
     <p class="ui-select__error" id="{{ ui_id }}-error">{{ error }}</p>
   {%- endif -%}
 </div>
+
+<script src="{{ 'ui-select-menu.js' | asset_url }}" type="module"></script>
 
 {% stylesheet %}
   :root {
@@ -95,6 +120,9 @@
     --ui-select-chevron-width: 14px;
     --ui-select-chevron-height: 8px;
     --ui-select-chevron-gap: 8px;
+    --ui-select-option-padding-block: 10px;
+    --ui-select-panel-gap: 7px;
+    --ui-select-panel-max-height: 240px;
   }
 
   .ui-select {
@@ -113,21 +141,37 @@
     color: var(--ui-color-black);
   }
 
-  .ui-select__field {
+  ui-select-menu {
     position: relative;
-    display: flex;
+    display: block;
   }
 
-  .ui-select__control {
+  /* Before the element upgrades the native select is the control, so the pieces that
+     only make sense with a script behind them stay out of the way. */
+  ui-select-menu:not(:defined) .ui-select__trigger,
+  ui-select-menu:not(:defined) .ui-select__list {
+    display: none;
+  }
+
+  /* Once it has, the select keeps the value and gives up the surface. */
+  ui-select-menu:defined .ui-select__control {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ui-select__control,
+  .ui-select__trigger {
     appearance: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ui-select-chevron-gap);
     width: 100%;
     height: var(--ui-select-height);
     padding: var(--ui-select-padding);
-
-    /* Room for the chevron and the gap the kit leaves in front of it. */
-    padding-inline-end: calc(
-      var(--ui-select-padding) + var(--ui-select-chevron-width) + var(--ui-select-chevron-gap)
-    );
     border: 1px solid var(--ui-color-border-gray);
     border-radius: var(--ui-radius-sm);
     background-color: var(--ui-color-white);
@@ -136,34 +180,54 @@
     font-size: 15px;
     line-height: 1.35;
     color: var(--ui-color-gray);
+    text-align: start;
+    cursor: pointer;
     transition: border-color var(--animation-speed) ease;
   }
 
   .ui-select__control:hover,
-  .ui-select__control:focus {
+  .ui-select__trigger:hover,
+  .ui-select__trigger:focus-visible,
+  .ui-select__trigger[aria-expanded='true'] {
     border-color: var(--ui-color-primary);
   }
 
+  /* The border change is the design's focus indicator, and it measures 6.4:1 between
+     the idle and focused states — above the 3:1 WCAG 2.4.11 asks for — so the theme's
+     generic ring is dropped here. It stays as a transparent outline rather than none,
+     because forced-colours modes ignore borders and would otherwise show nothing. */
+  .ui-select__control:focus-visible,
+  .ui-select__trigger:focus-visible,
+  .ui-select__list:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
   /* Pins the engaged border for the kit preview; no place in real page markup. */
+  .ui-select--force-hover .ui-select__trigger,
   .ui-select--force-hover .ui-select__control {
     border-color: var(--ui-color-primary);
   }
 
   /* A real choice — anything but the empty placeholder — carries the brand colour. */
-  .ui-select__control:not(:has(option[value='']:checked)) {
+  .ui-select__control:not(:has(option[value='']:checked)),
+  ui-select-menu:not(.is-placeholder) .ui-select__trigger {
     border-color: var(--ui-color-primary);
+  }
+
+  .ui-select__value {
     color: var(--ui-color-primary);
   }
 
+  ui-select-menu.is-placeholder .ui-select__value {
+    color: var(--ui-color-gray);
+  }
+
   .ui-select__chevron {
-    position: absolute;
-    inset-block: 0;
-    inset-inline-end: var(--ui-select-padding);
     display: flex;
     align-items: center;
+    flex-shrink: 0;
     color: var(--ui-color-black);
-
-    /* The click belongs to the select underneath. */
     pointer-events: none;
   }
 
@@ -177,12 +241,45 @@
     display: none;
   }
 
-  .ui-select__field:has(.ui-select__control:focus) .ui-select__chevron-closed {
+  .ui-select__trigger[aria-expanded='true'] .ui-select__chevron-closed {
     display: none;
   }
 
-  .ui-select__field:has(.ui-select__control:focus) .ui-select__chevron-open {
+  .ui-select__trigger[aria-expanded='true'] .ui-select__chevron-open {
     display: block;
+  }
+
+  /* Floats over the page instead of pushing the form down when it opens. */
+  .ui-select__list {
+    position: absolute;
+    z-index: 2;
+    inset-inline: 0;
+    top: calc(100% + var(--ui-select-panel-gap));
+    max-height: var(--ui-select-panel-max-height);
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    list-style: none;
+    border: 1px solid var(--ui-color-border-gray);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
+  }
+
+  .ui-select__option {
+    padding: var(--ui-select-option-padding-block) var(--ui-select-padding);
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--ui-color-gray);
+    cursor: pointer;
+  }
+
+  /* Only the active row is lit. The script moves it on hover as well as on arrow
+     keys, so a mouse and a keyboard can never highlight two different rows at once. */
+  .ui-select__option.is-active {
+    background-color: var(--ui-color-light-blue);
+    color: var(--ui-color-primary);
   }
 
   .ui-select__error {
@@ -195,8 +292,9 @@
   }
 
   .ui-select--error .ui-select__control,
-  .ui-select--error .ui-select__control:hover,
-  .ui-select--error .ui-select__control:focus {
+  .ui-select--error .ui-select__trigger,
+  .ui-select--error .ui-select__trigger:hover,
+  .ui-select--error .ui-select__trigger:focus-visible {
     border-color: var(--ui-color-error);
   }
 {% endstylesheet %}

@@ -125,6 +125,15 @@
     color: var(--ui-color-gray);
   }
 
+  /* The border change is the design's focus indicator, and it measures 6.4:1 between
+     the idle and focused states — above the 3:1 WCAG 2.4.11 asks for — so the theme's
+     generic ring is dropped here. It stays as a transparent outline rather than none,
+     because forced-colours modes ignore borders and would otherwise show nothing. */
+  .ui-message__control:focus-visible {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
   .ui-message__count {
     position: absolute;
     inset-block-end: var(--ui-message-padding);
