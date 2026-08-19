@@ -1,8 +1,10 @@
 {%- doc -%}
   Renders a button from the Treat House UI kit (Figma: BUTTONS section).
 
-  Covers the five families of the kit — `primary`, `secondary`, `secondary-alt`,
-  `basket` and `social` — each with its default, hover and disabled state.
+  Covers the five families of the BUTTONS frame — `primary`, `secondary`,
+  `secondary-alt`, `basket` and `social` — plus `link`, which the kit files under
+  COMPONENTS as "Button link". It lives here because it shares this snippet's
+  link/button and disabled handling; only its type and colours differ.
 
   Renders an `<a>` when `link` is given, and a `<button>` otherwise.
 
@@ -10,7 +12,7 @@
   The UI kit preview section uses it to show every state side by side; it has no
   place in real page markup.
 
-  @param {string} [variant] - One of `primary`, `secondary`, `secondary-alt`, `basket`, `social`. Defaults to `primary`.
+  @param {string} [variant] - One of `primary`, `secondary`, `secondary-alt`, `link`, `basket`, `social`. Defaults to `primary`.
   @param {string} [label] - The button text. For `basket` and `social` it is used as the accessible label instead.
   @param {string} [link] - The URL to link to. When present, the button renders as a link.
   @param {string} [icon] - The network for the `social` variant: `facebook`, `instagram`, `x` or `pinterest`. Defaults to `facebook`.
@@ -26,12 +28,13 @@
   {% render 'ui-button', variant: 'primary', label: 'Shop treats', link: '/collections/all' %}
   {% render 'ui-button', variant: 'secondary', label: 'Customize your own', link: '/pages/builder' %}
   {% render 'ui-button', variant: 'secondary-alt', label: 'Corporate gifting', disabled: true %}
+  {% render 'ui-button', variant: 'link', label: 'Clear all' %}
   {% render 'ui-button', variant: 'basket', label: 'Add to cart', type: 'submit' %}
   {% render 'ui-button', variant: 'social', icon: 'instagram', link: 'https://instagram.com/treathouse' %}
 {%- enddoc -%}
 
 {%- liquid
-  assign ui_variants = 'primary,secondary,secondary-alt,basket,social' | split: ','
+  assign ui_variants = 'primary,secondary,secondary-alt,link,basket,social' | split: ','
   assign ui_variant = variant | default: 'primary'
   unless ui_variants contains ui_variant
     assign ui_variant = 'primary'
@@ -114,27 +117,14 @@
 {%- endif -%}
 
 {% stylesheet %}
-  /*
-   * Treat House UI kit — buttons.
-   * Ported from the BUTTONS section of the Figma UI kit. The tokens below are
-   * shared across the kit, so later kit components can build on them too.
-   */
+  /* Treat House UI kit — buttons. Ported from the BUTTONS section of the Figma file. */
   :root {
-    --ui-color-primary: #6c276a;
-    --ui-color-primary-contrast: #ffffff;
-    --ui-color-sky: #a3d8f6;
-    --ui-color-surface: #ffffff;
-    --ui-color-ink: #000000;
-
-    --ui-button-radius: 2px;
     --ui-button-padding-block: 14px;
     --ui-button-padding-inline: 32px;
     --ui-button-padding-inline-tight: 24px;
     --ui-button-font-size: 12px;
-    --ui-button-line-height: 1.3;
     --ui-button-font-weight: 500;
-    --ui-button-hairline-width: 0.5px;
-    --ui-button-disabled-opacity: 0.3;
+    --ui-button-disabled-opacity: var(--ui-disabled-opacity);
 
     /* Icon buttons are sized mobile first, then stepped down on desktop. */
     --ui-button-basket-size: 48px;
@@ -166,7 +156,7 @@
     margin: 0;
     padding: var(--ui-button-padding-block) var(--ui-button-padding-inline);
     border: none;
-    border-radius: var(--ui-button-radius);
+    border-radius: var(--ui-radius-sm);
     /*
      * The outline is drawn as an inset shadow rather than a border so that a
      * bordered button keeps exactly the same height as an unbordered one —
@@ -175,11 +165,11 @@
     box-shadow: inset 0 0 0 var(--ui-button-border-width) var(--ui-button-border-color);
     background-color: var(--ui-button-background);
     color: var(--ui-button-color);
-    font-family: var(--font-accent--family);
+    font-family: var(--ui-font-accent);
     font-size: var(--ui-button-font-size);
     font-style: normal;
     font-weight: var(--ui-button-font-weight);
-    line-height: var(--ui-button-line-height);
+    line-height: var(--ui-line-height);
     letter-spacing: 0;
     text-align: center;
     text-decoration: none;
@@ -203,20 +193,20 @@
   /* Primary */
   .ui-button--primary {
     --ui-button-background: var(--ui-color-primary);
-    --ui-button-color: var(--ui-color-primary-contrast);
+    --ui-button-color: var(--ui-color-white);
   }
 
   .ui-button--primary:not(:disabled, [aria-disabled='true']):is(:hover, .ui-button--force-hover) {
-    --ui-button-background: var(--ui-color-sky);
+    --ui-button-background: var(--ui-color-sky-blue);
     --ui-button-color: var(--ui-color-primary);
   }
 
   /* Secondary — sits on a white surface */
   .ui-button--secondary {
-    --ui-button-background: var(--ui-color-surface);
+    --ui-button-background: var(--ui-color-white);
     --ui-button-color: var(--ui-color-primary);
     --ui-button-border-color: var(--ui-color-primary);
-    --ui-button-border-width: var(--ui-button-hairline-width);
+    --ui-button-border-width: var(--ui-hairline-width);
   }
 
   /* Secondary alt — transparent, and set tighter than the other text buttons */
@@ -224,7 +214,7 @@
     --ui-button-background: transparent;
     --ui-button-color: var(--ui-color-primary);
     --ui-button-border-color: var(--ui-color-primary);
-    --ui-button-border-width: var(--ui-button-hairline-width);
+    --ui-button-border-width: var(--ui-hairline-width);
 
     padding-inline: var(--ui-button-padding-inline-tight);
   }
@@ -232,7 +222,31 @@
   .ui-button--secondary:not(:disabled, [aria-disabled='true']):is(:hover, .ui-button--force-hover),
   .ui-button--secondary-alt:not(:disabled, [aria-disabled='true']):is(:hover, .ui-button--force-hover) {
     --ui-button-background: var(--ui-color-primary);
-    --ui-button-color: var(--ui-color-primary-contrast);
+    --ui-button-color: var(--ui-color-white);
+  }
+
+  /*
+   * Link — the kit's "Button link". Sets its own type: body font at 14px in
+   * sentence case, where the other text buttons are accent font at 12px uppercase.
+   */
+  .ui-button--link {
+    --ui-button-background: transparent;
+    --ui-button-color: var(--ui-color-orange);
+
+    padding: 7px 10px;
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    text-transform: none;
+  }
+
+  .ui-button--link:not(:disabled, [aria-disabled='true']):is(:hover, .ui-button--force-hover) {
+    --ui-button-color: var(--ui-color-primary);
+
+    text-decoration: underline solid;
+    text-decoration-thickness: from-font;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: none;
   }
 
   /* Icon buttons */
@@ -244,14 +258,14 @@
 
   .ui-button--basket {
     --ui-button-background: var(--ui-color-primary);
-    --ui-button-color: var(--ui-color-primary-contrast);
+    --ui-button-color: var(--ui-color-white);
 
     width: var(--ui-button-basket-size);
     height: var(--ui-button-basket-size);
   }
 
   .ui-button--basket:not(:disabled, [aria-disabled='true']):is(:hover, .ui-button--force-hover) {
-    --ui-button-background: var(--ui-color-ink);
+    --ui-button-background: var(--ui-color-black);
   }
 
   .ui-button--basket .ui-button__icon {
@@ -272,7 +286,7 @@
 
   .ui-button--social:not(:disabled, [aria-disabled='true']):is(:hover, .ui-button--force-hover) {
     --ui-button-background: var(--ui-color-primary);
-    --ui-button-color: var(--ui-color-primary-contrast);
+    --ui-button-color: var(--ui-color-white);
   }
 
   .ui-button--social .ui-button__icon {

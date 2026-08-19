@@ -1,0 +1,59 @@
+{%- doc -%}
+  Renders an applied-filter chip from the UI kit (Figma: COMPONENTS → Filter Chip).
+
+  The chip itself is not a control — the kit gives a hover state only to the
+  remove disc inside it, so that disc is the button and the chip is its label.
+
+  @param {string} label - The filter value shown on the chip.
+  @param {string} [remove_label] - The accessible label for the remove button. Defaults to "Remove <label>".
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the element.
+
+  @example
+  {% render 'ui-filter-chip', label: 'Birthday' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign chip_remove_label = remove_label
+  if chip_remove_label == blank
+    assign chip_remove_label = 'actions.remove' | t | append: ' ' | append: label
+  endif
+-%}
+
+<span
+  class="ui-filter-chip{% if class != blank %} {{ class }}{% endif %}"
+  {%- if attributes != blank %} {{ attributes }}{% endif -%}
+>
+  <span class="ui-filter-chip__label">{{ label }}</span>
+  {% render 'ui-remove-icon', label: chip_remove_label %}
+</span>
+
+{% stylesheet %}
+  :root {
+    --ui-filter-chip-height: 40px;
+    --ui-filter-chip-gap: 12px;
+    --ui-filter-chip-padding-inline: 16px;
+    --ui-filter-chip-font-size: 16px;
+  }
+
+  .ui-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    gap: var(--ui-filter-chip-gap);
+    height: var(--ui-filter-chip-height);
+    padding-inline: var(--ui-filter-chip-padding-inline);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-primary);
+    color: var(--ui-color-white);
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-filter-chip-font-size);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  .ui-filter-chip__label {
+    text-align: center;
+    white-space: nowrap;
+  }
+{% endstylesheet %}

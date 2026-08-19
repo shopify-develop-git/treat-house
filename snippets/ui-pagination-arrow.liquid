@@ -1,0 +1,126 @@
+{%- doc -%}
+  Renders a previous/next pagination control from the UI kit
+  (Figma: COMPONENTS → Pagination Arrow).
+
+  Renders an `<a>` when given a link and a `<button>` otherwise. A disabled link
+  keeps `role="link"` with `aria-disabled` and drops its href, the same pattern
+  [ui-button] uses, so it stays focusable and announced instead of vanishing from
+  the tab order at the ends of a list.
+
+  Left and right use separate exported glyphs rather than one mirrored with a
+  transform — the kit exports both, so neither direction is derived.
+
+  @param {string} [direction] - `left` or `right`. Defaults to `right`.
+  @param {string} [label] - The accessible label. Defaults to the theme's previous/next string.
+  @param {string} [link] - The URL for this page.
+  @param {boolean} [disabled] - Renders the disabled state.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the element.
+
+  @example
+  {% render 'ui-pagination-arrow', direction: 'left', link: '/collections/all?page=1' %}
+  {% render 'ui-pagination-arrow', direction: 'right', disabled: true %}
+{%- enddoc -%}
+
+{%- liquid
+  assign arrow_direction = direction | default: 'right'
+  unless arrow_direction == 'left'
+    assign arrow_direction = 'right'
+  endunless
+
+  assign arrow_label = label
+  if arrow_label == blank
+    if arrow_direction == 'left'
+      assign arrow_label = 'content.pagination.previous' | t
+    else
+      assign arrow_label = 'content.pagination.next' | t
+    endif
+  endif
+
+  assign arrow_asset = 'icon-ui-arrow-' | append: arrow_direction | append: '.svg'
+-%}
+
+{%- capture pagination_arrow_body -%}
+  class="ui-pagination-arrow{% if class != blank %} {{ class }}{% endif %}"
+  aria-label="{{ arrow_label | escape }}"
+  {%- if attributes != blank %} {{ attributes }}{% endif -%}
+{%- endcapture -%}
+
+{%- capture pagination_arrow_glyph -%}
+  <span class="ui-pagination-arrow__glyph">{{- arrow_asset | inline_asset_content -}}</span>
+{%- endcapture -%}
+
+{%- if link != blank -%}
+  <a
+    {%- if disabled %}
+      role="link"
+      aria-disabled="true"
+    {%- else %}
+      href="{{ link }}"
+    {%- endif %}
+    {{ pagination_arrow_body }}
+  >
+    {{- pagination_arrow_glyph -}}
+  </a>
+{%- else -%}
+  <button type="button"{% if disabled %} disabled{% endif %} {{ pagination_arrow_body }}>
+    {{- pagination_arrow_glyph -}}
+  </button>
+{%- endif -%}
+
+{% stylesheet %}
+  :root {
+    --ui-pagination-arrow-size: 48px;
+    --ui-pagination-arrow-glyph: 16px;
+  }
+
+  .ui-pagination-arrow {
+    --ui-pagination-arrow-background: var(--ui-color-white);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    width: var(--ui-pagination-arrow-size);
+    height: var(--ui-pagination-arrow-size);
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: none;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--ui-color-primary);
+    background-color: var(--ui-pagination-arrow-background);
+    color: var(--ui-color-primary);
+    cursor: pointer;
+    appearance: none;
+    text-decoration: none;
+    transition: background-color var(--animation-values), opacity var(--animation-values);
+  }
+
+  .ui-pagination-arrow:not(:disabled, [aria-disabled='true']):is(
+      :hover,
+      .ui-pagination-arrow--force-hover
+    ) {
+    --ui-pagination-arrow-background: var(--ui-color-light-blue);
+  }
+
+  .ui-pagination-arrow:disabled,
+  .ui-pagination-arrow[aria-disabled='true'] {
+    opacity: var(--ui-disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  .ui-pagination-arrow__glyph {
+    display: block;
+    flex: 0 0 auto;
+    width: var(--ui-pagination-arrow-glyph);
+    height: var(--ui-pagination-arrow-glyph);
+  }
+
+  .ui-pagination-arrow__glyph > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+{% endstylesheet %}

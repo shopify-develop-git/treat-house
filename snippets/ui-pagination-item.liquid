@@ -1,0 +1,82 @@
+{%- doc -%}
+  Renders a numbered pagination control from the UI kit
+  (Figma: COMPONENTS → Pagination Item).
+
+  Renders an `<a>` when given a link and a `<span>` otherwise, so the page you are
+  already on is not a link to itself. Marking it `current` also sets
+  `aria-current="page"`, which is what tells a screen reader where it is — the
+  purple fill alone says nothing.
+
+  Numbers use the theme's subheading font: the kit asks for Nunito SemiBold, and
+  the theme only loads the body font at 400 and 700, so the body token would give
+  a synthesised weight.
+
+  @param {string} label - The page number to show.
+  @param {string} [link] - The URL for this page.
+  @param {boolean} [current] - Marks this as the page currently being viewed.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the element.
+
+  @example
+  {% render 'ui-pagination-item', label: '2', link: '/collections/all?page=2' %}
+  {% render 'ui-pagination-item', label: '1', current: true %}
+{%- enddoc -%}
+
+{%- capture pagination_item_attributes -%}
+  class="ui-pagination-item{% if current %} ui-pagination-item--current{% endif %}{% if class != blank %} {{ class }}{% endif %}"
+  {%- if current %} aria-current="page"{% endif -%}
+  {%- if attributes != blank %} {{ attributes }}{% endif -%}
+{%- endcapture -%}
+
+{%- if link != blank and current != true -%}
+  <a href="{{ link }}" {{ pagination_item_attributes }}>{{- label -}}</a>
+{%- else -%}
+  <span {{ pagination_item_attributes }}>{{- label -}}</span>
+{%- endif -%}
+
+{% stylesheet %}
+  :root {
+    --ui-pagination-item-size: 48px;
+    --ui-pagination-item-font-size: 20px;
+  }
+
+  .ui-pagination-item {
+    --ui-pagination-item-background: var(--ui-color-white);
+    --ui-pagination-item-color: var(--ui-color-black);
+    --ui-pagination-item-border-color: var(--ui-color-border-gray);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    width: var(--ui-pagination-item-size);
+    height: var(--ui-pagination-item-size);
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--ui-pagination-item-border-color);
+    background-color: var(--ui-pagination-item-background);
+    color: var(--ui-pagination-item-color);
+    font-family: var(--ui-font-emphasis);
+    font-size: var(--ui-pagination-item-font-size);
+    font-weight: var(--ui-font-emphasis-weight);
+    line-height: var(--ui-line-height);
+    text-align: center;
+    text-decoration: none;
+    transition: background-color var(--animation-values), color var(--animation-values),
+      box-shadow var(--animation-values);
+  }
+
+  a.ui-pagination-item {
+    cursor: pointer;
+  }
+
+  .ui-pagination-item:not(.ui-pagination-item--current):is(:hover, .ui-pagination-item--force-hover) {
+    --ui-pagination-item-border-color: var(--ui-color-primary);
+  }
+
+  .ui-pagination-item--current {
+    --ui-pagination-item-background: var(--ui-color-primary);
+    --ui-pagination-item-color: var(--ui-color-white);
+    --ui-pagination-item-border-color: var(--ui-color-primary);
+  }
+{% endstylesheet %}

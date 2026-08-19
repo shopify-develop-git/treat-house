@@ -1,0 +1,249 @@
+{% comment %}
+  QA harness for the UI kit components, mirroring the COMPONENTS frame of the
+  Figma file. Grows a group at a time; this covers the primitives.
+
+  "Hovered" columns are pinned with each component's --force-hover class, while
+  the "Default" column still reacts to a real pointer, so a state can be read
+  against the design and exercised for real in the same glance.
+{% endcomment %}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="ui-kit-components-{{ section.id }}"
+>
+  <div class="ui-kit-components">
+    <section class="ui-kit-components__family">
+      <h3 class="ui-kit-components__title">Button link</h3>
+      <div class="ui-kit-components__row">
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Default</span>
+          {% render 'ui-button', variant: 'link', label: 'Clear all' %}
+        </div>
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Hovered</span>
+          {% render 'ui-button', variant: 'link', label: 'Clear all', class: 'ui-button--force-hover' %}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-kit-components__family">
+      <h3 class="ui-kit-components__title">Checkbox</h3>
+      <div class="ui-kit-components__row">
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Default</span>
+          {% render 'ui-checkbox' %}
+        </div>
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Selected</span>
+          {% render 'ui-checkbox', checked: true %}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-kit-components__family">
+      <h3 class="ui-kit-components__title">Radio</h3>
+      <div class="ui-kit-components__row">
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Default</span>
+          {% render 'ui-radio' %}
+        </div>
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Selected</span>
+          {% render 'ui-radio', checked: true %}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-kit-components__family">
+      <h3 class="ui-kit-components__title">Remove icon</h3>
+      <div class="ui-kit-components__row">
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Default</span>
+          {% render 'ui-remove-icon', label: 'Remove' %}
+        </div>
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Hover</span>
+          {% render 'ui-remove-icon', label: 'Remove', class: 'ui-remove-icon--force-hover' %}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-kit-components__family">
+      <h3 class="ui-kit-components__title">Filter chip</h3>
+      <div class="ui-kit-components__row">
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Default</span>
+          {% render 'ui-filter-chip', label: 'Birthday' %}
+        </div>
+        <div class="ui-kit-components__cell ui-kit-components__cell--wide">
+          <span class="ui-kit-components__state">Longer value</span>
+          {% render 'ui-filter-chip', label: 'Chocolate peanut butter' %}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-kit-components__family">
+      <h3 class="ui-kit-components__title">Pagination item</h3>
+      <div class="ui-kit-components__row">
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Default</span>
+          {% render 'ui-pagination-item', label: '2', link: '#' %}
+        </div>
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Hovered</span>
+          {% render 'ui-pagination-item', label: '2', link: '#', class: 'ui-pagination-item--force-hover' %}
+        </div>
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Active</span>
+          {% render 'ui-pagination-item', label: '1', current: true %}
+        </div>
+      </div>
+    </section>
+
+    {%- assign arrow_directions = 'left,right' | split: ',' -%}
+    {%- for arrow_direction in arrow_directions -%}
+      <section class="ui-kit-components__family">
+        <h3 class="ui-kit-components__title">Pagination arrow — {{ arrow_direction }}</h3>
+        <div class="ui-kit-components__row">
+          <div class="ui-kit-components__cell">
+            <span class="ui-kit-components__state">Default</span>
+            {% render 'ui-pagination-arrow', direction: arrow_direction, link: '#' %}
+          </div>
+          <div class="ui-kit-components__cell">
+            <span class="ui-kit-components__state">Hovered</span>
+            {% render 'ui-pagination-arrow',
+              direction: arrow_direction,
+              link: '#',
+              class: 'ui-pagination-arrow--force-hover'
+            %}
+          </div>
+          <div class="ui-kit-components__cell">
+            <span class="ui-kit-components__state">Disabled</span>
+            {% render 'ui-pagination-arrow', direction: arrow_direction, disabled: true %}
+          </div>
+        </div>
+      </section>
+    {%- endfor -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .ui-kit-components {
+    display: flex;
+    flex-direction: column;
+    gap: 44px;
+  }
+
+  .ui-kit-components__family {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ui-kit-components__title {
+    margin: 0;
+    padding-block-end: 8px;
+    border-block-end: 2px solid currentcolor;
+    font-family: var(--ui-font-accent);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .ui-kit-components__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px 40px;
+    align-items: flex-start;
+  }
+
+  .ui-kit-components__cell {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+    flex: 0 0 auto;
+    min-width: 200px;
+  }
+
+  .ui-kit-components__cell--wide {
+    min-width: 280px;
+  }
+
+  .ui-kit-components__state {
+    font-family: var(--ui-font-accent);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "UI kit — components",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "QA harness for the UI kit components. Not intended for a live storefront page."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "UI kit — components"
+    }
+  ]
+}
+{% endschema %}

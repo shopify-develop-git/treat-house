@@ -1,0 +1,78 @@
+{%- doc -%}
+  Renders the remove control from the UI kit (Figma: COMPONENTS → Remove Icon).
+
+  A 16px white disc holding a close glyph, used to clear a filter chip or a
+  selected value. It renders a `<button>` because the kit gives it its own hover
+  state, which means it is the control rather than decoration on one.
+
+  @param {string} [label] - The accessible label. Defaults to the theme's "Remove" string.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the element.
+
+  @example
+  {% render 'ui-remove-icon', label: 'Remove Birthday filter' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign remove_label = label
+  if remove_label == blank
+    assign remove_label = 'actions.remove' | t
+  endif
+-%}
+
+<button
+  type="button"
+  class="ui-remove-icon{% if class != blank %} {{ class }}{% endif %}"
+  aria-label="{{ remove_label | escape }}"
+  {%- if attributes != blank %} {{ attributes }}{% endif -%}
+>
+  <span class="ui-remove-icon__glyph">{{- 'icon-ui-close.svg' | inline_asset_content -}}</span>
+</button>
+
+{% stylesheet %}
+  :root {
+    --ui-remove-icon-size: 16px;
+  }
+
+  .ui-remove-icon {
+    --ui-remove-icon-background: var(--ui-color-white);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    width: var(--ui-remove-icon-size);
+    height: var(--ui-remove-icon-size);
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: var(--ui-remove-icon-background);
+    color: var(--ui-color-primary);
+    cursor: pointer;
+    appearance: none;
+    transition: background-color var(--animation-values);
+  }
+
+  .ui-remove-icon:not(:disabled):is(:hover, .ui-remove-icon--force-hover) {
+    --ui-remove-icon-background: var(--ui-color-light-blue);
+  }
+
+  .ui-remove-icon:disabled {
+    opacity: var(--ui-disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  .ui-remove-icon__glyph {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ui-remove-icon__glyph > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+{% endstylesheet %}
