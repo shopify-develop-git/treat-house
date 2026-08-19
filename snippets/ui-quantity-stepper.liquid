@@ -1,0 +1,164 @@
+{%- doc -%}
+  Renders the quantity control (Figma: COMPONENTS → Quantity Stepper).
+
+  A real number input between two buttons. The input is the value — the buttons
+  only move it — so a form reads it the way it reads any field, and typing works
+  as well as stepping.
+
+  The stepping comes from ui-quantity-stepper.js rather than the theme's
+  quantity-selector-component, which is bound to the cart and the product form.
+  This is a kit component that has not been wired to either, and borrowing that
+  element would have it firing cart updates from a preview.
+
+  A button that cannot move the value any further disables itself, so the limits
+  are visible rather than only enforced on click.
+
+  @param {number} [value] - The starting quantity. Defaults to 1.
+  @param {number} [min] - The lowest allowed quantity. Defaults to 0.
+  @param {number} [max] - The highest allowed quantity.
+  @param {string} [name] - The input's `name`.
+  @param {string} [label] - The input's accessible label.
+  @param {boolean} [disabled] - Renders the whole control disabled.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-quantity-stepper', value: 1, min: 1, max: 10, name: 'quantity' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign stepper_value = value | default: 1
+  assign stepper_min = min | default: 0
+  assign stepper_label = label
+  if stepper_label == blank
+    assign stepper_label = 'accessibility.quantity' | t
+  endif
+-%}
+
+<script src="{{ 'ui-quantity-stepper.js' | asset_url }}" type="module" fetchpriority="low"></script>
+
+<ui-quantity-stepper class="ui-quantity-stepper{% if disabled %} ui-quantity-stepper--disabled{% endif %}{% if class != blank %} {{ class }}{% endif %}">
+  <button
+    type="button"
+    class="ui-quantity-stepper__button"
+    data-ui-quantity-step="-1"
+    aria-label="{{ 'accessibility.decrease_quantity' | t | escape }}"
+    {% if disabled %}disabled{% endif %}
+  >
+    <span class="ui-quantity-stepper__icon">{{- 'icon-ui-minus.svg' | inline_asset_content -}}</span>
+  </button>
+
+  <input
+    class="ui-quantity-stepper__value"
+    data-ui-quantity-input
+    type="number"
+    inputmode="numeric"
+    value="{{ stepper_value }}"
+    min="{{ stepper_min }}"
+    {% if max != blank %}max="{{ max }}"{% endif %}
+    {% if name != blank %}name="{{ name }}"{% endif %}
+    aria-label="{{ stepper_label | escape }}"
+    {% if disabled %}disabled{% endif %}
+  >
+
+  <button
+    type="button"
+    class="ui-quantity-stepper__button"
+    data-ui-quantity-step="1"
+    aria-label="{{ 'accessibility.increase_quantity' | t | escape }}"
+    {% if disabled %}disabled{% endif %}
+  >
+    <span class="ui-quantity-stepper__icon">{{- 'icon-ui-plus.svg' | inline_asset_content -}}</span>
+  </button>
+</ui-quantity-stepper>
+
+{% stylesheet %}
+  :root {
+    --ui-quantity-stepper-cell: 44px;
+    --ui-quantity-stepper-glyph: 16px;
+    --ui-quantity-stepper-font-size: 14px;
+  }
+
+  .ui-quantity-stepper {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    width: fit-content;
+    height: var(--ui-quantity-stepper-cell);
+    border-radius: var(--ui-radius-sm);
+    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-black);
+    background-color: var(--ui-color-white);
+  }
+
+  .ui-quantity-stepper--disabled {
+    opacity: var(--ui-disabled-opacity);
+  }
+
+  .ui-quantity-stepper__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: var(--ui-quantity-stepper-cell);
+    height: var(--ui-quantity-stepper-cell);
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
+    color: var(--ui-color-black);
+    cursor: pointer;
+    appearance: none;
+    transition: background-color var(--animation-values), color var(--animation-values);
+  }
+
+  .ui-quantity-stepper__button:not(:disabled):is(:hover, .ui-quantity-stepper__button--force-hover) {
+    background-color: var(--ui-color-light-blue);
+  }
+
+  /* Pressed keeps the tint and turns the glyph purple — same shape, different colour. */
+  .ui-quantity-stepper__button:not(:disabled):is(:active, .ui-quantity-stepper__button--force-active) {
+    background-color: var(--ui-color-light-blue);
+    color: var(--ui-color-primary);
+  }
+
+  .ui-quantity-stepper__button:disabled {
+    opacity: var(--ui-disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  .ui-quantity-stepper__icon {
+    display: block;
+    width: var(--ui-quantity-stepper-glyph);
+    height: var(--ui-quantity-stepper-glyph);
+  }
+
+  .ui-quantity-stepper__icon > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ui-quantity-stepper__value {
+    box-sizing: border-box;
+    width: var(--ui-quantity-stepper-cell);
+    height: var(--ui-quantity-stepper-cell);
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-emphasis);
+    font-size: var(--ui-quantity-stepper-font-size);
+    font-weight: var(--ui-font-emphasis-weight);
+    line-height: 1;
+    letter-spacing: -0.14px;
+    text-align: center;
+    appearance: textfield;
+  }
+
+  /* The kit draws no spinner, and one would not fit the 44px cell. */
+  .ui-quantity-stepper__value::-webkit-outer-spin-button,
+  .ui-quantity-stepper__value::-webkit-inner-spin-button {
+    margin: 0;
+    appearance: none;
+  }
+{% endstylesheet %}

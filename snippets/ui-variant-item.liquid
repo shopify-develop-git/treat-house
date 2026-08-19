@@ -1,0 +1,139 @@
+{%- doc -%}
+  Renders a product variant row (Figma: COMPONENTS → Product Variant Item).
+
+  Kept apart from [ui-choice-item] even though both are labelled radio rows: this
+  one puts the indicator at the far end rather than the front, carries an optional
+  thumbnail, and runs at 48px with 16px text against the filter row's 38px and
+  14px. The two only look alike in outline.
+
+  The hidden input sits immediately before the indicator so `:checked + .ui-radio`
+  still drives it — the same contract [ui-radio] documents — which keeps the state
+  in the browser rather than in a class the server has to re-render.
+
+  @param {string} label - The variant's name.
+  @param {object} [image] - A Shopify image object for the thumbnail.
+  @param {string} [name] - The `name` shared by the group's inputs.
+  @param {string} [value] - The input's `value`.
+  @param {boolean} [checked] - Marks this variant as chosen.
+  @param {boolean} [disabled] - Disables the input.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-variant-item', label: 'Chocolate Peanut Butter', image: variant.image, name: 'flavour' %}
+{%- enddoc -%}
+
+<label class="ui-variant-item{% if image == blank %} ui-variant-item--no-image{% endif %}{% if class != blank %} {{ class }}{% endif %}">
+  <span class="ui-variant-item__content">
+    {%- if image != blank -%}
+      <span class="ui-variant-item__media">
+        {% render 'image', image: image, height: 44, class: 'ui-variant-item__image' %}
+      </span>
+    {%- endif -%}
+    <span class="ui-variant-item__label">{{ label }}</span>
+  </span>
+
+  <input
+    class="ui-variant-item__input"
+    type="radio"
+    {%- if name != blank %} name="{{ name }}"{% endif -%}
+    {%- if value != blank %} value="{{ value }}"{% endif -%}
+    {%- if checked %} checked{% endif -%}
+    {%- if disabled %} disabled{% endif -%}
+  >
+  {% render 'ui-radio' %}
+</label>
+
+{% stylesheet %}
+  :root {
+    --ui-variant-item-height: 48px;
+    --ui-variant-item-media: 44px;
+    --ui-variant-item-gap: 12px;
+    --ui-variant-item-font-size: 16px;
+  }
+
+  .ui-variant-item {
+    --ui-variant-item-background: var(--ui-color-white);
+    --ui-variant-item-color: var(--ui-color-black);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    height: var(--ui-variant-item-height);
+    /* The thumbnail sits 2px in; without one the row uses even 12px sides. */
+    padding: 2px 12px 2px 2px;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-variant-item-background);
+    color: var(--ui-variant-item-color);
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-variant-item-font-size);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+    cursor: pointer;
+    transition: background-color var(--animation-values), color var(--animation-values);
+  }
+
+  .ui-variant-item--no-image {
+    padding-inline: 12px;
+  }
+
+  .ui-variant-item:not(:has(.ui-variant-item__input:disabled)):is(
+      :hover,
+      .ui-variant-item--force-hover
+    ) {
+    --ui-variant-item-background: var(--ui-color-light-blue);
+  }
+
+  /* Chosen recolours the label and fills the dot; the row keeps its white. */
+  .ui-variant-item:has(.ui-variant-item__input:checked) {
+    --ui-variant-item-color: var(--ui-color-primary);
+  }
+
+  .ui-variant-item:has(.ui-variant-item__input:disabled) {
+    opacity: var(--ui-disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  .ui-variant-item:has(.ui-variant-item__input:focus-visible) {
+    outline: var(--focus-outline-width) solid currentcolor;
+    outline-offset: var(--focus-outline-offset);
+  }
+
+  .ui-variant-item__content {
+    display: flex;
+    align-items: center;
+    gap: var(--ui-variant-item-gap);
+    min-width: 0;
+  }
+
+  .ui-variant-item--no-image .ui-variant-item__content {
+    gap: 0;
+  }
+
+  .ui-variant-item__media {
+    display: block;
+    flex: 0 0 auto;
+    width: var(--ui-variant-item-media);
+    height: var(--ui-variant-item-media);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+
+  .ui-variant-item__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ui-variant-item__input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+{% endstylesheet %}

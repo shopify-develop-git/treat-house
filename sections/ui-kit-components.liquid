@@ -281,6 +281,64 @@
         </div>
       </div>
     </section>
+    <section class="ui-kit-components__family">
+      <h3 class="ui-kit-components__title">Quantity stepper</h3>
+      <div class="ui-kit-components__row">
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Default</span>
+          {% render 'ui-quantity-stepper', value: 1, min: 0, max: 10 %}
+        </div>
+        <div class="ui-kit-components__cell">
+          <span class="ui-kit-components__state">Disabled</span>
+          {% render 'ui-quantity-stepper', value: 1, disabled: true %}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-kit-components__family">
+      <h3 class="ui-kit-components__title">Product variant item</h3>
+      <div class="ui-kit-components__row">
+        {%- comment -%}
+          Each row gets its own input name. Sharing one across the preview lets a
+          later checked radio silently clear an earlier one.
+        {%- endcomment -%}
+        <div class="ui-kit-components__cell ui-kit-components__cell--variant">
+          <span class="ui-kit-components__state">Default</span>
+          {% render 'ui-variant-item', label: 'Chocolate Peanut Butter', name: 'preview-variant-a' %}
+        </div>
+        <div class="ui-kit-components__cell ui-kit-components__cell--variant">
+          <span class="ui-kit-components__state">Hovered</span>
+          {% render 'ui-variant-item',
+            label: 'Chocolate Peanut Butter',
+            name: 'preview-variant-b',
+            class: 'ui-variant-item--force-hover'
+          %}
+        </div>
+        <div class="ui-kit-components__cell ui-kit-components__cell--variant">
+          <span class="ui-kit-components__state">Selected</span>
+          {% render 'ui-variant-item',
+            label: 'Chocolate Peanut Butter',
+            name: 'preview-variant-c',
+            checked: true
+          %}
+        </div>
+      </div>
+    </section>
+
+    <section class="ui-kit-components__family">
+      <h3 class="ui-kit-components__title">Product variant select</h3>
+      {%- assign variant_options = 'Chocolate Peanut Butter,Salted Caramel,Raspberry Ripple,Classic Vanilla' | split: ',' -%}
+      <div class="ui-kit-components__row ui-kit-components__row--overlay">
+        <div class="ui-kit-components__cell ui-kit-components__cell--variant">
+          <span class="ui-kit-components__state">Closed</span>
+          {% render 'ui-variant-select', options: variant_options, name: 'preview-select-closed' %}
+        </div>
+        <div class="ui-kit-components__cell ui-kit-components__cell--variant">
+          <span class="ui-kit-components__state">Open</span>
+          {% render 'ui-variant-select', options: variant_options, name: 'preview-select-open', open: true %}
+        </div>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -338,6 +396,13 @@
   .ui-kit-components__row--overlay {
     min-height: 360px;
     align-items: flex-start;
+  }
+
+  /* The kit draws variant rows at 586px. */
+  .ui-kit-components__cell--variant {
+    width: 100%;
+    max-width: 586px;
+    min-width: 280px;
   }
 
   /* The kit draws collection cards at 305px. */

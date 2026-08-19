@@ -1,0 +1,177 @@
+{%- doc -%}
+  Renders the variant picker (Figma: COMPONENTS → Product Variant Trigger and
+  Product Variant Panel).
+
+  The kit files the trigger and the panel as two components, but neither is
+  usable alone — the panel exists to be what the trigger opens — so one snippet
+  builds the pair. Built on `<details>` like the other disclosures here, so the
+  open state and keyboard handling come from the theme rather than new script.
+
+  `options` takes entries read through `.label`, `.value`, `.image` and
+  `.active`, which is close enough to a product's variant list to be handed real
+  data once this is wired up.
+
+  The trigger's chevron is the 14x8 one the select field already uses, not the
+  12x6 the filter and sort triggers carry — the kit draws two different chevrons
+  and this is the wider of them.
+
+  @param {object[]} options - The variants to list.
+  @param {string} [label] - The trigger's text. Defaults to the chosen option.
+  @param {object} [image] - The thumbnail on the trigger. Defaults to the chosen option's.
+  @param {string} [name] - The `name` shared by the group's inputs.
+  @param {boolean} [open] - Renders the picker already open.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-variant-select', options: variant_options, name: 'flavour' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign chosen_label = label
+  assign chosen_image = image
+
+  for option in options
+    if option.active
+      if chosen_label == blank
+        assign chosen_label = option.label
+      endif
+      if chosen_image == blank
+        assign chosen_image = option.image
+      endif
+      break
+    endif
+  endfor
+
+  if chosen_label == blank and options.size > 0
+    assign chosen_label = options.first.label | default: options.first
+  endif
+-%}
+
+<details
+  class="ui-variant-select{% if class != blank %} {{ class }}{% endif %}"
+  data-auto-close-details="desktop mobile"
+  {%- if open %} open{% endif -%}
+>
+  <summary class="ui-variant-select__trigger{% if chosen_image == blank %} ui-variant-select__trigger--no-image{% endif %}">
+    <span class="ui-variant-select__content">
+      {%- if chosen_image != blank -%}
+        <span class="ui-variant-select__media">
+          {% render 'image', image: chosen_image, height: 44, class: 'ui-variant-select__image' %}
+        </span>
+      {%- endif -%}
+      <span class="ui-variant-select__label">{{ chosen_label }}</span>
+    </span>
+    <span class="ui-variant-select__chevron">{{- 'icon-ui-chevron-down.svg' | inline_asset_content -}}</span>
+  </summary>
+
+  <div class="ui-variant-select__panel">
+    {%- for option in options -%}
+      {%- liquid
+        assign option_label = option.label | default: option
+        assign option_value = option.value | default: option
+      -%}
+      {% render 'ui-variant-item',
+        label: option_label,
+        value: option_value,
+        image: option.image,
+        checked: option.active,
+        name: name
+      %}
+    {%- endfor -%}
+  </div>
+</details>
+
+{% stylesheet %}
+  :root {
+    --ui-variant-select-height: 48px;
+    --ui-variant-select-media: 44px;
+    --ui-variant-select-gap: 12px;
+    --ui-variant-select-offset: 10px;
+    --ui-variant-select-font-size: 16px;
+  }
+
+  .ui-variant-select {
+    position: relative;
+    width: 100%;
+  }
+
+  .ui-variant-select__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    height: var(--ui-variant-select-height);
+    padding: 2px 12px 2px 2px;
+    border-radius: var(--ui-radius-sm);
+    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-border-gray);
+    background-color: var(--ui-color-light-blue);
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-variant-select-font-size);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .ui-variant-select__trigger--no-image {
+    padding-inline: 12px;
+  }
+
+  .ui-variant-select__trigger::-webkit-details-marker {
+    display: none;
+  }
+
+  .ui-variant-select__content {
+    display: flex;
+    align-items: center;
+    gap: var(--ui-variant-select-gap);
+    min-width: 0;
+  }
+
+  .ui-variant-select__media {
+    display: block;
+    flex: 0 0 auto;
+    width: var(--ui-variant-select-media);
+    height: var(--ui-variant-select-media);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+
+  .ui-variant-select__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ui-variant-select__chevron {
+    display: block;
+    flex: 0 0 auto;
+    width: 14px;
+    height: 8px;
+    transition: rotate var(--animation-values);
+  }
+
+  [open] > .ui-variant-select__trigger .ui-variant-select__chevron {
+    rotate: 180deg;
+  }
+
+  .ui-variant-select__chevron > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ui-variant-select__panel {
+    position: absolute;
+    /* Out of flow so the open list overlays the page instead of pushing it down. */
+    z-index: var(--layer-raised, 2);
+    inset-block-start: calc(100% + var(--ui-variant-select-offset));
+    inset-inline: 0;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--ui-radius-sm);
+    box-shadow: inset 0 0 0 1px var(--ui-color-border-gray);
+    background-color: var(--ui-color-white);
+  }
+{% endstylesheet %}
