@@ -319,14 +319,15 @@ gutter ladder is in `CLAUDE.md`.
 
 | Block | What the merchant sets | Used by |
 | --- | --- | --- |
-| `_ui-heading` | richtext heading, size, mobile size, max width, colour, accent colour | `home-hero`, `our-story`, `shop-by-occasion`, `partner-story`, `best-sellers` (static) |
+| `_ui-heading` | richtext heading, size, mobile size, max width, colour, accent colour | `home-hero`, `our-story`, `shop-by-occasion`, `partner-story`, `best-sellers` (static), `testimonials` (static) |
 | `_ui-text` | richtext copy, size, max width, colour | `home-hero`, `our-story`, `shop-by-occasion`, `partner-story` |
 | `_ui-link` | label, url, variant, full width, new tab | `home-hero`, `shop-by-occasion`, `partner-story`, `best-sellers` (static), `_ui-link-row` |
 | `_ui-link-row` | gap; hosts link blocks | `home-hero` |
-| `_ui-review-line` | stars, rating, review count, gap; hosts avatar blocks | `home-hero`, static |
+| `_ui-review-line` | stars, rating, review count, layout, gap; hosts avatar blocks | `home-hero`, `testimonials` (static) |
 | `_ui-avatar` | image | `_ui-review-line` |
 | `_ui-stat-row` | gap; hosts statistic blocks | `corporate-gifts`, static |
 | `_ui-stat` | figure, label | `_ui-stat-row` |
+| `_ui-testimonial` | quote, star count, name, role, photo | `testimonials` |
 
 `_ui-heading` replaced `snippets/ui-section-heading.liquid`, which held the same
 type at the same steps but took the accent as a second string. One richtext field

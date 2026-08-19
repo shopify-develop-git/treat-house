@@ -6,7 +6,8 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
     "shop_by_occasion_preview": {
       "type": "shop-by-occasion",
@@ -36,7 +37,7 @@
         "copy": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Discover handcrafted Krispie treats made with premium ingredients, designed to celebrate life's biggest moments—from birthdays to corporate gifting.</p>"
+            "text": "<p>Discover handcrafted Krispie treats made with premium ingredients, designed to celebrate life's biggest moments\u2014from birthdays to corporate gifting.</p>"
           }
         },
         "buttons": {
@@ -245,13 +246,74 @@
         "body": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>The Andrew McDonough B+ Foundation honors the life of Andrew McDonough. Andrew battled leukemia, septic shock, and complications of childhood cancer for 167 days before passing away on July 14, 2007, at the age of 14.</p><p>Andrew's B+ blood type became his family's and friends' motto throughout his fight against childhood cancer — to “Be Positive”. The B+ Foundation is the largest provider of financial assistance to families of kids with cancer nationwide.</p><p>Additionally, The B+ Foundation funds cutting-edge childhood cancer research and advocates on behalf of kids with cancer.</p>"
+            "text": "<p>The Andrew McDonough B+ Foundation honors the life of Andrew McDonough. Andrew battled leukemia, septic shock, and complications of childhood cancer for 167 days before passing away on July 14, 2007, at the age of 14.</p><p>Andrew's B+ blood type became his family's and friends' motto throughout his fight against childhood cancer \u2014 to \u201cBe Positive\u201d. The B+ Foundation is the largest provider of financial assistance to families of kids with cancer nationwide.</p><p>Additionally, The B+ Foundation funds cutting-edge childhood cancer research and advocates on behalf of kids with cancer.</p>"
           }
         }
       },
       "block_order": [
         "heading",
         "body"
+      ],
+      "settings": {}
+    },
+    "testimonials_preview": {
+      "type": "testimonials",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>Sweet words from <em>Happy Customers</em></h2>",
+            "max_width": 520
+          }
+        },
+        "rating": {
+          "type": "_ui-review-line",
+          "static": true,
+          "settings": {
+            "layout": "inline",
+            "rating_text": "4.9 rating",
+            "reviews_text": "12,000+ reviews"
+          }
+        },
+        "one": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>Ordered a custom cake for my daughter's birthday and it was beyond anything I pictured. It tasted even better than it looked, and it looked incredible.</p>",
+            "name": "Amelia Hart",
+            "role": "Birthday order"
+          }
+        },
+        "two": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>We send Treat House boxes to every new client. Two years in, people still email us about them.</p>",
+            "name": "Daniel Okafor",
+            "role": "Office manager"
+          }
+        },
+        "three": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>The wedding dessert table was the thing guests kept talking about. They matched our colours exactly.</p>",
+            "name": "Priya Raman",
+            "role": "Wedding order"
+          }
+        },
+        "four": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>I have a dairy allergy and had given up on bakery cakes. This one I could actually eat, and it was lovely.</p>",
+            "name": "Grace Whitfield",
+            "role": "Custom order"
+          }
+        }
+      },
+      "block_order": [
+        "one",
+        "two",
+        "three",
+        "four"
       ],
       "settings": {}
     }
@@ -263,6 +325,7 @@
     "custom_treats_preview",
     "our_story_Vt6Rw1",
     "corporate_gifts_preview",
-    "partner_story_preview"
+    "partner_story_preview",
+    "testimonials_preview"
   ]
 }

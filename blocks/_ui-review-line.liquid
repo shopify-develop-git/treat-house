@@ -8,6 +8,10 @@
 
   The stars are decorative — the rating is written out next to them, so a screen
   reader is told the number rather than counting glyphs.
+
+  `layout` chooses between the two arrangements the file draws: `stacked` puts the
+  stars over the wording, which is what the hero needs beside its faces, and `inline`
+  sets them on one line, which is what a section heading needs under it.
 {%- enddoc -%}
 
 {%- liquid
@@ -21,7 +25,7 @@
 -%}
 
 <div
-  class="ui-review-line"
+  class="ui-review-line ui-review-line--{{ block.settings.layout | default: 'stacked' }}"
   style="
     --ui-review-line-gap: {{ block.settings.gap }}px;
     {%- if padding_start > 0 %} --ui-review-line-padding-start: {{ padding_start }}px;{% endif -%}
@@ -73,10 +77,26 @@
     flex: 0 0 auto;
   }
 
+  /* With no avatar blocks the wrapper is still in the markup — the block region has to
+     exist for the editor — and an empty flex item still takes its share of the gap,
+     which pushes the stars off centre. Taken out of the layout until something is in
+     it. Whitespace does not count as content for `:has(*)`, so it stays hidden until
+     a block is actually added. */
+  .ui-review-line__avatars:not(:has(*)) {
+    display: none;
+  }
+
   .ui-review-line__rating {
     display: flex;
     flex-direction: column;
     gap: var(--ui-review-line-stars-gap, 5px);
+  }
+
+  /* One line, stars first — the arrangement a section heading sits above. */
+  .ui-review-line--inline .ui-review-line__rating {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--ui-review-line-inline-gap, 8px);
   }
 
   .ui-review-line__stars {
@@ -125,7 +145,9 @@
   "name": "Review line",
   "tag": null,
   "blocks": [
-    { "type": "_ui-avatar" }
+    {
+      "type": "_ui-avatar"
+    }
   ],
   "settings": [
     {
@@ -148,6 +170,22 @@
       "id": "reviews_text",
       "label": "Review count",
       "default": "12,000+ reviews"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        {
+          "value": "stacked",
+          "label": "Stars above the wording"
+        },
+        {
+          "value": "inline",
+          "label": "Stars beside the wording"
+        }
+      ],
+      "default": "stacked"
     },
     {
       "type": "range",
@@ -189,13 +227,29 @@
     {
       "name": "Review line",
       "blocks": {
-        "one": { "type": "_ui-avatar" },
-        "two": { "type": "_ui-avatar" },
-        "three": { "type": "_ui-avatar" },
-        "four": { "type": "_ui-avatar" },
-        "five": { "type": "_ui-avatar" }
+        "one": {
+          "type": "_ui-avatar"
+        },
+        "two": {
+          "type": "_ui-avatar"
+        },
+        "three": {
+          "type": "_ui-avatar"
+        },
+        "four": {
+          "type": "_ui-avatar"
+        },
+        "five": {
+          "type": "_ui-avatar"
+        }
       },
-      "block_order": ["one", "two", "three", "four", "five"]
+      "block_order": [
+        "one",
+        "two",
+        "three",
+        "four",
+        "five"
+      ]
     }
   ]
 }

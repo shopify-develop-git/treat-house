@@ -18,6 +18,11 @@
  * While the track has somewhere to scroll the element carries `data-scrollable`, so a
  * stylesheet can show the buttons only when they would do something.
  *
+ * A `[data-carousel-dots]` container, if there is one, is filled with a button per
+ * item and kept in step with the scroll. They are real buttons rather than painted
+ * dots because they are the one control that says how long the row is, and a visitor
+ * on a keyboard should be able to reach any of it.
+ *
  * Dependency-free, like the rest of the kit's scripts.
  *
  * <ui-carousel>
@@ -32,6 +37,8 @@ class UICarousel extends HTMLElement {
   #next = null;
   #observer = null;
   #frame = null;
+  #dots = null;
+  #buttons = [];
 
   static #duration = 360;
 
@@ -44,6 +51,9 @@ class UICarousel extends HTMLElement {
     this.#prev?.addEventListener('click', () => this.#step(-1));
     this.#next?.addEventListener('click', () => this.#step(1));
     this.#track.addEventListener('scroll', this.#sync, { passive: true });
+
+    this.#dots = this.querySelector('[data-carousel-dots]');
+    this.#buildDots();
 
     // The track turns into a grid at the breakpoint, so its scrollable width
     // changes without anything scrolling.
@@ -72,6 +82,38 @@ class UICarousel extends HTMLElement {
     this.#observer?.disconnect();
     this.#track?.removeEventListener('scroll', this.#sync);
     this.#cancel();
+  }
+
+  #buildDots() {
+    if (!this.#dots) return;
+
+    const items = [...this.#track.children];
+    this.#dots.replaceChildren();
+    this.#buttons = items.map((_, index) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'ui-carousel__dot';
+      dot.setAttribute('aria-label', `${index + 1}`);
+      dot.addEventListener('click', () => this.#goTo(index));
+      this.#dots.append(dot);
+      return dot;
+    });
+  }
+
+  #goTo(index) {
+    const from = this.#track.scrollLeft;
+    const to = index * this.#stepSize();
+    this.#step((to - from) / Math.max(this.#stepSize(), 1));
+  }
+
+  #syncDots() {
+    if (!this.#buttons.length) return;
+    const step = this.#stepSize();
+    const current = step > 0 ? Math.round(Math.abs(this.#track.scrollLeft) / step) : 0;
+    this.#buttons.forEach((dot, index) => {
+      dot.toggleAttribute('data-current', index === current);
+      dot.setAttribute('aria-current', index === current ? 'true' : 'false');
+    });
   }
 
   /** One item plus the gap after it. */
@@ -142,6 +184,7 @@ class UICarousel extends HTMLElement {
     const total = this.#track.scrollWidth - this.#track.clientWidth;
 
     this.toggleAttribute('data-scrollable', total > 1);
+    this.#syncDots();
     if (this.#prev) this.#prev.disabled = travelled <= 1;
     if (this.#next) this.#next.disabled = travelled >= total - 1;
   };

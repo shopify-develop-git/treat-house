@@ -1,0 +1,285 @@
+{% comment %}
+  Testimonials (Figma: Testimonials, desktop and mobile).
+
+  A heading with a rating line under it, and a row of review cards that runs past
+  both edges of the page. The reviews are the merchant's list, so they are the
+  section's block region; the heading and the rating line sit above it and never
+  move, so they are static blocks.
+
+  The row is a carousel at every width — the file draws it mid-scroll on both, with
+  cards cut off at the edges. Cards keep the width they are drawn at rather than
+  dividing the container, which is why the row overflows: three and a bit of them
+  at 1440, one and two halves on a phone.
+
+  Where a card lands differs, though. On a phone it centres, so the neighbours peek
+  evenly; on a wide screen it lines up with the page column, so the row starts where
+  the heading does.
+
+  Controls show on the phone layout only, which is what the file draws — a wide row
+  says it scrolls by cutting a card at the edge.
+{% endcomment %}
+
+<div
+  class="testimonials color-{{ section.settings.color_scheme }}"
+  style="
+    --testimonials-block-padding: {{ section.settings.vertical_padding_mobile }}px;
+    --testimonials-block-padding-desktop: {{ section.settings.vertical_padding }}px;
+  "
+  data-testid="testimonials-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div class="testimonials__header">
+    {% content_for 'block', type: '_ui-heading', id: 'heading' %}
+    {%- if section.settings.show_rating -%}
+      {% content_for 'block', type: '_ui-review-line', id: 'rating' %}
+    {%- endif -%}
+  </div>
+
+  <ui-carousel class="testimonials__viewport">
+    <div class="testimonials__track" data-carousel-track>
+      {% content_for 'blocks' %}
+    </div>
+
+    <div class="testimonials__controls">
+      {% render 'ui-pagination-arrow',
+        direction: 'left',
+        class: 'testimonials__arrow',
+        attributes: 'data-carousel-prev'
+      %}
+      <div class="testimonials__dots" data-carousel-dots></div>
+      {% render 'ui-pagination-arrow',
+        direction: 'right',
+        class: 'testimonials__arrow',
+        attributes: 'data-carousel-next'
+      %}
+    </div>
+  </ui-carousel>
+</div>
+
+<script src="{{ 'ui-carousel.js' | asset_url }}" type="module"></script>
+
+{% stylesheet %}
+  .testimonials {
+    --testimonials-card-width: 295px;
+    --testimonials-gap: 16px;
+    --testimonials-header-gap: 32px;
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--testimonials-header-gap);
+    padding-block: var(--testimonials-block-padding, 64px);
+
+    /* Opens on the second card: the file draws the row already moved along, and a
+       first card flush to the edge hides that it scrolls. */
+    --ui-carousel-start: 2;
+  }
+
+  .testimonials__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-sizing: border-box;
+
+    /* The auto margins that centre this also stop it stretching to the column, so the
+       width has to be asked for. Without it the header shrinks to the heading's
+       longest line and the rating line centres on that instead of on the page. */
+    width: 100%;
+    max-width: var(--page-width, 90rem);
+    margin-inline: auto;
+    padding-inline: var(--ui-page-margin);
+    text-align: center;
+  }
+
+  .testimonials__viewport {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .testimonials__track {
+    display: flex;
+    align-items: stretch;
+    gap: var(--testimonials-gap);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+
+    /* Half a viewport either side centres a card, so its neighbours peek evenly. */
+    padding-inline: calc((100% - var(--testimonials-card-width)) / 2);
+  }
+
+  .testimonials__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .testimonials__track > * {
+    flex: 0 0 var(--testimonials-card-width);
+    scroll-snap-align: center;
+  }
+
+  .testimonials__controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .testimonials__dots {
+    display: flex;
+    align-items: center;
+  }
+
+  /* The dot is drawn inside the button rather than being the button, so the thing a
+     thumb has to hit is 24px even though the mark is 10. The file spaces the dots
+     about 22px apart, which is just under what a 24px target needs to clear its
+     neighbour, so they sit 24 apart here — a couple of pixels wider than drawn,
+     which is the side to err on for a control this small. */
+  .ui-carousel__dot {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .ui-carousel__dot::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--ui-color-primary);
+    opacity: 0.3;
+    transition: width var(--ui-duration-short, 150ms), height var(--ui-duration-short, 150ms),
+      opacity var(--ui-duration-short, 150ms);
+  }
+
+  .ui-carousel__dot[data-current]::before {
+    width: 12px;
+    height: 12px;
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ui-carousel__dot::before {
+      transition: none;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .testimonials {
+      --testimonials-card-width: 413px;
+      --testimonials-gap: 20px;
+      --testimonials-header-gap: 48px;
+
+      padding-block: var(--testimonials-block-padding-desktop, 80px);
+
+      /* The row lines up with the page column here, so the first card is already
+         where the heading starts and there is nothing to reveal. */
+      --ui-carousel-start: 1;
+    }
+
+    .testimonials__track {
+      /* Aligned to the page column rather than centred, which is what puts the row's
+         first card under the start of the heading. */
+      padding-inline: max(
+        var(--ui-page-margin),
+        calc((100% - var(--page-width, 90rem)) / 2 + var(--ui-page-margin))
+      );
+
+      /* Snapping measures from the scrollport edge, not from the padding, so without
+         this the first card snaps flush to the window and the row loses the page
+         margin it is supposed to start at. */
+      scroll-padding-inline: max(
+        var(--ui-page-margin),
+        calc((100% - var(--page-width, 90rem)) / 2 + var(--ui-page-margin))
+      );
+    }
+
+    .testimonials__track > * {
+      scroll-snap-align: start;
+    }
+
+    /* The file gives a wide row no controls: a card cut off at the edge says it
+       scrolls without them. */
+    .testimonials__controls {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "tag": "section",
+  "blocks": [{ "type": "_ui-testimonial" }],
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show the rating line under the heading",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding_mobile",
+      "label": "t:content.mobile_size",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "presets": [
+    {
+      "name": "Testimonials",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": { "heading": "<h2>Sweet words from <em>Happy Customers</em></h2>", "max_width": 520 }
+        },
+        "rating": {
+          "type": "_ui-review-line",
+          "static": true,
+          "settings": { "layout": "inline", "rating_text": "4.9 rating", "reviews_text": "12,000+ reviews" }
+        },
+        "one": { "type": "_ui-testimonial" },
+        "two": { "type": "_ui-testimonial" },
+        "three": { "type": "_ui-testimonial" },
+        "four": { "type": "_ui-testimonial" }
+      },
+      "block_order": ["one", "two", "three", "four"]
+    }
+  ]
+}
+{% endschema %}
