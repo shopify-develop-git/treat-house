@@ -18,7 +18,10 @@
   the real header lands, or the page gains a gap.
 
   The marquee runs on the theme's own `marquee-component`, which already handles
-  cloning, speed and reduced motion — no new script.
+  cloning, speed and reduced motion — no new script, but it does need the theme's
+  own one: marquee.js is not in the importmap, so the element upgrades only on a
+  page that asks for the file. Without the tag below the component stays an inert
+  HTMLElement and the words sit still.
 {% endcomment %}
 
 {%- liquid
@@ -96,6 +99,8 @@
         </div>
       </div>
     </marquee-component>
+
+    <script src="{{ 'marquee.js' | asset_url }}" type="module" fetchpriority="low"></script>
   {%- endif -%}
 </div>
 
