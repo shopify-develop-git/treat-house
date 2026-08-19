@@ -21,9 +21,14 @@
   rendered twice and the tab order stays in reading order at either width.
 
   Below 750px the row is a scroll-snap carousel with the neighbours peeking, as the
-  file draws it. The scrolling is the browser's; ui-carousel.js only steps the track
-  from the arrows and disables them at the ends. Above 750px the track becomes a
-  grid, the arrows are hidden, and the script has nothing to do.
+  file draws it. The row stays that one scroll-snap track at every width — only the
+  card's width changes, from the drawn 240px to a share of the columns asked for. A
+  row that does not fit therefore scrolls rather than wrapping a lone card onto a
+  second line, which reads as a mistake rather than a choice.
+
+  The arrows show only while there is somewhere to go: ui-carousel.js marks the
+  element `data-scrollable` whenever the track overflows, so a row that fits has no
+  controls and needs no breakpoint to hide them.
 
   Badges come from product metafields — `custom.badge` for the text and
   `custom.badge_tone` for the colour — since they are editorial and change per
@@ -166,6 +171,10 @@
     /* The row runs to the window edge so the neighbouring cards peek, while the
        arrows stay on the page's own margin. */
     margin-inline: calc(var(--page-margin) * -1);
+
+    /* Opens on the second card: the peeking arrangement is drawn already moved
+       along, and a first card flush to the edge hides that the row scrolls. */
+    --ui-carousel-start: 2;
   }
 
   .best-sellers__track {
@@ -205,6 +214,16 @@
 
   .best-sellers__arrow--next {
     inset-inline-end: var(--page-margin);
+  }
+
+  /* Named with the component class so this does not depend on which stylesheet is
+     concatenated last. The attribute comes from ui-carousel.js. */
+  .ui-pagination-arrow.best-sellers__arrow {
+    display: none;
+  }
+
+  .best-sellers__viewport[data-scrollable] .ui-pagination-arrow.best-sellers__arrow {
+    display: inline-flex;
   }
 
   .best-sellers > .ui-link {
@@ -252,23 +271,31 @@
     /* Back inside the page column: a grid has nothing to peek past. */
     .best-sellers__viewport {
       margin-inline: 0;
+
+      /* No peeking card to reveal once the cards fill the row. */
+      --ui-carousel-start: 1;
     }
 
     .best-sellers__track {
-      display: grid;
-      grid-template-columns: repeat(var(--best-sellers-columns-sm, 3), minmax(0, 1fr));
       padding-inline: 0;
-      overflow: visible;
+      scroll-snap-type: x proximity;
     }
 
+    /* A column is a card width, not a grid track. */
     .best-sellers__item {
-      flex: initial;
+      flex-basis: calc(
+        (100% - (var(--best-sellers-columns-sm, 3) - 1) * 20px) / var(--best-sellers-columns-sm, 3)
+      );
+      scroll-snap-align: start;
     }
 
-    /* Named with the component class for the same reason the heading is: equal
-       specificity would leave this to whichever stylesheet is concatenated last. */
-    .ui-pagination-arrow.best-sellers__arrow {
-      display: none;
+    /* The row sits inside the page column now, so the arrows sit on its own edges. */
+    .best-sellers__arrow--prev {
+      inset-inline-start: 0;
+    }
+
+    .best-sellers__arrow--next {
+      inset-inline-end: 0;
     }
 
     .best-sellers > .ui-link .ui-button {
@@ -283,14 +310,18 @@
    * half again the width drawn, so the fourth arrives at 1024px instead.
    */
   @media screen and (min-width: 1024px) {
-    .best-sellers__track {
-      grid-template-columns: repeat(var(--best-sellers-columns-md, 4), minmax(0, 1fr));
+    .best-sellers__item {
+      flex-basis: calc(
+        (100% - (var(--best-sellers-columns-md, 4) - 1) * 20px) / var(--best-sellers-columns-md, 4)
+      );
     }
   }
 
   @media screen and (min-width: 1440px) {
-    .best-sellers__track {
-      grid-template-columns: repeat(var(--best-sellers-columns, 5), minmax(0, 1fr));
+    .best-sellers__item {
+      flex-basis: calc(
+        (100% - (var(--best-sellers-columns, 5) - 1) * 20px) / var(--best-sellers-columns, 5)
+      );
     }
   }
 {% endstylesheet %}

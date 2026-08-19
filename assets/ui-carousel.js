@@ -9,10 +9,14 @@
  * Above the breakpoint where the track becomes a grid there is nothing to scroll,
  * the buttons are hidden, and the element does nothing.
  *
- * It opens on the second item rather than the first. The file draws the row already
- * moved along, with a card either side of the middle one, which is what says the row
- * scrolls — a first card flush to the left edge reads as a row that simply ran out of
- * space. `data-carousel-start` moves that, and 1 leaves it at the beginning.
+ * Which item it opens on comes from `--ui-carousel-start`, read off the element, so a
+ * stylesheet can set it per breakpoint. The peeking arrangement wants the second: the
+ * file draws that row already moved along, with a card either side of the middle one,
+ * which is what says it scrolls. A row of full-width columns wants the first, since
+ * there is no peeking card to reveal. `data-carousel-start` is the fallback.
+ *
+ * While the track has somewhere to scroll the element carries `data-scrollable`, so a
+ * stylesheet can show the buttons only when they would do something.
  *
  * Dependency-free, like the rest of the kit's scripts.
  *
@@ -55,7 +59,8 @@ class UICarousel extends HTMLElement {
     const track = this.#track;
     if (track.scrollWidth <= track.clientWidth) return;
 
-    const index = Number(this.dataset.carouselStart || 2) - 1;
+    const declared = getComputedStyle(this).getPropertyValue('--ui-carousel-start').trim();
+    const index = Number(declared || this.dataset.carouselStart || 1) - 1;
     if (index <= 0 || !track.children[index]) return;
 
     // Item 0 sits centred at rest, so each step along centres the next one.
@@ -135,6 +140,8 @@ class UICarousel extends HTMLElement {
     // scrollLeft runs negative in a right-to-left track, so compare on distance.
     const travelled = Math.abs(this.#track.scrollLeft);
     const total = this.#track.scrollWidth - this.#track.clientWidth;
+
+    this.toggleAttribute('data-scrollable', total > 1);
     if (this.#prev) this.#prev.disabled = travelled <= 1;
     if (this.#next) this.#next.disabled = travelled >= total - 1;
   };
