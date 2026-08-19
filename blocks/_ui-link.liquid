@@ -1,0 +1,113 @@
+{%- doc -%}
+  A call to action. Every look comes from `ui-button` in the kit, so a new one is
+  added there as a variant and reaches every call site — never copied into a
+  second block.
+
+  A link with no destination is still rendered: in the theme editor the merchant
+  needs to see the button before they have a page to point it at.
+{%- enddoc -%}
+
+{%- liquid
+  assign padding_start = block.settings.padding_block_start
+  assign padding_end = block.settings.padding_block_end
+-%}
+
+{%- if block.settings.label != blank -%}
+  <div
+    class="ui-link"
+    style="
+      {%- if padding_start > 0 %} --ui-link-padding-start: {{ padding_start }}px;{% endif -%}
+      {%- if padding_end > 0 %} --ui-link-padding-end: {{ padding_end }}px;{% endif -%}
+    "
+    {{ block.shopify_attributes }}
+  >
+    {% render 'ui-button',
+      variant: block.settings.variant,
+      label: block.settings.label,
+      link: block.settings.link,
+      full_width: block.settings.full_width,
+      open_in_new_tab: block.settings.open_in_new_tab
+    %}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .ui-link {
+    display: flex;
+    padding-block: var(--ui-link-padding-start, 0px) var(--ui-link-padding-end, 0px);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.button",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "t:settings.label",
+      "default": "Shop treats"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:settings.link"
+    },
+    {
+      "type": "select",
+      "id": "variant",
+      "label": "t:settings.style",
+      "options": [
+        { "value": "primary", "label": "Filled" },
+        { "value": "secondary", "label": "Outlined" },
+        { "value": "secondary-alt", "label": "Outlined, light" },
+        { "value": "underline", "label": "Underlined text" },
+        { "value": "link", "label": "Plain text" }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Stretch to the full width",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "open_in_new_tab",
+      "label": "t:settings.open_new_tab",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_block_start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_block_end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.button"
+    }
+  ]
+}
+{% endschema %}

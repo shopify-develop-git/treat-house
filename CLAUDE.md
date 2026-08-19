@@ -29,6 +29,19 @@ Two things to avoid:
   `snippets/ui-kit-tokens.liquid`. A raw `#6c276a` is a bug waiting for the next
   palette change.
 
+## The merchant sees the schema — build it, don't dump it
+
+**A section owns its media and its layout. Everything the merchant writes is a
+block.** Headings, copy and links are `blocks/_ui-*.liquid` rendered through
+`{% content_for 'blocks' %}`, not a flat list of `text` settings on the section.
+
+The tell that this went wrong is a numbered run of settings — `avatar_1` through
+`avatar_5` — which is a list the merchant cannot lengthen, shorten or reorder.
+
+**Before adding a setting to a section, read `docs/section-settings.md`.** It has
+the setting type for each job, the group order the editor shows, the `t:` label
+rule, and the two ways an inline style quietly beats a media query.
+
 ## Page geometry — read before laying out a section
 
 Most sections sit in the `.section` grid, which puts the content in a central
@@ -97,3 +110,5 @@ and the icon is silently absent. If an icon is missing, `touch assets/*.svg`
 before debugging the CSS.
 
 Full reference, tokens and conventions: **`docs/ui-kit.md`**
+
+Schema, blocks and what the merchant sees: **`docs/section-settings.md`**

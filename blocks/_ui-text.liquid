@@ -1,0 +1,130 @@
+{%- doc -%}
+  Body copy. A `richtext` field, so one block covers a single line and a run of
+  paragraphs: the merchant leaves a blank line and the block spaces them.
+
+  Paragraphs are separated by one line of their own copy rather than a margin in
+  px, which is how the file draws them and what keeps them apart when the size
+  changes.
+
+  As with [_ui-heading], a setting left at its default is not written out, so the
+  section can set `--ui-text-max-width` or `--ui-text-color` on an ancestor and
+  have it inherit.
+{%- enddoc -%}
+
+{%- liquid
+  assign padding_start = block.settings.padding_block_start
+  assign padding_end = block.settings.padding_block_end
+-%}
+
+{%- if block.settings.text != blank -%}
+  <div
+    class="ui-text"
+    style="
+      --ui-text-size: {{ block.settings.text_size }}px;
+      {%- if block.settings.max_width > 0 %} --ui-text-max-width: {{ block.settings.max_width }}px;{% endif -%}
+      {%- if block.settings.color != blank %} --ui-text-color: {{ block.settings.color }};{% endif -%}
+      {%- if padding_start > 0 %} --ui-text-padding-start: {{ padding_start }}px;{% endif -%}
+      {%- if padding_end > 0 %} --ui-text-padding-end: {{ padding_end }}px;{% endif -%}
+    "
+    {{ block.shopify_attributes }}
+  >
+    {{ block.settings.text }}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .ui-text {
+    max-inline-size: var(--ui-text-max-width, none);
+    padding-block: var(--ui-text-padding-start, 0px) var(--ui-text-padding-end, 0px);
+    color: var(--ui-text-color, var(--ui-color-gray));
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-text-size, 16px);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  .ui-text > * {
+    margin: 0;
+  }
+
+  /* One line of copy between paragraphs, as the file draws it. */
+  .ui-text > * + * {
+    margin-block-start: calc(var(--ui-line-height, 1.3) * 1em);
+  }
+
+  .ui-text a {
+    color: var(--ui-color-primary);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.text",
+  "tag": null,
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "t:settings.text",
+      "info": "Leave a blank line between paragraphs.",
+      "default": "<p>Add the sentence that explains the section.</p>"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "t:settings.size",
+      "min": 12,
+      "max": 28,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "t:settings.max_width",
+      "info": "Where the copy wraps. Set to 0 to follow the section.",
+      "min": 0,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "color",
+      "label": "t:settings.color",
+      "placeholder": "t:settings.default"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_block_start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_block_end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.text"
+    }
+  ]
+}
+{% endschema %}

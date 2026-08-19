@@ -1,0 +1,202 @@
+{%- doc -%}
+  The social proof line: a row of reviewers' faces, the stars, and the rating
+  beside the number of reviews.
+
+  The faces are [_ui-avatar] blocks rather than a run of numbered image settings,
+  so a merchant can show three or eight of them and reorder them, and the section
+  holding this needs no `case` statement to read them back.
+
+  The stars are decorative — the rating is written out next to them, so a screen
+  reader is told the number rather than counting glyphs.
+{%- enddoc -%}
+
+{%- liquid
+  assign star_count = block.settings.rating_stars
+  assign padding_start = block.settings.padding_block_start
+  assign padding_end = block.settings.padding_block_end
+  assign has_text = false
+  if block.settings.rating_text != blank or block.settings.reviews_text != blank
+    assign has_text = true
+  endif
+-%}
+
+<div
+  class="ui-review-line"
+  style="
+    --ui-review-line-gap: {{ block.settings.gap }}px;
+    {%- if padding_start > 0 %} --ui-review-line-padding-start: {{ padding_start }}px;{% endif -%}
+    {%- if padding_end > 0 %} --ui-review-line-padding-end: {{ padding_end }}px;{% endif -%}
+  "
+  {{ block.shopify_attributes }}
+>
+  <div class="ui-review-line__avatars">
+    {% content_for 'blocks' %}
+  </div>
+
+  {%- if star_count > 0 or has_text -%}
+    <div class="ui-review-line__rating">
+      {%- if star_count > 0 -%}
+        <span class="ui-review-line__stars" aria-hidden="true">
+          {%- for i in (1..star_count) -%}
+            {{- 'icon-ui-rating-star.svg' | inline_asset_content -}}
+          {%- endfor -%}
+        </span>
+      {%- endif -%}
+
+      {%- if has_text -%}
+        <p class="ui-review-line__text">
+          {%- if block.settings.rating_text != blank -%}
+            <span>{{ block.settings.rating_text }}</span>
+          {%- endif -%}
+          {%- if block.settings.rating_text != blank and block.settings.reviews_text != blank -%}
+            <span class="ui-review-line__divider" aria-hidden="true"></span>
+          {%- endif -%}
+          {%- if block.settings.reviews_text != blank -%}
+            <span>{{ block.settings.reviews_text }}</span>
+          {%- endif -%}
+        </p>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .ui-review-line {
+    display: flex;
+    align-items: center;
+    gap: var(--ui-review-line-gap, 11px);
+    padding-block: var(--ui-review-line-padding-start, 0px) var(--ui-review-line-padding-end, 0px);
+  }
+
+  .ui-review-line__avatars {
+    display: flex;
+    flex: 0 0 auto;
+  }
+
+  .ui-review-line__rating {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-review-line-stars-gap, 5px);
+  }
+
+  .ui-review-line__stars {
+    display: flex;
+    gap: var(--ui-review-line-star-gap, 3px);
+    color: var(--ui-color-primary);
+  }
+
+  .ui-review-line__stars > svg {
+    display: block;
+    flex: 0 0 auto;
+    width: var(--ui-review-line-star-width, 10px);
+    height: auto;
+  }
+
+  .ui-review-line__text {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+    white-space: nowrap;
+  }
+
+  .ui-review-line__divider {
+    width: 1px;
+    height: 12px;
+    background-color: var(--ui-color-gray);
+  }
+
+  @media screen and (min-width: 750px) {
+    .ui-review-line {
+      --ui-review-line-stars-gap: 4px;
+      --ui-review-line-star-gap: 3.5px;
+      --ui-review-line-star-width: 12px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Review line",
+  "tag": null,
+  "blocks": [
+    { "type": "_ui-avatar" }
+  ],
+  "settings": [
+    {
+      "type": "range",
+      "id": "rating_stars",
+      "label": "Filled stars",
+      "min": 0,
+      "max": 5,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "text",
+      "id": "rating_text",
+      "label": "Rating",
+      "default": "4.9 rating"
+    },
+    {
+      "type": "text",
+      "id": "reviews_text",
+      "label": "Review count",
+      "default": "12,000+ reviews"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "info": "Between the faces and the rating.",
+      "min": 0,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 11
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_block_start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_block_end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Review line",
+      "blocks": {
+        "one": { "type": "_ui-avatar" },
+        "two": { "type": "_ui-avatar" },
+        "three": { "type": "_ui-avatar" },
+        "four": { "type": "_ui-avatar" },
+        "five": { "type": "_ui-avatar" }
+      },
+      "block_order": ["one", "two", "three", "four", "five"]
+    }
+  ]
+}
+{% endschema %}

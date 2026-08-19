@@ -1,0 +1,64 @@
+{%- doc -%}
+  One reviewer's face in the overlapping row of [_ui-review-line].
+
+  The overlap falls out of two numbers: the disc's size and the step between two
+  discs. The step is the same at every breakpoint, so only the size changes and
+  the discs tuck further under each other as they grow.
+{%- enddoc -%}
+
+<span class="ui-avatar" {{ block.shopify_attributes }}>
+  {%- if block.settings.image != blank -%}
+    {% render 'image', image: block.settings.image, height: 66, class: 'ui-avatar__image' %}
+  {%- endif -%}
+</span>
+
+{% stylesheet %}
+  .ui-avatar {
+    display: block;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    width: var(--ui-avatar-size, 26px);
+    height: var(--ui-avatar-size, 26px);
+    margin-inline-start: calc(var(--ui-avatar-step, 15.89px) - var(--ui-avatar-size, 26px));
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 0.5px var(--ui-color-white);
+    /* Stands in until a photograph is uploaded, so the row keeps its shape. */
+    background-color: var(--ui-color-border-gray);
+  }
+
+  @media screen and (min-width: 750px) {
+    .ui-avatar {
+      --ui-avatar-size: 33px;
+    }
+  }
+
+  .ui-avatar:first-child {
+    margin-inline-start: 0;
+  }
+
+  .ui-avatar__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Reviewer",
+  "tag": null,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reviewer"
+    }
+  ]
+}
+{% endschema %}

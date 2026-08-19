@@ -1,9 +1,17 @@
 {% comment %}
   Home hero — Figma: Work Page → Hero (desktop 491:14843, mobile 458:6526).
 
-  Two columns on desktop, stacked on mobile: a tinted panel carrying the headline,
-  the three calls to action and the review line, beside the product shot. A
-  full-bleed marquee closes the section.
+  Two columns on desktop, stacked on mobile: a tinted panel carrying the copy
+  beside the product shot, and a full-bleed marquee closing the section.
+
+  The section owns the media, the panel and the marquee. Everything the merchant
+  writes is a block: the headline, the sentence and each call to action stand in
+  the panel's content area, and the review line is a static block pinned to its
+  floor. See `docs/section-settings.md`.
+
+  The panel spaces its blocks with one gap and lets a block that needs more air
+  add it through the custom properties below, which the block only overrides when
+  the merchant moves its own padding setting.
 
   The header is not built yet, so the section opens with a reserved band the
   height of the one the design draws. Turn `reserve_header_space` off the moment
@@ -14,17 +22,15 @@
 {% endcomment %}
 
 {%- liquid
-  assign heading = section.settings.heading | default: "Who doesn't love"
-  assign heading_accent = section.settings.heading_accent | default: 'a Krispie Treat?'
   assign marquee_word = section.settings.marquee_text | default: 'krispie treat'
   assign marquee_repeat = section.settings.marquee_repeat | default: 8
-  assign star_count = section.settings.rating_stars | default: 5
 -%}
 
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
 <div
   class="home-hero color-{{ section.settings.color_scheme }}"
   data-testid="home-hero-{{ section.id }}"
+  {{ section.shopify_attributes }}
 >
   {%- if section.settings.reserve_header_space -%}
     {%- comment -%}
@@ -42,80 +48,11 @@
         </span>
 
         <div class="home-hero__body">
-          <div class="home-hero__text">
-            <h1 class="home-hero__heading">
-              <span class="home-hero__heading-lead">{{ heading }}</span>
-              <span class="home-hero__heading-accent">{{ heading_accent }}</span>
-            </h1>
-            {%- if section.settings.copy != blank -%}
-              <p class="home-hero__copy">{{ section.settings.copy }}</p>
-            {%- endif -%}
-          </div>
-
-          <div class="home-hero__actions">
-            <div class="home-hero__buttons">
-              {% render 'ui-button',
-                variant: 'primary',
-                label: section.settings.primary_label,
-                link: section.settings.primary_link,
-                class: 'home-hero__cta'
-              %}
-              {% render 'ui-button',
-                variant: 'secondary',
-                label: section.settings.secondary_label,
-                link: section.settings.secondary_link,
-                class: 'home-hero__cta'
-              %}
-            </div>
-            {%- if section.settings.tertiary_label != blank -%}
-              {% render 'ui-button',
-                variant: 'underline',
-                label: section.settings.tertiary_label,
-                link: section.settings.tertiary_link
-              %}
-            {%- endif -%}
-          </div>
+          {% content_for 'blocks' %}
         </div>
 
         {%- if section.settings.show_reviews -%}
-          <div class="home-hero__reviews">
-            <div class="home-hero__avatars">
-              {%- for i in (1..5) -%}
-                {%- liquid
-                  case i
-                    when 1
-                      assign avatar = section.settings.avatar_1
-                    when 2
-                      assign avatar = section.settings.avatar_2
-                    when 3
-                      assign avatar = section.settings.avatar_3
-                    when 4
-                      assign avatar = section.settings.avatar_4
-                    else
-                      assign avatar = section.settings.avatar_5
-                  endcase
-                -%}
-                <span class="home-hero__avatar">
-                  {%- if avatar != blank -%}
-                    {% render 'image', image: avatar, height: 66, class: 'home-hero__avatar-image' %}
-                  {%- endif -%}
-                </span>
-              {%- endfor -%}
-            </div>
-
-            <div class="home-hero__rating">
-              <span class="home-hero__stars" aria-hidden="true">
-                {%- for i in (1..star_count) -%}
-                  {{- 'icon-ui-rating-star.svg' | inline_asset_content -}}
-                {%- endfor -%}
-              </span>
-              <p class="home-hero__rating-text">
-                <span>{{ section.settings.rating_text }}</span>
-                <span class="home-hero__rating-divider" aria-hidden="true"></span>
-                <span>{{ section.settings.reviews_text }}</span>
-              </p>
-            </div>
-          </div>
+          {% content_for 'block', type: '_ui-review-line', id: 'review-line' %}
         {%- endif -%}
       </div>
 
@@ -173,28 +110,18 @@
   .home-hero {
     --home-hero-gap: 16px;
     --home-hero-radius: 20px;
-    --home-hero-panel-padding: 24px;
+    --home-hero-panel-padding-block: 24px;
+    /*
+     * 14px, not the 24 the panel is padded above and below. The file stands a
+     * 315 wide sentence and a 310 wide pair of buttons inside a 343 panel, and a
+     * 24px inset leaves neither of them room.
+     */
+    --home-hero-panel-padding-inline: 14px;
     --home-hero-panel-gap: 32px;
-    --home-hero-body-gap: 32px;
-    --home-hero-text-gap: 16px;
-    --home-hero-actions-gap: 16px;
-    --home-hero-heading-size: 32px;
-    --home-hero-heading-leading: 1.2;
-    --home-hero-copy-size: 16px;
-    /* The file constrains both blocks, which is what makes the headline break
-       after "love" and the copy sit on three lines. */
-    --home-hero-heading-width: 275px;
-    --home-hero-copy-width: 315px;
+    --home-hero-block-gap: 16px;
     --home-hero-sparkle-size: 24px;
     --home-hero-media-height: 416px;
     --home-hero-badge-inset: 16px;
-
-    /* Reviews */
-    --home-hero-avatar-size: 26px;
-    --home-hero-avatar-step: 15.89px;
-    --home-hero-star-width: 10px;
-    --home-hero-star-gap: 3px;
-    --home-hero-stars-gap: 5px;
 
     /* Marquee */
     --home-hero-marquee-padding: 20px;
@@ -208,21 +135,12 @@
   @media screen and (min-width: 750px) {
     .home-hero {
       --home-hero-gap: 20px;
-      --home-hero-panel-padding: 32px;
+      --home-hero-panel-padding-block: 32px;
+      --home-hero-panel-padding-inline: 32px;
       --home-hero-panel-gap: 0px;
-      --home-hero-body-gap: 48px;
-      --home-hero-actions-gap: 24px;
-      --home-hero-heading-size: 48px;
-      --home-hero-heading-leading: 1.1;
-      --home-hero-heading-width: 410px;
-      --home-hero-copy-width: 416px;
       --home-hero-sparkle-size: 32px;
       --home-hero-media-height: 600px;
       --home-hero-badge-inset: 20px;
-      --home-hero-avatar-size: 33px;
-      --home-hero-star-width: 12px;
-      --home-hero-star-gap: 3.5px;
-      --home-hero-stars-gap: 4px;
       --home-hero-marquee-padding: 24px;
       --home-hero-marquee-size: 20px;
       --home-hero-marquee-star: 16px;
@@ -268,7 +186,8 @@
     align-items: center;
     box-sizing: border-box;
     gap: var(--home-hero-panel-gap);
-    padding-block: var(--home-hero-panel-padding);
+    padding-block: var(--home-hero-panel-padding-block);
+    padding-inline: var(--home-hero-panel-padding-inline);
     border-radius: var(--home-hero-radius);
     background-color: var(--ui-color-light-blue);
   }
@@ -276,8 +195,8 @@
   @media screen and (min-width: 750px) {
     /*
      * The design distributes the panel's three parts rather than stacking them,
-     * which is what keeps the sparkle at the top and the reviews on the floor
-     * however tall the column ends up.
+     * which is what keeps the sparkle at the top and the review line on the
+     * floor however tall the column ends up.
      */
     .home-hero__panel {
       justify-content: space-between;
@@ -301,181 +220,68 @@
     height: 100%;
   }
 
+  /*
+   * The content area. One gap holds the column together and the measurements the
+   * file draws are handed to the blocks as custom properties: a block writes its
+   * own only when the merchant moves the matching setting, so these are defaults
+   * rather than overrides.
+   *
+   * The two link properties are added to the gap above, not used instead of it:
+   * 16 + 16 puts the buttons 32 under the sentence on a phone, 16 + 32 puts them
+   * 48 under it on a desktop.
+   */
   .home-hero__body {
+    --ui-heading-max-width: 275px;
+    --ui-text-max-width: 315px;
+    --ui-link-row-padding-start: 16px;
+    --ui-link-padding-start: 0px;
+    --ui-link-row-item-width: 100%;
+
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--home-hero-body-gap);
+    gap: var(--home-hero-block-gap);
     width: 100%;
-  }
-
-  .home-hero__text {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--home-hero-text-gap);
-    width: 100%;
-    padding-inline: var(--home-hero-panel-padding);
-  }
-
-  .home-hero__heading {
-    margin: 0;
-    max-width: var(--home-hero-heading-width);
-    color: var(--ui-color-black);
-    font-family: var(--font-heading--family);
-    font-size: var(--home-hero-heading-size);
-    font-weight: 800;
-    line-height: var(--home-hero-heading-leading);
-    /* The file states -4%; as an em it holds at both sizes. */
-    letter-spacing: -0.04em;
     text-align: center;
   }
 
-  .home-hero__heading-accent {
-    color: var(--ui-color-primary);
+  @media screen and (min-width: 750px) {
+    .home-hero__body {
+      --ui-heading-max-width: 410px;
+      --ui-text-max-width: 416px;
+      --ui-link-row-padding-start: 32px;
+      --ui-link-padding-start: 8px;
+      /* The kit sizes a button by its label; the file fixes both to one width. */
+      --ui-link-row-item-width: 170px;
+    }
   }
 
-  .home-hero__copy {
-    margin: 0;
-    max-width: var(--home-hero-copy-width);
-    color: var(--ui-color-gray);
-    font-family: var(--ui-font-body);
-    font-size: var(--home-hero-copy-size);
-    font-weight: var(--ui-font-body-weight);
-    line-height: var(--ui-line-height);
-    text-align: center;
-  }
-
-  .home-hero__actions {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--home-hero-actions-gap);
-  }
-
-  .home-hero__buttons {
-    display: flex;
-    flex-direction: column;
-    gap: var(--home-hero-text-gap);
+  /*
+   * On a phone the buttons are a 310 wide stack. The row would otherwise shrink
+   * to its content, and its children are asking for the row's own width.
+   */
+  .home-hero__body .ui-link-row {
     width: 310px;
     max-width: 100%;
   }
 
   @media screen and (min-width: 750px) {
-    .home-hero__buttons {
-      flex-direction: row;
-      gap: var(--home-hero-text-gap);
+    .home-hero__body .ui-link-row {
       width: auto;
     }
   }
 
   /*
-   * The kit sizes a button by its label; the hero fixes both to one width. With
-   * the width fixed the labels have to stay on one line, which is what the file
-   * sets, and the secondary needs the tighter padding the file gives it or
-   * "Customize treats" will not fit inside 170px.
+   * With the width fixed the labels have to stay on one line, which is what the
+   * file sets, and the outlined button needs the tighter padding the kit gives
+   * it or "Customize treats" will not fit inside 170px.
    */
-  /*
-   * Named with .ui-button so it outranks the kit's own `width: fit-content`.
-   * Equal specificity would leave this to whichever stylesheet the theme
-   * concatenates last, which is not something a section should depend on.
-   */
-  .ui-button.home-hero__cta {
-    width: 100%;
+  .home-hero__body .ui-link-row .ui-button {
     white-space: nowrap;
   }
 
-  .home-hero__cta.ui-button--secondary {
+  .home-hero__body .ui-link-row .ui-button--secondary {
     padding-inline: var(--ui-button-padding-inline-tight);
-  }
-
-  @media screen and (min-width: 750px) {
-    .ui-button.home-hero__cta {
-      width: 170px;
-    }
-  }
-
-  /* ---------- Reviews ---------- */
-
-  .home-hero__reviews {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    margin-block-start: var(--home-hero-panel-gap);
-    padding-inline: var(--home-hero-panel-padding);
-  }
-
-  @media screen and (min-width: 750px) {
-    .home-hero__reviews {
-      margin-block-start: 0;
-    }
-  }
-
-  .home-hero__avatars {
-    display: flex;
-    flex: 0 0 auto;
-  }
-
-  .home-hero__avatar {
-    display: block;
-    flex: 0 0 auto;
-    box-sizing: border-box;
-    width: var(--home-hero-avatar-size);
-    height: var(--home-hero-avatar-size);
-    border-radius: 50%;
-    /* The step is the same at both sizes, so the overlap falls out of it. */
-    margin-inline-start: calc(var(--home-hero-avatar-step) - var(--home-hero-avatar-size));
-    overflow: hidden;
-    box-shadow: inset 0 0 0 0.5px var(--ui-color-white);
-    background-color: var(--ui-color-border-gray);
-  }
-
-  .home-hero__avatar:first-child {
-    margin-inline-start: 0;
-  }
-
-  .home-hero__avatar-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .home-hero__rating {
-    display: flex;
-    flex-direction: column;
-    gap: var(--home-hero-stars-gap);
-  }
-
-  .home-hero__stars {
-    display: flex;
-    gap: var(--home-hero-star-gap);
-    color: var(--ui-color-primary);
-  }
-
-  .home-hero__stars > svg {
-    display: block;
-    flex: 0 0 auto;
-    width: var(--home-hero-star-width);
-    height: auto;
-  }
-
-  .home-hero__rating-text {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin: 0;
-    color: var(--ui-color-gray);
-    font-family: var(--ui-font-body);
-    font-size: 14px;
-    font-weight: var(--ui-font-body-weight);
-    line-height: var(--ui-line-height);
-    white-space: nowrap;
-  }
-
-  .home-hero__rating-divider {
-    width: 1px;
-    height: 12px;
-    background-color: var(--ui-color-gray);
   }
 
   /* ---------- Media ---------- */
@@ -574,6 +380,12 @@
 {
   "name": "Home hero",
   "tag": "section",
+  "blocks": [
+    { "type": "_ui-heading" },
+    { "type": "_ui-text" },
+    { "type": "_ui-link" },
+    { "type": "_ui-link-row" }
+  ],
   "settings": [
     {
       "type": "color_scheme",
@@ -583,7 +395,83 @@
     },
     {
       "type": "header",
-      "content": "Header space"
+      "content": "t:content.media"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image",
+      "info": "Left empty, the frame is held with a placeholder."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badge",
+      "label": "Show the badge on the image",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge",
+      "default": "Gluten-free",
+      "visible_if": "{{ section.settings.show_badge }}"
+    },
+    {
+      "type": "header",
+      "content": "Review line"
+    },
+    {
+      "type": "paragraph",
+      "content": "The faces, the stars and the rating are edited on the Review line block inside the section."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_reviews",
+      "label": "Show the review line",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Marquee"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_marquee",
+      "label": "Show the marquee",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "marquee_text",
+      "label": "t:settings.text",
+      "default": "krispie treat",
+      "visible_if": "{{ section.settings.show_marquee }}"
+    },
+    {
+      "type": "range",
+      "id": "marquee_repeat",
+      "label": "Repeats",
+      "info": "How many times the word is written before the strip is cloned to fill the screen.",
+      "min": 4,
+      "max": 16,
+      "step": 1,
+      "default": 8,
+      "visible_if": "{{ section.settings.show_marquee }}"
+    },
+    {
+      "type": "select",
+      "id": "marquee_direction",
+      "label": "t:settings.direction",
+      "options": [
+        { "value": "normal", "label": "t:options.left" },
+        { "value": "reverse", "label": "t:options.right" }
+      ],
+      "default": "normal",
+      "visible_if": "{{ section.settings.show_marquee }}"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
     },
     {
       "type": "paragraph",
@@ -594,191 +482,57 @@
       "id": "reserve_header_space",
       "label": "Reserve space for the header",
       "default": true
-    },
-    {
-      "type": "header",
-      "content": "Text"
-    },
-    {
-      "type": "text",
-      "id": "heading",
-      "label": "Heading",
-      "default": "Who doesn't love"
-    },
-    {
-      "type": "text",
-      "id": "heading_accent",
-      "label": "Heading, second line",
-      "info": "Shown in purple.",
-      "default": "a Krispie Treat?"
-    },
-    {
-      "type": "textarea",
-      "id": "copy",
-      "label": "Body copy",
-      "default": "Discover handcrafted Krispie treats made with premium ingredients, designed to celebrate life's biggest moments—from birthdays to corporate gifting."
-    },
-    {
-      "type": "header",
-      "content": "Buttons"
-    },
-    {
-      "type": "text",
-      "id": "primary_label",
-      "label": "Primary button",
-      "default": "Shop treats"
-    },
-    {
-      "type": "url",
-      "id": "primary_link",
-      "label": "Primary link"
-    },
-    {
-      "type": "text",
-      "id": "secondary_label",
-      "label": "Secondary button",
-      "default": "Customize treats"
-    },
-    {
-      "type": "url",
-      "id": "secondary_link",
-      "label": "Secondary link"
-    },
-    {
-      "type": "text",
-      "id": "tertiary_label",
-      "label": "Underlined link",
-      "default": "Corporate gifting"
-    },
-    {
-      "type": "url",
-      "id": "tertiary_link",
-      "label": "Underlined link URL"
-    },
-    {
-      "type": "header",
-      "content": "Image"
-    },
-    {
-      "type": "image_picker",
-      "id": "image",
-      "label": "Hero image",
-      "info": "Left empty, the frame is held with a placeholder."
-    },
-    {
-      "type": "checkbox",
-      "id": "show_badge",
-      "label": "Show badge",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "badge_text",
-      "label": "Badge text",
-      "default": "Gluten-free"
-    },
-    {
-      "type": "header",
-      "content": "Reviews"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_reviews",
-      "label": "Show reviews",
-      "default": true
-    },
-    {
-      "type": "range",
-      "id": "rating_stars",
-      "label": "Filled stars",
-      "min": 0,
-      "max": 5,
-      "step": 1,
-      "default": 5
-    },
-    {
-      "type": "text",
-      "id": "rating_text",
-      "label": "Rating",
-      "default": "4.9 rating"
-    },
-    {
-      "type": "text",
-      "id": "reviews_text",
-      "label": "Review count",
-      "default": "12,000+ reviews"
-    },
-    {
-      "type": "image_picker",
-      "id": "avatar_1",
-      "label": "Reviewer 1"
-    },
-    {
-      "type": "image_picker",
-      "id": "avatar_2",
-      "label": "Reviewer 2"
-    },
-    {
-      "type": "image_picker",
-      "id": "avatar_3",
-      "label": "Reviewer 3"
-    },
-    {
-      "type": "image_picker",
-      "id": "avatar_4",
-      "label": "Reviewer 4"
-    },
-    {
-      "type": "image_picker",
-      "id": "avatar_5",
-      "label": "Reviewer 5"
-    },
-    {
-      "type": "header",
-      "content": "Marquee"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_marquee",
-      "label": "Show marquee",
-      "default": true
-    },
-    {
-      "type": "text",
-      "id": "marquee_text",
-      "label": "Marquee text",
-      "default": "krispie treat"
-    },
-    {
-      "type": "range",
-      "id": "marquee_repeat",
-      "label": "Repeats",
-      "info": "How many times the word is written before the strip is cloned to fill the screen.",
-      "min": 4,
-      "max": 16,
-      "step": 1,
-      "default": 8
-    },
-    {
-      "type": "select",
-      "id": "marquee_direction",
-      "label": "Direction",
-      "options": [
-        {
-          "value": "normal",
-          "label": "Left"
-        },
-        {
-          "value": "reverse",
-          "label": "Right"
-        }
-      ],
-      "default": "normal"
     }
   ],
   "presets": [
     {
-      "name": "Home hero"
+      "name": "Home hero",
+      "category": "t:categories.banners",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h1>Who doesn't love<br><em>a Krispie Treat?</em></h1>"
+          }
+        },
+        "copy": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Discover handcrafted Krispie treats made with premium ingredients, designed to celebrate life's biggest moments—from birthdays to corporate gifting.</p>"
+          }
+        },
+        "buttons": {
+          "type": "_ui-link-row",
+          "blocks": {
+            "primary": {
+              "type": "_ui-link",
+              "settings": { "label": "Shop treats", "variant": "primary" }
+            },
+            "secondary": {
+              "type": "_ui-link",
+              "settings": { "label": "Customize treats", "variant": "secondary" }
+            }
+          },
+          "block_order": ["primary", "secondary"]
+        },
+        "gifting": {
+          "type": "_ui-link",
+          "settings": { "label": "Corporate gifting", "variant": "underline" }
+        },
+        "review-line": {
+          "type": "_ui-review-line",
+          "static": true,
+          "blocks": {
+            "one": { "type": "_ui-avatar" },
+            "two": { "type": "_ui-avatar" },
+            "three": { "type": "_ui-avatar" },
+            "four": { "type": "_ui-avatar" },
+            "five": { "type": "_ui-avatar" }
+          },
+          "block_order": ["one", "two", "three", "four", "five"]
+        }
+      },
+      "block_order": ["heading", "copy", "buttons", "gifting"]
     }
   ]
 }

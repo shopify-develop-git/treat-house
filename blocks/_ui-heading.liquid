@@ -1,0 +1,173 @@
+{%- doc -%}
+  Heading block. The copy is one `richtext` field, so the merchant picks the
+  level in the editor toolbar and breaks the line in the same control.
+
+  Italic marks the accent. Treat House draws part of a headline in purple, and
+  one field with `<em>` around those words beats two fields: two fields force the
+  break, allow only one accent and put the comma in the wrong half the first time
+  the copy is edited.
+
+  The tag carries no styling. Size and colour are settings here, so switching
+  `h1` to `h2` for SEO does not change how the heading looks.
+
+  Anything left at its default is not written out, so the section holding the
+  block can set it on an ancestor and have it inherit: `--ui-heading-max-width`,
+  `--ui-heading-color` and `--ui-heading-accent-color`. A merchant who moves the
+  setting writes it on the block itself and wins, which is the point.
+{%- enddoc -%}
+
+{%- liquid
+  assign padding_start = block.settings.padding_block_start
+  assign padding_end = block.settings.padding_block_end
+-%}
+
+{%- if block.settings.heading != blank -%}
+  <div
+    class="ui-heading"
+    style="
+      --ui-heading-size: {{ block.settings.heading_size }}px;
+      --ui-heading-size-mobile: {{ block.settings.heading_size_mobile }}px;
+      {%- if block.settings.max_width > 0 %} --ui-heading-max-width: {{ block.settings.max_width }}px;{% endif -%}
+      {%- if block.settings.color != blank %} --ui-heading-color: {{ block.settings.color }};{% endif -%}
+      {%- if block.settings.accent_color != blank %} --ui-heading-accent-color: {{ block.settings.accent_color }};{% endif -%}
+      {%- if padding_start > 0 %} --ui-heading-padding-start: {{ padding_start }}px;{% endif -%}
+      {%- if padding_end > 0 %} --ui-heading-padding-end: {{ padding_end }}px;{% endif -%}
+    "
+    {{ block.shopify_attributes }}
+  >
+    {{ block.settings.heading }}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .ui-heading {
+    max-inline-size: var(--ui-heading-max-width, none);
+    padding-block: var(--ui-heading-padding-start, 0px) var(--ui-heading-padding-end, 0px);
+    color: var(--ui-heading-color, var(--ui-color-black));
+  }
+
+  /*
+   * The list covers `p` as well as h1 to h6: a merchant who picks "Paragraph" in
+   * the toolbar must get the heading's type, not the browser's.
+   */
+  .ui-heading > :is(h1, h2, h3, h4, h5, h6, p) {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: var(--ui-heading-size-mobile, 32px);
+    font-weight: 800;
+    /* The file draws the small size looser than the large one. */
+    line-height: 1.2;
+    /* Stated as -4%; as an em it holds at every size. */
+    letter-spacing: -0.04em;
+    color: inherit;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ui-heading > :is(h1, h2, h3, h4, h5, h6, p) {
+      font-size: var(--ui-heading-size, 48px);
+      line-height: 1.1;
+    }
+  }
+
+  /* Italic is the accent mark, not a slant. */
+  .ui-heading em {
+    font-style: normal;
+    color: var(--ui-heading-accent-color, var(--ui-color-primary));
+  }
+
+  .ui-heading a {
+    color: inherit;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.heading",
+  "tag": null,
+  "settings": [
+    {
+      "type": "richtext",
+      "id": "heading",
+      "label": "t:settings.heading",
+      "info": "Pick the heading level in the toolbar. Shift and Enter breaks the line. Italic marks the words drawn in purple.",
+      "default": "<h2>Section heading</h2>"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "label": "t:settings.size",
+      "min": 24,
+      "max": 96,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "heading_size_mobile",
+      "label": "t:content.mobile_size",
+      "min": 20,
+      "max": 64,
+      "step": 2,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "max_width",
+      "label": "t:settings.max_width",
+      "info": "Where the heading wraps on its own. Set to 0 to follow the section and break only where you put a line break.",
+      "min": 0,
+      "max": 800,
+      "step": 10,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color",
+      "id": "color",
+      "label": "t:settings.color",
+      "placeholder": "t:settings.default"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Italic color",
+      "placeholder": "t:settings.default"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_block_start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_block_end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.heading"
+    }
+  ]
+}
+{% endschema %}

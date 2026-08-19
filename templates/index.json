@@ -285,22 +285,132 @@
     "home_hero_Kx9Ln4": {
       "type": "home-hero",
       "name": "Home hero",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h1>Who doesn't love<br><em>a Krispie Treat?</em></h1>"
+          }
+        },
+        "copy": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Discover handcrafted Krispie treats made with premium ingredients, designed to celebrate life's biggest moments—from birthdays to corporate gifting.</p>"
+          }
+        },
+        "buttons": {
+          "type": "_ui-link-row",
+          "blocks": {
+            "primary": {
+              "type": "_ui-link",
+              "settings": {
+                "label": "Shop treats",
+                "variant": "primary"
+              }
+            },
+            "secondary": {
+              "type": "_ui-link",
+              "settings": {
+                "label": "Customize treats",
+                "variant": "secondary"
+              }
+            }
+          },
+          "block_order": [
+            "primary",
+            "secondary"
+          ]
+        },
+        "gifting": {
+          "type": "_ui-link",
+          "settings": {
+            "label": "Corporate gifting",
+            "variant": "underline"
+          }
+        },
+        "review-line": {
+          "type": "_ui-review-line",
+          "static": true,
+          "blocks": {
+            "one": {
+              "type": "_ui-avatar"
+            },
+            "two": {
+              "type": "_ui-avatar"
+            },
+            "three": {
+              "type": "_ui-avatar"
+            },
+            "four": {
+              "type": "_ui-avatar"
+            },
+            "five": {
+              "type": "_ui-avatar"
+            }
+          },
+          "block_order": [
+            "one",
+            "two",
+            "three",
+            "four",
+            "five"
+          ]
+        }
+      },
+      "block_order": [
+        "heading",
+        "copy",
+        "buttons",
+        "gifting"
+      ],
       "settings": {}
     },
     "our_story_Vt6Rw1": {
       "type": "our-story",
       "name": "Our story",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Our <em>story</em></h2>"
+          }
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>The idea for Treat House was inspired by a charitable bake sale that Daniel and Eli Russell had in 2011. The proceeds went to provide athletic equipment for impoverished children in Africa.</p><p>Giving back to our greater community has always been key to Treat House's mission. For the first year of business, Treat House donated 10 cents for every treat sold to the Food Bank of NY.</p><p>Starting in 2015 Treat House formed a partnership with the Lymphoma and Leukemia Society. Now we are thrilled to also partner with The Andrew McDonough B+ Foundation. We have been blown away by their commitment to help fight those affected by childhood cancer.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "body"
+      ],
       "settings": {}
     },
     "best_sellers_preview": {
       "type": "best-sellers",
       "settings": {}
+    },
+    "custom_treats_preview": {
+      "type": "best-sellers",
+      "settings": {
+        "heading": "Treats",
+        "heading_accent": "Custom",
+        "heading_accent_position": "start",
+        "heading_alignment": "center",
+        "cta_position": "below",
+        "background": "white",
+        "media_ratio": "4 / 3",
+        "cta_label": "View all products"
+      }
     }
   },
   "order": [
     "home_hero_Kx9Ln4",
     "shop_by_occasion_preview",
     "best_sellers_preview",
+    "custom_treats_preview",
     "our_story_Vt6Rw1",
     "hero_jVaWmY",
     "product_list_fa6P9H"
