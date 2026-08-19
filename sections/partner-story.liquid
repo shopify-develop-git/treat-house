@@ -30,7 +30,7 @@
         {% content_for 'blocks' %}
       </div>
 
-      <div class="partner-story__media">
+      <div class="partner-story__media{% if section.settings.image == blank %} partner-story__media--empty{% endif %}">
         {%- if section.settings.image != blank -%}
           {% render 'image', image: section.settings.image, height: 665, class: 'partner-story__image' %}
         {%- else -%}
@@ -90,6 +90,17 @@
     --ui-heading-color: var(--ui-color-primary);
     --ui-text-color: var(--ui-color-primary);
 
+    /*
+     * The file puts the photograph in the card's background layer, under the
+     * words. It has to: the copy column ends at 55.8% of the card and the
+     * photograph starts at 50%, so the two always overlap by 5.8% — which is
+     * empty, because the photograph is a cut-out standing in its own air. Both
+     * measurements are shares of the card, so that 5.8% holds at every width
+     * and the words never reach the treat.
+     */
+    position: relative;
+    z-index: 1;
+
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -115,6 +126,14 @@
     margin-inline: calc(var(--partner-story-card-padding) * -1);
     margin-block-end: calc(var(--partner-story-card-padding) * -1);
     aspect-ratio: 358 / 360;
+
+    /*
+     * The file draws this arrangement on a phone only, where the box is 358 wide
+     * and square. Left to the ratio alone it grows with the card: on an 820px
+     * one that is 825px of scroll spent on a single photograph. Capped, the box
+     * keeps the height it is drawn at and the picture centres in it.
+     */
+    max-height: 360px;
   }
 
   .partner-story__image,
@@ -179,6 +198,22 @@
       width: 51.65%;
       margin: 0;
       aspect-ratio: auto;
+
+      /* The stacked cap belongs to the stacked arrangement only. */
+      max-height: none;
+    }
+
+    /*
+     * The placeholder is a solid block with no air in it, so it keeps to the
+     * room the card reserves rather than overrunning the copy the way the
+     * cut-out is meant to. Otherwise a section with no photograph yet reads as
+     * a broken one.
+     */
+    .partner-story__media--empty {
+      inset-block: 0;
+      inset-inline-start: auto;
+      inset-inline-end: 0;
+      width: 44.22%;
     }
   }
 {% endstylesheet %}
