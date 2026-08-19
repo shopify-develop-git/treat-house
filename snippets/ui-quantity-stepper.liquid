@@ -138,6 +138,21 @@
     height: 100%;
   }
 
+  /*
+   * The theme rings whatever holds focus. Left alone that lands on the number
+   * cell, which reads as a box drawn inside the control rather than on it, so
+   * the ring moves out to the whole stepper. The buttons keep their own, since
+   * each one really is a separate control.
+   */
+  .ui-quantity-stepper:has(.ui-quantity-stepper__value:focus-visible) {
+    outline: var(--focus-outline-width) solid currentcolor;
+    outline-offset: var(--focus-outline-offset);
+  }
+
+  .ui-quantity-stepper__value:focus-visible {
+    outline: none;
+  }
+
   .ui-quantity-stepper__value {
     box-sizing: border-box;
     width: var(--ui-quantity-stepper-cell);

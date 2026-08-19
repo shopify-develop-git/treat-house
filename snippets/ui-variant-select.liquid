@@ -193,4 +193,13 @@
     white-space: nowrap;
     text-overflow: ellipsis;
   }
+  /*
+   * base.css sets `summary:hover { color: var(--color-primary-hover) }`. A
+   * pseudo-class counts as a class, so that rule lands at (0,1,1) and outranks a
+   * plain `.ui-variant-select__trigger`. Naming the element here matches it and wins on
+   * source order, keeping the trigger's own colour through a hover.
+   */
+  summary.ui-variant-select__trigger:hover {
+    color: var(--ui-color-black);
+  }
 {% endstylesheet %}
