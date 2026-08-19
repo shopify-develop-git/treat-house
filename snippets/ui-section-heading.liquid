@@ -1,0 +1,99 @@
+{%- doc -%}
+  Renders the two-tone display heading a page section opens with
+  (Figma: text styles H1/Desktop and H1/Mobile).
+
+  The file records this as a text style rather than a component, but every section
+  header repeats the same three decisions — Merienda ExtraBold, the step from
+  32/1.2 to 48/1.1, and trailing words in the brand colour — so it lives here to
+  keep them in one place instead of in every section that needs a title.
+
+  `accent` renders inside the heading rather than beside it, so the line stays one
+  string to a screen reader and wraps as one.
+
+  Tracking is set in `em`. Figma gives -4% of the size, which is -1.28px at the
+  mobile step and -1.92px at the desktop one; an em holds that ratio at both
+  without a second declaration.
+
+  Merienda is the theme's heading font. The kit has no display-font token yet, so
+  the family reads `--ui-font-display` with the theme's own token behind it — once
+  the kit defines one this picks it up with no edit here.
+
+  @param {string} text - The heading, in the foreground colour.
+  @param {string} [accent] - Trailing words rendered in the brand colour.
+  @param {string} [as] - Heading level: `h1`, `h2` or `h3`. Defaults to `h2`, since a section title normally sits under the page's own.
+  @param {string} [alignment] - `center`, `start` or `end`. Defaults to `center`.
+  @param {string} [id] - The `id` attribute.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the heading.
+
+  @example
+  {% render 'ui-section-heading', text: 'Shop by', accent: 'Occasion' %}
+  {% render 'ui-section-heading', text: 'Corporate gifting', as: 'h1', alignment: 'start' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign heading_levels = 'h1,h2,h3' | split: ','
+  assign heading_tag = as | default: 'h2'
+  unless heading_levels contains heading_tag
+    assign heading_tag = 'h2'
+  endunless
+
+  assign alignments = 'center,start,end' | split: ','
+  assign heading_alignment = alignment | default: 'center'
+  unless alignments contains heading_alignment
+    assign heading_alignment = 'center'
+  endunless
+-%}
+
+<{{ heading_tag }}
+  class="ui-section-heading ui-section-heading--{{ heading_alignment }}{% if class != blank %} {{ class }}{% endif %}"
+  {%- if id != blank %} id="{{ id }}"{% endif -%}
+  {%- if attributes != blank %} {{ attributes }}{% endif -%}
+>
+  {{- text -}}
+  {%- if accent != blank %} <span class="ui-section-heading__accent">{{ accent }}</span>{% endif -%}
+</{{ heading_tag }}>
+
+{% stylesheet %}
+  :root {
+    --ui-section-heading-size: 32px;
+    --ui-section-heading-line-height: 1.2;
+    --ui-section-heading-weight: 800;
+  }
+
+  @media screen and (min-width: 750px) {
+    :root {
+      --ui-section-heading-size: 48px;
+      --ui-section-heading-line-height: 1.1;
+    }
+  }
+
+  .ui-section-heading {
+    margin: 0;
+    font-family: var(--ui-font-display, var(--font-heading--family));
+    font-weight: var(--ui-section-heading-weight);
+    font-size: var(--ui-section-heading-size);
+    line-height: var(--ui-section-heading-line-height);
+    letter-spacing: -0.04em;
+    color: var(--ui-color-black);
+
+    /* Two-word titles should not leave one word alone on a second line. */
+    text-wrap: balance;
+  }
+
+  .ui-section-heading--center {
+    text-align: center;
+  }
+
+  .ui-section-heading--start {
+    text-align: start;
+  }
+
+  .ui-section-heading--end {
+    text-align: end;
+  }
+
+  .ui-section-heading__accent {
+    color: var(--ui-color-primary);
+  }
+{% endstylesheet %}

@@ -1,0 +1,235 @@
+{% comment %}
+  Shop by Occasion — a titled grid of collections (Figma: Shop by Occasion,
+  desktop and mobile).
+
+  Everything visible comes from the kit: ui-section-heading for the title and
+  ui-collection-card for each tile. The section itself only supplies the grid and
+  the copy, which is why there is so little CSS here.
+
+  The kit card is already responsive on its own — 171x220 on mobile, 305x263 above
+  750px — so the grid sets column counts and gaps and lets the card size itself.
+
+  With no collections picked the section falls back to the eight occasions the file
+  draws, so it is worth looking at in the editor before a merchant has chosen
+  anything. Those placeholders carry no images by design; the card renders Shopify's
+  own placeholder in the media box.
+{% endcomment %}
+
+{%- liquid
+  assign chosen = section.settings.collections
+  assign card_limit = section.settings.max_collections
+
+  assign onboarding_titles = 'Birthday,Graduation,Baby Shower,Congratulations,Deluxe Gift Boxes,Pride,Patriotic,World Cup' | split: ','
+-%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="shop-by-occasion-{{ section.id }}"
+>
+  <div
+    class="shop-by-occasion"
+    style="--shop-by-occasion-columns: {{ section.settings.columns }}; --shop-by-occasion-columns-mobile: {{ section.settings.mobile_columns }};"
+  >
+    {%- if section.settings.heading != blank or section.settings.heading_accent != blank -%}
+      {% render 'ui-section-heading',
+        text: section.settings.heading,
+        accent: section.settings.heading_accent
+      %}
+    {%- endif -%}
+
+    <ul class="shop-by-occasion__grid" role="list">
+      {%- if chosen.size > 0 -%}
+        {%- for collection in chosen limit: card_limit -%}
+          {%- liquid
+            assign card_copy = section.settings.description
+            if card_copy == blank
+              assign card_copy = collection.description | strip_html | truncatewords: 14
+            endif
+          -%}
+          <li class="shop-by-occasion__item">
+            {% render 'ui-collection-card',
+              title: collection.title,
+              description: card_copy,
+              image: collection.featured_image,
+              link: collection.url
+            %}
+          </li>
+        {%- endfor -%}
+      {%- else -%}
+        {%- for placeholder_title in onboarding_titles limit: card_limit -%}
+          <li class="shop-by-occasion__item">
+            {% render 'ui-collection-card',
+              title: placeholder_title,
+              description: section.settings.description
+            %}
+          </li>
+        {%- endfor -%}
+      {%- endif -%}
+    </ul>
+  </div>
+</div>
+
+{% stylesheet %}
+  .shop-by-occasion {
+    display: flex;
+    flex-direction: column;
+
+    /* The file leaves 32px under the title on mobile and 48px on desktop. */
+    gap: 32px;
+  }
+
+  .shop-by-occasion__grid {
+    display: grid;
+
+    /* minmax(0, 1fr) rather than 1fr: a long collection title would otherwise set a
+       column's minimum width and pull the track wider than its share. */
+    grid-template-columns: repeat(var(--shop-by-occasion-columns-mobile, 2), minmax(0, 1fr));
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Cards stretch to the tallest in the row, and the card gives the slack to its
+     media box rather than to the copy. */
+  .shop-by-occasion__item {
+    display: flex;
+  }
+
+  @media screen and (min-width: 750px) {
+    .shop-by-occasion {
+      gap: 48px;
+    }
+
+    .shop-by-occasion__grid {
+      grid-template-columns: repeat(var(--shop-by-occasion-columns, 4), minmax(0, 1fr));
+      gap: 20px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Shop by Occasion",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop by"
+    },
+    {
+      "type": "text",
+      "id": "heading_accent",
+      "label": "Heading accent",
+      "info": "Rendered in the brand colour, after the heading.",
+      "default": "Occasion"
+    },
+    {
+      "type": "collection_list",
+      "id": "collections",
+      "label": "Collections",
+      "limit": 12
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "Card description",
+      "info": "Shown under every card. Leave empty to use each collection's own description.",
+      "default": "Custom treats for the moment people actually remember."
+    },
+    {
+      "type": "range",
+      "id": "max_collections",
+      "label": "Cards to show",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Columns on desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "mobile_columns",
+      "label": "Columns on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shop by Occasion"
+    }
+  ]
+}
+{% endschema %}
