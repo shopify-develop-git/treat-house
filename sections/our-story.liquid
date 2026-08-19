@@ -61,20 +61,32 @@
     padding-inline: var(--ui-page-margin);
   }
 
-  @media screen and (min-width: 750px) {
+  /*
+   * Two columns from 990px, not the theme's usual 750px. The photograph is drawn
+   * 618 wide against the copy's 562, so at 750px the pair has 570px to share and
+   * neither is worth reading.
+   */
+  @media screen and (min-width: 990px) {
     /*
-     * The file sets the two columns 562 and 618 wide inside 1280 and lets the
-     * space fall between them, which is what `space-between` does at any width.
+     * The file draws the columns 562 and 618 inside 1280 with 100 between them.
+     * As fr they keep that proportion at every width, so the loss is shared —
+     * a fixed 618 on the photograph made the copy pay all of it, and by 960px
+     * the copy was down to 230.
      */
     .our-story__inner {
-      flex-direction: row;
+      display: grid;
+      grid-template-columns: minmax(0, 562fr) minmax(0, 618fr);
       align-items: center;
-      justify-content: space-between;
+      gap: 100px;
       padding-block: var(--our-story-block-padding-desktop, 32px);
     }
 
     .our-story--media-start .our-story__inner {
-      flex-direction: row-reverse;
+      grid-template-columns: minmax(0, 618fr) minmax(0, 562fr);
+    }
+
+    .our-story--media-start .our-story__media {
+      order: -1;
     }
   }
 
@@ -89,30 +101,46 @@
     align-items: center;
     gap: var(--our-story-text-gap);
     width: 100%;
+
+    /*
+     * Stacked, the copy has the whole page column, which above 750px is more
+     * than twice the measure the file sets. The cap is the width it has on the
+     * widest frame drawn; on a phone nothing reaches it.
+     */
+    max-width: 634px;
+    margin-inline: auto;
     text-align: center;
   }
 
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 990px) {
     .our-story__text {
       /* The copy stops short of the column it sits in, as the file draws it. */
       --ui-text-max-width: 521px;
 
-      flex: 0 1 562px;
       align-items: flex-start;
       gap: 32px;
-      width: auto;
+      max-width: none;
+      margin-inline: 0;
       text-align: start;
     }
   }
 
   .our-story__media {
     width: 100%;
+
+    /*
+     * Stacked, the photograph keeps the width it is drawn at on the widest
+     * frame instead of growing with the page: at 880px the ratio would spend
+     * 786px of scroll on it.
+     */
+    max-width: 618px;
+    margin-inline: auto;
   }
 
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 990px) {
     .our-story__media {
-      flex: 0 0 618px;
-      width: 618px;
+      max-width: none;
+      margin-inline: 0;
     }
   }
 

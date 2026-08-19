@@ -176,10 +176,27 @@
     gap: var(--home-hero-gap);
   }
 
+  /*
+   * Between 750 and 990 the hero stacks, but at the width one of its columns is
+   * drawn at rather than across the whole page. The panel is drawn 630 wide and
+   * holds a 410 heading and a 356 pair of buttons; two columns at 750 give it
+   * 325, where the heading falls to four lines and the buttons drop onto two
+   * rows. A 900px band with a 400px column adrift in it is not the answer
+   * either, so the stack keeps the column's own width and centres it.
+   */
   @media screen and (min-width: 750px) {
+    .home-hero__grid {
+      max-width: 630px;
+      margin-inline: auto;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
     .home-hero__grid {
       /* The file splits 1280 into two 630 columns with 20 between them. */
       grid-template-columns: 1fr 1fr;
+      max-width: none;
+      margin-inline: 0;
     }
   }
 
