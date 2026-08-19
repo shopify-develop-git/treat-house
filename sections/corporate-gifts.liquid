@@ -1,0 +1,356 @@
+{% comment %}
+  Corporate Gifts (Figma: Corporate Gifts, desktop and mobile).
+
+  A tinted panel of copy beside a 2x2 grid of photographs. The panel's words are
+  blocks — heading, paragraph, button — and the figures under them are a static
+  block hosting one [_ui-stat] each, so a merchant can run two or four of them.
+
+  The four photographs are section settings rather than blocks. They are a fixed
+  composition the layout is drawn around, not a list, so they are named by where
+  they sit rather than numbered — image_1 through image_4 would read as a list a
+  merchant could lengthen, which this is not.
+
+  The panel distributes its three parts with space-between rather than the 99px the
+  file measures. That figure is what fell out of a 624px panel beside a 624px image
+  grid; asking for it directly would hold when the copy is the drawn length and
+  break the moment it is not.
+{% endcomment %}
+
+<div
+  class="corporate-gifts corporate-gifts--media-{{ section.settings.media_position }} color-{{ section.settings.color_scheme }}"
+  style="
+    --corporate-gifts-block-padding: {{ section.settings.vertical_padding_mobile }}px;
+    --corporate-gifts-block-padding-desktop: {{ section.settings.vertical_padding }}px;
+  "
+  data-testid="corporate-gifts-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div class="corporate-gifts__inner">
+    <div class="corporate-gifts__media">
+      {%- assign positions = 'top_left,top_right,bottom_left,bottom_right' | split: ',' -%}
+      {%- for position in positions -%}
+        {%- assign key = 'image_' | append: position -%}
+        {%- assign image = section.settings[key] -%}
+        <div class="corporate-gifts__tile">
+          {%- if image != blank -%}
+            {% render 'image', image: image, class: 'corporate-gifts__image' %}
+          {%- else -%}
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'corporate-gifts__image corporate-gifts__image--placeholder' }}
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <div class="corporate-gifts__panel">
+      {%- if section.settings.show_star -%}
+        <span class="corporate-gifts__star" aria-hidden="true">
+          {{- 'icon-ui-star.svg' | inline_asset_content -}}
+        </span>
+      {%- endif -%}
+
+      <div class="corporate-gifts__copy">
+        {% content_for 'blocks' %}
+      </div>
+
+      {% content_for 'block', type: '_ui-stat-row', id: 'stat-row' %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  /* Corporate gifts. Mobile first; the two columns start at the theme's 750px. */
+  .corporate-gifts {
+    --corporate-gifts-gap: 16px;
+    --corporate-gifts-tile-gap: 16px;
+    --corporate-gifts-panel-radius: 20px;
+    --corporate-gifts-tile-radius: 16px;
+    --corporate-gifts-panel-padding: 24px;
+  }
+
+  .corporate-gifts__inner {
+    display: grid;
+
+    /* Grid rather than flex for the two columns. With box-sizing: border-box a
+       flex-basis of 0 cannot go below the panel's own padding, so the panel starts
+       64px ahead and takes that much more than its half — 662 against 598 inside
+       1280, where the file draws 630 and 630. A 1fr track has no such floor. */
+    grid-template-columns: minmax(0, 1fr);
+    box-sizing: border-box;
+    gap: var(--corporate-gifts-gap);
+    max-width: var(--page-width, 90rem);
+    margin-inline: auto;
+    padding-block: var(--corporate-gifts-block-padding, 64px);
+    padding-inline: var(--ui-page-margin);
+  }
+
+  /* The panel leads on a phone and the photographs follow, whichever side the
+     photographs take on a wide screen. */
+  .corporate-gifts__media {
+    order: 2;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--corporate-gifts-tile-gap);
+  }
+
+  .corporate-gifts__tile {
+    overflow: hidden;
+    border-radius: var(--corporate-gifts-tile-radius);
+    aspect-ratio: 171 / 179;
+  }
+
+  .corporate-gifts__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .corporate-gifts__panel {
+    order: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    /* The parts sit at the top, the middle and the bottom of whatever height the
+       panel ends up; the gap is only the floor between them. */
+    justify-content: space-between;
+    gap: 32px;
+    box-sizing: border-box;
+    padding: var(--corporate-gifts-panel-padding);
+    border-radius: var(--corporate-gifts-panel-radius);
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .corporate-gifts__star {
+    display: block;
+    width: 24px;
+    height: 24px;
+    color: var(--ui-color-primary);
+  }
+
+  .corporate-gifts__star svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .corporate-gifts__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    text-align: center;
+  }
+
+  @media screen and (min-width: 750px) {
+    .corporate-gifts {
+      --corporate-gifts-gap: 20px;
+      --corporate-gifts-tile-gap: 20px;
+      --corporate-gifts-panel-padding: 32px;
+    }
+
+    .corporate-gifts__media {
+      order: 1;
+    }
+
+    .corporate-gifts__panel {
+      order: 2;
+      gap: 48px;
+    }
+
+    .corporate-gifts__star {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  /*
+   * The columns split later than the type grows. The file draws one column on a
+   * phone and two at 1440 and nothing between; splitting at 750 leaves each column
+   * 325px, which is not enough for a 48px heading — the panel ran to 818px tall
+   * against the 624px drawn. At 990 the columns are 445px and the panel settles.
+   */
+  @media screen and (min-width: 990px) {
+    .corporate-gifts__inner {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: stretch;
+      padding-block: var(--corporate-gifts-block-padding-desktop, 80px);
+    }
+
+    /* Taller photographs, which is what keeps the grid the height of the panel. */
+    .corporate-gifts__tile {
+      aspect-ratio: 305 / 302;
+    }
+
+    .corporate-gifts--media-right .corporate-gifts__media {
+      order: 2;
+    }
+
+    .corporate-gifts--media-right .corporate-gifts__panel {
+      order: 1;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Corporate gifts",
+  "tag": "section",
+  "blocks": [
+    {
+      "type": "_ui-heading"
+    },
+    {
+      "type": "_ui-text"
+    },
+    {
+      "type": "_ui-link"
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:content.media"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_top_left",
+      "label": "Top left"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_top_right",
+      "label": "Top right"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_bottom_left",
+      "label": "Bottom left"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_bottom_right",
+      "label": "Bottom right"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "media_position",
+      "label": "t:settings.image_position",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:options.left"
+        },
+        {
+          "value": "right",
+          "label": "t:options.right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_star",
+      "label": "Show the star above the heading",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "vertical_padding_mobile",
+      "label": "t:content.mobile_size",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "presets": [
+    {
+      "name": "Corporate gifts",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2><em>Corporate gifts</em> they'll actually love</h2>"
+          }
+        },
+        "copy": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>From employee appreciation to client thank-you gifts, our handcrafted treats are customized with your brand to create memorable experiences that leave a lasting impression.</p>"
+          }
+        },
+        "button": {
+          "type": "_ui-link",
+          "settings": {
+            "label": "Explore corporate gifting"
+          }
+        },
+        "stat-row": {
+          "type": "_ui-stat-row",
+          "static": true,
+          "blocks": {
+            "one": {
+              "type": "_ui-stat"
+            },
+            "two": {
+              "type": "_ui-stat",
+              "settings": {
+                "value": "40+",
+                "label": "Countries served"
+              }
+            },
+            "three": {
+              "type": "_ui-stat",
+              "settings": {
+                "value": "98%",
+                "label": "Client satisfaction"
+              }
+            }
+          },
+          "block_order": [
+            "one",
+            "two",
+            "three"
+          ]
+        }
+      },
+      "block_order": [
+        "heading",
+        "copy",
+        "button"
+      ]
+    }
+  ]
+}
+{% endschema %}

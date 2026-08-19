@@ -9,6 +9,11 @@
  * Above the breakpoint where the track becomes a grid there is nothing to scroll,
  * the buttons are hidden, and the element does nothing.
  *
+ * It opens on the second item rather than the first. The file draws the row already
+ * moved along, with a card either side of the middle one, which is what says the row
+ * scrolls — a first card flush to the left edge reads as a row that simply ran out of
+ * space. `data-carousel-start` moves that, and 1 leaves it at the beginning.
+ *
  * Dependency-free, like the rest of the kit's scripts.
  *
  * <ui-carousel>
@@ -41,6 +46,20 @@ class UICarousel extends HTMLElement {
     this.#observer = new ResizeObserver(this.#sync);
     this.#observer.observe(this.#track);
 
+    this.#sync();
+    this.#openOnStartItem();
+  }
+
+  /** Jumps, never animates: this runs at load, where a slide-in is noise. */
+  #openOnStartItem() {
+    const track = this.#track;
+    if (track.scrollWidth <= track.clientWidth) return;
+
+    const index = Number(this.dataset.carouselStart || 2) - 1;
+    if (index <= 0 || !track.children[index]) return;
+
+    // Item 0 sits centred at rest, so each step along centres the next one.
+    track.scrollLeft = index * this.#stepSize();
     this.#sync();
   }
 

@@ -325,6 +325,8 @@ gutter ladder is in `CLAUDE.md`.
 | `_ui-link-row` | gap; hosts link blocks | `home-hero` |
 | `_ui-review-line` | stars, rating, review count, gap; hosts avatar blocks | `home-hero`, static |
 | `_ui-avatar` | image | `_ui-review-line` |
+| `_ui-stat-row` | gap; hosts statistic blocks | `corporate-gifts`, static |
+| `_ui-stat` | figure, label | `_ui-stat-row` |
 
 `_ui-heading` replaced `snippets/ui-section-heading.liquid`, which held the same
 type at the same steps but took the accent as a second string. One richtext field

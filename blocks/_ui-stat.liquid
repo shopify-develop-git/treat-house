@@ -1,0 +1,85 @@
+{%- doc -%}
+  One figure in a statistics row: the number, and what it counts.
+
+  It is a block rather than a pair of settings on the row so a section can show two
+  figures or five, in any order, without the row growing a `case` for each — the
+  same reason [_ui-avatar] is a block.
+
+  Size steps with the viewport and is not a setting. The file draws 24/12 on a phone
+  and 30/16 above it, and a figure that a merchant can resize is a figure that stops
+  lining up with the one beside it.
+{%- enddoc -%}
+
+<div class="ui-stat" {{ block.shopify_attributes }}>
+  {%- if block.settings.value != blank -%}
+    <span class="ui-stat__value">{{ block.settings.value }}</span>
+  {%- endif -%}
+  {%- if block.settings.label != blank -%}
+    <span class="ui-stat__label">{{ block.settings.label }}</span>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .ui-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-align: center;
+  }
+
+  .ui-stat__value {
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.1;
+    color: var(--ui-stat-value-color, var(--ui-color-primary));
+  }
+
+  .ui-stat__label {
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 12px;
+    line-height: 1.1;
+    color: var(--ui-stat-label-color, var(--ui-color-gray));
+  }
+
+  @media screen and (min-width: 750px) {
+    .ui-stat__value {
+      font-size: 30px;
+      line-height: 1;
+    }
+
+    .ui-stat__label {
+      font-size: 16px;
+      line-height: 1.3;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Statistic",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "value",
+      "label": "Figure",
+      "default": "1,200+"
+    },
+    {
+      "type": "text",
+      "id": "label",
+      "label": "t:settings.label",
+      "default": "Corporate clients"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Statistic"
+    }
+  ]
+}
+{% endschema %}
