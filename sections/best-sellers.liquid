@@ -221,7 +221,8 @@
 
   @media screen and (min-width: 750px) {
     .best-sellers {
-      grid-template-columns: 1fr auto;
+      /* minmax(0, …) so a long heading cannot push the button out of the row. */
+      grid-template-columns: minmax(0, 1fr) auto;
       grid-template-areas:
         'heading cta'
         'row row';

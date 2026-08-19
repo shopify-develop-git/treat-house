@@ -28,7 +28,7 @@
   assign onboarding_titles = 'Birthday,Graduation,Baby Shower,Congratulations,Deluxe Gift Boxes,Pride,Patriotic,World Cup' | split: ','
 -%}
 
-<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div class="section-background color-{{ section.settings.color_scheme }} shop-by-occasion-bg--{{ section.settings.background }}"></div>
 <div
   class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
   style="{% render 'spacing-style', settings: section.settings %}"
@@ -41,7 +41,9 @@
     {%- if section.settings.heading != blank or section.settings.heading_accent != blank -%}
       {% render 'ui-section-heading',
         text: section.settings.heading,
-        accent: section.settings.heading_accent
+        accent: section.settings.heading_accent,
+        accent_position: section.settings.heading_accent_position,
+        alignment: section.settings.heading_alignment
       %}
     {%- endif -%}
 
@@ -78,6 +80,17 @@
 </div>
 
 {% stylesheet %}
+  /* The tint goes on .section-background: Horizon forces .section itself transparent
+     from base.css at four classes of specificity, so painting the section loses
+     silently. Compounded so it also outranks the colour scheme's own background. */
+  .section-background.shop-by-occasion-bg--light-blue {
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .section-background.shop-by-occasion-bg--white {
+    background-color: var(--ui-color-white);
+  }
+
   .shop-by-occasion {
     display: flex;
     flex-direction: column;
@@ -143,6 +156,23 @@
       "default": "Occasion"
     },
     {
+      "type": "select",
+      "id": "heading_accent_position",
+      "label": "Accent position",
+      "info": "Which end of the heading the brand colour falls on.",
+      "options": [
+        {
+          "value": "end",
+          "label": "After the heading"
+        },
+        {
+          "value": "start",
+          "label": "Before the heading"
+        }
+      ],
+      "default": "end"
+    },
+    {
       "type": "collection_list",
       "id": "collections",
       "label": "Collections",
@@ -167,6 +197,42 @@
     {
       "type": "header",
       "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Heading alignment",
+      "options": [
+        {
+          "value": "center",
+          "label": "Centred"
+        },
+        {
+          "value": "start",
+          "label": "Left"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "options": [
+        {
+          "value": "none",
+          "label": "Colour scheme"
+        },
+        {
+          "value": "light-blue",
+          "label": "Light blue"
+        },
+        {
+          "value": "white",
+          "label": "White"
+        }
+      ],
+      "default": "none"
     },
     {
       "type": "range",
