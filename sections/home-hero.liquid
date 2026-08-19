@@ -167,9 +167,9 @@
    * Home hero. Mobile first; the desktop layout starts at the theme's 750px
    * breakpoint.
    *
-   * The inline margin is the section's own rather than the theme's --page-margin.
-   * The design sets 80px at desktop where the theme currently sets 40px, so
-   * borrowing the theme token would put the hero out of step with the file.
+   * The inline margin is the section's own rather than the theme's --page-margin,
+   * because it steps three times: 16 on mobile, the theme's 40 once the columns
+   * split, and the 80 the file draws once the viewport can carry it.
    */
   .home-hero {
     --home-hero-margin: 16px;
@@ -209,7 +209,7 @@
 
   @media screen and (min-width: 750px) {
     .home-hero {
-      --home-hero-margin: 80px;
+      --home-hero-margin: 40px;
       --home-hero-gap: 20px;
       --home-hero-panel-padding: 32px;
       --home-hero-panel-gap: 0px;
@@ -229,6 +229,17 @@
       --home-hero-marquee-padding: 24px;
       --home-hero-marquee-size: 20px;
       --home-hero-marquee-star: 16px;
+    }
+  }
+
+  /*
+   * The file draws 80px sides at 1440. Below that it crowds the columns, so the
+   * margin steps down to the theme's own --page-margin value and the hero lines
+   * up with every other section on the page until there is room for the full 80.
+   */
+  @media screen and (min-width: 1200px) {
+    .home-hero {
+      --home-hero-margin: 80px;
     }
   }
 
@@ -378,7 +389,12 @@
    * sets, and the secondary needs the tighter padding the file gives it or
    * "Customize treats" will not fit inside 170px.
    */
-  .home-hero__cta {
+  /*
+   * Named with .ui-button so it outranks the kit's own `width: fit-content`.
+   * Equal specificity would leave this to whichever stylesheet the theme
+   * concatenates last, which is not something a section should depend on.
+   */
+  .ui-button.home-hero__cta {
     width: 100%;
     white-space: nowrap;
   }
@@ -388,7 +404,7 @@
   }
 
   @media screen and (min-width: 750px) {
-    .home-hero__cta {
+    .ui-button.home-hero__cta {
       width: 170px;
     }
   }

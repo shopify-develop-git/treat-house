@@ -277,9 +277,20 @@
         "padding-block-start": 48,
         "padding-block-end": 48
       }
+    },
+    "shop_by_occasion_preview": {
+      "type": "shop-by-occasion",
+      "settings": {}
+    },
+    "home_hero_Kx9Ln4": {
+      "type": "home-hero",
+      "name": "Home hero",
+      "settings": {}
     }
   },
   "order": [
+    "home_hero_Kx9Ln4",
+    "shop_by_occasion_preview",
     "hero_jVaWmY",
     "product_list_fa6P9H"
   ]
