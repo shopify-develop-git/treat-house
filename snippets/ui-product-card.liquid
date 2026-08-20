@@ -127,11 +127,28 @@
     padding-block-start: 1px;
     border-radius: var(--ui-radius-sm);
 
-    /* Inset shadow rather than a border: it thickens on hover and a real border
-       would shift the card's contents by half a pixel when it did. */
-    box-shadow: inset 0 0 0 var(--ui-product-card-border-width) var(--ui-product-card-border-color);
     background-color: var(--ui-color-white);
+  }
+
+  /*
+   * The ring gets a layer of its own instead of being the card's own inset
+   * shadow. An inset shadow is painted under the element's children, and the
+   * photograph runs to three of the card's edges, so the ring survived along the
+   * 1px strip above the media and nowhere else — invisible while it was the
+   * hairline, plainly broken the moment hover thickened it to a full pixel.
+   *
+   * A positioned pseudo-element is painted after the static children, and being
+   * inset it still costs the layout nothing when it thickens, which is why the
+   * card is not simply given a border.
+   */
+  .ui-product-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 var(--ui-product-card-border-width) var(--ui-product-card-border-color);
     transition: box-shadow var(--animation-values);
+    pointer-events: none;
   }
 
   .ui-product-card:is(:hover, :focus-within, .ui-product-card--force-hover) {

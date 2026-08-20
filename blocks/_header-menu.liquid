@@ -109,6 +109,14 @@
               >
                 {% assign list_id = 'MegaMenuList-' | append: forloop.index %}
                 <div class="mega-menu section section--full-width-margin section--{{ section.settings.section_width }}">
+                  {%- comment -%}
+                    The file names the open panel down its left edge. It is the same
+                    word as the item that opened it, so it is taken from there rather
+                    than made a setting — a title that could disagree with the link
+                    above it is a title that eventually will.
+                  {%- endcomment -%}
+                  <p class="mega-menu__title" aria-hidden="true">{{ link.title }}</p>
+
                   <div
                     class="mega-menu__grid"
                     data-menu-grid-id="{{ list_id }}"
@@ -807,6 +815,100 @@
     }
 
 
+  }
+
+  /* ------------------------------------------------------------------
+     Treat House mega menu
+
+     The panel is a white card that drops from under the header and rounds off its
+     two bottom corners. Three things sit in it, pushed to the edges of the page
+     column: the name of the open menu on the left, the link columns in the middle,
+     and a collection card on the right.
+
+     The columns are the shop's navigation, not settings — a second-level item is a
+     column heading and its own children are the links under it. That means the
+     panel is only as deep as the menu built in the admin: a navigation with one
+     level under the top item renders one column of links and no heading, which is
+     what it should do rather than invent structure that is not there.
+     ------------------------------------------------------------------ */
+
+  @media screen and (min-width: 1050px) {
+    #header-component[data-menu-style='menu'] .mega-menu {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      box-sizing: border-box;
+      padding: 24px var(--ui-page-margin) 48px;
+      border-end-start-radius: 20px;
+      border-end-end-radius: 20px;
+      overflow: hidden;
+    }
+
+    #header-component[data-menu-style='menu'] .mega-menu__title {
+      flex: 0 0 175px;
+      margin: 0;
+      /* Merienda. `--ui-font-accent` is Outfit — the button face — which is not
+         this; the display face is the theme's heading family. */
+      font-family: var(--font-heading--family);
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--ui-color-primary);
+    }
+
+    #header-component[data-menu-style='menu'] .mega-menu__grid {
+      flex: 0 1 auto;
+      min-width: 0;
+      padding-block-start: 9px;
+    }
+
+    /* The columns sit far apart — 120px — and each one is a heading, a stack of
+       links and, when the navigation carries one, a last link that reads as a
+       button. */
+    #header-component[data-menu-style='menu'] .mega-menu__list {
+      display: flex;
+      gap: 120px;
+    }
+
+    #header-component[data-menu-style='menu'] .mega-menu__column {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    #header-component[data-menu-style='menu'] .mega-menu__link--parent {
+      font-family: var(--font-heading--family);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--ui-color-primary);
+    }
+
+    /* Every second heading takes the orange, which is how the file separates one
+       column from the next without a rule between them. */
+    #header-component[data-menu-style='menu']
+      .mega-menu__column:nth-child(even)
+      .mega-menu__link--parent {
+      color: var(--ui-color-orange);
+    }
+
+    #header-component[data-menu-style='menu'] .mega-menu__link:not(.mega-menu__link--parent) {
+      font-family: var(--ui-font-body);
+      font-size: 14px;
+      font-weight: var(--ui-font-body-weight);
+      line-height: 1.3;
+      color: var(--ui-color-black);
+    }
+
+    #header-component[data-menu-style='menu'] .mega-menu__column > ul {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
   }
 {% endstylesheet %}
 
