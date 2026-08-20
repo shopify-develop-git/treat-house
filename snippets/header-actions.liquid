@@ -16,7 +16,7 @@
       class="svg-wrapper"
       aria-hidden="true"
     >
-      {{ 'icon-cart.svg' | inline_asset_content }}
+      {{ 'icon-ui-cart.svg' | inline_asset_content }}
     </span>
 
     {% render 'cart-bubble', limit: 100, live_region: true %}
@@ -76,6 +76,24 @@
       </dialog>
     </dialog-component>
   {% endif %}
+
+  {%- comment -%}
+    The file draws a wishlist between the account and the cart. Horizon has no such
+    feature, so this is a link the merchant points wherever their wishlist actually
+    lives — an app's page, a collection, anything. Left blank it does not render,
+    which is the honest default: an icon that leads nowhere is worse than no icon.
+  {%- endcomment -%}
+  {%- if wishlist_url != blank -%}
+    <a
+      href="{{ wishlist_url }}"
+      class="header-actions__action header-actions__action--wishlist"
+      aria-label="{{ 'accessibility.wishlist' | t }}"
+    >
+      <span class="svg-wrapper" aria-hidden="true">
+        {{- 'icon-ui-wishlist.svg' | inline_asset_content -}}
+      </span>
+    </a>
+  {%- endif -%}
 
   {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
     <script

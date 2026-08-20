@@ -29,6 +29,7 @@
     "slider_label": "Slider"
   },
   "accessibility": {
+    "wishlist": "Wunschliste",
     "play_model": "3D-Modell abspielen",
     "play_video": "Video abspielen",
     "unit_price": "Grundpreis",

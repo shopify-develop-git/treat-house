@@ -60,7 +60,7 @@
   endcapture
 
   capture actions
-    render 'header-actions'
+    render 'header-actions', wishlist_url: section.settings.wishlist_url
   endcapture
 
   if shop.customer_accounts_enabled
@@ -981,6 +981,173 @@
   .header__column .localization-form__select {
     background-color: var(--header-bg-color);
   }
+
+  /* ------------------------------------------------------------------
+     Treat House header
+
+     The file lays the row out as three groups pushed to the ends and the middle:
+     the badge at the page margin, the menu, the icons at the far margin. That is
+     space-between rather than a centred column, and the difference is visible —
+     the menu's own centre sits 25px left of the page's, which is what happens when
+     a wide icon group and a narrow badge hold the two ends.
+
+     Everything below is measurement, not behaviour. The menu, drawer, cart, search
+     and sticky logic above are untouched.
+     ------------------------------------------------------------------ */
+
+  #header-component {
+    --th-header-pad-block: 6px;
+    --th-icon-size: 24px;
+    --th-icon-gap: 16px;
+    --th-burger-size: 44px;
+
+    /* Vertical room stays generous even where the file draws a narrow glyph: the
+       height of a target costs nothing here, and a 24px-wide column of 44px is a
+       far better thing to hit than a 24px square. */
+    --th-action-height: 44px;
+  }
+
+  @media screen and (min-width: 750px) {
+    #header-component {
+      --th-header-pad-block: 10px;
+      --th-icon-size: 20px;
+      --th-icon-gap: 14px;
+    }
+  }
+
+  /* The row -------------------------------------------------------- */
+
+  #header-component .header__columns {
+    padding-block: var(--th-header-pad-block);
+  }
+
+  @media screen and (min-width: 750px) {
+    #header-component[data-menu-style='menu'] .header__columns {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      /* Only a floor. space-between sets the real spacing; this is what stops the
+         three groups touching at the width where they finally meet. */
+      gap: 24px;
+    }
+
+    #header-component[data-menu-style='menu'] :is(
+      .header__column--left,
+      .header__column--center,
+      .header__column--right
+    ) {
+      flex: 0 0 auto;
+    }
+  }
+
+  /* On a phone the badge takes the left margin and everything else goes to the
+     right, which is the reverse of what the theme draws — it centres the badge and
+     puts the drawer button first. The order is set here rather than in the markup
+     because the markup is shared with the wide layout, where it is already right. */
+  @media screen and (max-width: 749px) {
+    #header-component .header__columns {
+      display: flex;
+      align-items: center;
+      gap: var(--th-icon-gap);
+
+      /* The row is the page grid — margin, content, margin. The theme spans all
+         three here and pads itself back in; sitting in the middle track instead
+         takes the 16px margin from the same place every other section does. */
+      grid-column: 2;
+      padding-inline: 0;
+    }
+
+    #header-component .header-logo {
+      order: 1;
+      margin-inline-end: auto;
+    }
+
+    #header-component .search-action {
+      order: 2;
+    }
+
+    #header-component header-actions {
+      order: 3;
+    }
+
+    #header-component .header__drawer {
+      order: 4;
+    }
+  }
+
+  /* The icons ------------------------------------------------------ */
+
+  #header-component .header__column--right {
+    gap: var(--th-icon-gap);
+  }
+
+  /* The theme hangs these wrappers on negative inline margins — a little under a
+     rem each — to cancel the padding inside their buttons and let an icon sit flush
+     with the page margin. The padding is gone now, so the compensation has nothing
+     left to cancel and just drags the group inwards: it took 88px of icons down to
+     51 and stacked them on top of each other. */
+  #header-component :is(.search-action, header-actions, .header__drawer) {
+    margin-inline: 0;
+  }
+
+  #header-component header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--th-icon-gap);
+  }
+
+  /* Reached past anything inside a dialog or a popover: the cart drawer and the
+     account panel live inside these same elements and have their own close buttons,
+     which are not header icons and must keep the size they were given. */
+  #header-component
+    :is(.search-action, header-actions, .header__drawer)
+    :is(button, a):not(:is(dialog, [popover]) *) {
+    box-sizing: content-box;
+    width: var(--th-icon-size);
+    height: var(--th-action-height);
+    min-width: 0;
+    padding: 0;
+  }
+
+  /* Two wrappers, because the theme does not use one. Most icons sit in a
+     `.svg-wrapper` that takes its size from the glyph; the account button has its
+     own, which sizes itself and squeezes the glyph inside it. Sizing only the svg
+     leaves that one at the 22px it was built with. */
+  #header-component
+    :is(.svg-wrapper, .account-button__icon):not(:is(dialog, [popover]) *)
+    > svg {
+    width: var(--th-icon-size);
+    height: var(--th-icon-size);
+  }
+
+  #header-component .account-button__icon:not(:is(dialog, [popover]) *) {
+    width: var(--th-icon-size);
+    height: var(--th-icon-size);
+  }
+
+  /* The burger carries a plate in the file. It is drawn here rather than baked into
+     the icon so it takes a token and can follow the palette. */
+  @media screen and (max-width: 749px) {
+    #header-component .header__drawer :is(button, summary):not(:is(dialog, [popover]) *) {
+      display: grid;
+      place-items: center;
+      box-sizing: border-box;
+      width: var(--th-burger-size);
+      height: var(--th-burger-size);
+      padding: 0;
+      border-radius: 10px;
+      background-color: var(--ui-color-sky-blue);
+    }
+
+    /* The theme sizes the wrapper here rather than the glyph, so setting the svg on
+       its own leaves it boxed into whatever the wrapper was given. Both, then. */
+    #header-component .header__drawer :is(.header-drawer-icon, .svg-wrapper),
+    #header-component .header__drawer .svg-wrapper > svg {
+      width: var(--th-burger-size);
+      height: var(--th-burger-size);
+    }
+  }
 {% endstylesheet %}
 
 {% unless request.design_mode %}
@@ -1069,6 +1236,16 @@
     {
       "type": "paragraph",
       "content": "t:content.manage_customer_accounts"
+    },
+    {
+      "type": "header",
+      "content": "Wishlist"
+    },
+    {
+      "type": "url",
+      "id": "wishlist_url",
+      "label": "Wishlist page",
+      "info": "The heart in the header. Leave empty and it is not shown \u2014 the theme has no wishlist of its own, so this points at whichever page or app holds yours."
     },
     {
       "type": "header",

@@ -29,6 +29,7 @@
     "slider_label": "Controle deslizante"
   },
   "accessibility": {
+    "wishlist": "Lista de desejos",
     "play_model": "Reproduzir modelo 3D",
     "play_video": "Reproduzir vídeo",
     "unit_price": "Preço unitário",

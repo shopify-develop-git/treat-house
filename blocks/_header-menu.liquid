@@ -155,7 +155,10 @@
       <div class="header-menu__inner">
         <nav
           class="menu-list"
-          style="{% render 'menu-font-styles', settings: block_settings %}"
+          style="
+            {% render 'menu-font-styles', settings: block_settings %}
+            --th-caret: url({{ 'icon-ui-caret-down.svg' | asset_url }});
+          "
         >
           {% assign class = 'overflow-menu' | append: color_scheme_classes %}
           {% render 'overflow-list',
@@ -691,6 +694,83 @@
   .mega-menu__submenu {
     /* preserves the inherited grid layout when this submenu wrapper is used */
     display: contents;
+  }
+
+  /* ------------------------------------------------------------------
+     Treat House menu
+
+     The file sets the top level 24px apart and hangs a small caret 6px after any
+     label that opens onto something. The caret is the exported vector, painted
+     through a mask so it takes the link's colour rather than carrying its own —
+     the file draws it the same black as the label, and a mask keeps it that way if
+     the palette ever moves.
+
+     It is drawn rather than marked up because the theme builds this list in three
+     places — row, drawer and navigation bar — and a pseudo-element reaches all of
+     them without touching any.
+     ------------------------------------------------------------------ */
+
+  @media screen and (min-width: 750px) {
+    /* Set on the list, not on the menu around it. The theme declares this on
+       `.menu-list` itself, so a value handed down from an ancestor is overwritten
+       before it ever reaches the row. */
+    #header-component[data-menu-style='menu'] .menu-list {
+      --menu-horizontal-gap: 24px;
+    }
+
+    /* The rest of the type is declared inline on that same nav, and no stylesheet
+       outbids an inline style. Redeclaring on the link instead does: a custom
+       property set on an element beats the one it would otherwise inherit, and the
+       link's own `color: var(--menu-top-level-font-color)` picks it up. Going
+       through the variable rather than setting `color` outright is what keeps the
+       hover state — it fades the same variable, and a flat colour here would
+       silently switch that off. */
+    #header-component[data-menu-style='menu'] .menu-list__link {
+      --menu-top-level-font-line-height: 1.3;
+
+      /* The theme runs the top level in the body colour, which is a grey. The file
+         draws it the same black as the headings. */
+      --menu-top-level-font-color: var(--color-foreground-heading);
+      --menu-top-level-font-color-rgb: var(--color-foreground-heading-rgb);
+    }
+
+    /* The theme spaces this list by padding each end of every label by half the gap,
+       which also puts half a gap outside the first and the last. Moving the spacing
+       to a real gap makes the measurement the one the file gives — and makes the row
+       start and end on the text, which is what decides where a space-between row
+       actually sits. */
+    #header-component[data-menu-style='menu'] .menu-list .overflow-menu::part(list) {
+      gap: var(--menu-horizontal-gap);
+      margin-inline: 0;
+    }
+
+    #header-component[data-menu-style='menu'] .menu-list__link-title {
+      padding-inline: 0;
+    }
+
+    /* The link is a column here, which is why a caret appended to it lands under the
+       label rather than after it. There is only ever one thing in it, so turning the
+       row the right way round costs nothing. */
+    #header-component[data-menu-style='menu'] .menu-list__link {
+      flex-direction: row;
+      align-items: center;
+      padding-block: 0;
+      padding-inline: 0;
+    }
+
+    #header-component[data-menu-style='menu'] li:has(.menu-list__submenu) > .menu-list__link::after {
+      content: '';
+      width: 9px;
+      height: 9px;
+      margin-inline-start: 6px;
+      background-color: currentcolor;
+      mask-image: var(--th-caret);
+      mask-repeat: no-repeat;
+      mask-position: center;
+      mask-size: contain;
+    }
+
+
   }
 {% endstylesheet %}
 

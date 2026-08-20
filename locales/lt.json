@@ -29,6 +29,7 @@
     "slider_label": "Slankiklis"
   },
   "accessibility": {
+    "wishlist": "Pageidavimų sąrašas",
     "play_model": "Paleisti 3D modelį",
     "play_video": "Paleisti vaizdo įrašą",
     "unit_price": "Vieneto kaina",

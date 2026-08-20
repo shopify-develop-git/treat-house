@@ -29,6 +29,7 @@
     "slider_label": "Плъзгач"
   },
   "accessibility": {
+    "wishlist": "Списък с желания",
     "play_model": "Възпроизвеждане на 3D модел",
     "play_video": "Възпроизвеждане на видеоклип",
     "unit_price": "Единична цена",

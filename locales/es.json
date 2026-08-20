@@ -29,6 +29,7 @@
     "slider_label": "Carrusel"
   },
   "accessibility": {
+    "wishlist": "Lista de deseos",
     "play_model": "Reproducir el modelo 3D",
     "play_video": "Reproducir el video",
     "unit_price": "Precio unitario",
