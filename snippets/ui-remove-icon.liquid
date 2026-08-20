@@ -3,8 +3,12 @@
 
   A 16px white disc holding a close glyph, used to clear a filter chip or a
   selected value. It renders a `<button>` because the kit gives it its own hover
-  state, which means it is the control rather than decoration on one.
+  state, which means it is the control rather than decoration on one — and an `<a>`
+  when `link` is given, which is the same bargain [ui-button] makes. Clearing a facet
+  is a place to go, not a thing to do, so it wants a real link: middle-click, open in
+  a new tab and the back button all keep working.
 
+  @param {string} [link] - Where clearing goes. Renders an `<a>` instead of a `<button>`.
   @param {string} [label] - The accessible label. Defaults to the theme's "Remove" string.
   @param {string} [class] - Additional CSS classes.
   @param {string} [attributes] - Extra HTML attributes to render on the element.
@@ -20,14 +24,25 @@
   endif
 -%}
 
-<button
-  type="button"
-  class="ui-remove-icon{% if class != blank %} {{ class }}{% endif %}"
-  aria-label="{{ remove_label | escape }}"
-  {%- if attributes != blank %} {{ attributes }}{% endif -%}
->
-  <span class="ui-remove-icon__glyph">{{- 'icon-ui-close.svg' | inline_asset_content -}}</span>
-</button>
+{%- if link != blank -%}
+  <a
+    class="ui-remove-icon{% if class != blank %} {{ class }}{% endif %}"
+    href="{{ link }}"
+    aria-label="{{ remove_label | escape }}"
+    {%- if attributes != blank %} {{ attributes }}{% endif -%}
+  >
+    <span class="ui-remove-icon__glyph">{{- 'icon-ui-close.svg' | inline_asset_content -}}</span>
+  </a>
+{%- else -%}
+  <button
+    type="button"
+    class="ui-remove-icon{% if class != blank %} {{ class }}{% endif %}"
+    aria-label="{{ remove_label | escape }}"
+    {%- if attributes != blank %} {{ attributes }}{% endif -%}
+  >
+    <span class="ui-remove-icon__glyph">{{- 'icon-ui-close.svg' | inline_asset_content -}}</span>
+  </button>
+{%- endif -%}
 
 {% stylesheet %}
   :root {
@@ -64,10 +79,17 @@
     cursor: not-allowed;
   }
 
+  /*
+   * The glyph is scenery inside a 16px control. Left as an event target it is what
+   * a click lands on, and every consumer then has to hope the event bubbles the way
+   * it wants to — so it is taken out of the way and the disc is the only thing here
+   * a pointer can touch.
+   */
   .ui-remove-icon__glyph {
     display: block;
     width: 100%;
     height: 100%;
+    pointer-events: none;
   }
 
   .ui-remove-icon__glyph > svg {

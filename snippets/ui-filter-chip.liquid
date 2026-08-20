@@ -5,6 +5,7 @@
   remove disc inside it, so that disc is the button and the chip is its label.
 
   @param {string} label - The filter value shown on the chip.
+  @param {string} [remove_link] - Where removing this filter goes. Shopify's `value.url_to_remove` is exactly this.
   @param {string} [remove_label] - The accessible label for the remove button. Defaults to "Remove <label>".
   @param {string} [class] - Additional CSS classes.
   @param {string} [attributes] - Extra HTML attributes to render on the element.
@@ -25,7 +26,7 @@
   {%- if attributes != blank %} {{ attributes }}{% endif -%}
 >
   <span class="ui-filter-chip__label">{{ label }}</span>
-  {% render 'ui-remove-icon', label: chip_remove_label %}
+  {% render 'ui-remove-icon', label: chip_remove_label, link: remove_link %}
 </span>
 
 {% stylesheet %}
