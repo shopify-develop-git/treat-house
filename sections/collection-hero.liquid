@@ -1,0 +1,431 @@
+{% comment %}
+  Collection hero (Figma: V2 Birthday Treats Occasion collection page → Hero,
+  491:19940, with the trail above it at 491:19971).
+
+  A rounded banner inset by the page gutter: the collection's photograph behind, a
+  star, the collection's name in two tones and the sentence under it. The card sits
+  inside the page column rather than running to the window edge, which is what the
+  20px radius is for.
+
+  The words and the picture are the template's, not the collection's. The heading and
+  the copy are ordinary [_ui-heading] and [_ui-text] blocks a merchant types into, and
+  the photograph is the section's own picker — this is a banner laid out per template,
+  the way any other section is.
+
+  Both blocks can read the collection instead: their `source` setting offers
+  `collection_title` and `collection_description`, and on that path the two-tone accent
+  comes from the collection's `custom.title_accent` metafield. That is what one shared
+  `templates/collection.json` would want if the shop ever fills those fields in. It is
+  a switch, not the default, because a banner is editorial: the words that sell a
+  Birthday page are rarely the words in its collection description, and the picture
+  filed against a collection is a product shot rather than a banner.
+
+  A phone gets its own picker, as `docs/section-settings.md` asks for every image.
+  The banner is drawn 3.37:1 and a phone's card is nearer 1.3:1, so `cover` throws
+  away about three fifths of the width — on this one that is the box of treats at one
+  end and the cake at the other, leaving the pale middle the words sit on. Legible,
+  and empty. A crop cut for the shape belongs in the second picker rather than in a
+  rule that squeezes the first.
+
+  The two are one `<picture>` and not two `<img>`s behind a media query: a browser
+  picks one source and downloads one file, where the display-toggle version fetches
+  both and shows one.
+
+  The file draws no scrim, and the default is no scrim — the banner it draws is a pale
+  purpose-made photograph the black heading sits on happily. The switch is there for a
+  shop that hangs a busier picture behind the same words.
+
+  The trail's middle step is written out rather than taken from a resource. A
+  collection's parent here is a nav item — "Shop Treats" — which is not a thing with
+  a `.title` and a `.url` that Liquid will hand over, so [ui-breadcrumb] takes the
+  two strings instead.
+{% endcomment %}
+
+{%- liquid
+  assign hero_collection = collection
+  if request.visual_preview_mode and hero_collection == blank
+    assign hero_collection = collections.all
+  endif
+
+  assign hero_image = section.settings.image
+  assign hero_image_mobile = section.settings.image_mobile
+
+  # Either picker on its own is a whole banner. Only both empty holds the frame.
+  if hero_image == blank
+    assign hero_image = hero_image_mobile
+  endif
+-%}
+
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="collection-hero-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div
+    class="collection-hero"
+    style="
+      --collection-hero-height: {{ section.settings.height_mobile }}px;
+      --collection-hero-height-desktop: {{ section.settings.height }}px;
+    "
+  >
+    {%- if section.settings.show_breadcrumb -%}
+      {% render 'ui-breadcrumb',
+        parent_title: section.settings.parent_title,
+        parent_url: section.settings.parent_link,
+        current: hero_collection.title,
+        class: 'collection-hero__breadcrumb'
+      %}
+    {%- endif -%}
+
+    <div class="collection-hero__card">
+      <div class="collection-hero__media" aria-hidden="true">
+        {%- if hero_image != blank -%}
+          <picture>
+            {%- if hero_image_mobile != blank -%}
+              <source
+                media="(max-width: 749px)"
+                srcset="
+                  {{ hero_image_mobile | image_url: width: 750 }} 1x,
+                  {{ hero_image_mobile | image_url: width: 1500 }} 2x
+                "
+              >
+            {%- endif -%}
+            {% render 'image', image: hero_image, height: 760, class: 'collection-hero__image' %}
+          </picture>
+        {%- else -%}
+          {%- comment -%} Photography is not in yet; hold the frame so the band reads true. {%- endcomment -%}
+          <span class="collection-hero__image collection-hero__image--placeholder"></span>
+        {%- endif -%}
+      </div>
+
+      {%- if section.settings.show_scrim -%}
+        <span
+          class="collection-hero__scrim"
+          style="--collection-hero-scrim: {{ section.settings.scrim_opacity | divided_by: 100.0 }};"
+          aria-hidden="true"
+        ></span>
+      {%- endif -%}
+
+      <div class="collection-hero__content">
+        {%- if section.settings.show_star -%}
+          <span class="collection-hero__star" aria-hidden="true">
+            {{- 'icon-ui-sparkle.svg' | inline_asset_content -}}
+          </span>
+        {%- endif -%}
+
+        <div class="collection-hero__text">
+          {% content_for 'blocks' %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  /* Collection hero. Mobile first; the drawn height arrives at 750px. */
+  .collection-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .collection-hero__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    /*
+     * A floor, not a height. The file draws 380 with two short lines in it; a
+     * collection whose sentence runs longer grows the card rather than spilling
+     * out of it.
+     */
+    min-block-size: var(--collection-hero-height, 260px);
+    padding-block: 24px 32px;
+    padding-inline: var(--ui-page-margin);
+    border-radius: var(--collection-hero-radius, 20px);
+  }
+
+  /*
+   * The photograph is a layer under the words rather than a `background-image`, so
+   * it can be a responsive `<img>` with a srcset the browser picks from. Taken out
+   * of the accessibility tree with the wrapper's `aria-hidden`: it is scenery, and
+   * the heading beside it already says what the page is.
+   */
+  .collection-hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .collection-hero__media picture {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .collection-hero__image {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .collection-hero__image--placeholder {
+    background-color: var(--ui-color-light-blue);
+  }
+
+  /*
+   * White rather than black: the heading over it is drawn black and purple, so what
+   * the photograph has to be pushed towards is paper, not night.
+   */
+  .collection-hero__scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-color: rgb(255 255 255 / var(--collection-hero-scrim, 0.6));
+  }
+
+  .collection-hero__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--collection-hero-gap, 24px);
+    inline-size: 100%;
+  }
+
+  .collection-hero__star {
+    display: block;
+    flex: 0 0 auto;
+    inline-size: var(--collection-hero-star, 32px);
+    block-size: var(--collection-hero-star, 32px);
+    color: var(--ui-color-primary);
+  }
+
+  .collection-hero__star > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .collection-hero__text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    inline-size: 100%;
+
+    /*
+     * The two pieces of copy are drawn 410 and 416 wide inside a 1280 card, which
+     * is a measure rather than a preference — a headline set across the whole card
+     * is a line nobody finishes. Handed down, so a block that sets its own wins.
+     */
+    --ui-heading-max-width: 440px;
+    --ui-text-max-width: 440px;
+
+    text-align: center;
+  }
+
+  @media screen and (min-width: 750px) {
+    .collection-hero {
+      gap: 24px;
+    }
+
+    .collection-hero__card {
+      --collection-hero-gap: 48px;
+
+      min-block-size: var(--collection-hero-height-desktop, 380px);
+      padding-block: 24px 64px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Collection hero",
+  "tag": "section",
+  "blocks": [
+    {
+      "type": "_ui-heading"
+    },
+    {
+      "type": "_ui-text"
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:content.media"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image",
+      "info": "The banner behind the words. Left empty, the frame is held with a placeholder."
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Banner on mobile",
+      "info": "A crop cut for the taller shape a phone gives the banner. Left empty, the desktop picture is centre-cropped and loses about three fifths of its width."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_scrim",
+      "label": "Lighten the photograph behind the words",
+      "info": "Off is what the file draws. Turn it on where the collection's own picture is busy or dark under the heading.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "scrim_opacity",
+      "label": "How much",
+      "min": 10,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 60,
+      "visible_if": "{{ section.settings.show_scrim }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_star",
+      "label": "Show the star",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Breadcrumb"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumb",
+      "label": "Show the breadcrumb",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "parent_title",
+      "label": "Step between home and this page",
+      "info": "Left empty, the trail runs straight from Home to the collection.",
+      "default": "Shop Treats",
+      "visible_if": "{{ section.settings.show_breadcrumb }}"
+    },
+    {
+      "type": "url",
+      "id": "parent_link",
+      "label": "Where that step goes",
+      "visible_if": "{{ section.settings.show_breadcrumb }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "range",
+      "id": "height",
+      "label": "Banner height",
+      "info": "A floor. A longer sentence grows the banner rather than spilling out of it.",
+      "min": 240,
+      "max": 640,
+      "step": 10,
+      "unit": "px",
+      "default": 380
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "label": "Banner height on mobile",
+      "min": 180,
+      "max": 480,
+      "step": 10,
+      "unit": "px",
+      "default": 260
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection hero",
+      "category": "t:categories.banners",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h1><em>Birthday</em> Treats</h1>",
+            "heading_size": 48,
+            "heading_size_mobile": 32
+          }
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Shop birthday-ready packs, custom image treats, gift boxes, and choose-your-own options.</p>",
+            "text_size": 16,
+            "text_size_mobile": 14
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "body"
+      ]
+    }
+  ]
+}
+{% endschema %}
