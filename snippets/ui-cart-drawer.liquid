@@ -536,9 +536,30 @@
     padding-inline: var(--ui-cart-drawer-gutter);
   }
 
+  /*
+   * One rule above the total, and it belongs to the container: the file draws it
+   * directly over SUBTOTAL, not over the whole totals block.
+   */
   .cart-drawer__dialog .cart-totals__container {
     padding-block-start: var(--ui-cart-drawer-gutter);
     border-block-start: var(--ui-hairline-width) solid var(--ui-color-border-gray);
+  }
+
+  /*
+   * Horizon draws one of its own across the top of `.cart-totals`, which put two
+   * lines twenty pixels apart above the same number. It writes that border in two
+   * rules — one scoped to the drawer at (0,4,0), and a looser one conditioned on
+   * there being no `.cart-actions`, which started applying the moment the cart
+   * note and the discount field were switched off. Both are answered here, the
+   * first with its own `:not(:has())` repeated so this weighs (0,5,0), the second
+   * on the plain selector. The padding goes with the border, or the block keeps
+   * the room the line used to sit in.
+   */
+  .cart-drawer__dialog .cart-drawer__summary .cart-totals:not(:has(.cart-totals__original-container:empty)),
+  .cart-drawer__dialog .cart-drawer__summary .cart-totals {
+    margin-block-start: 0;
+    padding-block-start: 0;
+    border-block-start: none;
   }
 
   .cart-drawer__dialog .cart-totals__total-label {
