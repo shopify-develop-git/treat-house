@@ -995,6 +995,18 @@
      and sticky logic above are untouched.
      ------------------------------------------------------------------ */
 
+  /* The row of labels needs about 1050px before it fits, not 750.
+
+     The file draws a phone and a 1440, and says nothing about what happens between.
+     The theme switches to the inline menu at 750, on the assumption that
+     `overflow-list` will fold the tail into More when the labels outgrow the room.
+     It does not fold here — not on load, not on a resize — so from 750 up this
+     shop's six labels simply ran over the badge on one side and the icons on the
+     other, and the header was visibly broken across a whole range of tablet widths.
+
+     So the switch moves to where the menu actually fits. Below it the header is the
+     phone's: badge, icons, burger. That is one number to change if the navigation
+     ever gets shorter. */
   #header-component {
     --th-header-pad-block: 6px;
     --th-icon-size: 24px;
@@ -1007,7 +1019,7 @@
     --th-action-height: 44px;
   }
 
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 1050px) {
     #header-component {
       --th-header-pad-block: 10px;
       --th-icon-size: 20px;
@@ -1026,23 +1038,52 @@
     padding-block: var(--th-header-pad-block);
   }
 
-  @media screen and (min-width: 750px) {
-    #header-component[data-menu-style='menu'] .header__columns {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+  /* Only the inline-menu mode. A wide screen can also be in drawer mode — a touch
+     laptop is, and so is a menu squeezed past what `overflow-list` will keep — and
+     the file draws nothing for that: no badge at the margin, no row of labels, just
+     a burger where the menu was. The theme's own arrangement for it is coherent, and
+     a half-applied version of this one is not, so it is left alone there. The icons
+     and the plate below are not keyed to a mode and still apply.
 
-      /* Only a floor. space-between sets the real spacing; this is what stops the
-         three groups touching at the width where they finally meet. */
-      gap: 24px;
+     The row stays the theme's grid. The badge and the icons take what they need and
+     the menu takes the rest, centred in it — which lands in the same place the file
+     draws, because a menu narrower than the gap between two ends sits at the middle
+     of that gap either way.
+
+     Getting there took two wrong turns, both invisible above 1100px. A flex row
+     first: `overflow-list` decides how many labels to keep by the room its box
+     gives it, and a flex item sized from its own content never tells it the room ran
+     out. Then a `max-content` track pushed apart with space-between, which is the
+     same fault in a grid — the track asks for the menu's full width and is given it.
+
+     `1fr` is what actually bounds it: the track gets what is left over rather than
+     what it wants, so between 750 and 1100 the component finally sees that six
+     labels do not fit and folds the tail into More. Left as it was, the menu ran
+     straight over the badge on one side and the icons on the other. */
+  @media screen and (min-width: 1050px) {
+    #header-component.header[data-menu-style='menu'] .header__columns {
+      --header-left: max-content;
+      --header-center: minmax(0, 1fr);
+      --header-right: max-content;
+
+      align-items: center;
+      column-gap: 24px;
     }
 
-    #header-component[data-menu-style='menu'] :is(
-      .header__column--left,
+    /* The track is bounded; the menu inside it is not, until told. A flex item will
+       not go below its content while `min-width` is `auto`, so `header-menu` sat at
+       its full 718 inside a 554 column and spilled out of both ends of it. Every box
+       between the column and the list needs the same, or the first one that refuses
+       hands the component an unlimited width again. */
+    #header-component.header[data-menu-style='menu'] :is(
       .header__column--center,
-      .header__column--right
+      .header__column--center header-menu,
+      .header__column--center .header-menu__inner,
+      .header__column--center .menu-list,
+      .header__column--center .overflow-menu
     ) {
-      flex: 0 0 auto;
+      min-width: 0;
+      max-width: 100%;
     }
   }
 
@@ -1057,7 +1098,7 @@
      id and one class. Drawer is what any touch device gets, so without the extra
      class this rule loses on every real phone while looking correct in a desktop
      browser narrowed to the same width. */
-  @media screen and (max-width: 749px) {
+  @media screen and (max-width: 1049px) {
     #header-component.header .header__columns {
       display: flex;
       align-items: center;
@@ -1068,6 +1109,14 @@
          takes the 16px margin from the same place every other section does. */
       grid-column: 2;
       padding-inline: 0;
+    }
+
+    /* The theme dissolves its three columns into the row at 749 so their contents can
+       be arranged directly. That has to reach as far as the switch now does, or the
+       columns stay real boxes above 749 and the order below lands on the wrong
+       elements — the icons stop short of the margin and the row loses its height. */
+    #header-component.header .header__column {
+      display: contents;
     }
 
     #header-component.header .header-logo {
@@ -1164,25 +1213,61 @@
   }
 
   /* The burger carries a plate in the file. It is drawn here rather than baked into
-     the icon so it takes a token and can follow the palette. */
-  @media screen and (max-width: 749px) {
-    #header-component.header .header__drawer :is(button, summary):not(:is(dialog, [popover]) *) {
-      display: grid;
-      place-items: center;
-      box-sizing: border-box;
-      width: var(--th-burger-size);
-      height: var(--th-burger-size);
-      padding: 0;
-      border-radius: 10px;
-      background-color: var(--ui-color-sky-blue);
+     the icon so it takes a token and can follow the palette.
+
+     Not behind a width, because the drawer button is not either: a touch laptop, or a
+     menu that has outgrown its room, brings it back on a wide screen, and there it
+     should look like the same button rather than the theme's untouched 60px one. */
+  /* The theme floors the drawer wrapper at 60px, which is taller than the button
+     inside it and taller than the row wants to be — so the header came out 72 in
+     drawer mode and 59 in menu mode at the same width. The button carries its own
+     size; the wrapper does not need to. */
+  #header-component.header .header__drawer {
+    --header-drawer-min-height: 0;
+
+    min-height: 0;
+  }
+
+  #header-component.header .header__drawer :is(button, summary):not(:is(dialog, [popover]) *) {
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: var(--th-burger-size);
+    height: var(--th-burger-size);
+    padding: 0;
+    border-radius: 10px;
+    background-color: var(--ui-color-sky-blue);
+  }
+
+  /* The theme sizes the wrapper here rather than the glyph, so setting the svg on its
+     own leaves it boxed into whatever the wrapper was given. Both, then. */
+  #header-component.header .header__drawer :is(.header-drawer-icon, .svg-wrapper),
+  #header-component.header .header__drawer .svg-wrapper > svg {
+    width: var(--th-burger-size);
+    height: var(--th-burger-size);
+  }
+
+  /* A wide screen in drawer mode keeps the theme's own arrangement, which is
+     coherent — but it spans the row across the page grid, margins included, and
+     leaves the icons 2px from the window edge. The margin is worth handing back even
+     where the rest is not ours. */
+  @media screen and (min-width: 1050px) {
+    #header-component.header[data-menu-style='drawer'] .header__columns {
+      grid-column: 2;
+      padding-inline: 0;
+    }
+  }
+
+  /* The theme turns the menu on and the burger off at 750. Held back to the width
+     where the labels have room; (1,3,0) to clear its (1,2,0). */
+  @media screen and (min-width: 750px) and (max-width: 1049px) {
+    #header-component.header[data-menu-style='menu'] :is(.header-menu, .dropdown-localization) {
+      display: none;
     }
 
-    /* The theme sizes the wrapper here rather than the glyph, so setting the svg on
-       its own leaves it boxed into whatever the wrapper was given. Both, then. */
-    #header-component.header .header__drawer :is(.header-drawer-icon, .svg-wrapper),
-    #header-component.header .header__drawer .svg-wrapper > svg {
-      width: var(--th-burger-size);
-      height: var(--th-burger-size);
+    #header-component.header[data-menu-style='menu'] .header__drawer {
+      display: flex;
+      min-height: 0;
     }
   }
 {% endstylesheet %}
