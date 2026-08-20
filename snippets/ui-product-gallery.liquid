@@ -1,0 +1,239 @@
+{%- doc -%}
+  The product page's media column (Figma: Standart Product Page → Image + Images).
+
+  A framed stage with the thumbnails beneath it. The frame is drawn as a bordered
+  20px box with the photograph sitting inside its own 10px rounding and clear of
+  the edge on all four sides, so the stage pads itself and the image is contained
+  rather than cropped — a square box on a portrait photograph is the shape the
+  file draws, not an accident of `cover`.
+
+  Every image is in the markup and all but one are `hidden`, so switching costs no
+  request and each keeps its own `srcset`. That is also what lets a variant change
+  reveal its featured media without this snippet having to build a URL.
+
+  Thumbnails are real `<button>`s inside the gallery element, so the row is
+  keyboard operable without this file spending a `tabindex` on it. They appear only
+  when there is more than one image — a single thumbnail under its own photograph
+  is a control that cannot do anything.
+
+  @param {object} product - The product whose media is shown.
+  @param {string} [badge] - Text for the corner badge. Nothing is drawn when blank.
+  @param {string} [badge_tone] - `purple`, `orange`, `yellow` or `sky-blue`. Defaults to `purple`.
+  @param {boolean} [eager] - Loads the first image eagerly. Set on the page's main gallery.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-product-gallery', product: product, badge: 'Gift ready', eager: true %}
+{%- enddoc -%}
+
+{%- liquid
+  assign gallery_media = product.media
+  assign selected_media = product.selected_or_first_available_variant.featured_media
+  if selected_media == blank
+    assign selected_media = product.featured_media
+  endif
+  assign badge_tone_class = badge_tone | default: 'purple'
+-%}
+
+<script src="{{ 'ui-product-gallery.js' | asset_url }}" type="module" fetchpriority="low"></script>
+
+<ui-product-gallery class="ui-product-gallery{% if class != blank %} {{ class }}{% endif %}">
+  <div class="ui-product-gallery__stage">
+    {%- if gallery_media.size > 0 -%}
+      {%- for media in gallery_media -%}
+        {%- liquid
+          assign is_selected = false
+          if media.id == selected_media.id
+            assign is_selected = true
+          endif
+          assign loading = 'lazy'
+          if is_selected and eager
+            assign loading = 'eager'
+          endif
+        -%}
+        <div
+          class="ui-product-gallery__slide"
+          data-ui-gallery-media="{{ media.id }}"
+          {% unless is_selected %}hidden{% endunless %}
+        >
+          {{
+            media.preview_image
+            | image_url: width: 1200
+            | image_tag:
+              widths: '300, 460, 620, 840, 1200',
+              sizes: '(min-width: 1200px) 46vw, (min-width: 990px) 44vw, 92vw',
+              class: 'ui-product-gallery__image',
+              loading: loading,
+              alt: media.alt
+          }}
+        </div>
+      {%- endfor -%}
+    {%- else -%}
+      <div class="ui-product-gallery__slide ui-product-gallery__slide--placeholder">
+        {{ 'product-apparel-2' | placeholder_svg_tag: 'ui-product-gallery__image' }}
+      </div>
+    {%- endif -%}
+
+    {%- if badge != blank -%}
+      <span class="ui-product-gallery__badge ui-product-gallery__badge--{{ badge_tone_class }}">{{ badge }}</span>
+    {%- endif -%}
+  </div>
+
+  {%- if gallery_media.size > 1 -%}
+    <div class="ui-product-gallery__thumbs">
+      {%- for media in gallery_media -%}
+        {%- assign is_selected = false -%}
+        {%- if media.id == selected_media.id -%}{%- assign is_selected = true -%}{%- endif -%}
+        <button
+          type="button"
+          class="ui-product-gallery__thumb"
+          data-ui-gallery-thumb="{{ media.id }}"
+          aria-pressed="{{ is_selected }}"
+        >
+          {{
+            media.preview_image
+            | image_url: width: 236
+            | image_tag:
+              widths: '118, 236',
+              sizes: '118px',
+              class: 'ui-product-gallery__thumb-image',
+              loading: 'lazy',
+              alt: media.alt
+          }}
+        </button>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</ui-product-gallery>
+
+{% stylesheet %}
+  :root {
+    --ui-product-gallery-radius: 20px;
+    --ui-product-gallery-inset: 24px;
+    --ui-product-gallery-image-radius: 10px;
+    --ui-product-gallery-thumb: 118px;
+    --ui-product-gallery-thumb-gap: 10px;
+  }
+
+  .ui-product-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-product-gallery-thumb-gap);
+  }
+
+  .ui-product-gallery__stage {
+    position: relative;
+    box-sizing: border-box;
+    /* The frame the file draws, so the column keeps its height before the image
+       has loaded and nothing below it jumps. */
+    aspect-ratio: 630 / 578;
+    padding: var(--ui-product-gallery-inset);
+    border-radius: var(--ui-product-gallery-radius);
+    box-shadow: inset 0 0 0 1px var(--ui-color-light-blue);
+    background-color: var(--ui-color-white);
+  }
+
+  .ui-product-gallery__slide {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ui-product-gallery__slide[hidden] {
+    display: none;
+  }
+
+  .ui-product-gallery__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--ui-product-gallery-image-radius);
+    /* Contained, not cropped: the frame is wider than it is tall and the treats
+       are photographed square, so `cover` would cut the box off at top and bottom. */
+    object-fit: contain;
+  }
+
+  .ui-product-gallery__badge {
+    position: absolute;
+    inset-block-start: var(--ui-product-gallery-inset);
+    inset-inline-end: var(--ui-product-gallery-inset);
+    padding: 4px 8px;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-primary);
+    color: var(--ui-color-white);
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .ui-product-gallery__badge--orange {
+    background-color: var(--ui-color-orange);
+  }
+
+  .ui-product-gallery__badge--sky-blue {
+    background-color: var(--ui-color-sky-blue);
+    color: var(--ui-color-black);
+  }
+
+  .ui-product-gallery__badge--yellow {
+    background-color: var(--ui-color-yellow);
+    color: var(--ui-color-black);
+  }
+
+  .ui-product-gallery__thumbs {
+    display: flex;
+    gap: var(--ui-product-gallery-thumb-gap);
+    /* Scrolls rather than wrapping: a lone thumbnail on a second row reads as a
+       mistake, and a product with nine images should not push the buy button down. */
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .ui-product-gallery__thumbs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ui-product-gallery__thumb {
+    display: block;
+    flex: 0 0 auto;
+    box-sizing: border-box;
+    width: var(--ui-product-gallery-thumb);
+    height: var(--ui-product-gallery-thumb);
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: var(--ui-product-gallery-image-radius);
+    box-shadow: inset 0 0 0 1px var(--ui-color-border-gray);
+    background: none;
+    cursor: pointer;
+    overflow: hidden;
+    appearance: none;
+    transition: box-shadow var(--animation-values);
+  }
+
+  .ui-product-gallery__thumb:hover {
+    box-shadow: inset 0 0 0 1px var(--ui-color-sky-blue);
+  }
+
+  .ui-product-gallery__thumb[aria-pressed='true'] {
+    box-shadow: inset 0 0 0 1px var(--ui-color-sky-blue);
+  }
+
+  .ui-product-gallery__thumb-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ui-product-gallery {
+      --ui-product-gallery-thumb: 88px;
+      --ui-product-gallery-inset: 16px;
+      --ui-product-gallery-radius: 14px;
+    }
+  }
+{% endstylesheet %}

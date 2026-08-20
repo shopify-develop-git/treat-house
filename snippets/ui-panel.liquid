@@ -1,0 +1,198 @@
+{%- doc -%}
+  The bordered card the product page uses three times (Figma: Standart Product
+  Page → Gift Message, Estimated Shipping, Ingredients & Allergens, Storage).
+
+  One shape, three jobs: a titled white card with a hairline light-blue edge, an
+  optional glyph beside the title, and an optional disclosure. The file draws the
+  four cards with the same chrome and different insides, so they are one component
+  with parameters rather than four snippets that would drift apart.
+
+  Content arrives as captured markup rather than as a slot, since Liquid has none:
+
+  ```liquid
+  {%- capture panel_body -%}...{%- endcapture -%}
+  {% render 'ui-panel', title: 'Storage', icon: 'thermometer', body: panel_body %}
+  ```
+
+  `intro` is the part that stays visible when the card is closed, and `body` is
+  what opening it reveals. With `collapsible` the two are a real `<details>`, so
+  the open state, the keyboard and Escape come from the browser — the same bargain
+  the filter and variant disclosures take, and still no new script.
+
+  The whole head is the click target, not just the caret. The file draws a caret
+  at the far end and a line of copy beneath the title, and a card whose copy is
+  inert while the 14px caret beside it toggles is a smaller target than it looks.
+
+  @param {string} title - The card's heading.
+  @param {string} [icon] - Icon asset name, with or without the `icon-ui-` prefix and extension.
+  @param {string} [intro] - Markup shown whether the card is open or closed.
+  @param {string} [body] - Markup shown below `intro`; hidden until opened when `collapsible`.
+  @param {boolean} [collapsible] - Renders the card as a `<details>` disclosure.
+  @param {boolean} [open] - Starts a collapsible card open.
+  @param {boolean} [chevron] - Draws the caret. Defaults to `collapsible`.
+  @param {string} [padding] - `default` for the drawn 14px, `tight` for the 12/16 the shipping card takes.
+  @param {string} [id] - The `id` attribute.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the element.
+
+  @example
+  {% render 'ui-panel', title: 'Estimated shipping', icon: 'shipping-fast', padding: 'tight', body: rows %}
+  {% render 'ui-panel', title: 'Storage', icon: 'thermometer', collapsible: true, intro: lede, body: full %}
+{%- enddoc -%}
+
+{%- liquid
+  assign panel_icon = icon
+  if panel_icon != blank
+    unless panel_icon contains 'icon-ui-'
+      assign panel_icon = 'icon-ui-' | append: panel_icon
+    endunless
+    unless panel_icon contains '.svg'
+      assign panel_icon = panel_icon | append: '.svg'
+    endunless
+  endif
+
+  assign show_chevron = chevron
+  if chevron == nil
+    assign show_chevron = collapsible
+  endif
+
+  assign panel_padding = padding | default: 'default'
+  assign panel_classes = 'ui-panel ui-panel--' | append: panel_padding
+  if class != blank
+    assign panel_classes = panel_classes | append: ' ' | append: class
+  endif
+-%}
+
+{%- capture panel_head -%}
+  <div class="ui-panel__title-row">
+    <span class="ui-panel__title">
+      {%- if panel_icon != blank -%}
+        <span class="ui-panel__icon" aria-hidden="true">{{- panel_icon | inline_asset_content -}}</span>
+      {%- endif -%}
+      {{ title }}
+    </span>
+    {%- if show_chevron -%}
+      <span class="ui-panel__chevron" aria-hidden="true">{{- 'icon-ui-chevron-down.svg' | inline_asset_content -}}</span>
+    {%- endif -%}
+  </div>
+  {%- if intro != blank -%}{{ intro }}{%- endif -%}
+{%- endcapture -%}
+
+{%- if collapsible -%}
+  <details
+    class="{{ panel_classes }}"
+    {%- if id != blank %} id="{{ id }}"{% endif -%}
+    {%- if open %} open{% endif -%}
+    {%- if attributes != blank %} {{ attributes }}{% endif -%}
+  >
+    <summary class="ui-panel__head">{{ panel_head }}</summary>
+    {%- if body != blank -%}{{ body }}{%- endif -%}
+  </details>
+{%- else -%}
+  <div
+    class="{{ panel_classes }}"
+    {%- if id != blank %} id="{{ id }}"{% endif -%}
+    {%- if attributes != blank %} {{ attributes }}{% endif -%}
+  >
+    <div class="ui-panel__head">{{ panel_head }}</div>
+    {%- if body != blank -%}{{ body }}{%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  :root {
+    --ui-panel-gap: 10px;
+    --ui-panel-icon: 16px;
+    --ui-panel-title-size: 12px;
+  }
+
+  .ui-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-panel-gap);
+    box-sizing: border-box;
+    border-radius: var(--ui-radius-sm);
+    /* The one place in the kit drawn with a full 1px edge rather than the 0.5px
+       hairline, and in the palette's light blue rather than the border gray. */
+    box-shadow: inset 0 0 0 1px var(--ui-color-light-blue);
+    background-color: var(--ui-color-white);
+  }
+
+  .ui-panel--default {
+    padding: 14px;
+  }
+
+  .ui-panel--tight {
+    padding: 12px 16px;
+  }
+
+  .ui-panel__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-panel-gap);
+    list-style: none;
+  }
+
+  .ui-panel__head::-webkit-details-marker {
+    display: none;
+  }
+
+  details.ui-panel > .ui-panel__head {
+    cursor: pointer;
+  }
+
+  .ui-panel__title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .ui-panel__title {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-accent);
+    font-size: var(--ui-panel-title-size);
+    font-weight: 600;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .ui-panel__icon {
+    display: block;
+    flex: 0 0 auto;
+    width: var(--ui-panel-icon);
+    height: var(--ui-panel-icon);
+  }
+
+  .ui-panel__icon > svg,
+  .ui-panel__chevron > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ui-panel__chevron {
+    display: block;
+    flex: 0 0 auto;
+    width: 14px;
+    height: 8px;
+    color: var(--ui-color-black);
+    transition: rotate var(--animation-values);
+  }
+
+  .ui-panel[open] > .ui-panel__head .ui-panel__chevron {
+    rotate: 180deg;
+  }
+
+  /*
+   * base.css carries `summary:hover { color: var(--color-primary-hover) }` at
+   * (0,1,1), which outranks a lone class and would repaint the title through a
+   * hover. Naming the element matches that weight and wins on source order.
+   */
+  summary.ui-panel__head:hover {
+    color: inherit;
+  }
+{% endstylesheet %}

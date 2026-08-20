@@ -1,0 +1,84 @@
+{%- doc -%}
+  Renders an informational tag (Figma: Standart Product Page → "Gluten-Free
+  Options", used there for the Gluten-Free and Arrives gift-ready pair).
+
+  It wears the secondary button's clothes — white, a hairline purple outline, the
+  same 12px uppercase accent face — but it is not a control. Nothing happens when
+  it is clicked, and the file gives it no hover, so it renders a `<span>`. Reaching
+  for `ui-button` here would put a button in the tab order that leads nowhere and
+  invite a hover state the design does not have.
+
+  The glyph is optional and sized by the tag rather than by the file it came from,
+  so a 24px export and a 14px one both land on the drawn 14px square.
+
+  @param {string} label - The tag's text.
+  @param {string} [icon] - Icon asset name, with or without the `icon-ui-` prefix
+    and the extension: `gift`, `icon-ui-gift`, `icon-ui-gift.svg` all work.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the element.
+
+  @example
+  {% render 'ui-tag', icon: 'wheat-slash', label: 'Gluten-Free' %}
+  {% render 'ui-tag', label: 'Arrives gift-ready' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign tag_icon = icon
+  unless tag_icon contains 'icon-ui-'
+    assign tag_icon = 'icon-ui-' | append: tag_icon
+  endunless
+  unless tag_icon contains '.svg'
+    assign tag_icon = tag_icon | append: '.svg'
+  endunless
+-%}
+
+<span
+  class="ui-tag{% if class != blank %} {{ class }}{% endif %}"
+  {%- if attributes != blank %} {{ attributes }}{% endif -%}
+>
+  {%- if icon != blank -%}
+    <span class="ui-tag__icon" aria-hidden="true">{{- tag_icon | inline_asset_content -}}</span>
+  {%- endif -%}
+  <span class="ui-tag__label">{{ label }}</span>
+</span>
+
+{% stylesheet %}
+  :root {
+    --ui-tag-icon: 14px;
+    --ui-tag-font-size: 12px;
+  }
+
+  .ui-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-sizing: border-box;
+    padding: 10px 24px;
+    border-radius: var(--ui-radius-sm);
+    /* Inset rather than a border, so the tag stands exactly as tall as the
+       secondary button it sits beside. See docs/ui-kit.md. */
+    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-primary);
+    background-color: var(--ui-color-white);
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-accent);
+    font-size: var(--ui-tag-font-size);
+    font-weight: 500;
+    line-height: var(--ui-line-height);
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .ui-tag__icon {
+    display: block;
+    flex: 0 0 auto;
+    width: var(--ui-tag-icon);
+    height: var(--ui-tag-icon);
+  }
+
+  .ui-tag__icon > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+{% endstylesheet %}

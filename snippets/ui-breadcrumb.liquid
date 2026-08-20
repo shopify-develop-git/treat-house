@@ -1,0 +1,91 @@
+{%- doc -%}
+  The trail above a page's title (Figma: Standart Product Page → "Home / Gift
+  Boxes / We Miss You Deluxe Gift Box").
+
+  `links` takes anything with `.title` and `.url`, which is the shape a collection,
+  a page, a blog and an article already have — so a caller hands over the resources
+  it has rather than assembling a list of hashes Liquid makes awkward to build.
+  Home is the snippet's own and is not passed in.
+
+  The current page is the last item and carries no link: a link to where you
+  already are is a control that does nothing. It is marked `aria-current="page"`
+  so the trail still reads as a position rather than as four loose words.
+
+  @param {object[]} [links] - The steps between home and the current page.
+  @param {string} current - The current page's title.
+  @param {string} [home_label] - The first step's wording. Defaults to "Home".
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-breadcrumb', links: product.collections, current: product.title %}
+{%- enddoc -%}
+
+{%- liquid
+  # Plain English rather than a `t:` key: locales/*.json carries no breadcrumb
+  # wording, and docs/section-settings.md rules out inventing one.
+  assign crumb_home = home_label | default: 'Home'
+-%}
+
+<nav class="ui-breadcrumb{% if class != blank %} {{ class }}{% endif %}" aria-label="Breadcrumb">
+  <ol class="ui-breadcrumb__list">
+    <li class="ui-breadcrumb__item">
+      <a class="ui-breadcrumb__link" href="{{ routes.root_url }}">{{ crumb_home }}</a>
+    </li>
+    {%- for link in links -%}
+      {%- if link.title == blank or link.url == blank -%}{% continue %}{%- endif -%}
+      <li class="ui-breadcrumb__item">
+        <a class="ui-breadcrumb__link" href="{{ link.url }}">{{ link.title }}</a>
+      </li>
+    {%- endfor -%}
+    {%- if current != blank -%}
+      <li class="ui-breadcrumb__item">
+        <span class="ui-breadcrumb__current" aria-current="page">{{ current }}</span>
+      </li>
+    {%- endif -%}
+  </ol>
+</nav>
+
+{% stylesheet %}
+  .ui-breadcrumb {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-breadcrumb-font-size, 14px);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  .ui-breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    /* Column gap only: a trail that wraps should not open a gap between its lines. */
+    column-gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /*
+   * The separator is generated rather than written into the markup, so a screen
+   * reader is not read a slash between every step and the trail can wrap on it.
+   */
+  .ui-breadcrumb__item + .ui-breadcrumb__item::before {
+    content: '/';
+    margin-inline-end: 4px;
+    color: var(--ui-color-gray);
+  }
+
+  .ui-breadcrumb__link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .ui-breadcrumb__link:hover {
+    color: var(--ui-color-primary);
+    text-decoration: underline;
+  }
+
+  .ui-breadcrumb__current {
+    color: var(--ui-color-black);
+  }
+{% endstylesheet %}

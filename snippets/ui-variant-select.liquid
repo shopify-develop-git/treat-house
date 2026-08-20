@@ -7,20 +7,28 @@
   builds the pair. Built on `<details>` like the other disclosures here, so the
   open state and keyboard handling come from the theme rather than new script.
 
-  `options` takes entries read through `.label`, `.value`, `.image` and
-  `.active`, which is close enough to a product's variant list to be handed real
-  data once this is wired up.
+  `options` takes entries read through `.label`, `.value`, `.image`, `.active`,
+  `.disabled` and `.attributes`, which is close enough to a product's variant list
+  to be handed real data. `.attributes` is what carries the data attributes
+  Horizon's variant picker reads, so this control can drive a real product page
+  without either side knowing about the other — see
+  `snippets/ui-product-variant-picker.liquid`.
 
   The trigger's chevron is the 14x8 one the select field already uses, not the
   12x6 the filter and sort triggers carry — the kit draws two different chevrons
   and this is the wider of them.
 
-  @param {object[]} options - The variants to list.
+  @param {object[]} [options] - The variants to list.
+  @param {string} [rows] - Captured `ui-variant-item` markup, used instead of `options`.
+    Liquid cannot build an array of hashes, so a caller that has to put its own
+    attributes on every row hands the rows over already rendered rather than
+    teaching this snippet where they came from.
   @param {string} [label] - The trigger's text. Defaults to the chosen option.
   @param {object} [image] - The thumbnail on the trigger. Defaults to the chosen option's.
   @param {string} [name] - The `name` shared by the group's inputs.
   @param {boolean} [open] - Renders the picker already open.
   @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes for the `<details>` root.
 
   @example
   {% render 'ui-variant-select', options: variant_options, name: 'flavour' %}
@@ -51,6 +59,7 @@
   class="ui-variant-select{% if class != blank %} {{ class }}{% endif %}"
   data-auto-close-details="desktop mobile"
   {%- if open %} open{% endif -%}
+  {%- if attributes != blank %} {{ attributes }}{% endif -%}
 >
   <summary class="ui-variant-select__trigger{% if chosen_image == blank %} ui-variant-select__trigger--no-image{% endif %}">
     <span class="ui-variant-select__content">
@@ -65,6 +74,9 @@
   </summary>
 
   <div class="ui-variant-select__panel">
+    {%- if rows != blank -%}
+      {{ rows }}
+    {%- else -%}
     {%- for option in options -%}
       {%- liquid
         assign option_label = option.label | default: option
@@ -75,9 +87,12 @@
         value: option_value,
         image: option.image,
         checked: option.active,
-        name: name
+        disabled: option.disabled,
+        name: name,
+        attributes: option.attributes
       %}
     {%- endfor -%}
+    {%- endif -%}
   </div>
 </details>
 

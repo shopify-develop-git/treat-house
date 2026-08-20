@@ -17,6 +17,9 @@
   @param {boolean} [checked] - Marks this variant as chosen.
   @param {boolean} [disabled] - Disables the input.
   @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes for the input. This is how the
+    row carries the data attributes Horizon's variant picker reads, so the kit row
+    can stand in for the theme's own without either knowing about the other.
 
   @example
   {% render 'ui-variant-item', label: 'Chocolate Peanut Butter', image: variant.image, name: 'flavour' %}
@@ -39,6 +42,7 @@
     {%- if value != blank %} value="{{ value }}"{% endif -%}
     {%- if checked %} checked{% endif -%}
     {%- if disabled %} disabled{% endif -%}
+    {%- if attributes != blank %} {{ attributes }}{% endif -%}
   >
   {% render 'ui-radio' %}
 </label>
