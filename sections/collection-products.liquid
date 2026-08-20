@@ -1,0 +1,553 @@
+{% comment %}
+  Collection products (Figma: V2 Birthday Treats Occasion collection page →
+  Product Grid, 491:19972).
+
+  The filter row, the sort control, the count, the grid and the pagination. This is
+  the section that ends the note in `CLAUDE.md` about the kit's filters not
+  filtering: the components were always real inputs and real disclosures, and what
+  was missing was a form around them and a caller that hands them Shopify's facets.
+
+  **No new JavaScript.** The whole thing is a `<form method="get">` posting to the
+  collection: every choice row is a real checkbox named for its facet, Apply is a
+  real submit, and Clear all, the sort rows, the chips and the pagination are real
+  links. The open state of a group is `<details>`, and the outside click is the
+  theme's own `auto-close-details.js`. That is the same bargain the rest of the kit
+  takes, and it means the page works before the first byte of script arrives.
+
+  Two things the form has to carry that are not filters:
+
+  - **The current sort**, as a hidden field. A GET form replaces the query string
+    outright, so a shopper who sorts by price and then filters would otherwise be
+    put back on Featured without asking.
+  - **Nothing else.** An unchecked box posts nothing at all, which is exactly what a
+    facet URL wants — but an empty number field still posts its name. So the price
+    group's two fields belong to a second form through HTML's own `form` attribute,
+    and `&filter.v.price.gte=` does not ride along every time somebody ticks a box in
+    another group. That second form carries the other groups' applied values as
+    hidden fields, so setting a price keeps whatever else was on.
+
+  The sort links are built here rather than in [ui-sort-dropdown], because a sort
+  link has to keep the facets already applied and only the caller knows what those
+  are. They are reassembled from `filter.active_values` rather than read off the
+  request: Liquid is given the parsed facets and not the query string it came from.
+
+  The grid is four across at the drawn 305px, and the cards are the kit's own — the
+  same [ui-product-card] the product rows use, basket and all, so a card here and a
+  card in Best Sellers cannot drift.
+{% endcomment %}
+
+{%- liquid
+  assign products_per_page = section.settings.products_per_page
+
+  assign show_filters = section.settings.show_filters
+  if collection.filters.size == 0
+    assign show_filters = false
+  endif
+
+  # The facets already applied, rebuilt as a query fragment so a sort link can carry
+  # them. `url_to_add`/`url_to_remove` answer a different question — they each move
+  # one value — and there is no filter that gives back the current query string.
+  capture applied_params
+    for group in collection.filters
+      for value in group.active_values
+        echo '&'
+        echo value.param_name
+        echo '='
+        echo value.value | url_encode
+      endfor
+      if group.min_value.value != blank
+        echo '&'
+        echo group.min_value.param_name
+        echo '='
+        echo group.min_value.value
+      endif
+      if group.max_value.value != blank
+        echo '&'
+        echo group.max_value.param_name
+        echo '='
+        echo group.max_value.value
+      endif
+    endfor
+  endcapture
+
+  assign price_form_id = 'price-' | append: section.id
+
+  assign active_count = 0
+  for group in collection.filters
+    assign active_count = active_count | plus: group.active_values.size
+  endfor
+-%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="collection-products-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div
+    class="collection-products"
+    style="
+      --collection-products-columns: {{ section.settings.columns }};
+      --collection-products-columns-md: {{ section.settings.columns_md }};
+      --collection-products-columns-sm: {{ section.settings.columns_sm }};
+    "
+  >
+    {%- if show_filters or section.settings.show_sort -%}
+      <div class="collection-products__top">
+        <div class="collection-products__controls">
+          {%- if show_filters -%}
+            <form
+              class="collection-products__filters"
+              method="get"
+              action="{{ collection.url }}"
+            >
+              {%- comment -%}
+                A GET form throws away the query string it was loaded with, so the
+                sort has to travel inside the form or it is lost on every Apply.
+              {%- endcomment -%}
+              {%- if collection.sort_by != blank -%}
+                <input type="hidden" name="sort_by" value="{{ collection.sort_by | escape }}">
+              {%- endif -%}
+
+              <span class="collection-products__filters-label" aria-hidden="true">
+                <span class="collection-products__filters-icon">
+                  {{- 'icon-ui-sliders.svg' | inline_asset_content -}}
+                </span>
+                {{ section.settings.filters_label }}
+              </span>
+
+              {% render 'ui-filter-bar',
+                groups: collection.filters,
+                clear_link: collection.url,
+                range_prefix: cart.currency.symbol,
+                range_form_id: price_form_id,
+                class: 'collection-products__bar'
+              %}
+            </form>
+
+            {%- comment -%}
+              The price group's own form. Empty and outside the one above — a form
+              cannot nest — with the fields inside that markup pointing at it by id.
+            {%- endcomment -%}
+            <form
+              class="collection-products__price-form"
+              id="{{ price_form_id }}"
+              method="get"
+              action="{{ collection.url }}"
+            >
+              {%- if collection.sort_by != blank -%}
+                <input type="hidden" name="sort_by" value="{{ collection.sort_by | escape }}">
+              {%- endif -%}
+              {%- for group in collection.filters -%}
+                {%- if group.type == 'price_range' -%}{% continue %}{%- endif -%}
+                {%- for value in group.active_values -%}
+                  <input type="hidden" name="{{ value.param_name }}" value="{{ value.value | escape }}">
+                {%- endfor -%}
+              {%- endfor -%}
+            </form>
+          {%- endif -%}
+
+          {%- if section.settings.show_sort and collection.sort_options.size > 0 -%}
+            {%- liquid
+              assign current_sort = collection.sort_by | default: collection.default_sort_by
+              assign current_sort_label = ''
+
+              capture sort_items
+                for option in collection.sort_options
+                  assign is_active = false
+                  if option.value == current_sort
+                    assign is_active = true
+                  endif
+
+                  capture option_link
+                    echo collection.url
+                    echo '?sort_by='
+                    echo option.value
+                    echo applied_params
+                  endcapture
+
+                  render 'ui-menu-item', label: option.name, link: option_link, selected: is_active
+                endfor
+              endcapture
+
+              for option in collection.sort_options
+                if option.value == current_sort
+                  assign current_sort_label = option.name
+                  break
+                endif
+              endfor
+            -%}
+            {% render 'ui-sort-dropdown',
+              items: sort_items,
+              label: current_sort_label,
+              class: 'collection-products__sort'
+            %}
+          {%- endif -%}
+        </div>
+
+        {%- if active_count > 0 -%}
+          <div class="collection-products__applied">
+            {%- for group in collection.filters -%}
+              {%- for value in group.active_values -%}
+                {% render 'ui-filter-chip',
+                  label: value.label,
+                  remove_link: value.url_to_remove,
+                  remove_label: 'Remove filter'
+                %}
+              {%- endfor -%}
+            {%- endfor -%}
+            {% render 'ui-button', variant: 'link', label: 'Clear all', link: collection.url %}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.show_count -%}
+          <p class="collection-products__count">
+            {{- collection.products_count }}
+            {% if collection.products_count == 1 %}product{% else %}products{% endif -%}
+          </p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {% paginate collection.products by products_per_page %}
+      {%- if collection.products.size > 0 -%}
+        <ul class="collection-products__grid" role="list">
+          {%- for product in collection.products -%}
+            {%- liquid
+              assign tagline = product.metafields.custom.tagline
+              if tagline == blank
+                assign tagline = product.description | strip_html | truncatewords: 6
+              endif
+
+              assign price = product.price | money
+            -%}
+            {%- capture add_control -%}
+              {% render 'ui-product-card-add', product: product, section_id: section.id %}
+            {%- endcapture -%}
+            <li class="collection-products__item">
+              {% render 'ui-product-card',
+                title: product.title,
+                subtitle: tagline,
+                price: price,
+                image: product.featured_image,
+                link: product.url,
+                badge: product.metafields.custom.badge,
+                badge_tone: product.metafields.custom.badge_tone,
+                add_content: add_control
+              %}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <p class="collection-products__empty">
+          {{ section.settings.empty_text }}
+          {%- if active_count > 0 %}
+            {% render 'ui-button', variant: 'link', label: 'Clear all', link: collection.url %}
+          {%- endif -%}
+        </p>
+      {%- endif -%}
+
+      {%- if paginate.pages > 1 -%}
+        <nav class="collection-products__pagination" aria-label="Pagination">
+          {% render 'ui-pagination-arrow',
+            direction: 'left',
+            link: paginate.previous.url,
+            disabled: paginate.previous.is_link == false
+          %}
+          {%- for part in paginate.parts -%}
+            {%- if part.is_link -%}
+              {% render 'ui-pagination-item', label: part.title, link: part.url %}
+            {%- elsif part.title == '&hellip;' -%}
+              <span class="collection-products__ellipsis" aria-hidden="true">…</span>
+            {%- else -%}
+              {% render 'ui-pagination-item', label: part.title, current: true %}
+            {%- endif -%}
+          {%- endfor -%}
+          {% render 'ui-pagination-arrow',
+            direction: 'right',
+            link: paginate.next.url,
+            disabled: paginate.next.is_link == false
+          %}
+        </nav>
+      {%- endif -%}
+    {% endpaginate %}
+  </div>
+</div>
+
+{% stylesheet %}
+  /* Collection products. Mobile first; the drawn four columns arrive at 1200px. */
+  .collection-products {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .collection-products__top {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .collection-products__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .collection-products__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    min-inline-size: 0;
+  }
+
+  .collection-products__filters-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: var(--ui-line-height);
+    text-transform: uppercase;
+  }
+
+  .collection-products__filters-icon {
+    display: block;
+    flex: 0 0 auto;
+    inline-size: 16px;
+    block-size: 16px;
+  }
+
+  .collection-products__filters-icon > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Empty, and only here to own the price fields. */
+  .collection-products__price-form {
+    display: none;
+  }
+
+  .collection-products__applied {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /*
+   * The rule under the controls is a border on the count rather than an element of
+   * its own, so a page with nothing applied and nothing to sort does not leave a
+   * line floating over the grid.
+   */
+  .collection-products__count {
+    margin: 0;
+    padding-block-start: 24px;
+    border-block-start: 1px solid var(--ui-color-border-gray);
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  .collection-products__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--collection-products-columns-sm, 2), minmax(0, 1fr));
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .collection-products__item {
+    display: flex;
+    min-inline-size: 0;
+  }
+
+  .collection-products__item > .ui-product-card {
+    inline-size: 100%;
+  }
+
+  .collection-products__empty {
+    margin: 0;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    line-height: var(--ui-line-height);
+  }
+
+  .collection-products__pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .collection-products__ellipsis {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+  }
+
+  /*
+   * Three counts, as `CLAUDE.md` asks. The file draws four across at 1440 in a
+   * 305px card; at 750 a quarter of the page column is 157px, which is narrower
+   * than the card's own basket and price row, so the middle tier drops one.
+   */
+  @media screen and (min-width: 750px) {
+    .collection-products__grid {
+      grid-template-columns: repeat(var(--collection-products-columns-md, 3), minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    .collection-products__grid {
+      grid-template-columns: repeat(var(--collection-products-columns, 4), minmax(0, 1fr));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Collection products",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Filtering and sorting"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_filters",
+      "label": "Show the filters",
+      "info": "The groups come from the collection's own filters, set in Shopify under Search & Discovery. With none set the row hides itself.",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "filters_label",
+      "label": "Word before the filters",
+      "default": "Filters",
+      "visible_if": "{{ section.settings.show_filters }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sort",
+      "label": "Show the sort control",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_count",
+      "label": "Show how many products",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "empty_text",
+      "label": "When nothing matches",
+      "default": "No products match these filters."
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "t:settings.columns",
+      "info": "From 1200px up.",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "columns_md",
+      "label": "Columns from 750px",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "columns_sm",
+      "label": "Columns on mobile",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Products per page",
+      "min": 4,
+      "max": 48,
+      "step": 4,
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        { "value": "page-width", "label": "t:options.page" },
+        { "value": "full-width", "label": "t:options.full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection products",
+      "category": "t:categories.products"
+    }
+  ]
+}
+{% endschema %}
