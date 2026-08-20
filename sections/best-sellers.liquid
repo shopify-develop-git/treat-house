@@ -34,11 +34,78 @@
   `custom.badge_tone` for the colour — since they are editorial and change per
   product, not per section. The same goes for `custom.tagline`, which falls back to
   the start of the product's description.
+
+  Where the products come from is a setting, not a second section. `chosen` is the
+  list the merchant picks; `related` is Shopify's recommendations for the product
+  being looked at; `recently_viewed` is this visitor's own history. The file draws
+  four rows — Best Sellers, Custom Treats, Related Products, Recently Viewed — and
+  all four are this section with the settings moved, which is the rule
+  `docs/section-settings.md` §8 states for looks, applied to where the words come
+  from.
+
+  Neither answer is available on the first render: recommendations and a search both
+  need a request that carries the question. So the row renders empty and a custom
+  element around it fetches the section again with the question attached and swaps
+  what comes back — `<product-recommendations>` is Horizon's own, script and all, and
+  `<ui-recently-viewed>` is the same shape over the Search API. Putting kit markup
+  inside the theme's element rather than teaching the kit about Shopify is the
+  pattern the product page already uses.
+
+  An empty row is not filled with the onboarding cards unless a merchant is the one
+  looking at it. A shopper waiting on their own products would otherwise be shown
+  five invented ones, and `data-has-recommendations` hides the band until there is
+  something in it.
 {% endcomment %}
 
 {%- liquid
-  assign chosen = section.settings.products
+  assign source = section.settings.source
   assign card_limit = section.settings.max_products
+
+  # `related` has nothing to be related to off a product page. The second half keeps
+  # the Section Rendering request working, where the recommendations are in hand but
+  # `product` is not.
+  if source == 'related' and product == blank and recommendations.performed == false
+    assign source = 'chosen'
+  endif
+
+  case source
+    when 'related'
+      assign row = recommendations.products
+      assign row_answered = recommendations.performed
+    when 'recently_viewed'
+      assign row = search.results
+      assign row_answered = search.performed
+    else
+      assign row = section.settings.products
+      assign row_answered = true
+  endcase
+
+  # Onboarding cards stand in for an empty row only where a merchant is looking at
+  # one. Off the theme editor an unanswered row renders empty and the element around
+  # it decides whether the band shows at all.
+  assign show_onboarding = false
+  if row.size == 0
+    if source == 'chosen' or request.design_mode
+      assign show_onboarding = true
+    endif
+  endif
+
+  assign row_size = row.size
+  if show_onboarding
+    assign row_size = card_limit
+  endif
+
+  # Only once the question has been answered. Horizon hides a
+  # `product-recommendations` whose descendant says 'false', and its script waits on
+  # an IntersectionObserver — an element hidden before the answer never intersects
+  # and never asks. So before the answer there is no attribute at all.
+  assign has_row = ''
+  if row_answered
+    assign has_row = 'false'
+    if row_size > 0
+      assign has_row = 'true'
+    endif
+  endif
 
   assign onboarding_titles = 'Birthday 12-Pack,Birthday Bash Box,Birthday Party Bar,Custom Photo,Gluten Free 12-Pack' | split: ','
   assign onboarding_copy = 'Classic birthday assortment,Birthday Party in a box,Classic birthday assortment,12 Pack of Custom Birthday Treats,Gluten-Free Crispy Rice' | split: ','
@@ -47,6 +114,32 @@
   assign onboarding_tones = 'orange,yellow,purple,sky-blue,purple' | split: ','
 -%}
 
+{%- comment -%}
+  The element wraps the band as well as the row: when there is nothing to show it is
+  the whole section that has to go, not a row inside a heading.
+{%- endcomment -%}
+{%- case source -%}
+  {%- when 'related' -%}
+    <product-recommendations
+      id="best-sellers-{{ section.id }}"
+      class="best-sellers__source"
+      data-url="{{ routes.product_recommendations_url }}?limit={{ card_limit }}"
+      data-section-id="{{ section.id }}"
+      data-product-id="{{ product.id }}"
+      data-intent="related"
+      data-recommendations-performed="{{ recommendations.performed }}"
+    >
+  {%- when 'recently_viewed' -%}
+    <ui-recently-viewed
+      id="best-sellers-{{ section.id }}"
+      class="best-sellers__source"
+      data-url="{{ routes.search_url }}"
+      data-section-id="{{ section.id }}"
+      data-product-id="{{ product.id }}"
+      data-limit="{{ card_limit }}"
+      {% unless row_answered or request.design_mode %}hidden{% endunless %}
+    >
+{%- endcase -%}
 <div class="section-background color-{{ section.settings.color_scheme }} best-sellers-bg best-sellers-bg--{{ section.settings.background }}"></div>
 <div
   class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
@@ -62,36 +155,42 @@
       --best-sellers-columns-md: {{ section.settings.columns_md }};
       --best-sellers-columns-sm: {{ section.settings.columns_sm }};
     "
+    {% if has_row != blank %}data-has-recommendations="{{ has_row }}"{% endif %}
   >
     {% content_for 'block', type: '_ui-heading', id: 'heading' %}
 
     <ui-carousel class="best-sellers__viewport">
       <ul class="best-sellers__track" role="list" data-carousel-track>
-        {%- if chosen.size > 0 -%}
-          {%- for product in chosen limit: card_limit -%}
+        {%- unless show_onboarding -%}
+          {%- comment -%}
+            The card's own product, not the page's. `product` is the one being looked
+            at wherever this section stands on a product template, and a loop
+            variable of the same name would shadow it for the rest of the file.
+          {%- endcomment -%}
+          {%- for card_product in row limit: card_limit -%}
             {%- liquid
-              assign tagline = product.metafields.custom.tagline
+              assign tagline = card_product.metafields.custom.tagline
               if tagline == blank
-                assign tagline = product.description | strip_html | truncatewords: 6
+                assign tagline = card_product.description | strip_html | truncatewords: 6
               endif
 
-              # A named argument takes no filter, so `price: product.price | money`
+              # A named argument takes no filter, so `price: card_product.price | money`
               # hands the card the raw cents and says nothing about it. Format first.
-              assign price = product.price | money
+              assign price = card_product.price | money
             -%}
 
             {%- capture add_control -%}
-              {% render 'ui-product-card-add', product: product, section_id: section.id %}
+              {% render 'ui-product-card-add', product: card_product, section_id: section.id %}
             {%- endcapture -%}
-            <li class="best-sellers__item">
+            <li class="best-sellers__item" data-product-id="{{ card_product.id }}">
               {% render 'ui-product-card',
-                title: product.title,
+                title: card_product.title,
                 subtitle: tagline,
                 price: price,
-                image: product.featured_image,
-                link: product.url,
-                badge: product.metafields.custom.badge,
-                badge_tone: product.metafields.custom.badge_tone,
+                image: card_product.featured_image,
+                link: card_product.url,
+                badge: card_product.metafields.custom.badge,
+                badge_tone: card_product.metafields.custom.badge_tone,
                 add_content: add_control
               %}
             </li>
@@ -109,7 +208,7 @@
               %}
             </li>
           {%- endfor -%}
-        {%- endif -%}
+        {%- endunless -%}
       </ul>
 
       {% render 'ui-pagination-arrow',
@@ -127,10 +226,46 @@
     {% content_for 'block', type: '_ui-link', id: 'cta' %}
   </div>
 </div>
+{%- case source -%}
+  {%- when 'related' -%}
+    </product-recommendations>
+  {%- when 'recently_viewed' -%}
+    </ui-recently-viewed>
+{%- endcase -%}
 
 {% render 'ui-carousel' %}
 
+{%- case source -%}
+  {%- when 'related' -%}
+    {%- comment -%} Horizon's own component, unchanged — it fetches and swaps. {%- endcomment -%}
+    <script src="{{ 'product-recommendations.js' | asset_url }}" type="module" fetchpriority="low"></script>
+  {%- when 'recently_viewed' -%}
+    {% render 'ui-recently-viewed' %}
+{%- endcase -%}
+
 {% stylesheet %}
+  /*
+   * The element that fetches this section's own products. A block box, and left
+   * unpositioned on purpose: .section-background is absolute against the
+   * .shopify-section, and giving this a position would re-anchor the band to it.
+   */
+  .best-sellers__source {
+    display: block;
+  }
+
+  /*
+   * `display: block` above outranks the browser's own `[hidden] { display: none }`,
+   * which is where a row that is waiting on an answer would otherwise show through.
+   */
+  .best-sellers__source[hidden] {
+    display: none;
+  }
+
+  /* What Horizon's base.css already does for `product-recommendations`. */
+  ui-recently-viewed:has([data-has-recommendations='false']) {
+    display: none;
+  }
+
   /*
    * The tint goes on .section-background, not on .section. Horizon forces every
    * section transparent from base.css at a specificity of four classes, because the
@@ -341,6 +476,27 @@
   "tag": "section",
   "settings": [
     {
+      "type": "select",
+      "id": "source",
+      "label": "Products",
+      "info": "Related and Recently viewed answer per shopper, so they arrive a moment after the page and show nothing when there is nothing to show. Related needs a product page.",
+      "options": [
+        {
+          "value": "chosen",
+          "label": "The ones you pick"
+        },
+        {
+          "value": "related",
+          "label": "Related to this product"
+        },
+        {
+          "value": "recently_viewed",
+          "label": "Recently viewed by this shopper"
+        }
+      ],
+      "default": "chosen"
+    },
+    {
       "type": "header",
       "content": "Products"
     },
@@ -348,12 +504,14 @@
       "type": "product_list",
       "id": "products",
       "label": "Products",
+      "info": "Only read when the source above is \"The ones you pick\". The other two build their own list.",
       "limit": 12
     },
     {
       "type": "range",
       "id": "max_products",
       "label": "Cards to show",
+      "info": "The most the row will hold. Related and Recently viewed may have fewer.",
       "min": 2,
       "max": 12,
       "step": 1,
@@ -574,6 +732,61 @@
           "settings": {
             "label": "View all products",
             "variant": "primary"
+          }
+        }
+      }
+    },
+    {
+      "name": "Related products",
+      "category": "t:categories.products",
+      "settings": {
+        "source": "related",
+        "heading_alignment": "start",
+        "cta_position": "heading",
+        "background": "light-blue",
+        "media_ratio": "240 / 215"
+      },
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>Related Products</h2>"
+          }
+        },
+        "cta": {
+          "type": "_ui-link",
+          "static": true,
+          "settings": {
+            "label": "View all products",
+            "variant": "primary"
+          }
+        }
+      }
+    },
+    {
+      "name": "Recently viewed",
+      "category": "t:categories.products",
+      "settings": {
+        "source": "recently_viewed",
+        "heading_alignment": "center",
+        "cta_position": "below",
+        "background": "white",
+        "media_ratio": "240 / 215"
+      },
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2><em>Recently</em> Viewed</h2>"
+          }
+        },
+        "cta": {
+          "type": "_ui-link",
+          "static": true,
+          "settings": {
+            "label": ""
           }
         }
       }
