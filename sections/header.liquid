@@ -1091,6 +1091,31 @@
     margin-inline: 0;
   }
 
+  /* The theme draws these in the body colour, which is a grey, and fades whichever
+     ones are not being pointed at. The file draws them the same black as the
+     headings, all the time — a hover here changes nothing.
+
+     The fade is switched off by taking the opacity it fades to up to 1 rather than
+     by out-weighing the rule that applies it: that rule reads the variable off the
+     element it dims, so at full opacity it still runs and still does nothing. */
+  #header-component :is(
+    header-menu,
+    .search-action,
+    .header-actions__action,
+    .dropdown-localization__button,
+    .header__icon--menu
+  ) {
+    --opacity-subdued-text: 1;
+  }
+
+  #header-component
+    :is(.search-action, header-actions, .header__drawer)
+    :is(button, a, .header-actions__action, summary):not(:is(dialog, [popover]) *) {
+    --button-color: var(--color-foreground-heading);
+
+    color: var(--color-foreground-heading);
+  }
+
   #header-component header-actions {
     display: flex;
     align-items: center;
