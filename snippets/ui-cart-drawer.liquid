@@ -244,15 +244,21 @@
    * positioned, so it is out of flow and not a grid item; `inset-block-end: 0`
    * puts it on the row's own bottom edge, which is where the padding ends and the
    * margin begins — exactly where the file has it.
+   *
+   * Reached through `.cart-drawer__items` for the weight, not for the scope:
+   * Horizon strips the last row's padding and margin from
+   * `.cart-drawer__items .cart-items__table-row:last-child`, three classes, and a
+   * rule that only counted two lost to it. Every row but the last took the 24 and
+   * the last one closed up against the gift panel.
    */
-  .cart-drawer__dialog tbody .cart-items__table-row {
+  .cart-drawer__dialog .cart-drawer__items tbody .cart-items__table-row {
     position: relative;
     padding-block-end: var(--ui-cart-drawer-gutter);
     margin-block-end: var(--ui-cart-drawer-gutter);
     border-block-end: none;
   }
 
-  .cart-drawer__dialog tbody .cart-items__table-row::after {
+  .cart-drawer__dialog .cart-drawer__items tbody .cart-items__table-row::after {
     content: '';
     position: absolute;
     inset-block-end: 0;
@@ -260,7 +266,7 @@
     border-block-end: var(--ui-hairline-width) solid var(--ui-color-border-gray);
   }
 
-  .cart-drawer__dialog tbody .cart-items__table-row:last-child::after {
+  .cart-drawer__dialog .cart-drawer__items tbody .cart-items__table-row:last-child::after {
     inset-inline: 0;
   }
 
