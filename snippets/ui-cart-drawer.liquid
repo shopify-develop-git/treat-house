@@ -186,18 +186,82 @@
     padding-block-start: var(--ui-cart-drawer-gutter);
   }
 
+  /*
+   * The row as the file lays it out (491:18322): an 84px thumbnail, then one
+   * column carrying the title with the price on its line, the variant under it,
+   * and the quantity row under that with the bin at the far end.
+   *
+   * Horizon sizes the thumbnail's column proportionally, `clamp(2.5rem, 15cqi,
+   * 7.5rem)`, while the thumbnail itself is the 84 the file draws — 76 against 84
+   * in a 510 drawer, which the column gap swallowed, and 58 against 84 in a 390
+   * one, which it did not: the picture overhung its column by 25px and sat on top
+   * of the title. The column is the thumbnail's own size now, so the two cannot
+   * disagree at any width.
+   *
+   * The price moves onto the title's row rather than spanning the height of the
+   * line, and the quantity row runs to the end of the line so the bin has an end
+   * to sit at.
+   */
   .cart-drawer__dialog .cart-items__table-row {
     box-sizing: border-box;
-    gap: 16px;
+    grid-template-columns: 84px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'media details price'
+      'media quantity quantity'
+      'media error error';
+    align-items: start;
+    column-gap: 16px;
+    row-gap: 16px;
     padding-inline: var(--ui-cart-drawer-gutter);
   }
 
+  .cart-drawer__dialog .cart-items__quantity {
+    /* The row gap already spaces this off the details block. */
+    margin-block-start: 0;
+    width: 100%;
+  }
+
+  /* Stepper at one end of the line, bin at the other. */
+  .cart-drawer__dialog .cart-items__quantity-controls {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .cart-drawer__dialog .cart-items__price {
+    /* The file draws this about 50 wide. Horizon floors it at 96, which is a
+       sixth of a phone's drawer taken from the title for no reason. */
+    min-width: 0;
+  }
+
   /*
-   * The file separates the lines with a rule inset from both edges, and closes
-   * the list with one that runs the full width.
+   * The file separates the lines with a rule inset by the gutter and closes the
+   * list with one that runs edge to edge (491:18346 and 491:18371), with 24
+   * either side of both. Horizon draws a full-width rule between rows, 20 either
+   * side, and nothing at the end.
+   *
+   * Drawn on a pseudo rather than as the row's border, because a border on the
+   * row runs the row's full width and the inset one must not. Absolutely
+   * positioned, so it is out of flow and not a grid item; `inset-block-end: 0`
+   * puts it on the row's own bottom edge, which is where the padding ends and the
+   * margin begins — exactly where the file has it.
    */
-  .cart-drawer__dialog .cart-items--dividers .cart-items__table-row + .cart-items__table-row {
-    border-block-start: var(--ui-hairline-width) solid var(--ui-color-border-gray);
+  .cart-drawer__dialog tbody .cart-items__table-row {
+    position: relative;
+    padding-block-end: var(--ui-cart-drawer-gutter);
+    margin-block-end: var(--ui-cart-drawer-gutter);
+    border-block-end: none;
+  }
+
+  .cart-drawer__dialog tbody .cart-items__table-row::after {
+    content: '';
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline: var(--ui-cart-drawer-gutter);
+    border-block-end: var(--ui-hairline-width) solid var(--ui-color-border-gray);
+  }
+
+  .cart-drawer__dialog tbody .cart-items__table-row:last-child::after {
+    inset-inline: 0;
   }
 
   .cart-drawer__dialog .cart-items__media-container,
