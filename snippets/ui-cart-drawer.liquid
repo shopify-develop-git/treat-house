@@ -611,8 +611,15 @@
     line-height: 1;
   }
 
+  /*
+   * The note carries `.cart-totals__item`, which is a flex row built for the
+   * label-and-value pairs above it — so `text-align` lands on a flex item that
+   * has already been pushed to the start and does nothing. Centring is the
+   * container's job here, not the text's.
+   */
   .cart-drawer__dialog .cart-totals__tax-note,
   .cart-drawer__dialog .cart-totals__tax-note small {
+    justify-content: center;
     color: var(--ui-color-gray);
     font-family: var(--ui-font-body);
     font-size: 14px;
