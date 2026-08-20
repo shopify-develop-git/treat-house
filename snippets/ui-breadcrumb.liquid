@@ -11,7 +11,14 @@
   already are is a control that does nothing. It is marked `aria-current="page"`
   so the trail still reads as a position rather than as four loose words.
 
+  A caller that has words rather than a resource — a collection page whose parent is
+  a nav item, not another collection — hands over `parent_title` and `parent_url`
+  instead. That step is drawn after `links`, and it exists because building a
+  one-item list of hashes is the thing Liquid makes awkward.
+
   @param {object[]} [links] - The steps between home and the current page.
+  @param {string} [parent_title] - A single step written out, drawn after `links`.
+  @param {string} [parent_url] - Where that step goes. Without it the step is dropped.
   @param {string} current - The current page's title.
   @param {string} [home_label] - The first step's wording. Defaults to "Home".
   @param {string} [class] - Additional CSS classes.
@@ -37,6 +44,11 @@
         <a class="ui-breadcrumb__link" href="{{ link.url }}">{{ link.title }}</a>
       </li>
     {%- endfor -%}
+    {%- if parent_title != blank and parent_url != blank -%}
+      <li class="ui-breadcrumb__item">
+        <a class="ui-breadcrumb__link" href="{{ parent_url }}">{{ parent_title }}</a>
+      </li>
+    {%- endif -%}
     {%- if current != blank -%}
       <li class="ui-breadcrumb__item">
         <span class="ui-breadcrumb__current" aria-current="page">{{ current }}</span>
