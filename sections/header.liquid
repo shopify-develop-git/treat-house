@@ -1170,8 +1170,9 @@
   }
 
   #header-component
-    :is(.search-action, header-actions, .header__drawer)
-    :is(button, a, .header-actions__action, summary):not(:is(dialog, [popover]) *) {
+    :is(.search-action, header-actions, .header__icon--summary)
+    :is(button, a, .header-actions__action, summary):not(:is(dialog, [popover]) *),
+  #header-component .header__icon--summary {
     --button-color: var(--color-foreground-heading);
 
     color: var(--color-foreground-heading);
@@ -1185,9 +1186,14 @@
 
   /* Reached past anything inside a dialog or a popover: the cart drawer and the
      account panel live inside these same elements and have their own close buttons,
-     which are not header icons and must keep the size they were given. */
+     which are not header icons and must keep the size they were given.
+
+     `.header__drawer` is deliberately not in this list. It is not an icon — it is
+     the whole drawer, trigger and menu together — so sizing `a, button` inside it
+     sizes every row of the navigation to 24px. Its trigger gets its own rule below,
+     which is the only part of it that is an icon. */
   #header-component
-    :is(.search-action, header-actions, .header__drawer)
+    :is(.search-action, header-actions)
     :is(button, a, .header-actions__action):not(:is(dialog, [popover]) *) {
     box-sizing: content-box;
     width: var(--th-icon-size);
@@ -1228,7 +1234,12 @@
     min-height: 0;
   }
 
-  #header-component.header .header__drawer :is(button, summary):not(:is(dialog, [popover]) *) {
+  /* Only the trigger. `.header__drawer` wraps the whole drawer, so a rule aimed at
+     `button, summary` inside it also lands on every row of the menu the drawer
+     opens — each one a `<summary>` — and squares them all to the touch target.
+     That is what shipped: a 44px sky-blue tile per menu item, with the label set
+     one letter per line inside it. */
+  #header-component.header .header__drawer .header__icon--summary {
     display: grid;
     place-items: center;
     box-sizing: border-box;
@@ -1241,8 +1252,8 @@
 
   /* The theme sizes the wrapper here rather than the glyph, so setting the svg on its
      own leaves it boxed into whatever the wrapper was given. Both, then. */
-  #header-component.header .header__drawer :is(.header-drawer-icon, .svg-wrapper),
-  #header-component.header .header__drawer .svg-wrapper > svg {
+  #header-component.header .header__drawer .header__icon--summary :is(.header-drawer-icon, .svg-wrapper),
+  #header-component.header .header__drawer .header__icon--summary .svg-wrapper > svg {
     width: var(--th-burger-size);
     height: var(--th-burger-size);
   }

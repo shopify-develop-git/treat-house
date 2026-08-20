@@ -1045,6 +1045,95 @@
       list-style: none;
     }
   }
+
+  /* ------------------------------------------------------------------
+     The drawer.
+
+     No mobile menu is drawn in the file — the only mobile header there is the
+     closed one — so this takes its language from the two things that are drawn:
+     the mega menu panel, which sets a group heading in Merienda purple with its
+     neighbour in orange and the links under it in Nunito, and the mobile header,
+     whose margin is 16px.
+
+     Horizon's own three-level behaviour is left alone. It slides a panel in per
+     top-level item and stacks the groups inside it, which is the right shape for
+     this menu; what it gets wrong is only the type and the margin.
+     ------------------------------------------------------------------ */
+
+  /* Line the rows up with the logo above them — 16px, the phone's page margin.
+
+     Written out rather than taken from `--ui-page-margin`, which is the page
+     gutter and steps to 40px at 750. The drawer is a panel of its own and stops
+     growing at 25rem there, so the gutter would put 40px each side of a 400px
+     panel and indent the navigation for no reason: the window it is measured
+     against is not the box these rows are in. */
+  #header-component .menu-drawer__menu {
+    padding-inline: 16px;
+  }
+
+  /* The file draws navigation in the heading black, never the body grey, and a
+     row is the same height whether or not it opens anything — Horizon gives the
+     ones that do 64px and the ones that do not 56, which reads as a mistake. */
+  #header-component .menu-drawer__menu-item {
+    box-sizing: border-box;
+    min-height: 48px;
+    padding-block: 0;
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: 1.3;
+    color: var(--color-foreground-heading);
+  }
+
+  /* A group heading inside a panel — "By Format", "Gifting & More". Same face,
+     size and colours as the column headings the mega menu draws, including the
+     orange every second one takes: stacked or side by side, that alternation is
+     what separates one group from the next without a rule between them. */
+  #header-component .menu-drawer__menu-item--parent {
+    min-height: 0;
+    margin-block-start: 8px;
+    font-family: var(--font-heading--family);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--ui-color-primary);
+  }
+
+  #header-component
+    .menu-drawer__menu--childlist
+    > .menu-drawer__list-item:nth-child(even)
+    .menu-drawer__menu-item--parent {
+    color: var(--ui-color-orange);
+  }
+
+  #header-component .menu-drawer__menu-item--child {
+    min-height: 40px;
+    font-size: 14px;
+  }
+
+  /* The caret is what makes a row that opens something 8px taller than one that
+     does not: it is a 24px glyph in 16px of vertical padding, which outgrows the
+     48px the row is set to. Its touch target is the whole row anyway — the
+     `<summary>` around it — so the padding here is decoration, not reach. */
+  #header-component .menu-drawer__menu-item > .icon-caret {
+    padding-block: 12px;
+  }
+
+  /* The panel names itself down its own top edge, the way the mega menu names
+     itself down its left one. It is the back control as well, so the caret keeps
+     the colour of the word beside it. */
+  #header-component .menu-drawer__back-button .menu-drawer__menu-item-text {
+    font-family: var(--font-heading--family);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--ui-color-primary);
+  }
+
+  #header-component .menu-drawer__back-button .icon-caret {
+    color: var(--ui-color-primary);
+  }
+
 {% endstylesheet %}
 
 {% schema %}
