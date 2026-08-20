@@ -12,10 +12,20 @@
 
   The field is the kit's own, wearing the hooks set on the card below. A field on
   a purple band is the same control in different clothes, not a second snippet.
+
+  The same card does the occasion pages' "Want something more personal?" band: the
+  file draws it light blue with a button where the signup goes, and everything else
+  — the inset, the radius, the star, the centred copy — is identical. So `background`
+  and `action` are settings rather than a second section that would drift from this
+  one. Read `docs/section-settings.md` §8.
+
+  The inverted field hooks belong to the purple card only. On the light one the
+  kit's own field is already right, and a white field on light blue is a field
+  nobody can see.
 {% endcomment %}
 
 <div
-  class="newsletter"
+  class="newsletter newsletter--on-{{ section.settings.background }} newsletter--{{ section.settings.action }}"
   style="
     --newsletter-block-padding: {{ section.settings.vertical_padding_mobile }}px;
     --newsletter-block-padding-desktop: {{ section.settings.vertical_padding }}px;
@@ -34,7 +44,11 @@
           {% content_for 'blocks' %}
         </div>
 
-        {% content_for 'block', type: '_ui-newsletter-form', id: 'signup' %}
+        {%- if section.settings.action == 'button' -%}
+          {% content_for 'block', type: '_ui-link', id: 'cta' %}
+        {%- else -%}
+          {% content_for 'block', type: '_ui-newsletter-form', id: 'signup' %}
+        {%- endif -%}
       </div>
     </div>
   </div>
@@ -61,6 +75,25 @@
   }
 
   .newsletter__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    gap: 48px;
+    padding-block: 32px var(--newsletter-card-padding-end);
+    padding-inline: var(--newsletter-card-padding-inline);
+    border-radius: var(--newsletter-radius);
+    background-color: var(--newsletter-card-background, var(--ui-color-primary));
+  }
+
+  .newsletter--on-light-blue {
+    --newsletter-card-background: var(--ui-color-light-blue);
+    --newsletter-sparkle-color: var(--ui-color-primary);
+    --newsletter-heading-color: var(--ui-color-black);
+    --newsletter-text-color: var(--ui-color-gray);
+  }
+
+  .newsletter--on-purple .newsletter__card {
     /*
      * The kit's field, inverted. Every one of these is a hook `ui-input` already
      * reads with its own figure behind it, so the control is the same component
@@ -78,16 +111,6 @@
     --ui-input-padding-inline: 16px;
     --ui-newsletter-form-message-color: var(--ui-color-white);
     --ui-newsletter-form-error-color: var(--ui-color-sky-blue);
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box;
-    gap: 48px;
-    padding-block: 32px var(--newsletter-card-padding-end);
-    padding-inline: var(--newsletter-card-padding-inline);
-    border-radius: var(--newsletter-radius);
-    background-color: var(--ui-color-primary);
   }
 
   .newsletter__sparkle {
@@ -95,7 +118,7 @@
     flex: 0 0 auto;
     width: 24px;
     height: 24px;
-    color: var(--ui-color-white);
+    color: var(--newsletter-sparkle-color, var(--ui-color-white));
   }
 
   .newsletter__sparkle > svg {
@@ -112,12 +135,21 @@
     width: 100%;
 
     /* The column the file gives the copy on the widest frame it draws. */
-    max-width: 634px;
+    max-width: var(--newsletter-content-width, 634px);
+  }
+
+  /*
+   * The call-out is drawn a little wider than the signup — 738 against 634 — because
+   * its headline is one line and at 48px it does not fit in the narrower column. The
+   * signup keeps its own width: its heading is a single word.
+   */
+  .newsletter--button {
+    --newsletter-content-width: 738px;
   }
 
   .newsletter__text {
-    --ui-heading-color: var(--ui-color-white);
-    --ui-text-color: var(--ui-color-white);
+    --ui-heading-color: var(--newsletter-heading-color, var(--ui-color-white));
+    --ui-text-color: var(--newsletter-text-color, var(--ui-color-white));
     --ui-text-max-width: 300px;
 
     display: flex;
@@ -164,7 +196,7 @@
    * Weighed one class heavier than the kit's rule, which is `:not()` and `:is()`
    * deep, so this does not come down to stylesheet order.
    */
-  .newsletter__card .ui-button--secondary:not(:disabled, [aria-disabled='true']):is(:hover, :focus-visible) {
+  .newsletter--on-purple .ui-button--secondary:not(:disabled, [aria-disabled='true']):is(:hover, :focus-visible) {
     --ui-button-background: var(--ui-color-sky-blue);
     --ui-button-color: var(--ui-color-primary);
     --ui-button-border-color: var(--ui-color-sky-blue);
@@ -176,10 +208,51 @@
   "name": "Newsletter",
   "tag": "section",
   "blocks": [
-    { "type": "_ui-heading" },
-    { "type": "_ui-text" }
+    {
+      "type": "_ui-heading"
+    },
+    {
+      "type": "_ui-text"
+    }
   ],
   "settings": [
+    {
+      "type": "select",
+      "id": "action",
+      "label": "What the card ends with",
+      "options": [
+        {
+          "value": "form",
+          "label": "An email signup"
+        },
+        {
+          "value": "button",
+          "label": "A button"
+        }
+      ],
+      "default": "form"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Card color",
+      "info": "The light card takes the kit's ordinary field and dark copy; the purple one inverts both.",
+      "options": [
+        {
+          "value": "purple",
+          "label": "Purple"
+        },
+        {
+          "value": "light-blue",
+          "label": "Light blue"
+        }
+      ],
+      "default": "purple"
+    },
     {
       "type": "header",
       "content": "t:content.padding"
@@ -229,7 +302,48 @@
           "static": true
         }
       },
-      "block_order": ["heading", "body"]
+      "block_order": [
+        "heading",
+        "body"
+      ]
+    },
+    {
+      "name": "Call-out with a button",
+      "category": "t:categories.storytelling",
+      "settings": {
+        "action": "button",
+        "background": "light-blue"
+      },
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Want something more personal?</h2>",
+            "max_width": 800
+          }
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Design your own box — pick flavors, packaging, and add a gift message.</p>",
+            "text_size": 14,
+            "text_size_mobile": 14,
+            "max_width": 600
+          }
+        },
+        "cta": {
+          "type": "_ui-link",
+          "static": true,
+          "settings": {
+            "label": "Customize your box",
+            "variant": "primary"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "body"
+      ]
     }
   ]
 }
