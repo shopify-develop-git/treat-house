@@ -624,19 +624,64 @@
     margin-inline-start: calc(var(--gap-md) * -1);
   }
 
+  /*
+   * The count disc.
+   *
+   * It is anchored to the glyph, not to the box around it, because those are two
+   * different sizes here. `.svg-wrapper` is `--button-size` wide so a thumb has
+   * something to hit, and the drawn icon is 20px inside it; the disc used to be
+   * placed against the 44px box, which put it ten pixels clear of the cart it is
+   * meant to be counting. Measuring from the centre gets it onto the glyph's own
+   * top-right corner whatever the tap target does.
+   *
+   * The glyph size is `--th-icon-size`, which `sections/header.liquid` sets on
+   * `#header-component` and steps from 24px down to 20px at 1050px. Read it rather
+   * than retyping it: written out as a number here, the disc lands two pixels
+   * inside the corner on every phone.
+   */
   .header-actions__cart-icon {
-    --cart-bubble-size: 20px;
-    --cart-bubble-top: 4.5px;
-    --cart-bubble-right: 2.5px;
+    --cart-bubble-size: 16px;
+    --cart-icon-glyph: var(--th-icon-size, 20px);
 
     position: relative;
   }
 
   .header-actions__cart-icon .cart-bubble {
     position: absolute;
-    width: var(--cart-bubble-size, 20px);
-    top: var(--cart-bubble-top);
-    right: var(--cart-bubble-right);
+    inset-inline-start: calc(50% + var(--cart-icon-glyph) / 2 - var(--cart-bubble-size) / 2);
+    inset-block-start: calc(50% - var(--cart-icon-glyph) / 2 - var(--cart-bubble-size) / 2);
+    inset-inline-end: auto;
+
+    /* Two digits widen it rightwards, away from the glyph; one keeps it round. */
+    block-size: var(--cart-bubble-size);
+    inline-size: auto;
+    min-inline-size: var(--cart-bubble-size);
+    aspect-ratio: auto;
+    padding-inline: 4px;
+  }
+
+  .header-actions__cart-icon .cart-bubble__background {
+    border-radius: 999px;
+    background-color: var(--ui-color-primary);
+  }
+
+  .header-actions__cart-icon .cart-bubble__text {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ui-color-white);
+  }
+
+  /*
+   * The disc hangs over the corner of a box that clips: `.button-unstyled` is
+   * `overflow: hidden` in base.css, and the header's action buttons are that
+   * class. Nothing in a header icon needs clipping, and with it on, half the disc
+   * was simply cut off — the more so because these buttons are narrower than the
+   * icons they hold. `header-actions` is handed the width the file draws the row
+   * at, which is the pitch of the icons rather than the sum of their tap targets,
+   * so every one of them already overflows its own button by 12px a side.
+   */
+  .header-actions__action {
+    overflow: visible;
   }
 
   .cart-drawer__heading .cart-bubble {
@@ -657,12 +702,15 @@
     font-weight: var(--font-paragraph--weight);
   }
 
+  /* A hole punched in the glyph so the disc reads as sitting on top of it rather
+     than merging into it. Aimed at the glyph's own top-right corner, which is
+     where the disc is centred, and in the glyph's coordinates — the old one was
+     measured in the 44px box while the disc was placed in another, so the two
+     never lined up. */
   .header-actions__cart-icon.header-actions__cart-icon--has-cart svg {
-    /* Create donut mask where the cart bubble sits */
     mask: radial-gradient(
-      calc(var(--cart-bubble-size) + 2px) at calc(100% - var(--cart-bubble-right)) var(--cart-bubble-top),
-      transparent 45.45%,
-      #fff 45.45%,
+      circle calc(var(--cart-bubble-size) / 2 + 2px) at 100% 0,
+      transparent 99%,
       #fff 100%
     );
   }
@@ -689,15 +737,15 @@
     animation: move-and-fade var(--animation-speed) var(--animation-easing);
   }
 
+  /* Past the hundredth item the count is not printed, and the disc becomes a
+     plain dot. The corner it sits on is worked out the same way, so this is only
+     a size. */
   cart-icon:has(.cart-bubble__text-count:empty) {
     --cart-bubble-size: 10px;
-    --cart-bubble-top: 9px;
-    --cart-bubble-right: 9px;
+  }
 
-    .svg-wrapper {
-      --cart-bubble-top: 4px;
-      --cart-bubble-right: 4px;
-    }
+  .header-actions__cart-icon:has(.cart-bubble__text-count:empty) .cart-bubble {
+    padding-inline: 0;
   }
 
   @media screen and (prefers-reduced-motion: no-preference) {
