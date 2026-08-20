@@ -23,6 +23,9 @@
   assign copy = block.settings.text
   if block.settings.source == 'product_description'
     assign copy = closest.product.description
+  elsif block.settings.source == 'collection_description'
+    assign source_collection = closest.collection | default: collection
+    assign copy = source_collection.description
   endif
 -%}
 
@@ -96,6 +99,10 @@
         {
           "value": "product_description",
           "label": "The product's description"
+        },
+        {
+          "value": "collection_description",
+          "label": "The collection's description"
         }
       ],
       "default": "custom"

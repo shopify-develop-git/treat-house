@@ -21,6 +21,10 @@
   comes from the `custom.title_accent` metafield — the words to draw in purple,
   written out as they appear in the title — which is the same bargain the richtext
   `<em>` strikes, moved to where a per-product value can live.
+
+  A collection reads the same way. `collection_title` takes `collection.title` and
+  its accent from the collection's own `custom.title_accent`, which is what lets one
+  collection template carry eight occasion pages that each name themselves.
 {%- enddoc -%}
 
 {%- liquid
@@ -29,18 +33,24 @@
 
   assign heading_html = block.settings.heading
 
+  assign source_resource = nil
   if block.settings.source == 'product_title'
-    assign source_product = closest.product
+    assign source_resource = closest.product
+  elsif block.settings.source == 'collection_title'
+    assign source_resource = closest.collection | default: collection
+  endif
+
+  if source_resource != nil
     assign heading_tag = block.settings.heading_tag | default: 'h1'
 
-    assign accent = source_product.metafields.custom.title_accent.value
+    assign accent = source_resource.metafields.custom.title_accent.value
     if accent == blank
-      assign accent = source_product.metafields.custom.title_accent
+      assign accent = source_resource.metafields.custom.title_accent
     endif
 
     # Escaped before the accent is marked, so the `<em>` this adds is the only
     # markup in the string and a title containing an ampersand still prints as one.
-    assign title_text = source_product.title | escape
+    assign title_text = source_resource.title | escape
     assign accent_text = accent | escape
 
     if accent_text != blank and title_text contains accent_text
@@ -136,10 +146,14 @@
         {
           "value": "product_title",
           "label": "The product's title"
+        },
+        {
+          "value": "collection_title",
+          "label": "The collection's title"
         }
       ],
       "default": "custom",
-      "info": "On a product page, the title can carry an accent through the product's custom.title_accent metafield \u2014 the words to draw in purple, spelled as they appear in the title."
+      "info": "On a product or collection page the title can carry an accent through that resource's custom.title_accent metafield — the words to draw in purple, spelled as they appear in the title."
     },
     {
       "type": "richtext",
@@ -168,7 +182,7 @@
         }
       ],
       "default": "h1",
-      "visible_if": "{{ block.settings.source == 'product_title' }}"
+      "visible_if": "{{ block.settings.source != 'custom' }}"
     },
     {
       "type": "range",
