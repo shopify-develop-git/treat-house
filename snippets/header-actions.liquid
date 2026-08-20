@@ -125,7 +125,7 @@
           aria-label="{{ 'actions.close_dialog' | t }}"
         >
           <span class="svg-wrapper">
-            {{- 'icon-close.svg' | inline_asset_content -}}
+            {{- 'icon-ui-close-lg.svg' | inline_asset_content -}}
           </span>
         </button>
       </div>
@@ -134,11 +134,20 @@
         class="cart-drawer__content"
         aria-label="{{ 'accessibility.cart' | t }}"
       >
+        {%- liquid
+          assign empty_text = 'content.your_cart_is_empty' | t
+          assign empty_lead = 'content.your_cart' | t
+          assign empty_rest = empty_text | remove_first: empty_lead | strip
+        -%}
         <h2
-          class="cart-drawer__heading h4 cart-drawer__heading--empty"
+          class="cart-drawer__heading cart-drawer__heading--empty"
           id="cart-drawer-heading-empty"
         >
-          {{ 'content.your_cart_is_empty' | t }}
+          {%- if empty_rest == empty_text -%}
+            {{ empty_text }}
+          {%- else -%}
+            <span class="ui-cart-drawer__count">{{ empty_lead }}</span> {{ empty_rest }}
+          {%- endif -%}
         </h2>
 
         <div class="cart-drawer__items">
@@ -191,12 +200,21 @@
                 class="cart-drawer__header"
                 id="cart-drawer-header"
               >
+                {%- liquid
+                  # The file colours everything after the first word. Splitting the
+                  # translated string keeps that true in a language we did not write.
+                  assign cart_title = 'content.your_cart' | t
+                  assign title_first = cart_title | split: ' ' | first
+                  assign title_rest = cart_title | remove_first: title_first | strip
+                -%}
                 <h2
-                  class="cart-drawer__heading h4"
+                  class="cart-drawer__heading"
                   id="cart-drawer-heading"
                 >
-                  {{ 'content.cart_title' | t }}
-                  {% render 'cart-bubble' %}
+                  {{ title_first }}
+                  <span class="ui-cart-drawer__count">
+                    {{- title_rest }} ({{ cart.item_count -}})
+                  </span>
                 </h2>
 
                 <button
@@ -206,7 +224,7 @@
                   aria-label="{{ 'actions.close_dialog' | t }}"
                 >
                   <span class="svg-wrapper">
-                    {{- 'icon-close.svg' | inline_asset_content -}}
+                    {{- 'icon-ui-close-lg.svg' | inline_asset_content -}}
                   </span>
                 </button>
               </div>
@@ -220,11 +238,13 @@
                   class="cart-drawer__items"
                 >
                   {% render 'cart-products', drawer_context: 'drawer' %}
+                  {% render 'ui-cart-drawer', part: 'gift' %}
                 </scroll-hint>
 
                 <div
                   class="cart-drawer__summary"
                 >
+                  {% render 'ui-cart-drawer', part: 'shipping' %}
                   {% render 'cart-summary', section_id: section.id %}
                 </div>
               </scroll-hint>

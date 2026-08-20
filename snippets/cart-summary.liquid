@@ -228,7 +228,7 @@
       class="cart-totals__item cart-totals__total"
       role="status"
     >
-      <span class="cart-totals__total-label cart-primary-typography">{{ 'content.cart_estimated_total' | t }}</span>
+      <span class="cart-totals__total-label cart-primary-typography">{{ 'content.cart_subtotal' | t }}</span>
       <text-component
         ref="cartTotal"
         value="{{ total_price | strip_html }}"
@@ -266,6 +266,12 @@
   >
     <span class="button-text">
       {{ 'content.checkout' | t }}
+      {%- comment -%}
+        The file puts the amount on the button. It is hidden everywhere but the
+        drawer, and hidden from assistive technology there, because the same
+        figure is announced by the total directly above it.
+      {%- endcomment -%}
+      <span class="cart__checkout-total" aria-hidden="true"> — {{ total_price }}</span>
     </span>
   </button>
 

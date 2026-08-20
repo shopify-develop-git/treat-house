@@ -1,0 +1,568 @@
+{%- doc -%}
+  The two panels the cart drawer adds to Horizon's own, and the drawer's whole
+  repaint (Figma: 491:17848 — V2).
+
+  Rendered twice from `header-actions.liquid`, once per part, because the file
+  puts them in different places and they behave differently: the gift note
+  scrolls away with the items, the shipping panel is pinned above the total with
+  it. The stylesheet is emitted once however many times the snippet is rendered.
+
+  The note is Shopify's own cart note, not a line property. The file draws one
+  message for the order — "printed on our signature card" — and the note is both
+  what the design calls it and where a packer already looks on the order. It also
+  means the whole thing runs on Horizon's `cart-note.js`: no new script, and a
+  visitor with no JavaScript still posts it with the cart form.
+
+  @param {string} part - `gift` or `shipping`.
+
+  @example
+  {% render 'ui-cart-drawer', part: 'gift' %}
+{%- enddoc -%}
+
+{%- if part == 'gift' and settings.show_cart_gift_note -%}
+  <script src="{{ 'cart-note.js' | asset_url }}" type="module" fetchpriority="low"></script>
+
+  {%- liquid
+    assign gift_heading = settings.cart_gift_note_heading | default: 'Gift message'
+    assign gift_copy = settings.cart_gift_note_copy
+    assign gift_button = settings.cart_gift_note_button | default: 'Add gift message'
+  -%}
+
+  <cart-note class="ui-gift-note">
+    <details class="ui-gift-note__details"{% if cart.note != blank %} open{% endif %}>
+      <summary class="ui-gift-note__toggle ui-button ui-button--secondary">
+        {{- gift_button -}}
+      </summary>
+
+      <div class="ui-gift-note__field">
+        {% render 'ui-message',
+          label: gift_heading,
+          value: cart.note,
+          name: 'note',
+          id: 'cart-gift-note',
+          placeholder: 'Write your message here...',
+          attributes: 'form="cart-form" on:input="/updateCartNote"'
+        %}
+      </div>
+    </details>
+
+    <p class="ui-gift-note__heading">
+      <span class="ui-gift-note__icon" aria-hidden="true">
+        {{- 'icon-ui-envelope.svg' | inline_asset_content -}}
+      </span>
+      {{ gift_heading }}
+    </p>
+
+    {%- if gift_copy != blank -%}
+      <p class="ui-gift-note__copy">{{ gift_copy }}</p>
+    {%- endif -%}
+  </cart-note>
+{%- endif -%}
+
+{%- if part == 'shipping' and settings.show_cart_shipping_estimate -%}
+  {%- liquid
+    assign min_days = settings.cart_delivery_min_days | default: 3
+    assign max_days = settings.cart_delivery_max_days | default: 5
+    assign now_seconds = 'now' | date: '%s'
+    assign from_date = min_days | times: 86400 | plus: now_seconds | date: '%b %-d'
+    assign to_date = max_days | times: 86400 | plus: now_seconds | date: '%b %-d'
+  -%}
+
+  <div class="ui-cart-shipping">
+    <p class="ui-cart-shipping__heading">
+      <span class="ui-cart-shipping__icon" aria-hidden="true">
+        {{- 'icon-ui-truck.svg' | inline_asset_content -}}
+      </span>
+      Estimated shipping
+    </p>
+
+    {%- if settings.cart_shipping_from != blank -%}
+      <p class="ui-cart-shipping__row">
+        <span class="ui-cart-shipping__label">Ships from</span>
+        <span class="ui-cart-shipping__value">{{ settings.cart_shipping_from }}</span>
+      </p>
+    {%- endif -%}
+
+    <p class="ui-cart-shipping__row">
+      <span class="ui-cart-shipping__label">Estimated delivery</span>
+      <span class="ui-cart-shipping__value">{{ from_date }} – {{ to_date }}</span>
+    </p>
+
+    {%- if settings.cart_shipping_method != blank -%}
+      <p class="ui-cart-shipping__row">
+        <span class="ui-cart-shipping__label">Shipping method</span>
+        <span class="ui-cart-shipping__value">{{ settings.cart_shipping_method }}</span>
+      </p>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  /*
+   * The cart drawer, repainted. Everything here is scoped to the dialog, so
+   * Horizon's cart page keeps its own look until that design arrives, and the
+   * trigger button outside the dialog stays the header's business.
+   */
+  .cart-drawer__dialog {
+    --ui-cart-drawer-gutter: 24px;
+
+    /* The file draws the panel 510 wide; a narrow phone takes the whole screen. */
+    width: min(510px, 100vw);
+    max-width: 100vw;
+    padding-block-end: var(--ui-cart-drawer-gutter);
+    background-color: var(--ui-color-white);
+  }
+
+  /* ---------- Header ---------- */
+
+  .cart-drawer__dialog .cart-drawer__header {
+    box-sizing: border-box;
+    padding: var(--ui-cart-drawer-gutter);
+    border-block-end: var(--ui-hairline-width) solid var(--ui-color-border-gray);
+  }
+
+  .cart-drawer__dialog .cart-drawer__heading {
+    margin: 0;
+    color: var(--ui-color-black);
+    font-family: var(--font-heading--family);
+    font-size: 30px;
+
+    /* The file sets this one at 700, not the 800 the page headings take. */
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  /* "Your" stays black and the rest of the line is the brand colour. */
+  .cart-drawer__dialog .cart-drawer__heading .ui-cart-drawer__count,
+  .cart-drawer__dialog .cart-drawer__heading em {
+    color: var(--ui-color-primary);
+    font-style: normal;
+  }
+
+  .cart-drawer__dialog .cart-drawer__close-button {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    color: var(--ui-color-primary);
+  }
+
+  .cart-drawer__dialog .cart-drawer__close-button svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /*
+   * Horizon pads the two scroll containers and the file pads the things inside
+   * them. Both is double. The containers give theirs up so the gutter has one
+   * source, and every child below sets its own.
+   */
+  .cart-drawer__dialog .cart-drawer__items,
+  .cart-drawer__dialog .cart-drawer__summary {
+    padding-inline: 0;
+  }
+
+  /* ---------- Lines ---------- */
+
+  .cart-drawer__dialog .cart-items__table-row {
+    box-sizing: border-box;
+    gap: 16px;
+    padding-inline: var(--ui-cart-drawer-gutter);
+  }
+
+  /*
+   * The file separates the lines with a rule inset from both edges, and closes
+   * the list with one that runs the full width.
+   */
+  .cart-drawer__dialog .cart-items--dividers .cart-items__table-row + .cart-items__table-row {
+    border-block-start: var(--ui-hairline-width) solid var(--ui-color-border-gray);
+  }
+
+  .cart-drawer__dialog .cart-items__media-container,
+  .cart-drawer__dialog .cart-items__media {
+    width: 84px;
+    height: 84px;
+    border-radius: 10px;
+  }
+
+  .cart-drawer__dialog .cart-items__media {
+    box-sizing: border-box;
+    border: 1px solid var(--ui-color-light-blue);
+    overflow: hidden;
+  }
+
+  .cart-drawer__dialog .cart-items__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cart-drawer__dialog .cart-items__title {
+    color: var(--ui-color-black);
+    font-family: var(--font-heading--family);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .cart-drawer__dialog .cart-items__price {
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .cart-drawer__dialog .cart-items__variants,
+  .cart-drawer__dialog .cart-items__properties {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: 1.1;
+  }
+
+  /*
+   * The file sets the value in the medium cut. The theme carries Nunito at 400
+   * and 700 only, so a browser resolves 500 down to 400 rather than faking a
+   * weight — which is the right failure, and becomes the drawn weight the day
+   * the face is added.
+   */
+  .cart-drawer__dialog .cart-items__variant {
+    color: var(--ui-color-black);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  /*
+   * The line's quantity control is Horizon's own, not the kit's stepper — the
+   * cart form and its section rendering hang off it, so it is restyled to the
+   * 24px trio the file draws rather than swapped for the component.
+   */
+  .cart-drawer__dialog .quantity-selector {
+    /*
+     * The theme sizes this control through its own variable, so the width is set
+     * by moving that rather than by out-weighing the rule that reads it.
+     */
+    --quantity-selector-width: 72px;
+
+    width: var(--quantity-selector-width);
+    height: 24px;
+    min-height: 0;
+    padding: 0;
+    gap: 0;
+    border: var(--ui-hairline-width) solid var(--ui-color-black);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
+  }
+
+  .cart-drawer__dialog .quantity-selector button {
+    width: 24px;
+    min-width: 0;
+    height: 24px;
+    min-height: 0;
+    padding: 0;
+    color: var(--ui-color-black);
+  }
+
+  .cart-drawer__dialog .quantity-selector button svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .cart-drawer__dialog .quantity-selector input {
+    width: 24px;
+    min-width: 0;
+    height: 24px;
+    padding: 0;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-emphasis);
+    font-size: 10px;
+    font-weight: var(--ui-font-emphasis-weight);
+    letter-spacing: -0.1px;
+    text-align: center;
+  }
+
+  /*
+   * Horizon prints the price twice on a line: once beside the title and once
+   * under the variant. The file shows it once.
+   */
+  .cart-drawer__dialog .cart-items__price-unit {
+    display: none;
+  }
+
+  .cart-drawer__dialog .cart-items__remove {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    color: var(--ui-color-primary);
+  }
+
+  .cart-drawer__dialog .cart-items__remove svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ---------- Gift note ---------- */
+
+  .ui-gift-note {
+    display: grid;
+    grid-template-areas:
+      'heading button'
+      'copy    button';
+    align-items: center;
+    box-sizing: border-box;
+    column-gap: 16px;
+    margin-inline: var(--ui-cart-drawer-gutter);
+    padding: 14px;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .ui-gift-note__heading {
+    grid-area: heading;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0 0 6px;
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: var(--font-accent--weight-semibold, 600);
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .ui-gift-note__icon {
+    display: block;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+  }
+
+  .ui-gift-note__icon > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ui-gift-note__copy {
+    grid-area: copy;
+    margin: 0;
+    max-inline-size: 192px;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: 1.1;
+  }
+
+  /*
+   * The details element carries the button and the field, so the two are one
+   * control rather than a button that has to find a box to open.
+   */
+  .ui-gift-note__details {
+    grid-area: button;
+    justify-self: end;
+  }
+
+  .ui-gift-note__details[open] {
+    grid-area: 2 / 1 / 3 / 3;
+    justify-self: stretch;
+    margin-block-start: 10px;
+  }
+
+  .ui-gift-note__details[open] .ui-gift-note__toggle {
+    display: none;
+  }
+
+  /*
+   * The summary wears the kit's button classes, so the look is the component's
+   * rather than a second copy of it. Reached through the block as well, because
+   * base.css colours `summary:hover` directly at one element and one class —
+   * which would outweigh the kit's own `color` declaration.
+   */
+  .ui-gift-note summary.ui-button {
+    width: 176px;
+    max-width: 100%;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .ui-gift-note summary.ui-button::-webkit-details-marker {
+    display: none;
+  }
+
+  .ui-gift-note summary.ui-button:hover {
+    color: var(--ui-button-color);
+  }
+
+  /* ---------- Estimated shipping ---------- */
+
+  .ui-cart-shipping {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    gap: 10px;
+    margin-inline: var(--ui-cart-drawer-gutter);
+    padding: 12px 16px;
+    border: 1px solid var(--ui-color-light-blue);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
+  }
+
+  .ui-cart-shipping__heading {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: var(--font-accent--weight-semibold, 600);
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .ui-cart-shipping__icon {
+    display: block;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+  }
+
+  .ui-cart-shipping__icon > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ui-cart-shipping__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0;
+  }
+
+  .ui-cart-shipping__label {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: 1.1;
+  }
+
+  .ui-cart-shipping__value {
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.3;
+    text-align: end;
+  }
+
+  /* ---------- Summary ---------- */
+
+  /*
+   * Stretch, not the centring Horizon leaves on it: every panel below is a full
+   * width band and a centred column would shrink each one to its own contents.
+   */
+  .cart-drawer__dialog .cart-drawer__summary {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--ui-cart-drawer-gutter);
+  }
+
+  /* Horizon renders its own note inside the summary; the drawer has ours above. */
+  .cart-drawer__dialog .cart-drawer__summary .cart-note {
+    display: none;
+  }
+
+  .cart-drawer__dialog .cart-totals__container,
+  .cart-drawer__dialog .cart__ctas,
+  .cart-drawer__dialog .cart-actions {
+    padding-inline: var(--ui-cart-drawer-gutter);
+  }
+
+  .cart-drawer__dialog .cart-totals__container {
+    padding-block-start: var(--ui-cart-drawer-gutter);
+    border-block-start: var(--ui-hairline-width) solid var(--ui-color-border-gray);
+  }
+
+  .cart-drawer__dialog .cart-totals__total-label {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: var(--font-accent--weight-semibold, 600);
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .cart-drawer__dialog .cart-totals__total-value {
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .cart-drawer__dialog .cart-totals__tax-note,
+  .cart-drawer__dialog .cart-totals__tax-note small {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+    text-align: center;
+  }
+
+  /*
+   * The checkout button is the kit's primary, reached by class rather than by
+   * rewriting the markup the cart form depends on.
+   */
+  .cart-drawer__dialog .cart__checkout-button {
+    box-sizing: border-box;
+    width: 100%;
+    height: 44px;
+    padding: 14px var(--ui-button-padding-inline, 32px);
+    border: none;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-primary);
+    color: var(--ui-color-white);
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: var(--ui-line-height);
+    text-transform: uppercase;
+  }
+
+  .cart-drawer__dialog .cart__checkout-button:hover {
+    background-color: var(--ui-color-sky-blue);
+    color: var(--ui-color-primary);
+  }
+
+  /* The amount rides on the label in the drawer only. */
+  .cart__checkout-total {
+    display: none;
+  }
+
+  .cart-drawer__dialog .cart__checkout-total {
+    display: inline;
+  }
+
+  /* ---------- Empty ---------- */
+
+  .cart-drawer__dialog .cart-drawer__heading--empty {
+    display: block;
+    margin: 0;
+    padding-inline: var(--ui-cart-drawer-gutter);
+    font-size: 30px;
+    text-align: center;
+  }
+{% endstylesheet %}

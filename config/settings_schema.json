@@ -1864,6 +1864,77 @@
         "step": 1,
         "unit": "px",
         "default": 0
+      },
+      {
+        "type": "header",
+        "content": "Gift message"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_cart_gift_note",
+        "label": "Show the gift message",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "cart_gift_note_heading",
+        "label": "Heading",
+        "default": "Gift message"
+      },
+      {
+        "type": "text",
+        "id": "cart_gift_note_copy",
+        "label": "Description",
+        "default": "Add a complimentary personalized note, printed on our signature card."
+      },
+      {
+        "type": "text",
+        "id": "cart_gift_note_button",
+        "label": "Button label",
+        "default": "Add gift message"
+      },
+      {
+        "type": "header",
+        "content": "Estimated shipping"
+      },
+      {
+        "type": "checkbox",
+        "id": "show_cart_shipping_estimate",
+        "label": "Show the shipping estimate",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "cart_shipping_from",
+        "label": "Ships from",
+        "default": "Made fresh, ships within 24 hrs"
+      },
+      {
+        "type": "text",
+        "id": "cart_shipping_method",
+        "label": "Shipping method",
+        "default": "Insulated box, ice pack included"
+      },
+      {
+        "type": "range",
+        "id": "cart_delivery_min_days",
+        "label": "Delivery, earliest",
+        "info": "Days from today. The drawer works the dates out rather than showing a figure somebody has to remember to change.",
+        "min": 1,
+        "max": 21,
+        "step": 1,
+        "unit": "d",
+        "default": 3
+      },
+      {
+        "type": "range",
+        "id": "cart_delivery_max_days",
+        "label": "Delivery, latest",
+        "min": 1,
+        "max": 30,
+        "step": 1,
+        "unit": "d",
+        "default": 5
       }
     ]
   },
