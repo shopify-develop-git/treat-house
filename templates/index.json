@@ -22,7 +22,18 @@
       "block_order": [
         "heading"
       ],
-      "settings": {}
+      "settings": {
+        "collections": [
+          "birthday",
+          "graduation",
+          "baby-shower",
+          "deluxe-gift-box",
+          "pride",
+          "halloween",
+          "christmas-treats",
+          "camp"
+        ]
+      }
     },
     "home_hero_Kx9Ln4": {
       "type": "home-hero",
@@ -171,7 +182,15 @@
           }
         }
       },
-      "settings": {}
+      "settings": {
+        "products": [
+          "12-pack-of-custom-treats",
+          "12-pack-choose-your-own",
+          "birthday-12-pack",
+          "assorted-12-pack",
+          "gluten-free-12-pack"
+        ]
+      }
     },
     "custom_treats_preview": {
       "type": "best-sellers",
@@ -196,7 +215,14 @@
         "heading_alignment": "center",
         "cta_position": "below",
         "background": "white",
-        "media_ratio": "4 / 3"
+        "media_ratio": "4 / 3",
+        "products": [
+          "12-pack-of-custom-birthday-treats",
+          "12-pack-of-custom-baby-shower",
+          "12-pack-of-custom-graduation-treats",
+          "12-pack-of-custom-wedding-treats",
+          "custom-college-deluxe"
+        ]
       }
     },
     "corporate_gifts_preview": {

@@ -74,12 +74,16 @@
               if tagline == blank
                 assign tagline = product.description | strip_html | truncatewords: 6
               endif
+
+              # A named argument takes no filter, so `price: product.price | money`
+              # hands the card the raw cents and says nothing about it. Format first.
+              assign price = product.price | money
             -%}
             <li class="best-sellers__item">
               {% render 'ui-product-card',
                 title: product.title,
                 subtitle: tagline,
-                price: product.price | money,
+                price: price,
                 image: product.featured_image,
                 link: product.url,
                 badge: product.metafields.custom.badge,
