@@ -105,7 +105,9 @@
         "buttons",
         "gifting"
       ],
-      "settings": {}
+      "settings": {
+        "image": "shopify://shop_images/home-hero-image.webp"
+      }
     },
     "our_story_Vt6Rw1": {
       "type": "our-story",
@@ -128,7 +130,9 @@
         "heading",
         "body"
       ],
-      "settings": {}
+      "settings": {
+        "image": "shopify://shop_images/our-story-image.webp"
+      }
     },
     "best_sellers_preview": {
       "type": "best-sellers",
@@ -232,7 +236,12 @@
         "copy",
         "button"
       ],
-      "settings": {}
+      "settings": {
+        "image_top_left": "shopify://shop_images/corporate-gifts-top-left.webp",
+        "image_top_right": "shopify://shop_images/corporate-gifts-top-right.webp",
+        "image_bottom_left": "shopify://shop_images/corporate-gifts-bottom-left.webp",
+        "image_bottom_right": "shopify://shop_images/corporate-gifts-bottom-right.webp"
+      }
     },
     "partner_story_preview": {
       "type": "partner-story",
@@ -254,7 +263,9 @@
         "heading",
         "body"
       ],
-      "settings": {}
+      "settings": {
+        "image": "shopify://shop_images/partner-story-image.webp"
+      }
     },
     "testimonials_preview": {
       "type": "testimonials",

@@ -758,6 +758,42 @@
       padding-inline: 0;
     }
 
+    /* The theme answers a hover by draining the colour out of every other label, so
+       the row greys around whatever the pointer is on. Replaced with a nudge in size
+       on the one being pointed at, and nothing happening to the rest.
+
+       Killing it by raising the opacity it fades to, rather than by out-weighing the
+       rules that do the fading: there are three of them, each keyed on a different
+       :has(), and one flat colour laid over the top would take the hover and the
+       active link with it. At full opacity the subdued colour and the normal one are
+       the same colour, and every one of those rules keeps working. */
+    #header-component[data-menu-style='menu'] .menu-list__link {
+      --opacity-subdued-text: 1;
+
+      transition:
+        transform var(--animation-speed) var(--animation-easing),
+        color var(--animation-speed) var(--animation-easing);
+    }
+
+    /* Transforms do not take part in layout, so the row beside it does not move. */
+    #header-component[data-menu-style='menu']
+      .menu-list__list-item:where(:hover, :focus-within)
+      .menu-list__link {
+      transform: scale(1.06);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #header-component[data-menu-style='menu'] .menu-list__link {
+        transition: none;
+      }
+
+      #header-component[data-menu-style='menu']
+        .menu-list__list-item:where(:hover, :focus-within)
+        .menu-list__link {
+        transform: none;
+      }
+    }
+
     #header-component[data-menu-style='menu'] li:has(.menu-list__submenu) > .menu-list__link::after {
       content: '';
       width: 9px;

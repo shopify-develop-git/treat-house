@@ -1102,7 +1102,7 @@
      which are not header icons and must keep the size they were given. */
   #header-component
     :is(.search-action, header-actions, .header__drawer)
-    :is(button, a):not(:is(dialog, [popover]) *) {
+    :is(button, a, .header-actions__action):not(:is(dialog, [popover]) *) {
     box-sizing: content-box;
     width: var(--th-icon-size);
     height: var(--th-action-height);

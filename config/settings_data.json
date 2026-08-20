@@ -350,7 +350,8 @@
       }
     },
     "logo_height": 47,
-    "logo_height_mobile": 62
+    "logo_height_mobile": 62,
+    "logo": "shopify://shop_images/treat-house-logo.webp"
   },
   "presets": {
     "Horizon": {
