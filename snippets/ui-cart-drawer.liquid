@@ -323,10 +323,21 @@
   }
 
   /*
-   * Horizon prints the price twice on a line: once beside the title and once
-   * under the variant. The file shows it once.
+   * Horizon prints the price twice on a line: the line total in the right-hand
+   * cell, and the unit price again in grey under the variant. At a quantity of
+   * one they are the same number, side by side. The file draws one price, on the
+   * right, so the grey one goes.
+   *
+   * It goes only where it is a repeat, though. That same element carries the sale
+   * price and the struck-through compare-at when a line is discounted, and the
+   * right-hand cell shows neither — so a line that is actually marked down keeps
+   * it. `:has()` rather than a Liquid condition because the markup is Horizon's
+   * and this file does not own it.
+   *
+   * The div has no class of its own, hence `:last-child`: it is the last thing in
+   * the details cell, after the title, the variant list and any line discounts.
    */
-  .cart-drawer__dialog .cart-items__price-unit {
+  .cart-drawer__dialog .cart-items__details > div:last-child:not(:has(.compare-at-price)) {
     display: none;
   }
 
