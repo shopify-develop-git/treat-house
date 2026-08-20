@@ -152,6 +152,24 @@ a buy row and smaller in a narrow card without growing a variant.
 
 `label` · `icon` · `class`
 
+### `ui-feature-card`
+
+The white card in a reassurance row — the three under "Why choose us". A glyph, a
+title in the heading face and a paragraph, centred in a 20px-radius panel with no
+border. Not `ui-panel`, which is the bordered disclosure card with a left-aligned
+14px head; these two share nothing but the word "card".
+
+`title` · `body` · `icon` · `tag` (default `h3`) · `class` · `attributes`
+
+Sized by custom properties like `ui-icon-label`, so a caller runs it at the drawn
+24px title three across and smaller where the columns are narrower without a
+variant: `--ui-feature-card-padding-block`, `--ui-feature-card-padding-inline`,
+`--ui-feature-card-gap`, `--ui-feature-card-text-gap`, `--ui-feature-card-glyph`,
+`--ui-feature-card-title-size`, `--ui-feature-card-body-size`.
+
+It fills the height of the cell it stands in, so a row lines up along the bottom
+without the caller measuring the longest card.
+
 ### `ui-panel`
 
 The bordered white card the product page uses four times: gift message, estimated

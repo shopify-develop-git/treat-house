@@ -328,6 +328,8 @@ gutter ladder is in `CLAUDE.md`.
 | `_ui-stat-row` | gap; hosts statistic blocks | `corporate-gifts`, static |
 | `_ui-stat` | figure, label | `_ui-stat-row` |
 | `_ui-testimonial` | richtext quote, star count, name, role, photo | `testimonials` |
+| `_ui-feature-panel` | show the badge, the badge, the cut-out under the copy; hosts a heading and a text block | `why-choose-us`, static |
+| `_ui-feature-card` | icon, title, richtext copy | `why-choose-us` |
 | `_ui-rule` | colour, thickness, the space either side | `product-main` |
 | `_ui-product-price` | show the was-price, size, mobile size | `product-main` |
 | `_ui-product-chips` | per-product metafield, gap; hosts tag blocks | `product-main` |

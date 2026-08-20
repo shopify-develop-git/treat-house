@@ -15,7 +15,10 @@
   ```
 
   `intro` is the part that stays visible when the card is closed, and `body` is
-  what opening it reveals. With `collapsible` the two are a real `<details>`, so
+  what opening it reveals. Both arrive as markup and both get their own wrapper, so
+  a caller can hand over several elements and have them spaced — a `<details>` set
+  to `display: flex` cannot space them itself, because Chrome collects everything
+  after the `<summary>` into one `::details-content` box. With `collapsible` the two are a real `<details>`, so
   the open state, the keyboard and Escape come from the browser — the same bargain
   the filter and variant disclosures take, and still no new script.
 
@@ -23,11 +26,20 @@
   at the far end and a line of copy beneath the title, and a card whose copy is
   inert while the 14px caret beside it toggles is a smaller target than it looks.
 
+  `animated` moves the card open and shut rather than snapping, using the same
+  `::details-content` recipe and the same timing tokens `base.css` already gives
+  Horizon's own accordions — so a card here and an accordion elsewhere on the site
+  move at one speed, and it still costs no script. It is a parameter rather than
+  the default because not every disclosure wearing this card is an accordion: the
+  gift message card reveals a field someone is about to type into, and sliding it
+  into place under them is worse than putting it there.
+
   @param {string} title - The card's heading.
   @param {string} [icon] - Icon asset name, with or without the `icon-ui-` prefix and extension.
   @param {string} [intro] - Markup shown whether the card is open or closed.
   @param {string} [body] - Markup shown below `intro`; hidden until opened when `collapsible`.
   @param {boolean} [collapsible] - Renders the card as a `<details>` disclosure.
+  @param {boolean} [animated] - Opens and closes over time instead of at once.
   @param {boolean} [open] - Starts a collapsible card open.
   @param {boolean} [chevron] - Draws the caret. Defaults to `collapsible`.
   @param {string} [padding] - `default` for the drawn 14px, `tight` for the 12/16 the shipping card takes.
@@ -58,6 +70,9 @@
 
   assign panel_padding = padding | default: 'default'
   assign panel_classes = 'ui-panel ui-panel--' | append: panel_padding
+  if collapsible and animated
+    assign panel_classes = panel_classes | append: ' ui-panel--animated'
+  endif
   if class != blank
     assign panel_classes = panel_classes | append: ' ' | append: class
   endif
@@ -86,7 +101,7 @@
     {%- if attributes != blank %} {{ attributes }}{% endif -%}
   >
     <summary class="ui-panel__head">{{ panel_head }}</summary>
-    {%- if body != blank -%}{{ body }}{%- endif -%}
+    {%- if body != blank -%}<div class="ui-panel__body">{{ body }}</div>{%- endif -%}
   </details>
 {%- else -%}
   <div
@@ -95,7 +110,7 @@
     {%- if attributes != blank %} {{ attributes }}{% endif -%}
   >
     <div class="ui-panel__head">{{ panel_head }}</div>
-    {%- if body != blank -%}{{ body }}{%- endif -%}
+    {%- if body != blank -%}<div class="ui-panel__body">{{ body }}</div>{%- endif -%}
   </div>
 {%- endif -%}
 
@@ -149,6 +164,71 @@
 
   details.ui-panel > .ui-panel__head {
     cursor: pointer;
+  }
+
+  /*
+   * The body is wrapped and carries the spacing itself rather than leaning on the
+   * panel's own `gap`. Chrome puts everything after a `<summary>` inside a
+   * `::details-content` box, so a flex `<details>` has two items — the summary and
+   * that box — no matter how many elements are written between them. The gap
+   * landed above the box and nothing inside it, which left the rule sitting flush
+   * against the copy it is supposed to be 10px clear of.
+   */
+  .ui-panel__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-panel-gap);
+  }
+
+  /*
+   * Opening and closing over time. The recipe is Horizon's, from the
+   * `accordion-custom` block of base.css — `::details-content` sized from 0 to
+   * `auto` with `interpolate-size`, `content-visibility` flipped discretely at the
+   * end so the copy is still there on the way out, and `@starting-style` to give
+   * the opening direction somewhere to start from. Same tokens too, so these cards
+   * and the theme's own accordions move at one speed.
+   *
+   * A browser without `::details-content` never matches these rules at all and gets
+   * today's instant open, which is the right way round for a progressive nicety.
+   */
+  .ui-panel--animated::details-content {
+    block-size: 0;
+    padding-block-start: 0;
+    overflow-y: clip;
+    opacity: 0;
+    interpolate-size: allow-keywords;
+    transition: content-visibility var(--animation-speed-slow) allow-discrete,
+      padding-block-start var(--animation-speed-slow) var(--animation-easing),
+      opacity var(--animation-speed-slow) var(--animation-easing),
+      block-size var(--animation-speed-slow) var(--animation-easing);
+  }
+
+  .ui-panel--animated[open]::details-content {
+    block-size: auto;
+    padding-block-start: var(--ui-panel-gap);
+    opacity: 1;
+
+    @starting-style {
+      block-size: 0;
+      padding-block-start: 0;
+      opacity: 0;
+    }
+  }
+
+  /*
+   * The space above the revealed part becomes padding on the content box rather
+   * than the panel's own row gap. A closed `<details>` still lays out a
+   * zero-height content box, so a gap there would leave 10px of dead air under
+   * every shut card; as padding it grows with the box and collapses with it.
+   */
+  details.ui-panel--animated {
+    row-gap: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ui-panel--animated::details-content {
+      transition: none;
+    }
   }
 
   .ui-panel__title-row {
