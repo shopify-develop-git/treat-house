@@ -268,8 +268,16 @@
     /*
      * The theme sizes this control through its own variable, so the width is set
      * by moving that rather than by out-weighing the rule that reads it.
+     *
+     * Moving it alone is not enough, though. The theme caps the number's width at
+     * the control minus two *touch targets* — `--minimum-touch-target`, 44px each
+     * — which at the 72px this one is drawn at works out to minus sixteen, and a
+     * negative max-width is zero. The number was there the whole time, in a box of
+     * no width. The cap is lifted below and the number given the room the two
+     * buttons leave.
      */
     --quantity-selector-width: 72px;
+    --quantity-selector-button: 24px;
 
     width: var(--quantity-selector-width);
     height: 24px;
@@ -282,9 +290,10 @@
   }
 
   .cart-drawer__dialog .quantity-selector button {
-    width: 24px;
+    flex: 0 0 auto;
+    width: var(--quantity-selector-button);
     min-width: 0;
-    height: 24px;
+    height: var(--quantity-selector-button);
     min-height: 0;
     padding: 0;
     color: var(--ui-color-black);
@@ -296,9 +305,14 @@
   }
 
   .cart-drawer__dialog .quantity-selector input {
-    width: 24px;
+    /* Whatever the two buttons leave, rather than a third fixed width: the
+       control carries a hairline, so three 24s add up to two pixels more than
+       there is. */
+    flex: 1 1 auto;
+    width: auto;
     min-width: 0;
-    height: 24px;
+    max-width: none;
+    height: var(--quantity-selector-button);
     padding: 0;
     color: var(--ui-color-black);
     font-family: var(--ui-font-emphasis);
