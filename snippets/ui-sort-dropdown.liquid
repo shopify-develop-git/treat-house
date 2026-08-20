@@ -11,9 +11,18 @@
   operation and outside click all come from the theme rather than new script.
 
   `options` takes entries read through `.label`, `.value` and `.active`, which is
-  the shape Shopify's `collection.sort_options` already has.
+  what the kit previews hand it.
 
-  @param {object[]} options - The sort options to list.
+  A real collection cannot. Shopify's `collection.sort_options` carries a `name` and
+  a `value` and no link, and the link a sort row needs has to keep whatever facets
+  are already applied — which is the caller's knowledge, not this snippet's. So a
+  caller with real data hands over `items`: the rows already rendered, the way
+  [ui-variant-select] takes `rows` and [ui-panel] takes its `body`. Liquid cannot
+  build an array of hashes, and teaching this snippet to assemble URLs would put the
+  storefront's query string inside a component that only knows how to look.
+
+  @param {object[]} [options] - The sort options to list.
+  @param {string} [items] - Rendered [ui-menu-item] markup, used instead of `options`.
   @param {string} [label] - The trigger's text. Defaults to the current option.
   @param {string} [prefix] - Text before the current option. Defaults to "Sort:".
   @param {boolean} [open] - Renders the control already open.
@@ -52,6 +61,7 @@
   </summary>
 
   <div class="ui-sort-dropdown__list">
+    {%- if items != blank -%}{{ items }}{%- endif -%}
     {%- for option in options -%}
       {%- liquid
         assign option_label = option.label | default: option
