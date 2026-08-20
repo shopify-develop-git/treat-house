@@ -221,6 +221,88 @@
         "padding-block-end": 64
       }
     },
+    "why_choose_us": {
+      "type": "why-choose-us",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>Why Choose Us</h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32
+          }
+        },
+        "panel": {
+          "type": "_ui-feature-panel",
+          "static": true,
+          "blocks": {
+            "panel_heading": {
+              "type": "_ui-heading",
+              "settings": {
+                "heading": "<h3>Sweet moments, <em>handcrafted with care</em></h3>",
+                "heading_size": 40,
+                "heading_size_mobile": 28
+              }
+            },
+            "panel_text": {
+              "type": "_ui-text",
+              "settings": {
+                "text": "<p>For over 20 years, we've been creating handcrafted Krispie treats that turn everyday moments into unforgettable celebrations. Every treat is made with care, premium ingredients, and a passion for bringing people together</p>"
+              }
+            }
+          },
+          "block_order": [
+            "panel_heading",
+            "panel_text"
+          ],
+          "settings": {
+            "show_logo": true
+          }
+        },
+        "made_fresh": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "gift",
+            "title": "Made Fresh Every Day",
+            "body": "<p>Every Krispie treat is handcrafted in small batches using premium ingredients to deliver the perfect taste, texture, and freshness in every bite.</p>"
+          }
+        },
+        "ready_to_delight": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "cookie",
+            "title": "Ready to Delight",
+            "body": "<p>Beautifully packaged and thoughtfully presented, every gift box arrives ready to surprise someone special—no extra wrapping required.</p>"
+          }
+        },
+        "celebrate": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "hand-holding-heart",
+            "title": "Celebrate Every Moment",
+            "body": "<p>Whether you're sending love, celebrating a birthday, saying thank you, or simply making someone smile, our gift boxes are designed for life's sweetest moments.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "made_fresh",
+        "ready_to_delight",
+        "celebrate"
+      ],
+      "settings": {
+        "media_position": "end",
+        "heading_gap": 48,
+        "columns": 3,
+        "columns_md": 3,
+        "columns_sm": "1",
+        "section_width": "page-width",
+        "background": "purple",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 80,
+        "padding-block-end": 80
+      }
+    },
     "product_recommendations_qggXJq": {
       "type": "product-recommendations",
       "blocks": {
@@ -365,6 +447,7 @@
   },
   "order": [
     "main",
+    "why_choose_us",
     "product_recommendations_qggXJq"
   ]
 }

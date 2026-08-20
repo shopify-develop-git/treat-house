@@ -1,0 +1,88 @@
+{%- doc -%}
+  One card in a reassurance row: a glyph, a title and a line of copy. Renders
+  [ui-feature-card] and nothing else, for the reason [_ui-product-chip] gives — the
+  look belongs to the kit and this is the merchant's handle on it.
+
+  It is a block rather than a run of settings on the section so a page can show two
+  claims or five, in any order, without the section growing a `case` for each. That
+  is the rule `docs/section-settings.md` opens with.
+{%- enddoc -%}
+
+{%- liquid
+  assign card_icon = block.settings.icon
+  if card_icon == 'none'
+    assign card_icon = ''
+  endif
+-%}
+
+{%- if block.settings.title != blank or block.settings.body != blank -%}
+  <div class="ui-feature-card-block" {{ block.shopify_attributes }}>
+    {% render 'ui-feature-card',
+      icon: card_icon,
+      title: block.settings.title,
+      body: block.settings.body
+    %}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  /*
+   * The wrapper the editor needs for its outline has to pass the grid cell through
+   * in both directions: its width, or a long line of copy sets its own and the
+   * columns stop matching, and its height, or the card inside cannot fill the row.
+   */
+  .ui-feature-card-block {
+    display: flex;
+    min-inline-size: 0;
+  }
+
+  .ui-feature-card-block > .ui-feature-card {
+    inline-size: 100%;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Feature card",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "t:settings.icon",
+      "options": [
+        { "value": "none", "label": "t:options.none" },
+        { "value": "gift", "label": "Gift" },
+        { "value": "cookie", "label": "Cookie" },
+        { "value": "hand-holding-heart", "label": "Hand and heart" },
+        { "value": "wheat-slash", "label": "Gluten free" },
+        { "value": "shipping-fast", "label": "Shipping" },
+        { "value": "thermometer", "label": "Thermometer" },
+        { "value": "info-circle", "label": "Information" },
+        { "value": "envelope", "label": "Envelope" },
+        { "value": "check", "label": "Check" },
+        { "value": "sparkle", "label": "Sparkle" },
+        { "value": "rating-star", "label": "Star" }
+      ],
+      "default": "gift"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:settings.title",
+      "default": "Made Fresh Every Day"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "t:settings.text",
+      "default": "<p>Every Krispie treat is handcrafted in small batches using premium ingredients to deliver the perfect taste, texture, and freshness in every bite.</p>"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Feature card"
+    }
+  ]
+}
+{% endschema %}

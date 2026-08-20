@@ -1,0 +1,131 @@
+{%- doc -%}
+  The white card in a reassurance row (Figma: Standart Product Page → Why Choose Us
+  → Cards). A purple glyph, a title in the heading face and a line of copy, centred
+  in a rounded panel.
+
+  Sized by custom properties rather than by settings, the way [ui-icon-label] is, so
+  the same card runs at the drawn 24px title three across and smaller four across
+  without this snippet growing a variant for each. What a caller can move:
+  `--ui-feature-card-padding-block`, `--ui-feature-card-padding-inline`,
+  `--ui-feature-card-gap`, `--ui-feature-card-text-gap`, `--ui-feature-card-glyph`,
+  `--ui-feature-card-title-size` and `--ui-feature-card-body-size`.
+
+  The card fills the height of whatever cell it stands in, so a row of them lines up
+  at the bottom without the caller measuring the longest one.
+
+  The glyph is decorative: the title says the same thing, and a screen reader that
+  reads both is being told everything twice.
+
+  @param {string} [title] - The card's title.
+  @param {string} [body] - The copy beneath it. Markup is printed as given, so a richtext setting can be passed straight through.
+  @param {string} [icon] - Icon asset name, with or without the `icon-ui-` prefix and extension.
+  @param {string} [tag] - Element for the title. Defaults to `h3`.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Additional attributes on the root.
+
+  @example
+  {% render 'ui-feature-card', icon: 'gift', title: 'Ready to Delight', body: '<p>Beautifully packaged.</p>' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign card_icon = icon
+  if card_icon != blank
+    unless card_icon contains 'icon-ui-'
+      assign card_icon = 'icon-ui-' | append: card_icon
+    endunless
+    unless card_icon contains '.svg'
+      assign card_icon = card_icon | append: '.svg'
+    endunless
+  endif
+
+  assign title_tag = tag | default: 'h3'
+-%}
+
+<div class="ui-feature-card{% if class != blank %} {{ class }}{% endif %}" {{ attributes }}>
+  {%- if icon != blank -%}
+    <span class="ui-feature-card__glyph" aria-hidden="true">{{- card_icon | inline_asset_content -}}</span>
+  {%- endif -%}
+
+  {%- if title != blank or body != blank -%}
+    <div class="ui-feature-card__text">
+      {%- if title != blank -%}
+        <{{ title_tag }} class="ui-feature-card__title">{{ title }}</{{ title_tag }}>
+      {%- endif -%}
+      {%- if body != blank -%}
+        <div class="ui-feature-card__body">{{ body }}</div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .ui-feature-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ui-feature-card-gap, 32px);
+    box-sizing: border-box;
+
+    /* The card takes the cell, so a row lines up along the bottom without the
+       caller measuring the longest one. */
+    block-size: 100%;
+    padding-block: var(--ui-feature-card-padding-block, 32px);
+    padding-inline: var(--ui-feature-card-padding-inline, 24px);
+    border-radius: var(--ui-feature-card-radius, 20px);
+    background-color: var(--ui-feature-card-background, var(--ui-color-white));
+    text-align: center;
+  }
+
+  .ui-feature-card__glyph {
+    display: block;
+    flex: 0 0 auto;
+    inline-size: var(--ui-feature-card-glyph, 24px);
+    block-size: var(--ui-feature-card-glyph, 24px);
+    /* The glyphs are drawn in the brand purple; the words under them are not. */
+    color: var(--ui-feature-card-glyph-color, var(--ui-color-primary));
+  }
+
+  .ui-feature-card__glyph > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ui-feature-card__text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ui-feature-card-text-gap, 16px);
+    inline-size: 100%;
+  }
+
+  .ui-feature-card__title {
+    margin: 0;
+    color: var(--ui-feature-card-title-color, var(--ui-color-black));
+    font-family: var(--font-heading--family);
+    font-size: var(--ui-feature-card-title-size, 24px);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .ui-feature-card__body {
+    color: var(--ui-feature-card-body-color, var(--ui-color-gray));
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-feature-card-body-size, 16px);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  .ui-feature-card__body > * {
+    margin: 0;
+  }
+
+  /* One line of copy between paragraphs, as [ui-text] spaces them. */
+  .ui-feature-card__body > * + * {
+    margin-block-start: calc(var(--ui-line-height, 1.3) * 1em);
+  }
+
+  .ui-feature-card__body a {
+    color: var(--ui-color-primary);
+  }
+{% endstylesheet %}

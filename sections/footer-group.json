@@ -59,7 +59,7 @@
           "type": "_ui-footer-legal",
           "static": true,
           "settings": {
-            "menu": "footer"
+            "menu": "footer-legal"
           }
         }
       },

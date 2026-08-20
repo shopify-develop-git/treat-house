@@ -1,0 +1,392 @@
+{% comment %}
+  Why choose us (Figma: Standart Product Page → Why Choose Us, 491:17135).
+
+  A tinted band holding three things: a title, a lead row of one white card beside a
+  photograph, and a row of small white cards under it. The band runs the full width
+  of the viewport while the content stops at the page width, which here is the
+  1280px the file draws its two 630px columns and their 20px gutter inside.
+
+  The section owns the band, the photograph and the arrangement. Everything with
+  words in it is a block: the title and the lead card are static, standing where the
+  layout puts them, and the small cards are the merchant's own list — the file draws
+  three, a page that wants four adds one. See `docs/section-settings.md`.
+
+  Built from the kit: ui-feature-card for the small cards, through
+  [_ui-feature-card]. The lead card is [_ui-feature-panel], which hosts its own
+  heading and copy blocks.
+
+  The file carries three cuts of this band — with the title and without it, with the
+  badge on the lead card and without. They are the same section with a block cleared
+  or a checkbox turned off, not three sections, so nothing here is drawn twice.
+
+  The lead row splits into two columns at 990px rather than the theme's usual 750px.
+  The card is drawn 630 wide and carries a 40px headline; at 750px it would have 335
+  and the headline would be four lines of two words.
+{% endcomment %}
+
+<div class="section-background color-{{ section.settings.color_scheme }} why-choose-us-bg why-choose-us-bg--{{ section.settings.background }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="why-choose-us-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div
+    class="why-choose-us why-choose-us--on-{{ section.settings.background }} why-choose-us--media-{{ section.settings.media_position }}"
+    style="
+      --why-choose-us-heading-gap: {{ section.settings.heading_gap }}px;
+      --why-choose-us-columns: {{ section.settings.columns }};
+      --why-choose-us-columns-md: {{ section.settings.columns_md }};
+      --why-choose-us-columns-sm: {{ section.settings.columns_sm }};
+    "
+  >
+    {% content_for 'block', type: '_ui-heading', id: 'heading' %}
+
+    <div class="why-choose-us__content">
+      <div class="why-choose-us__lead">
+        {% content_for 'block', type: '_ui-feature-panel', id: 'panel' %}
+
+        <div class="why-choose-us__media">
+          {%- if section.settings.image != blank -%}
+            {% render 'image', image: section.settings.image, height: 525, class: 'why-choose-us__image' %}
+          {%- else -%}
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'why-choose-us__image why-choose-us__image--placeholder' }}
+          {%- endif -%}
+        </div>
+      </div>
+
+      <div class="why-choose-us__cards">
+        {% content_for 'blocks' %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  /* Why choose us. Mobile first; the lead row splits at 990px, the cards at 750px. */
+  .section-background.why-choose-us-bg--purple {
+    background-color: var(--ui-color-primary);
+  }
+
+  .section-background.why-choose-us-bg--light-blue {
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .section-background.why-choose-us-bg--white {
+    background-color: var(--ui-color-white);
+  }
+
+  .why-choose-us {
+    /* The 20px between the two columns, and between the cards, is drawn geometry:
+       630 + 20 + 630 is the 1280 the page column already caps at. */
+    --why-choose-us-tile-gap: 20px;
+    --why-choose-us-radius: 20px;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--why-choose-us-heading-gap, 48px);
+  }
+
+  /*
+   * Reached as a child of the section rather than by a class of its own: the
+   * heading block owns its type and this owns where it stands, and a descendant
+   * selector outweighs the block's own rules without depending on which stylesheet
+   * is concatenated last.
+   */
+  .why-choose-us > .ui-heading {
+    justify-self: center;
+    text-align: center;
+  }
+
+  /* On the purple band the title is the only thing standing on the colour. */
+  .why-choose-us--on-purple {
+    --ui-heading-color: var(--ui-color-white);
+    --ui-text-color: var(--ui-color-white);
+  }
+
+  .why-choose-us__content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--why-choose-us-tile-gap);
+  }
+
+  .why-choose-us__lead {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--why-choose-us-tile-gap);
+  }
+
+  @media screen and (min-width: 990px) {
+    .why-choose-us__lead {
+      /* The file draws the two 630 wide inside 1280. As fr they hold that at every
+         width, and neither pays the whole of the loss. */
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: stretch;
+    }
+
+    .why-choose-us--media-start .why-choose-us__media {
+      order: -1;
+    }
+  }
+
+  .why-choose-us__media {
+    display: flex;
+    min-inline-size: 0;
+  }
+
+  .why-choose-us__image {
+    display: block;
+    inline-size: 100%;
+    /* Stacked, the ratio the file draws sets the height. */
+    aspect-ratio: 630 / 525;
+    border-radius: var(--why-choose-us-radius);
+    object-fit: cover;
+  }
+
+  .why-choose-us__image--placeholder {
+    background-color: var(--ui-color-border-gray);
+  }
+
+  @media screen and (min-width: 990px) {
+    /* Beside the card, the photograph takes whatever height the card ends up,
+       rather than the card and the photograph disagreeing by whatever the copy
+       runs to. */
+    .why-choose-us__image {
+      block-size: 100%;
+      aspect-ratio: auto;
+    }
+  }
+
+  .why-choose-us__cards {
+    display: grid;
+    grid-template-columns: repeat(var(--why-choose-us-columns-sm, 1), minmax(0, 1fr));
+    gap: var(--why-choose-us-tile-gap);
+  }
+
+  /*
+   * Three counts, not two, as `CLAUDE.md` asks. The middle tier keeps the drawn
+   * three across — for a row of equals, wrapping to two leaves a lone third card
+   * that reads as a mistake — and pays for it by tightening the card instead: at
+   * 750px a third of the page column is 210px, which the drawn 24px padding and
+   * 24px title do not fit.
+   */
+  @media screen and (min-width: 750px) {
+    .why-choose-us__cards {
+      --ui-feature-card-padding-inline: 16px;
+      --ui-feature-card-gap: 24px;
+      --ui-feature-card-title-size: 20px;
+
+      grid-template-columns: repeat(var(--why-choose-us-columns-md, 3), minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    .why-choose-us__cards {
+      --ui-feature-card-padding-inline: 24px;
+      --ui-feature-card-gap: 32px;
+      --ui-feature-card-title-size: 24px;
+
+      grid-template-columns: repeat(var(--why-choose-us-columns, 3), minmax(0, 1fr));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Why choose us",
+  "tag": "section",
+  "blocks": [{ "type": "_ui-feature-card" }],
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:content.media"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image",
+      "info": "Stands beside the card. Left empty, the frame is held with a placeholder."
+    },
+    {
+      "type": "select",
+      "id": "media_position",
+      "label": "Image position",
+      "info": "Which side of the card the photograph stands on. Below 990px it always follows the card.",
+      "options": [
+        { "value": "end", "label": "t:options.right" },
+        { "value": "start", "label": "t:options.left" }
+      ],
+      "default": "end"
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "range",
+      "id": "heading_gap",
+      "label": "Gap under the heading",
+      "min": 0,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "t:settings.columns",
+      "info": "The cards under the lead row, from 1200px up.",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "columns_md",
+      "label": "Columns from 750px",
+      "info": "The cards are narrower here than the file draws them. Drop this by one if a fourth card is added.",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "columns_sm",
+      "label": "Columns on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        { "value": "page-width", "label": "t:options.page" },
+        { "value": "full-width", "label": "t:options.full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "options": [
+        { "value": "purple", "label": "Purple" },
+        { "value": "light-blue", "label": "Light blue" },
+        { "value": "white", "label": "White" },
+        { "value": "none", "label": "Colour scheme" }
+      ],
+      "default": "purple"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "Why choose us",
+      "category": "t:categories.storytelling",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>Why Choose Us</h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32
+          }
+        },
+        "panel": {
+          "type": "_ui-feature-panel",
+          "static": true,
+          "blocks": {
+            "panel_heading": {
+              "type": "_ui-heading",
+              "settings": {
+                "heading": "<h3>Sweet moments, <em>handcrafted with care</em></h3>",
+                "heading_size": 40,
+                "heading_size_mobile": 28
+              }
+            },
+            "panel_text": {
+              "type": "_ui-text",
+              "settings": {
+                "text": "<p>For over 20 years, we've been creating handcrafted Krispie treats that turn everyday moments into unforgettable celebrations. Every treat is made with care, premium ingredients, and a passion for bringing people together</p>"
+              }
+            }
+          },
+          "block_order": ["panel_heading", "panel_text"]
+        },
+        "made_fresh": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "gift",
+            "title": "Made Fresh Every Day",
+            "body": "<p>Every Krispie treat is handcrafted in small batches using premium ingredients to deliver the perfect taste, texture, and freshness in every bite.</p>"
+          }
+        },
+        "ready_to_delight": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "cookie",
+            "title": "Ready to Delight",
+            "body": "<p>Beautifully packaged and thoughtfully presented, every gift box arrives ready to surprise someone special—no extra wrapping required.</p>"
+          }
+        },
+        "celebrate": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "hand-holding-heart",
+            "title": "Celebrate Every Moment",
+            "body": "<p>Whether you're sending love, celebrating a birthday, saying thank you, or simply making someone smile, our gift boxes are designed for life's sweetest moments.</p>"
+          }
+        }
+      },
+      "block_order": ["made_fresh", "ready_to_delight", "celebrate"]
+    }
+  ]
+}
+{% endschema %}

@@ -265,12 +265,29 @@ list stays open over the page after every choice.
 ### `ui-product-gallery`
 
 The product page's media column: a framed stage at the drawn 630:578, a corner
-badge, and thumbnails beneath. Every image is in the markup and all but one carry
-`hidden`, so switching costs no request and a variant change can reveal its featured
-media without the snippet building a URL. `assets/ui-product-gallery.js` moves that
-attribute and nothing else.
+badge, prev/next arrows over the image, and thumbnails beneath. Every image is in
+the markup and all but one carry `hidden`, so switching costs no request and a
+variant change can reveal its featured media without the snippet building a URL.
+`assets/ui-product-gallery.js` moves attributes and nothing else.
 
 `product` · `badge` · `badge_tone` · `eager` · `class`
+
+Switching is a crossfade: the incoming photograph is unhidden and painted at zero,
+both slides transition, and the outgoing one takes `hidden` back once the transition
+has run. `hidden` stays the resting state between turns because an always-painted
+stack would read the same and pull every photograph on the product down on first
+paint. The timing lives once, in `--ui-product-gallery-fade`, and the script reads
+it back off the slide rather than keeping a copy — which also means
+`prefers-reduced-motion` costs nothing extra, since a slide with no transition
+reports no duration and the swap lands at once.
+
+The arrows are `ui-pagination-arrow`, revealed by hovering the frame. They are
+`opacity: 0` rather than `visibility: hidden` at rest, so they stay in the tab order
+and the frame's `:focus-within` brings them into view for a keyboard; under
+`(hover: none)` they simply stay, since there is no hover to reveal them with. They
+wrap at the ends rather than disabling — with three or four photographs, an arrow
+that greys itself out is a dead control half the time you reach for it. Like the
+thumbnails, they are drawn only when there is more than one image.
 
 The image is contained, not cropped — the frame is wider than it is tall and the
 treats are photographed square. The slide is inset out of flow rather than held off
@@ -319,19 +336,24 @@ the card keeps drawing the square while something else owns the behaviour.
 
 ### `ui-product-card-add`
 
-What goes in that slot when the basket has to work. Renders one of two things:
-
-- a submit inside `<product-form-component>` when the product has a single variant,
-  which posts to the cart the same way [_ui-product-buy] does on the product page;
-- a link to the product page when the product has options, because choosing a
-  flavour for the shopper is not a decision a basket icon gets to make.
+What goes in that slot when the basket has to work. A submit inside
+`<product-form-component>`, posting to the cart the same way [_ui-product-buy]
+does on the product page, and disabled when the product is sold out.
 
 `product` · `section_id` · `class`
+
+It adds the variant the card is priced at — `product.price` is the cheapest
+variant's, and that is the one the form carries, so the square and the number
+beside it always agree. In this catalogue a box's options are paid extras (gift
+box, individual packs, how many treats are made custom), so that variant is the
+plain box and nothing is being chosen on the shopper's behalf. Point a row at
+products whose options are alternatives rather than add-ons and that stops being
+true — the row wants a chooser then, which is unbuilt.
 
 Deliberately not Horizon's `quick-add`, whose chooser fills its modal by fetching
 the product page and lifting `[data-product-grid-content]` out of it — an element
 that belongs to Horizon's `product-information` section and is not on this theme's
-product page. A quick-add in the kit's own clothes is unbuilt, and undrawn.
+product page.
 
 ### `ui-pagination-item` · `ui-pagination-arrow`
 

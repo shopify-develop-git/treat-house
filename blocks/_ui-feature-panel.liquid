@@ -1,0 +1,183 @@
+{%- doc -%}
+  The tall white card that leads a "Why choose us" band (Figma: Standart Product
+  Page → Why Choose Us → Content → 1 → Content): the brand badge, the two-tone
+  headline and its paragraph, and a product cut-out under them.
+
+  The words are blocks, not settings. The card hosts its own [_ui-heading] and
+  [_ui-text] so a second page can tell a different story in the same frame, and so
+  the headline keeps the `<em>` accent the rest of the theme writes it with.
+
+  The two pictures belong to the card rather than to the section around it, the way
+  [_ui-testimonial] owns its portrait: they are part of what this card is, and a
+  section that showed the band without the card would have nowhere to put them.
+
+  The card is white, so it declares black headings and grey copy on itself. The band
+  it stands on sets white for its own title, and inheritance would otherwise carry
+  that in here.
+{%- enddoc -%}
+
+<div class="ui-feature-panel" {{ block.shopify_attributes }}>
+  {%- if block.settings.show_logo -%}
+    <span class="ui-feature-panel__badge">
+      {%- if block.settings.logo != blank -%}
+        {% render 'image', image: block.settings.logo, height: 124, class: 'ui-feature-panel__badge-image' %}
+      {%- else -%}
+        {%- comment -%}
+          The packaged badge is the one the file draws, so a shop that has not
+          picked a picture still gets the design rather than an empty square.
+        {%- endcomment -%}
+        <img
+          class="ui-feature-panel__badge-image"
+          src="{{ 'treat-house-logo.png' | asset_url }}"
+          alt="{{ shop.name | escape }}"
+          width="125"
+          height="125"
+          loading="lazy"
+        >
+      {%- endif -%}
+    </span>
+  {%- endif -%}
+
+  <div class="ui-feature-panel__body">
+    <div class="ui-feature-panel__text">
+      {% content_for 'blocks' %}
+    </div>
+
+    {%- if block.settings.image != blank -%}
+      <div class="ui-feature-panel__media">
+        {% render 'image', image: block.settings.image, height: 294, class: 'ui-feature-panel__image' %}
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .ui-feature-panel {
+    /* White card: the band's own heading colour must not inherit in here. */
+    --ui-heading-color: var(--ui-color-black);
+    --ui-heading-accent-color: var(--ui-color-primary);
+    --ui-text-color: var(--ui-color-gray);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ui-feature-panel-gap, 32px);
+    box-sizing: border-box;
+    block-size: 100%;
+    padding-block: var(--ui-feature-panel-padding-start, 32px) var(--ui-feature-panel-padding-end, 32px);
+
+    /*
+     * The file draws no inline padding — the headline and the paragraph are capped
+     * instead, and the card is wider than either. On a phone the card is the page
+     * column wide and the caps are never reached, so it needs the padding the file
+     * did not have to write down.
+     */
+    padding-inline: var(--ui-feature-panel-padding-inline, 24px);
+    border-radius: var(--ui-feature-panel-radius, 20px);
+    background-color: var(--ui-color-white);
+    text-align: center;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ui-feature-panel {
+      --ui-feature-panel-gap: 48px;
+      --ui-feature-panel-padding-end: 48px;
+    }
+  }
+
+  .ui-feature-panel__badge {
+    display: block;
+    flex: 0 0 auto;
+    overflow: hidden;
+    inline-size: var(--ui-feature-panel-badge, 62px);
+    block-size: var(--ui-feature-panel-badge, 62px);
+    border-radius: var(--ui-feature-panel-badge-radius, 16px);
+  }
+
+  .ui-feature-panel__badge-image {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+  }
+
+  .ui-feature-panel__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ui-feature-panel-body-gap, 32px);
+    inline-size: 100%;
+  }
+
+  .ui-feature-panel__text {
+    /*
+     * The caps the file draws on the two pieces of copy, handed down rather than
+     * set on the blocks: a merchant who moves either block's own max width writes
+     * it on the block and wins, which is the bargain `docs/section-settings.md`
+     * describes.
+     */
+    --ui-heading-max-width: 467px;
+    --ui-text-max-width: 480px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ui-feature-panel-text-gap, 16px);
+    inline-size: 100%;
+  }
+
+  /* The blocks cap themselves, so they must be free to be narrower than the card. */
+  .ui-feature-panel__text > * {
+    max-inline-size: 100%;
+  }
+
+  .ui-feature-panel__media {
+    display: flex;
+    flex: 0 0 auto;
+    justify-content: center;
+    inline-size: 100%;
+  }
+
+  .ui-feature-panel__image {
+    display: block;
+    inline-size: auto;
+    max-inline-size: 100%;
+    /* The cut-out is drawn 146 by 147 and is not a crop — it keeps its own shape. */
+    block-size: var(--ui-feature-panel-image-height, 147px);
+    object-fit: contain;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Highlight panel",
+  "tag": null,
+  "blocks": [{ "type": "_ui-heading" }, { "type": "_ui-text" }],
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_logo",
+      "label": "Show the badge",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Badge",
+      "info": "Left empty, the Treat House badge packaged with the theme is used.",
+      "visible_if": "{{ block.settings.show_logo }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image",
+      "info": "The cut-out under the copy. Left empty, the card ends with the paragraph."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Highlight panel"
+    }
+  ]
+}
+{% endschema %}
