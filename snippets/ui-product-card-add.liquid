@@ -5,25 +5,28 @@
   and a price and knows nothing about variants or forms. This snippet is the
   filling, and it is what a product row passes as the card's `add_content`.
 
-  It does one of two things, and which one it does is decided by the product:
+  The button is the submit of a real `product` form inside
+  `<product-form-component>`, so a click posts to the cart and the drawer opens.
+  Same seam as [_ui-product-buy] on the product page — `ref="variantId"`,
+  `ref="liveRegion"`, and `ref="addToCartButton"` inside an
+  `<add-to-cart-component>`.
 
-  - **One variant to sell.** The button is the submit of a real `product` form
-    inside `<product-form-component>`, so a click posts to the cart and the drawer
-    opens. Same seam as [_ui-product-buy] on the product page — `ref="variantId"`,
-    `ref="liveRegion"`, and `ref="addToCartButton"` inside an
-    `<add-to-cart-component>`.
-
-  - **Options to choose.** The button is a link to the product page. A shopper
-    buying a box has to pick a flavour, and picking one for them is not a thing a
-    basket icon is allowed to decide.
+  **What it adds is the variant the card is priced at.** A card prints one price,
+  `product.price`, which is the cheapest variant's; the basket adds that variant.
+  In this catalogue a treat box's options are paid extras — a gift box at $6,
+  individual packs at $3, half or all of the treats made custom — so the default
+  combination is the plain box at the price on the card, and there is nothing
+  being chosen on the shopper's behalf. That held for all ten products in the
+  homepage rows when this was written, and it is the rule to check against if a
+  row is ever pointed at products whose options are alternatives rather than
+  add-ons: then the card's price and the card's button would still agree with each
+  other, but neither would be the whole story, and the row wants a chooser instead.
 
   Deliberately not Horizon's `quick-add`. That one draws a bubble that floats over
   the photograph and fades in on hover, which is not what the file draws, and its
   chooser fills a modal by fetching the product page and lifting
   `[data-product-grid-content]` out of it — an element that belongs to Horizon's
   `product-information` section and does not exist on this theme's product page.
-  A quick-add drawer in the kit's own clothes is real work, and it is not drawn
-  anywhere in the file yet.
 
   @param {object} product - The product to add.
   @param {string} section_id - The id of the section drawing the card. Keeps one page's forms apart.
@@ -39,21 +42,12 @@
 {%- liquid
   assign variant = product.selected_or_first_available_variant
 
-  # One variant is a thing to add; several are a thing to choose between. A single
-  # option shown as swatches would be choosable from the card too, but this theme's
-  # card draws no swatches, so there is nothing on it to choose with.
-  assign needs_choosing = true
-  if product.has_only_default_variant or product.variants_count == 1
-    assign needs_choosing = false
-  endif
-
   assign sold_out = true
   if variant.available
     assign sold_out = false
   endif
 
   assign add_label = 'actions.add_to_cart' | t
-  assign choose_label = 'actions.choose' | t
   if sold_out
     assign add_label = 'products.product.sold_out' | t
   endif
@@ -71,14 +65,7 @@
   endif
 -%}
 
-{%- if needs_choosing and sold_out == false -%}
-  {% render 'ui-button',
-    variant: 'basket',
-    label: choose_label,
-    link: product.url,
-    class: host_classes
-  %}
-{%- elsif sold_out -%}
+{%- if sold_out -%}
   {% render 'ui-button',
     variant: 'basket',
     label: add_label,
