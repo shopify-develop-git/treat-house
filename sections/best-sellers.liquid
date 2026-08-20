@@ -100,7 +100,7 @@
   # an IntersectionObserver — an element hidden before the answer never intersects
   # and never asks. So before the answer there is no attribute at all.
   assign has_row = ''
-  if row_answered
+  if row_answered and source != 'chosen'
     assign has_row = 'false'
     if row_size > 0
       assign has_row = 'true'

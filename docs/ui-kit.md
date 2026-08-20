@@ -172,16 +172,58 @@ without the caller measuring the longest card.
 
 ### `ui-panel`
 
-The bordered white card the product page uses four times: gift message, estimated
-shipping, ingredients, storage. One shape with an optional glyph, an optional
-disclosure, and two paddings.
+Every disclosure in the theme, in two skins. `variant: 'card'` is the bordered white
+card the product page uses four times — gift message, estimated shipping,
+ingredients, storage. `variant: 'bar'` is the filled light-blue row the FAQ stacks.
 
-`title` · `icon` · `intro` · `body` · `collapsible` · `open` · `chevron` ·
-`padding` (`default`/`tight`) · `id` · `class` · `attributes`
+`title` · `variant` (`card`/`bar`) · `icon` · `intro` · `body` · `collapsible` ·
+`animated` · `open` · `chevron` · `padding` (`default`/`tight`) · `id` · `class` ·
+`attributes`
+
+They are one component because everything hard about a disclosure is shared — the
+`<summary>` reset, the two `base.css` rules that outrank a lone class, and the
+`::details-content` animation below — while what differs is a background, a padding,
+a type scale and which glyph marks the toggle. Those live on the block as custom
+properties (`--ui-panel-background`, `--ui-panel-edge`, `--ui-panel-padding`,
+`--ui-panel-title-font`, `--ui-panel-title-size`, `--ui-panel-title-weight`,
+`--ui-panel-title-case`, `--ui-panel-title-line-height`, `--ui-panel-gap`), so a
+variant redeclares values rather than repeating rules.
+
+`chevron` switches the toggle mark on and off; **which** mark is drawn belongs to the
+variant — a caret on `card`, a plus that becomes a minus on `bar`. The bar renders
+both glyphs and CSS shows one, so the swap costs no script and the horizontal stroke
+does not move between the states. `padding` does not reach the bar: its 24px is part
+of what a bar is, and the modifier class is not written at all rather than left to
+lose a same-specificity fight on source order.
+
+The bar is the one thing here the file draws at 1440 only, so its step down at 750 —
+20px padding, an 18px question — is a decision made in code, not read off the design.
+The mark keeps its 24px at every width because it is the tap target.
 
 `intro` stays visible when the card is closed; `body` is what opening reveals. Both
-arrive as captured markup, since Liquid has no slots. The whole head is the click
-target, not just the caret.
+arrive as captured markup, since Liquid has no slots, and both get their own wrapper —
+a `<details>` cannot space them with its own `gap`, because Chrome collects everything
+after the `<summary>` into one `::details-content` box, so the gap lands above that box
+rather than between the things inside it. The whole head is the click target, not just
+the caret.
+
+`animated` opens and closes the card over time instead of at once, on the same
+`::details-content` recipe and the same timing tokens `base.css` gives Horizon's own
+accordions — so a card here and an accordion elsewhere move at one speed, and it still
+costs no script. Two things it depends on, both found the hard way:
+
+- **An animated card is not a flex container.** As a flex item the content box is sized
+  by flex layout, which quietly wins over the `block-size` being animated: the copy
+  faded in and the padding grew while the card itself snapped to full height. The
+  animated variant is `display: block`, and the head and body run their own flex inside.
+- **The space above the revealed part is padding on the content box, not the panel's
+  row gap.** A closed `<details>` still lays out a zero-height content box, so a gap
+  there leaves dead air under every shut card; as padding it grows and collapses with
+  the box.
+
+It is a parameter rather than the default because not every disclosure wearing this
+card is an accordion — the gift message card reveals a field someone is about to type
+into, and sliding it into place under them is worse than putting it there.
 
 ### `ui-breadcrumb`
 
@@ -255,6 +297,10 @@ Trigger and panel as one disclosure. The kit files them as two components, but
 the panel exists only to be what the trigger opens.
 
 `options` · `rows` · `label` · `image` · `name` · `open` · `class` · `attributes`
+
+The trigger's outline is what separates its three drawn states: the border gray
+when closed, purple while hovered or open. The width never moves, and the panel's
+own outline stays gray throughout.
 
 Give it `options` for the simple case. `rows` takes captured `ui-variant-item`
 markup instead, for a caller that has to put its own attributes on every row —
@@ -332,6 +378,24 @@ inside a link is invalid markup — so there the button carries the link.
 `title` · `description` · `image` · `link` · `variant` · `button_label` ·
 `class` · `attributes`
 
+### `ui-mega-promo`
+
+The card at the right of a mega menu panel. It keeps the 255px it was drawn at
+and its picture keeps a 223×162 box, because collection images are square as
+often as not and a box that sized itself to one made the card 60px taller than
+the panel around it.
+
+Horizon's mega menu has no per-panel content of its own — all four of its submenu
+styles build themselves out of the navigation — so the card's settings live on
+the `_header-menu` block and it renders in every panel. That is the one place in
+this theme where merchant copy is a setting rather than a block: a static block
+needs a literal `id`, so it cannot be keyed to the panel it opens from.
+
+With no image chosen it falls back to the featured image of the collection its
+button points at.
+
+`image` · `heading` · `text` · `button_label` · `button_link` · `class`
+
 ### `ui-product-card`
 
 The tile in a product row. One stretched link on the title makes the whole card
@@ -372,6 +436,31 @@ Deliberately not Horizon's `quick-add`, whose chooser fills its modal by fetchin
 the product page and lifting `[data-product-grid-content]` out of it — an element
 that belongs to Horizon's `product-information` section and is not on this theme's
 product page.
+
+### `ui-recently-viewed`
+
+Not a picture — a script loader, the way `ui-carousel` is. It writes nothing and
+draws nothing; rendering it puts `assets/ui-recently-viewed.js` on the page, and the
+`<ui-recently-viewed>` element the section writes does the rest.
+
+The element fills a product row with what this visitor has looked at. Shopify has no
+object for that, since it is per-visitor and per-device, so the list lives in
+localStorage. The cards themselves do not: the element asks
+`/search?q=id:… &section_id=` for its own section a second time and lifts the row out
+of what comes back, so a card here is the same Liquid as a card anywhere else. That
+is Horizon's `product-recommendations` trick over a different endpoint.
+
+Three things the element needs, and one it gives back:
+
+- `data-url` the search route, `data-section-id` the section to re-render,
+  `data-product-id` the product being looked at — recorded for next time, and kept
+  out of its own row.
+- Every card carries `data-product-id`, because search answers in relevance order and
+  the row is put back into the order the products were seen in. Without that it is
+  products you have looked at, not products you have *recently* looked at.
+
+It starts `hidden` and only shows once it has something. A visitor on their first
+page has no history and must not be shown an empty heading.
 
 ### `ui-pagination-item` · `ui-pagination-arrow`
 
@@ -432,6 +521,14 @@ counts as a class, so a single class does not outrank them — name the element 
 (`summary.ui-x:hover`) or move the ring to the wrapper with `:has()`. Both traps
 have already bitten this kit once.
 
+**An overlay needs its own fill, even when the file gives it none.** A component
+drawn on Figma's white canvas can leave gaps between its parts and still look
+right; the same markup floating over a page shows whatever it covers through them.
+The variant panel was ported faithfully — transparent, with white rows 2px apart —
+and on the product page those 2px let the next option's light blue trigger through
+as a stripe across the list. Sampling the exported panel settled it: its interior
+is white throughout, so the gaps are spacing, not a window.
+
 **Icons keep the exact path data from Figma's node exports**, with `fill` or
 `stroke` swapped to `currentColor` so a hover recolours them. Do not redraw an
 icon by hand; export the node.
@@ -459,11 +556,20 @@ glance.
 
 ## Known issues
 
-**Hairlines can disappear.** `--ui-hairline-width` is `0.5px`, which the design
-specifies, but Chrome renders a sub-pixel inset shadow spread faintly or not at
-all — the quantity stepper's outline is missing on screen. This affects every
-0.5px outline in the kit: secondary buttons, the filter trigger, collection cards,
-the variant panel. Not yet fixed; the shape of the fix is to draw those hairlines
-with something that survives sub-pixel rendering.
+**Hairlines read faintly, and how faintly depends on the screen.**
+`--ui-hairline-width` is `0.5px`, which is what the design specifies. On a 2×
+display that lands on exactly one device pixel and draws cleanly; below 2× it is a
+sub-pixel line and gets antialiased to roughly half strength. Either way a
+`#d1d1d1` outline on the light blue fill is genuinely low contrast — the file draws
+it that way too, so most of the faintness is the design rather than a bug, and the
+value is left alone deliberately.
 
-**Nothing is wired to data.** See the note in `CLAUDE.md`.
+This entry used to claim the stepper's outline was missing entirely. That was a
+different fault with its own cause — the buttons painted over the shared inset
+shadow — and it is fixed; see the note in `ui-quantity-stepper.liquid`. If a
+hairline ever does need more presence, change `--ui-hairline-width` under a
+`resolution` media query rather than per component, so every outline in the kit
+moves together.
+
+**Most of the kit is not wired to data.** The product page is wired, and so is the
+product row — see the note in `CLAUDE.md`. Filters and pagination are not.

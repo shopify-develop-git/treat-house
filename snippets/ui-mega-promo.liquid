@@ -1,0 +1,129 @@
+{%- doc -%}
+  The card a mega menu panel carries at its right edge: a picture on white, a
+  title, a line of copy and one button (Figma: Collection Card 3, 491:14001).
+
+  It is 255px wide and holds that width — the panel places it against the page
+  margin, and a card that grew with the panel would leave the link columns to
+  take up the slack. Its height is the panel's: the picture is the flexible part,
+  so the file's two heights (288 beside one column, 312 beside two) both fall out
+  of the same card rather than needing a variant.
+
+  The picture sits on white and is fitted rather than cropped. The photographs
+  this takes are trays shot wide on a white sweep, so `cover` would cut the ends
+  off the tray; `contain` keeps the whole object and lets the white it already
+  has meet the white behind it.
+
+  @param {object} [image] - The picture. Renders an empty white panel when absent.
+  @param {string} [heading] - The card's title, in the display face.
+  @param {string} [text] - One line under the title.
+  @param {string} [button_label] - The button's text. No label, no button.
+  @param {string} [button_link] - Where the button goes.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-mega-promo',
+    image: block.settings.image,
+    heading: 'Choose Your Own Treat',
+    text: 'Design your box',
+    button_label: 'Shop now',
+    button_link: '/collections/choose-your-own-treat'
+  %}
+{%- enddoc -%}
+
+<div class="ui-mega-promo {{ class }}">
+  {%- if image != blank -%}
+    <div class="ui-mega-promo__media">
+      {{
+        image
+        | image_url: width: 446
+        | image_tag:
+          loading: 'lazy',
+          class: 'ui-mega-promo__image',
+          widths: '223, 446',
+          sizes: '223px',
+          alt: image.alt | default: heading
+      }}
+    </div>
+  {%- endif -%}
+
+  {%- if heading != blank or text != blank -%}
+    <div class="ui-mega-promo__body">
+      {%- if heading != blank -%}
+        <p class="ui-mega-promo__heading">{{ heading }}</p>
+      {%- endif -%}
+      {%- if text != blank -%}
+        <p class="ui-mega-promo__text">{{ text }}</p>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- if button_label != blank -%}
+    {% render 'ui-button',
+      variant: 'primary',
+      label: button_label,
+      link: button_link,
+      full_width: true,
+      class: 'ui-mega-promo__button'
+    %}
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .ui-mega-promo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-sizing: border-box;
+    inline-size: 255px;
+    padding: 16px;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-light-blue);
+  }
+
+  /*
+   * The picture keeps the box the file draws — 223 by 162 inside a 255 card —
+   * rather than taking its height from the photograph. Collection images are
+   * square as often as not, and a box that sized itself to one would make the
+   * card 60px taller than the panel it sits in.
+   */
+  .ui-mega-promo__media {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 223 / 162;
+    border-radius: 10px;
+    background-color: var(--ui-color-white);
+    overflow: hidden;
+  }
+
+  .ui-mega-promo__image {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+  }
+
+  .ui-mega-promo__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .ui-mega-promo__heading {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--ui-color-black);
+  }
+
+  .ui-mega-promo__text {
+    margin: 0;
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: 1.3;
+    color: var(--ui-color-gray);
+  }
+{% endstylesheet %}

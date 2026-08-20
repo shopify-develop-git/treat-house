@@ -111,6 +111,14 @@ than by teaching the kit about Shopify. Read
 `snippets/ui-product-variant-picker.liquid` and `blocks/_ui-product-buy.liquid`
 before wiring anything else.
 
+`sections/best-sellers.liquid` is the second one, and it shows the same trick at
+section scale. Its `source` setting draws its products from a picked list, from
+Shopify's recommendations, or from what this visitor has looked at; the last two
+arrive on a second request, so the section is wrapped in Horizon's own
+`<product-recommendations>` or in `<ui-recently-viewed>`, which asks the Search API
+for this section again and lifts the row out of the answer. The cards stay the kit's
+in every case. `docs/section-settings.md` has the two traps.
+
 ## Before you claim a component looks right
 
 `shopify theme dev` uploads assets on change but **misses files created while it

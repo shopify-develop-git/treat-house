@@ -1,0 +1,206 @@
+{% comment %}
+  FAQ (Figma: Standart Product Page → FAQ, 491:17106).
+
+  A centred heading over a stack of filled rows, each one a question that opens to
+  its answer. The file draws this same band on the product page, the home page, the
+  occasion collection pages and the customization flow, always at the same 846px
+  column inside the page width — so it is one section placed several times, not a
+  section per page.
+
+  The section owns the column and the arrangement. The heading is a static block and
+  the questions are the merchant's own list: a FAQ that needs a sixth question is a
+  block added, not a setting waiting on a developer. See `docs/section-settings.md`.
+
+  Built from the kit: [ui-panel] in its `bar` variant, through [_ui-faq-item].
+
+  Only the shut state is drawn — there is no open row anywhere in the file. So the
+  open state is decided here: the row keeps its fill and grows, the plus becomes the
+  minus it is already paired with in the kit, and the answer sits under the question
+  in the body face. Nothing invented that the file contradicts.
+
+  Opening one row shuts the rest, done with the `name` attribute HTML gives
+  `<details>` rather than with a script. A browser without it leaves the rows
+  independent, which is a smaller loss than a script would be.
+{% endcomment %}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="faq-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div
+    class="faq"
+    style="--faq-heading-gap: {{ section.settings.heading_gap }}px;"
+  >
+    {% content_for 'block', type: '_ui-heading', id: 'heading' %}
+
+    <div class="faq__list">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .faq {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--faq-heading-gap, 48px);
+  }
+
+  /*
+   * Reached as a child of the section rather than by a class of its own: the
+   * heading block owns its type and this owns where it stands, and a descendant
+   * selector outweighs the block's own rules without depending on which stylesheet
+   * is concatenated last.
+   */
+  .faq > .ui-heading {
+    justify-self: center;
+    text-align: center;
+  }
+
+  .faq__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--faq-row-gap, 16px);
+
+    /*
+     * The file draws the column 846 wide inside the 1280 page column, centred. A
+     * question set across the full 1280 is a line nobody finishes reading, which is
+     * why the drawn width is a cap here rather than a setting: it is a measure, not
+     * a preference.
+     */
+    inline-size: 100%;
+    max-inline-size: var(--faq-width, 846px);
+    margin-inline: auto;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "FAQ",
+  "tag": "section",
+  "blocks": [{ "type": "_ui-faq-item" }],
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "exclusive",
+      "label": "Open one at a time",
+      "info": "Opening a question shuts the one already open. Older browsers leave them independent.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "range",
+      "id": "heading_gap",
+      "label": "Gap under the heading",
+      "min": 0,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        { "value": "page-width", "label": "t:options.page" },
+        { "value": "full-width", "label": "t:options.full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ",
+      "category": "t:categories.storytelling",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>How can <em>we help?</em></h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32
+          }
+        },
+        "kinds": {
+          "type": "_ui-faq-item",
+          "settings": {
+            "question": "What types of treats do you offer?",
+            "answer": "<p>Handcrafted Krispie treats in twelve-packs, gift boxes and party bars, plus custom photo treats and gluten-free options. Every box is made to order in small batches.</p>"
+          }
+        },
+        "customize": {
+          "type": "_ui-faq-item",
+          "settings": {
+            "question": "Can I customize my order?",
+            "answer": "<p>Yes. Choose your own mix of flavors, add a printed photo, and include a gift message at checkout. Corporate orders can carry your branding.</p>"
+          }
+        },
+        "allergies": {
+          "type": "_ui-faq-item",
+          "settings": {
+            "question": "Do you accommodate food allergies or dietary restrictions?",
+            "answer": "<p>We make gluten-free treats, and every product page lists its full ingredients and allergens. Our kitchen handles milk, tree nuts, peanut, soy and gluten, so we cannot promise a trace-free box.</p>"
+          }
+        },
+        "lead_time": {
+          "type": "_ui-faq-item",
+          "settings": {
+            "question": "How far in advance should I place my order?",
+            "answer": "<p>Most orders are made fresh and ship within 24 hours. For a dated delivery or a large corporate order, three to five business days ahead is safest.</p>"
+          }
+        },
+        "storage": {
+          "type": "_ui-faq-item",
+          "settings": {
+            "question": "How do I store my treats after receiving them?",
+            "answer": "<p>Keep them refrigerated below 18°C in their original packaging and enjoy them within 14 days. Let a treat sit at room temperature for 10 to 15 minutes before serving.</p>"
+          }
+        }
+      },
+      "block_order": ["kinds", "customize", "allergies", "lead_time", "storage"]
+    }
+  ]
+}
+{% endschema %}

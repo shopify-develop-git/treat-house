@@ -1,0 +1,83 @@
+{%- doc -%}
+  One question in a FAQ list: the question, and the answer opening reveals.
+
+  Renders [ui-panel] in its `bar` variant and nothing else, for the reason
+  [_ui-product-chip] gives — the look belongs to the kit and this is the merchant's
+  handle on it.
+
+  It is a block rather than a run of settings on the section because a FAQ is a list
+  the merchant lengthens, shortens and reorders. That is the rule
+  `docs/section-settings.md` opens with, and a numbered `question_1` through
+  `question_5` is the smell it names.
+
+  The rows can be an exclusive accordion — opening one shuts the rest — through the
+  `name` attribute HTML gives `<details>`, which needs no script and degrades to
+  ordinary independent rows in a browser that has not caught up. The group is the
+  section's, so the switch lives there and every row in one section shares one name.
+{%- enddoc -%}
+
+{%- liquid
+  assign answer = block.settings.answer
+
+  # One group per section, so two FAQ sections on one page do not close each other's
+  # rows. `section` is in scope inside a block, the way `_carousel-content` reads it.
+  assign group = ''
+  if section.settings.exclusive
+    assign group = 'name="faq-' | append: section.id | append: '"'
+  endif
+-%}
+
+{%- if block.settings.question != blank -%}
+  <div class="ui-faq-item" {{ block.shopify_attributes }}>
+    {% render 'ui-panel',
+      variant: 'bar',
+      title: block.settings.question,
+      body: answer,
+      collapsible: true,
+      animated: true,
+      open: block.settings.open,
+      attributes: group
+    %}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  /* The wrapper the editor needs for its outline must not size itself: a row is as
+     wide as the list, whatever the question runs to. */
+  .ui-faq-item > .ui-panel {
+    inline-size: 100%;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Question",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "question",
+      "label": "Question",
+      "default": "What types of treats do you offer?"
+    },
+    {
+      "type": "richtext",
+      "id": "answer",
+      "label": "Answer",
+      "default": "<p>Handcrafted Krispie treats in twelve-packs, gift boxes and party bars, plus custom photo treats and gluten-free options.</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "open",
+      "label": "Open to begin with",
+      "info": "With the section set to open one at a time, only the last row marked this way stays open.",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Question"
+    }
+  ]
+}
+{% endschema %}

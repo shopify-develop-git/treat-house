@@ -70,6 +70,28 @@
         assign color_scheme_classes = color_scheme_classes | append: ' color-scheme-matches-parent'
       endif
 
+      ##
+      # A merchant who has not picked a picture still gets one, from the
+      # collection the button already points at. It is the same photograph the
+      # collection page shows, so the card is right rather than empty on the day
+      # the menu is switched on.
+      assign promo_image = block_settings.promo_image
+      if promo_image == blank and block_settings.promo_button_link contains '/collections/'
+        assign promo_handle = block_settings.promo_button_link | split: '/collections/' | last | split: '?' | first
+        assign promo_image = collections[promo_handle].featured_image
+      endif
+
+      assign has_promo = false
+      if promo_image != blank
+        assign has_promo = true
+      elsif block_settings.promo_heading != blank
+        assign has_promo = true
+      elsif block_settings.promo_text != blank
+        assign has_promo = true
+      elsif block_settings.promo_button_label != blank
+        assign has_promo = true
+      endif
+
       if block_settings.menu_style == 'featured_collections'
         assign ratio = block_settings.featured_collections_aspect_ratio
       elsif block_settings.menu_style == 'featured_products'
@@ -133,6 +155,30 @@
                       image_border_radius: image_border_radius
                     %}
                   </div>
+
+                  {%- comment -%}
+                    Horizon's four submenu styles all build themselves out of the
+                    navigation, so none of them can show the picture, the line of
+                    copy and the button the file draws down the right of a panel.
+
+                    The card is settings on this block rather than a block of its
+                    own, which is the exception to the rule in CLAUDE.md and not a
+                    choice: a static block needs a literal `id`, so it cannot be
+                    keyed to the panel it opens from, and `content_for 'blocks'`
+                    renders its list once wherever it is written rather than once
+                    per panel. Settings render in every panel, which is what the
+                    file draws — the same card three times.
+                  {%- endcomment -%}
+                  {%- if has_promo -%}
+                    {% render 'ui-mega-promo',
+                      class: 'mega-menu__promo',
+                      image: promo_image,
+                      heading: block_settings.promo_heading,
+                      text: block_settings.promo_text,
+                      button_label: block_settings.promo_button_label,
+                      button_link: block_settings.promo_button_link
+                    %}
+                  {%- endif -%}
                 </div>
               </div>
             </div>
@@ -893,16 +939,32 @@
      ------------------------------------------------------------------ */
 
   @media screen and (min-width: 1050px) {
+    /*
+     * The rounded bottom corners have to go on the element that paints the white
+     * — `.menu-list__submenu` — not on the panel inside it, which is transparent
+     * and would round nothing. Its inner scroller carries 28px of Horizon's own
+     * bottom padding, which the file does not draw: with it the white runs 388px
+     * against the 360 in the design, and the corners curve above the edge of the
+     * colour rather than on it.
+     */
+    #header-component[data-menu-style='menu'] .menu-list__submenu {
+      border-end-start-radius: 20px;
+      border-end-end-radius: 20px;
+    }
+
+    #header-component[data-menu-style='menu'] .menu-list__submenu-inner {
+      padding-block-end: 0;
+      border-end-start-radius: 20px;
+      border-end-end-radius: 20px;
+    }
+
     #header-component[data-menu-style='menu'] .mega-menu {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 24px;
       box-sizing: border-box;
-      padding: 24px var(--ui-page-margin) 48px;
-      border-end-start-radius: 20px;
-      border-end-end-radius: 20px;
-      overflow: hidden;
+      padding: 24px var(--ui-page-margin);
     }
 
     #header-component[data-menu-style='menu'] .mega-menu__title {
@@ -921,6 +983,19 @@
       flex: 0 1 auto;
       min-width: 0;
       padding-block-start: 9px;
+    }
+
+    /*
+     * The card holds the 255px it was drawn at and takes the panel's height, so
+     * the picture inside it absorbs the difference between a panel with one
+     * column of links and a panel with two. `margin-inline-start: auto` is what
+     * puts it against the page margin when the links do not fill the row —
+     * `justify-content` cannot, because the title has to stay at the far left.
+     */
+    #header-component[data-menu-style='menu'] .mega-menu__promo {
+      flex: 0 0 auto;
+      align-self: flex-start;
+      margin-inline-start: auto;
     }
 
     /* The columns sit far apart — 120px — and each one is a heading, a stack of
@@ -1151,6 +1226,31 @@
       ],
       "default": "16 / 9",
       "visible_if": "{{ block.settings.menu_style == 'featured_collections' }}"
+    },
+    {
+      "type": "image_picker",
+      "id": "promo_image",
+      "label": "t:settings.image"
+    },
+    {
+      "type": "text",
+      "id": "promo_heading",
+      "label": "t:settings.title"
+    },
+    {
+      "type": "text",
+      "id": "promo_text",
+      "label": "t:settings.text"
+    },
+    {
+      "type": "text",
+      "id": "promo_button_label",
+      "label": "t:settings.label"
+    },
+    {
+      "type": "url",
+      "id": "promo_button_link",
+      "label": "t:settings.link"
     },
     {
       "type": "range",

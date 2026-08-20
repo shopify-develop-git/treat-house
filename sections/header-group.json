@@ -50,7 +50,11 @@
             "color_scheme_navigation_bar": "",
             "drawer_accordion": false,
             "drawer_accordion_expand_first": false,
-            "drawer_dividers": false
+            "drawer_dividers": false,
+            "promo_heading": "Choose Your Own Treat",
+            "promo_text": "Design your box",
+            "promo_button_label": "Shop now",
+            "promo_button_link": "shopify://collections/choose-your-own-treat"
           },
           "blocks": {}
         }

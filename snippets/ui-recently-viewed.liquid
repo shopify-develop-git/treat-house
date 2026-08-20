@@ -1,0 +1,26 @@
+{%- doc -%}
+  Loads the recently viewed component's script.
+
+  Rendered by any section holding a `<ui-recently-viewed>`. Rendering it more than
+  once on a page is harmless — a module runs once however many tags point at it,
+  which is the same bargain [ui-carousel] makes.
+
+  The element itself is markup the section writes, and it needs three things: the
+  search route to ask, its own section id to ask for, and the product being looked
+  at so that page is recorded and kept out of its own row.
+
+  @example
+  <ui-recently-viewed
+    id="row-{{ section.id }}"
+    data-url="{{ routes.search_url }}"
+    data-section-id="{{ section.id }}"
+    data-product-id="{{ product.id }}"
+    data-limit="5"
+    hidden
+  >
+    …a row of product cards, each `<li>` carrying `data-product-id`…
+  </ui-recently-viewed>
+  {% render 'ui-recently-viewed' %}
+{%- enddoc -%}
+
+<script src="{{ 'ui-recently-viewed.js' | asset_url }}" type="module" fetchpriority="low"></script>

@@ -26,6 +26,14 @@
   at the far end and a line of copy beneath the title, and a card whose copy is
   inert while the 14px caret beside it toggles is a smaller target than it looks.
 
+  `variant` is the skin. `card` is the product page's bordered white card; `bar` is
+  the filled light-blue row the FAQ stacks (Figma: FAQ → Questions). They are one
+  component because everything hard about a disclosure is shared — the `<summary>`
+  reset, the two `base.css` rules that outrank a lone class, and the
+  `::details-content` animation — and what differs is a background, a padding, a
+  type scale and which glyph marks the toggle. A second snippet would have copied
+  the first list to change the second.
+
   `animated` moves the card open and shut rather than snapping, using the same
   `::details-content` recipe and the same timing tokens `base.css` already gives
   Horizon's own accordions — so a card here and an accordion elsewhere on the site
@@ -35,13 +43,14 @@
   into place under them is worse than putting it there.
 
   @param {string} title - The card's heading.
+  @param {string} [variant] - `card` for the bordered white card, `bar` for the filled FAQ row. Defaults to `card`.
   @param {string} [icon] - Icon asset name, with or without the `icon-ui-` prefix and extension.
   @param {string} [intro] - Markup shown whether the card is open or closed.
   @param {string} [body] - Markup shown below `intro`; hidden until opened when `collapsible`.
   @param {boolean} [collapsible] - Renders the card as a `<details>` disclosure.
   @param {boolean} [animated] - Opens and closes over time instead of at once.
   @param {boolean} [open] - Starts a collapsible card open.
-  @param {boolean} [chevron] - Draws the caret. Defaults to `collapsible`.
+  @param {boolean} [chevron] - Draws the toggle mark. Defaults to `collapsible`. Which mark is drawn is the variant's: a caret on `card`, a plus that becomes a minus on `bar`.
   @param {string} [padding] - `default` for the drawn 14px, `tight` for the 12/16 the shipping card takes.
   @param {string} [id] - The `id` attribute.
   @param {string} [class] - Additional CSS classes.
@@ -50,6 +59,7 @@
   @example
   {% render 'ui-panel', title: 'Estimated shipping', icon: 'shipping-fast', padding: 'tight', body: rows %}
   {% render 'ui-panel', title: 'Storage', icon: 'thermometer', collapsible: true, intro: lede, body: full %}
+  {% render 'ui-panel', variant: 'bar', title: 'Can I customize my order?', collapsible: true, animated: true, body: answer %}
 {%- enddoc -%}
 
 {%- liquid
@@ -68,8 +78,17 @@
     assign show_chevron = collapsible
   endif
 
-  assign panel_padding = padding | default: 'default'
-  assign panel_classes = 'ui-panel ui-panel--' | append: panel_padding
+  assign panel_variant = variant | default: 'card'
+  assign panel_classes = 'ui-panel ui-panel--' | append: panel_variant
+
+  # The bar's padding is the variant's own. Writing the padding modifier as well
+  # would leave two single-class rules setting one property, and which of them won
+  # would be source order inside the bundled stylesheet — a thing this kit has been
+  # bitten by before. So the class it would fight with is simply not written.
+  unless panel_variant == 'bar'
+    assign panel_padding = padding | default: 'default'
+    assign panel_classes = panel_classes | append: ' ui-panel--pad-' | append: panel_padding
+  endunless
   if collapsible and animated
     assign panel_classes = panel_classes | append: ' ui-panel--animated'
   endif
@@ -87,7 +106,24 @@
       {{ title }}
     </span>
     {%- if show_chevron -%}
-      <span class="ui-panel__chevron" aria-hidden="true">{{- 'icon-ui-chevron-down.svg' | inline_asset_content -}}</span>
+      {%- if panel_variant == 'bar' -%}
+        {%- comment -%}
+          Both glyphs are in the markup and CSS shows one of them. Swapping a single
+          icon on `[open]` would take either a script or a second request; a pair of
+          inline SVGs takes neither, and the kit already carries both — the file's
+          plus is the same glyph the quantity stepper uses, drawn larger.
+        {%- endcomment -%}
+        <span class="ui-panel__marker" aria-hidden="true">
+          <span class="ui-panel__marker-glyph ui-panel__marker-glyph--shut">
+            {{- 'icon-ui-plus.svg' | inline_asset_content -}}
+          </span>
+          <span class="ui-panel__marker-glyph ui-panel__marker-glyph--open">
+            {{- 'icon-ui-minus.svg' | inline_asset_content -}}
+          </span>
+        </span>
+      {%- else -%}
+        <span class="ui-panel__chevron" aria-hidden="true">{{- 'icon-ui-chevron-down.svg' | inline_asset_content -}}</span>
+      {%- endif -%}
     {%- endif -%}
   </div>
   {%- if intro != blank -%}{{ intro }}{%- endif -%}
@@ -121,24 +157,80 @@
     --ui-panel-title-size: 12px;
   }
 
+  /*
+   * What a variant is allowed to move sits on the block as custom properties, so a
+   * variant redeclares values rather than repeating rules. Everything below this
+   * — the summary reset, the two base.css fixes, the animation — is the same for
+   * both skins, which is why they are one component.
+   */
   .ui-panel {
     display: flex;
     flex-direction: column;
     gap: var(--ui-panel-gap);
     box-sizing: border-box;
+    padding: var(--ui-panel-padding, 14px);
     border-radius: var(--ui-radius-sm);
-    /* The one place in the kit drawn with a full 1px edge rather than the 0.5px
-       hairline, and in the palette's light blue rather than the border gray. */
-    box-shadow: inset 0 0 0 1px var(--ui-color-light-blue);
-    background-color: var(--ui-color-white);
+    /* The card is the one place in the kit drawn with a full 1px edge rather than
+       the 0.5px hairline, and in the palette's light blue rather than the border
+       gray. The bar has no edge at all — it is a fill. */
+    box-shadow: var(--ui-panel-edge, inset 0 0 0 1px var(--ui-color-light-blue));
+    background-color: var(--ui-panel-background, var(--ui-color-white));
   }
 
-  .ui-panel--default {
-    padding: 14px;
+  .ui-panel--pad-default {
+    --ui-panel-padding: 14px;
   }
 
-  .ui-panel--tight {
-    padding: 12px 16px;
+  .ui-panel--pad-tight {
+    --ui-panel-padding: 12px 16px;
+  }
+
+  /*
+   * The filled row the FAQ stacks. Padding is the variant's own and the `padding`
+   * parameter does not reach it — the two are not the same decision, and a bar at
+   * the card's 14px is not a bar.
+   */
+  .ui-panel--bar {
+    --ui-panel-gap: 16px;
+    --ui-panel-padding: 24px;
+    --ui-panel-background: var(--ui-color-light-blue);
+    --ui-panel-edge: none;
+    --ui-panel-title-font: var(--ui-font-emphasis);
+    --ui-panel-title-weight: var(--ui-font-emphasis-weight);
+    --ui-panel-title-size: 20px;
+    --ui-panel-title-case: none;
+    --ui-panel-title-line-height: var(--ui-line-height);
+  }
+
+  /*
+   * The file draws the bar only at 1440. Held at the drawn 20px question inside 24px
+   * of padding, a phone spends 48 of its 343 on air and the longest question runs to
+   * three lines — so the bar steps down at the theme's own 750, the way every other
+   * piece of type in the kit does. The mark keeps its 24px: it is the tap target.
+   */
+  @media screen and (max-width: 749px) {
+    .ui-panel--bar {
+      --ui-panel-padding: 20px;
+      --ui-panel-title-size: 18px;
+    }
+  }
+
+  /* The bar's inside is copy by definition, so the type belongs to the component
+     rather than to whoever hands over the markup. */
+  .ui-panel--bar .ui-panel__body {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-panel-body-size, 16px);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  .ui-panel--bar .ui-panel__body > * {
+    margin: 0;
+  }
+
+  .ui-panel--bar .ui-panel__body a {
+    color: var(--ui-color-primary);
   }
 
   /*
@@ -216,13 +308,18 @@
   }
 
   /*
-   * The space above the revealed part becomes padding on the content box rather
-   * than the panel's own row gap. A closed `<details>` still lays out a
-   * zero-height content box, so a gap there would leave 10px of dead air under
-   * every shut card; as padding it grows with the box and collapses with it.
+   * Not a flex container, unlike the rest of the panels. As a flex item the content
+   * box is sized by flex layout, which quietly wins over the `block-size` being
+   * animated — the copy faded in and the padding grew, but the card itself snapped
+   * to full height. As a block the animated property is the one that decides.
+   *
+   * Nothing is lost by it: the space above the revealed part is padding on the
+   * content box rather than the panel's row gap, since a closed `<details>` still
+   * lays out a zero-height content box and a gap there would leave 10px of dead air
+   * under every shut card. Both the head and the body run their own flex inside.
    */
   details.ui-panel--animated {
-    row-gap: 0;
+    display: block;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -242,12 +339,12 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    color: var(--ui-color-primary);
-    font-family: var(--ui-font-accent);
+    color: var(--ui-panel-title-color, var(--ui-color-primary));
+    font-family: var(--ui-panel-title-font, var(--ui-font-accent));
     font-size: var(--ui-panel-title-size);
-    font-weight: 600;
-    line-height: 1.35;
-    text-transform: uppercase;
+    font-weight: var(--ui-panel-title-weight, 600);
+    line-height: var(--ui-panel-title-line-height, 1.35);
+    text-transform: var(--ui-panel-title-case, uppercase);
   }
 
   .ui-panel__icon {
@@ -275,6 +372,40 @@
 
   .ui-panel[open] > .ui-panel__head .ui-panel__chevron {
     rotate: 180deg;
+  }
+
+  /*
+   * The bar's toggle. Both glyphs are rendered and one is shown, so the swap costs
+   * no script — and because the pair is the same drawing minus a stroke, the
+   * horizontal bar does not move between the two states.
+   */
+  .ui-panel__marker {
+    display: block;
+    flex: 0 0 auto;
+    inline-size: var(--ui-panel-marker, 24px);
+    block-size: var(--ui-panel-marker, 24px);
+    color: var(--ui-panel-marker-color, var(--ui-color-primary));
+  }
+
+  .ui-panel__marker-glyph {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .ui-panel__marker-glyph > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ui-panel__marker-glyph--open,
+  .ui-panel[open] > .ui-panel__head .ui-panel__marker-glyph--shut {
+    display: none;
+  }
+
+  .ui-panel[open] > .ui-panel__head .ui-panel__marker-glyph--open {
+    display: block;
   }
 
   /*

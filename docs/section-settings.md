@@ -330,6 +330,7 @@ gutter ladder is in `CLAUDE.md`.
 | `_ui-testimonial` | richtext quote, star count, name, role, photo | `testimonials` |
 | `_ui-feature-panel` | show the badge, the badge, the cut-out under the copy; hosts a heading and a text block | `why-choose-us`, static |
 | `_ui-feature-card` | icon, title, richtext copy | `why-choose-us` |
+| `_ui-faq-item` | question, richtext answer, open to begin with | `faq` |
 | `_ui-rule` | colour, thickness, the space either side | `product-main` |
 | `_ui-product-price` | show the was-price, size, mobile size | `product-main` |
 | `_ui-product-chips` | per-product metafield, gap; hosts tag blocks | `product-main` |
@@ -373,6 +374,29 @@ The two-tone heading needs somewhere per-product to live, so on that path the ac
 comes from `custom.title_accent` — the words to draw in purple, spelled as they
 appear in the title — instead of from `<em>` in a field the merchant is no longer
 typing into.
+
+### A section can read somewhere else too
+
+`best-sellers` grew the same kind of setting. `source` is `chosen` — the products
+the merchant picks — or `related`, Shopify's recommendations for the product being
+looked at, or `recently_viewed`, this visitor's own history. The file draws four
+rows and all four are this one section with the settings moved, so a change to the
+card reaches every row rather than three of four.
+
+Neither of the two answers exists at render time: recommendations and a search both
+need a request carrying the question. So the row renders empty and a custom element
+around the whole band asks for the section a second time with the question attached
+and swaps in what comes back — `<product-recommendations>` is Horizon's own, script
+included, and `<ui-recently-viewed>` is the same shape over the Search API. Two
+things that fall out of that and are easy to get wrong:
+
+- **An empty row is not filled with the onboarding cards** unless `request.design_mode`
+  says a merchant is looking at it. A shopper waiting on their own products would
+  otherwise be shown five invented ones.
+- **`data-has-recommendations` is not written until the answer is in.** Horizon hides
+  a `product-recommendations` whose descendant says `false`, and its script waits on
+  an `IntersectionObserver` — an element hidden before it asks never intersects, so
+  it never asks.
 
 ### Per-product overrides are metafields, and the block holds the default
 
