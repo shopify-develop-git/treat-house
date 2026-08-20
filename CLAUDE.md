@@ -109,6 +109,28 @@ runs**. A new SVG then renders as `<!-- inline_asset_content: Asset not found. -
 and the icon is silently absent. If an icon is missing, `touch assets/*.svg`
 before debugging the CSS.
 
+### The header is two headers, and an iframe only ever shows you one
+
+`theme.liquid` picks `data-menu-style` at load: `drawer` on a touch device,
+`menu` otherwise. The two are not a detail — Horizon keeps a whole separate phone
+arrangement behind `[data-menu-style='drawer']` which spans the row across the
+page grid and pads it to nothing, at a weight of (1,2,0).
+
+An iframe is not a touch device, so it always reports `menu`. A narrow iframe
+therefore renders a header **no phone will ever see**, and a rule that loses to
+that drawer block looks perfectly correct while being wrong on every real
+handset. That is how the header shipped once with no side margin at all.
+
+So when measuring anything in the header, set `data-menu-style` by hand and read
+both:
+
+```js
+for (const mode of ['menu', 'drawer']) { header.dataset.menuStyle = mode; /* measure */ }
+```
+
+And reach past that block deliberately: `#header-component.header …` is (1,3,0)
+and clears it. An id plus one class does not.
+
 Full reference, tokens and conventions: **`docs/ui-kit.md`**
 
 Schema, blocks and what the merchant sees: **`docs/section-settings.md`**

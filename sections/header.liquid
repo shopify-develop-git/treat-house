@@ -1017,7 +1017,12 @@
 
   /* The row -------------------------------------------------------- */
 
-  #header-component .header__columns {
+  /* Through `.header` for the same reason as the phone block below: the theme's
+     drawer arrangement sets `padding-block: 0` at (1,2,0), and an id plus one class
+     does not reach that. Left alone the band loses its 6px and the header comes out
+     62 tall instead of 74 — but only on a touch device, which is not what a desktop
+     browser narrowed to phone width reports itself as. */
+  #header-component.header .header__columns {
     padding-block: var(--th-header-pad-block);
   }
 
@@ -1044,9 +1049,16 @@
   /* On a phone the badge takes the left margin and everything else goes to the
      right, which is the reverse of what the theme draws — it centres the badge and
      puts the drawer button first. The order is set here rather than in the markup
-     because the markup is shared with the wide layout, where it is already right. */
+     because the markup is shared with the wide layout, where it is already right.
+
+     Reached through `.header` as well as the id, and that matters. The theme has its
+     own phone arrangement behind `[data-menu-style='drawer']`, which spans the row
+     across all three tracks and pads it to nothing — and at (1,2,0) it outweighs an
+     id and one class. Drawer is what any touch device gets, so without the extra
+     class this rule loses on every real phone while looking correct in a desktop
+     browser narrowed to the same width. */
   @media screen and (max-width: 749px) {
-    #header-component .header__columns {
+    #header-component.header .header__columns {
       display: flex;
       align-items: center;
       gap: var(--th-icon-gap);
@@ -1058,12 +1070,12 @@
       padding-inline: 0;
     }
 
-    #header-component .header-logo {
+    #header-component.header .header-logo {
       order: 1;
       margin-inline-end: auto;
     }
 
-    #header-component .search-action {
+    #header-component.header .search-action {
       order: 2;
     }
 
@@ -1071,7 +1083,7 @@
       order: 3;
     }
 
-    #header-component .header__drawer {
+    #header-component.header .header__drawer {
       order: 4;
     }
   }
@@ -1154,7 +1166,7 @@
   /* The burger carries a plate in the file. It is drawn here rather than baked into
      the icon so it takes a token and can follow the palette. */
   @media screen and (max-width: 749px) {
-    #header-component .header__drawer :is(button, summary):not(:is(dialog, [popover]) *) {
+    #header-component.header .header__drawer :is(button, summary):not(:is(dialog, [popover]) *) {
       display: grid;
       place-items: center;
       box-sizing: border-box;
@@ -1167,8 +1179,8 @@
 
     /* The theme sizes the wrapper here rather than the glyph, so setting the svg on
        its own leaves it boxed into whatever the wrapper was given. Both, then. */
-    #header-component .header__drawer :is(.header-drawer-icon, .svg-wrapper),
-    #header-component .header__drawer .svg-wrapper > svg {
+    #header-component.header .header__drawer :is(.header-drawer-icon, .svg-wrapper),
+    #header-component.header .header__drawer .svg-wrapper > svg {
       width: var(--th-burger-size);
       height: var(--th-burger-size);
     }
