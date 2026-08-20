@@ -243,11 +243,23 @@ use. The open state, keyboard operation and Escape come from the browser, and
 `data-auto-close-details` hands the outside click to the theme's existing
 `auto-close-details.js`. **No new JavaScript — keep it that way.**
 
+**These filter.** `sections/collection-products.liquid` puts the bar inside a
+`<form method="get">` pointed at the collection, and that is the whole mechanism: a
+choice row is a real checkbox named for its facet, Apply is a real submit, and Clear
+all, the chips and the pagination are real links. Nothing here knows it is talking to
+Shopify — the caller hands over `collection.filters` and the URLs Shopify already
+computed. Read that section before wiring the bar somewhere else; the two traps it
+had to solve are written down in its own comment.
+
 ### `ui-filter-bar`
 
 A row of filter groups. Takes `collection.filters` directly.
 
-`groups` · `type` · `class`
+`groups` · `type` · `clear_link` · `range_prefix` · `range_form_id` · `class`
+
+A group Shopify types `price_range` carries a min and a max instead of a list; the
+bar spots that and passes it down as the panel's `range` kind, so the Price group
+does not render as an empty panel.
 
 ### `ui-filter-dropdown`
 
@@ -260,7 +272,16 @@ One group: trigger plus panel, panel taken out of flow so it overlays the grid.
 The open body on its own — heading, rows, Apply, Clear all. Useful in a sidebar
 where there is nothing to open.
 
-`heading` · `values` · `type` · `name` · `apply_label` · `clear_label` · `class`
+`heading` · `values` · `type` (`checkbox`/`radio`/`range`) · `name` · `min_name` ·
+`max_name` · `min_value` · `max_value` · `range_prefix` · `apply_label` ·
+`clear_label` · `clear_link` · `form_id` · `class`
+
+Apply is a real submit and Clear all is a real link, so a panel inside a form filters
+with no script. `form_id` is there for the `range` kind only: an empty number field
+still posts its name, so a price group that shared the checkbox groups' form would
+put `&filter.v.price.gte=` on the URL every time anybody ticked anything anywhere.
+The `form` attribute is the language's own answer — the fields sit inside that form's
+markup and belong to a different one.
 
 ### `ui-filter-trigger`
 
@@ -273,15 +294,25 @@ Renders a `<summary>`, so it only works inside a `<details>`.
 Filled purple trigger with a white label. Separate from the filter dropdown
 because it shares no visual property with it.
 
-`options` · `label` · `prefix` · `open` · `class`
+`options` · `items` · `label` · `prefix` · `open` · `class`
+
+`options` is for the previews. A real collection hands over `items` — the rows
+already rendered — because `collection.sort_options` carries a name and a value and
+no link, and the link a sort row needs has to keep whatever facets are applied. That
+is the caller's knowledge, and assembling URLs is not a thing a component that only
+knows how to look should be doing.
 
 ### `ui-filter-chip` · `ui-remove-icon`
 
 An applied-filter chip, and the remove disc it contains. The chip is not the
 control — the disc is, because the kit gives only the disc a hover state.
 
-Chip: `label` · `remove_label` · `class` · `attributes`
-Disc: `label` · `class` · `attributes`
+Chip: `label` · `remove_link` · `remove_label` · `class` · `attributes`
+Disc: `link` · `label` · `class` · `attributes`
+
+Given a `link` the disc renders an `<a>` instead of a `<button>`, which is what
+clearing a facet wants: Shopify's `value.url_to_remove` is a place to go, and a real
+link keeps middle-click, open-in-new-tab and the back button working.
 
 `values`, `groups` and `options` are read through `.label`, `.value` and
 `.active`, which is the shape Shopify's `filter.values` and `sort_options`
@@ -556,20 +587,27 @@ glance.
 
 ## Known issues
 
-**Hairlines read faintly, and how faintly depends on the screen.**
-`--ui-hairline-width` is `0.5px`, which is what the design specifies. On a 2×
-display that lands on exactly one device pixel and draws cleanly; below 2× it is a
-sub-pixel line and gets antialiased to roughly half strength. Either way a
-`#d1d1d1` outline on the light blue fill is genuinely low contrast — the file draws
-it that way too, so most of the faintness is the design rather than a bug, and the
-value is left alone deliberately.
+**An inset shadow paints under the element's own children, so opaque children
+that reach the edges erase the outline.** This has now bitten the kit twice — the
+quantity stepper, whose buttons cover all four edges, and the variant panel, whose
+rows start at its exact top and left. Both are fixed the same way: the outline
+moves to an `::after` with `position: absolute; inset: 0`, which paints above the
+children and, being inset, still costs the layout nothing.
 
-This entry used to claim the stepper's outline was missing entirely. That was a
-different fault with its own cause — the buttons painted over the shared inset
-shadow — and it is fixed; see the note in `ui-quantity-stepper.liquid`. If a
-hairline ever does need more presence, change `--ui-hairline-width` under a
-`resolution` media query rather than per component, so every outline in the kit
-moves together.
+The tell is a hairline that looks *half* there rather than absent. Measure it
+rather than judging by eye — screenshot the component and the Figma export, and
+compare the border pixel against the fill. The variant panel read 11 units off
+white where the file reads 23; after the fix it reads 21 to 24 on all four sides.
+A component with padding cannot have this fault, which is why `ui-filter-panel`
+and `ui-sort-dropdown` were never affected.
+
+`--ui-hairline-width` itself is fine and is left alone: `0.5px` is what the design
+specifies, and on a 2× display it lands on exactly one device pixel. Probing five
+ways of drawing the same line — inset shadow, border and outline, at 0.5px and
+1px, on whole and fractional positions — the current inset shadow was the closest
+match to the file. If one ever does need more presence, change the token under a
+`resolution` media query rather than per component, so every outline moves
+together.
 
 **Most of the kit is not wired to data.** The product page is wired, and so is the
 product row — see the note in `CLAUDE.md`. Filters and pagination are not.

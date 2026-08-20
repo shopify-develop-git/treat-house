@@ -321,7 +321,7 @@ gutter ladder is in `CLAUDE.md`.
 | --- | --- | --- |
 | `_ui-heading` | richtext heading, size, mobile size, max width, colour, accent colour | `home-hero`, `our-story`, `shop-by-occasion`, `partner-story`, `best-sellers` (static), `testimonials` (static) |
 | `_ui-text` | richtext copy, size, mobile size, max width, colour | `home-hero`, `our-story`, `shop-by-occasion`, `partner-story`, `newsletter` |
-| `_ui-link` | label, url, variant, full width, new tab | `home-hero`, `shop-by-occasion`, `partner-story`, `best-sellers` (static), `_ui-link-row` |
+| `_ui-link` | label, url, variant, full width, new tab | `home-hero`, `shop-by-occasion`, `partner-story`, `best-sellers` (static), `newsletter` (static, on the button path), `_ui-link-row` |
 | `_ui-link-row` | gap; hosts link blocks | `home-hero` |
 | `_ui-review-line` | stars, rating, review count, layout, text size, mobile text size, gap; the row as one picture, or avatar blocks | `home-hero`, `testimonials` (static) |
 | `_ui-avatar` | image; sized by the row it stands in | `_ui-review-line` |
@@ -374,6 +374,41 @@ The two-tone heading needs somewhere per-product to live, so on that path the ac
 comes from `custom.title_accent` — the words to draw in purple, spelled as they
 appear in the title — instead of from `<em>` in a field the merchant is no longer
 typing into.
+
+A collection reads the same way: `collection_title` and `collection_description`, with
+the accent from the collection's own `custom.title_accent`. That is what lets one
+`templates/collection.json` carry eight occasion pages that each name themselves — the
+alternative is eight templates whose only difference is two strings.
+
+### A page the merchant does not have to fill in twice
+
+`collection-hero` and `collection-products` between them are a whole collection page
+with almost nothing typed into the theme editor. The hero's words are the collection's
+own title and description; its picture is the collection's own image; the grid's
+groups are the filters set in Shopify under Search & Discovery. What is left as
+settings is what a merchant would plausibly want different on this template and not
+on that one — the banner's height, how many columns, whether the star shows.
+
+The overrides that do exist all fall back rather than replace. The hero's image picker
+is filled in only where every collection on the template should share one picture,
+which is the opposite of the usual direction and is called out in the setting's own
+`info` for that reason.
+
+### One card, two jobs
+
+`newsletter` grew `background` and `action` rather than a second section. The file
+draws the same inset card twice: purple with an email signup at the foot of a page,
+and light blue with a button on the occasion pages — "Want something more personal?".
+Everything but those two things is identical, so they are settings.
+
+Two details that fall out of it and are worth knowing before changing either:
+
+- **The inverted field belongs to the purple card only.** Its hooks now sit under
+  `.newsletter--on-purple`, because a white field on light blue is a field nobody can
+  see, and the kit's own field is already right there.
+- **The call-out's content column is wider than the signup's** — the drawn 738
+  against 634. Its headline is one line at 48px and does not fit in the narrower
+  column; the signup's heading is a single word and does.
 
 ### A section can read somewhere else too
 

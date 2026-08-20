@@ -98,10 +98,11 @@ because its title had started wrapping.
 
 ## What the kit does not do yet
 
-Most of the components are still presentational: filters do not filter, and the
-pagination does not paginate. Wiring those to Shopify's facets is open work — if you
-need working behaviour somewhere new, that is a task to do deliberately, not
-something to assume.
+Less than there was. The product page, the product rows and the collection page are
+wired; what is left presentational is the odd component nothing has needed yet. If
+you reach for a kit component somewhere new, check whether it is one of the wired
+ones before assuming either way — working behaviour is a task to do deliberately,
+not something to inherit by accident.
 
 The product page is the exception, and it is the worked example to copy. Its variant
 picker really changes the variant and its stepper really feeds the cart, done by
@@ -110,6 +111,16 @@ putting kit markup inside Horizon's own elements — `<variant-picker>`,
 than by teaching the kit about Shopify. Read
 `snippets/ui-product-variant-picker.liquid` and `blocks/_ui-product-buy.liquid`
 before wiring anything else.
+
+`sections/collection-products.liquid` is the third, and the one that ended the note
+that used to stand here about filters not filtering. The kit's filter bar, sort
+control, chips and pagination were always real inputs, real disclosures and real
+links; what was missing was a `<form method="get">` around them and a caller handing
+them `collection.filters`. Still **no new JavaScript** — the open state is
+`<details>`, Apply is a submit, and everything else is an anchor. Two traps live in
+that file's own comment: a GET form throws away the query string it was loaded with,
+so the sort travels as a hidden field; and an empty number field still posts its
+name, so the price group belongs to a second form through HTML's `form` attribute.
 
 `sections/best-sellers.liquid` is the second one, and it shows the same trick at
 section scale. Its `source` setting draws its products from a picked list, from
