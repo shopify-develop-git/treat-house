@@ -1182,15 +1182,15 @@
   }
 
   /* The glyph is drawn at a viewBox of 14 with its cross across 10 of it, so a
-     28px box puts the cross at 20 and the stroke divided back to the 1.5px every
+     21px box puts the cross at 15 and the stroke divided back to the 1.5px every
      other icon in the header is drawn with. Left at the box's own scale it comes
-     out over three times as heavy as the burger. */
+     out over three times as heavy as the burger, and fills the tile besides. */
   #header-component .menu-drawer__close-button .header-drawer-icon--close,
   #header-component .menu-drawer__close-button .header-drawer-icon--close > svg {
-    --icon-stroke-width: 0.75px;
+    --icon-stroke-width: 1px;
 
-    width: 28px;
-    height: 28px;
+    width: 21px;
+    height: 21px;
   }
 
   /* The caret takes the brand purple, which is the one place the first view has

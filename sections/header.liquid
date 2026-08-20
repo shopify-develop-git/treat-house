@@ -1272,16 +1272,17 @@
      against 1.5. That is the heavy X: not a bolder drawing, the same drawing
      enlarged 3.1 times.
 
-     So the box is set from the ink instead. 28px puts the cross at 20 — a touch
-     under the burger's 22, which is right for a shape read on its diagonals — and
-     the stroke is then divided back down by the same ratio the box multiplies it
-     by, landing on the 1.5px the burger uses. The tile it sits in does not move. */
+     So the box is set from the ink instead. 21px puts the cross at 15 — well under
+     the burger's 22, which a shape read on its diagonals wants, and small enough
+     to sit in the tile rather than fill it — and the stroke is divided back down
+     by the same ratio the box multiplies it by, landing on the 1.5px the burger
+     uses. The tile it sits in does not move. */
   #header-component.header .header__drawer .header__icon--summary .header-drawer-icon--close,
   #header-component.header .header__drawer .header__icon--summary .header-drawer-icon--close > svg {
-    --icon-stroke-width: 0.75px;
+    --icon-stroke-width: 1px;
 
-    width: 28px;
-    height: 28px;
+    width: 21px;
+    height: 21px;
   }
 
   /* A wide screen in drawer mode keeps the theme's own arrangement, which is
