@@ -84,9 +84,25 @@
     box-sizing: border-box;
     width: fit-content;
     height: var(--ui-quantity-stepper-cell);
+    position: relative;
     border-radius: var(--ui-radius-sm);
-    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-black);
     background-color: var(--ui-color-white);
+  }
+
+  /*
+   * The outline gets a layer of its own. As the element's own inset shadow it
+   * was painted under the buttons, and the two buttons are opaque and reach the
+   * left, right, top and bottom edges — so the outline survived only above and
+   * below the number in the middle. Being inset, this still costs the layout
+   * nothing, which is why the component does not simply take a border.
+   */
+  .ui-quantity-stepper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-black);
+    pointer-events: none;
   }
 
   .ui-quantity-stepper--disabled {

@@ -802,12 +802,45 @@
       }
     }
 
+    /* The item whose panel is open becomes a purple pill with a white label and its
+       caret turned over. In the theme that state and a hover are the same thing —
+       hovering an item with children is what opens the panel — so the two are
+       written as one.
+
+       The pill's padding widens the item by 32, which pushes the rest of the row
+       along. That is what the file draws: `Items` is 704 wide with a pill in it and
+       672 without. Compensating with a negative margin would hold the row still but
+       close the drawn 24px gap down to 8, so the shift is kept — it happens at the
+       same moment a 384px panel drops down, and reads as part of that. */
+    #header-component[data-menu-style='menu']
+      .menu-list__list-item:has(.menu-list__submenu):where(:hover, :focus-within)
+      > .menu-list__link {
+      --menu-top-level-font-color: var(--ui-color-white);
+      --menu-top-level-font-color-rgb: 255 255 255;
+
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: var(--ui-radius-sm);
+      background-color: var(--ui-color-primary);
+
+      /* The pill is the feedback here; the nudge in size that the other labels get
+         would only fight it. */
+      transform: none;
+    }
+
+    #header-component[data-menu-style='menu']
+      .menu-list__list-item:has(.menu-list__submenu):where(:hover, :focus-within)
+      > .menu-list__link::after {
+      transform: rotate(180deg);
+    }
+
     #header-component[data-menu-style='menu'] li:has(.menu-list__submenu) > .menu-list__link::after {
       content: '';
       width: 9px;
       height: 9px;
       margin-inline-start: 6px;
       background-color: currentcolor;
+      transition: transform var(--animation-speed) var(--animation-easing);
       mask-image: var(--th-caret);
       mask-repeat: no-repeat;
       mask-position: center;
