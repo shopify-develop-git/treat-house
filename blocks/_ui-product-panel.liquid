@@ -17,7 +17,8 @@
 
   Opened, the card draws a rule above the revealed copy, which is what the file
   draws and is why the rule is not a separate block: it belongs to the opening, not
-  to the column.
+  to the column. A card set to open but given nothing to reveal keeps neither the
+  caret nor the rule, so it does not advertise a disclosure it cannot perform.
 {%- enddoc -%}
 
 {%- liquid
@@ -52,6 +53,14 @@
   if block.blocks.size > 0
     assign has_rows = true
   endif
+
+  # A card with nothing behind the caret does not get one. Left alone, a product
+  # with no ingredients metafield and no typed copy still drew the chevron and
+  # opened onto an empty box — a control that visibly does nothing.
+  assign is_collapsible = false
+  if block.settings.collapsible and body_text != blank
+    assign is_collapsible = true
+  endif
 -%}
 
 {%- capture panel_intro -%}
@@ -61,7 +70,7 @@
 {%- endcapture -%}
 
 {%- capture panel_body -%}
-  {%- if block.settings.collapsible and body_text != blank -%}
+  {%- if is_collapsible -%}
     <div class="ui-product-panel__rule" role="separator"></div>
   {%- endif -%}
   {%- if body_text != blank -%}
@@ -79,7 +88,7 @@
   icon: panel_icon,
   intro: panel_intro,
   body: panel_body,
-  collapsible: block.settings.collapsible,
+  collapsible: is_collapsible,
   padding: block.settings.padding,
   class: 'ui-product-panel',
   attributes: block.shopify_attributes

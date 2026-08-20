@@ -8,10 +8,11 @@
   its wording, spread across the column, where a tag is a 14px glyph inside an
   outlined pill.
 
-  The grid fills itself rather than counting columns. Four items across the drawn
-  586px column come to 146px each, and the same rule gives two rows of two once the
-  column is narrower than about 500px — so a phone needs no breakpoint here and a
-  merchant who adds a fifth item does not get a lone one stranded on its own line.
+  The row spreads rather than counting columns: each item keeps the width its
+  wording needs and the slack goes between them, which is how the file draws four
+  items of four different widths. Each has a floor, so once four of them no longer
+  fit the column the row breaks to two rows of two — a phone needs no breakpoint
+  here, and a merchant who adds a fifth item does not have to be given one.
 {%- enddoc -%}
 
 {%- liquid
@@ -54,11 +55,26 @@
 </div>
 
 {% stylesheet %}
+  /*
+   * Spread, not a grid of equal columns. The four items are drawn at four
+   * different widths — 140, 77, 123 and 131 across the 586px column — and equal
+   * columns cut the widest of them to 131 and wrapped "Gift-Ready Packaging" onto
+   * a second line. Space-between gives each its own width and puts the slack
+   * between them, which is what the file does.
+   */
   .ui-product-assurances {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(var(--ui-product-assurances-min, 120px), 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
     gap: var(--ui-product-assurances-gap, 20px);
-    align-items: start;
+  }
+
+  /* The floor that makes the row wrap instead of squeezing: four of these no
+     longer fit a phone's column, so it breaks to two rows of two on its own. */
+  .ui-product-assurances > * {
+    flex: 0 1 auto;
+    min-inline-size: var(--ui-product-assurances-min, 120px);
   }
 
   .ui-product-assurances:not(:has(*)) {

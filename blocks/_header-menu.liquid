@@ -804,6 +804,32 @@
       z-index: 0;
     }
 
+    /* The labels are 21px of text sitting in the middle of a 67px header, and the
+       panel opens 22px below them — so a pointer travelling from a label to the
+       panel crosses 22px of nothing, loses the hover, and the panel shuts before it
+       arrives. The theme keeps an invisible strip under each item for exactly this,
+       but it is not rendering here.
+
+       The file has no gap to cross: its menu items are 67 tall, the full height of
+       the header, top to bottom. Made so — the column stretches, the boxes inside it
+       fill it, and negative margins take it back over the row's own padding, so the
+       item ends where the panel begins. */
+    #header-component[data-menu-style='menu'] .header__column--center {
+      align-self: stretch;
+      margin-block: calc(-1 * var(--th-header-pad-block));
+    }
+
+    #header-component[data-menu-style='menu'] :is(
+      .header__column--center header-menu,
+      .header__column--center .header-menu__inner,
+      .header__column--center .menu-list,
+      .header__column--center .overflow-menu,
+      .header__column--center .menu-list__list-item,
+      .header__column--center .menu-list__link
+    ) {
+      height: 100%;
+    }
+
     #header-component[data-menu-style='menu']
       .menu-list__list-item:has(.menu-list__submenu):where(:hover, :focus-within)
       > .menu-list__link {
@@ -817,7 +843,14 @@
       content: '';
       position: absolute;
       z-index: -1;
-      inset: -6px -16px;
+      top: 50%;
+      left: -16px;
+      right: -16px;
+
+      /* Sized to the label rather than to the link, which spans the whole header
+         height so that a pointer on its way down to the panel never leaves it. */
+      height: calc(1.3em + 12px);
+      transform: translateY(-50%);
       border-radius: var(--ui-radius-sm);
       background-color: var(--ui-color-primary);
     }

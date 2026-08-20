@@ -26,7 +26,9 @@
     Horizon names it, so it does not shadow the template's own `product`, which is
     what tells the element it is on that product's page.
   @param {string} [label_prefix] - Leads each option's name: "Choose your" gives
-    "Choose your Box". Blank leaves the option's own name standing alone.
+    "Choose your Box". Blank leaves the option's own name standing alone, and so
+    does an option already starting with the same word — a shop with an option
+    called "Choose a Pack" does not want "Choose your Choose a Pack".
   @param {string} [class] - Additional CSS classes.
 
   @example
@@ -50,9 +52,16 @@
         assign fieldset_index = forloop.index0
         assign group_name = product_option.name | handleize | append: '-' | append: section.id | append: '-' | append: product_resource.id
 
+        # The prefix leads the option's name, but only when the name is not already
+        # leading itself. Real catalogues have options called "Choose a Pack", and
+        # "Choose your Choose a Pack" is what a blind append gives you.
         assign legend = product_option.name
         if label_prefix != blank
-          assign legend = label_prefix | append: ' ' | append: product_option.name
+          assign prefix_head = label_prefix | downcase | split: ' ' | first
+          assign name_head = product_option.name | downcase | split: ' ' | first
+          unless prefix_head == name_head
+            assign legend = label_prefix | append: ' ' | append: product_option.name
+          endunless
         endif
 
         assign trigger_label = product_option.selected_value

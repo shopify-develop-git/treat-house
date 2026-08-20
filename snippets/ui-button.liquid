@@ -113,7 +113,14 @@
   {%- if attributes != blank %} {{ attributes }}{% endif -%}
 {%- endcapture -%}
 
-{%- if link != blank -%}
+{%- if tag == 'span' -%}
+  <span
+    {%- if disabled %} aria-disabled="true"{% endif %}
+    {{ ui_shared_attributes }}
+  >
+    {{- ui_button_content -}}
+  </span>
+{%- elsif link != blank -%}
   <a
     {%- if disabled %}
       role="link"

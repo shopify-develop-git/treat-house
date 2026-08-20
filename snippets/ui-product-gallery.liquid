@@ -127,16 +127,21 @@
     /* The frame the file draws, so the column keeps its height before the image
        has loaded and nothing below it jumps. */
     aspect-ratio: 630 / 578;
-    padding: var(--ui-product-gallery-inset);
     border-radius: var(--ui-product-gallery-radius);
     box-shadow: inset 0 0 0 1px var(--ui-color-light-blue);
     background-color: var(--ui-color-white);
   }
 
+  /*
+   * Inset out of flow rather than held off the edge by padding on the frame. A
+   * percentage height inside a box whose own height comes from `aspect-ratio` is
+   * circular, and Chrome breaks the cycle by sizing the frame to its contents —
+   * so a portrait photograph made the frame 96px taller than it is drawn and the
+   * ratio was quietly doing nothing. Taken out of flow, there is no cycle.
+   */
   .ui-product-gallery__slide {
-    display: block;
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    inset: var(--ui-product-gallery-inset);
   }
 
   .ui-product-gallery__slide[hidden] {
