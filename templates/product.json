@@ -257,7 +257,8 @@
             "panel_text"
           ],
           "settings": {
-            "show_logo": true
+            "show_logo": true,
+            "image": "shopify://shop_images/birthday-krispie-treat-candle.webp"
           }
         },
         "made_fresh": {
@@ -291,6 +292,7 @@
         "celebrate"
       ],
       "settings": {
+        "image": "shopify://shop_images/corporate-gift-holiday-6-pack.webp",
         "media_position": "end",
         "heading_gap": 48,
         "columns": 3,

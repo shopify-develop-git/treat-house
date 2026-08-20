@@ -32,6 +32,7 @@
   class="ui-product-assurances"
   style="
     --ui-product-assurances-gap: {{ block.settings.gap }}px;
+    --ui-product-assurances-gap-mobile: {{ block.settings.gap_mobile }}px;
     --ui-product-assurances-min: {{ block.settings.min_width }}px;
   "
   {{ block.shopify_attributes }}
@@ -77,6 +78,45 @@
     min-inline-size: var(--ui-product-assurances-min, 120px);
   }
 
+  /*
+   * Two even columns once four no longer fit on a line.
+   *
+   * A container query rather than a media query, because the width this row gets
+   * is a share of the details column and not of the viewport — the column is a
+   * grid track above 990px and the whole page below it. Measured against the
+   * viewport instead, a 750px breakpoint would have broken the row into two rows
+   * of two at 749px, where the stacked column is still 717px wide and all four sit
+   * happily on one line.
+   *
+   * 560 is where four stop fitting: the four items measure 136, 120, 120 and 125,
+   * which with three 20px gaps comes to 561. A container query cannot read a
+   * custom property, so the figure is written out rather than derived.
+   *
+   * `space-between` is right for the full row — it is what the file draws — and
+   * wrong the moment the row wraps, because two items on a line get flung to
+   * opposite edges with a hole between them. The grid puts each in an even half
+   * instead, so the pairs line up under each other.
+   */
+  @container (max-width: 560px) {
+    .ui-product-assurances {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      /*
+       * The gap arrives as an inline custom property from the block's setting, and
+       * an inline style outranks anything a stylesheet can say about that property
+       * — so redeclaring `--ui-product-assurances-gap` here would lose silently.
+       * This sets `gap` itself, reading the separate mobile figure.
+       * See docs/section-settings.md §6.
+       */
+      gap: var(--ui-product-assurances-gap-mobile, 12px);
+    }
+
+    /* The floor is what made the row wrap; in the grid the column decides. */
+    .ui-product-assurances > * {
+      min-inline-size: 0;
+    }
+  }
+
   .ui-product-assurances:not(:has(*)) {
     display: none;
   }
@@ -108,6 +148,17 @@
       "step": 2,
       "unit": "px",
       "default": 20
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "t:content.mobile_size",
+      "info": "The space between items once the row has broken to two rows of two, which happens on a column narrower than 560px.",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 12
     },
     {
       "type": "range",

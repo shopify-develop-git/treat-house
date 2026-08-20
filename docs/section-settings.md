@@ -335,7 +335,7 @@ gutter ladder is in `CLAUDE.md`.
 | `_ui-product-price` | show the was-price, size, mobile size | `product-main` |
 | `_ui-product-chips` | per-product metafield, gap; hosts tag blocks | `product-main` |
 | `_ui-product-chip` | label, icon | `_ui-product-chips` |
-| `_ui-product-assurances` | per-product metafield, gap, narrowest item; hosts item blocks | `product-main` |
+| `_ui-product-assurances` | per-product metafield, gap, mobile gap, narrowest item; hosts item blocks | `product-main` |
 | `_ui-product-assurance` | label, icon | `_ui-product-assurances` |
 | `_ui-product-variants` | the wording above the control | `product-main` |
 | `_ui-product-prompt` | a line of copy and the link at the far end | `product-main` |

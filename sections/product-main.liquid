@@ -114,6 +114,15 @@
     gap: var(--product-main-details-gap, 24px);
 
     /*
+     * A query container, so a block inside can answer to the width of this column
+     * rather than to the viewport's. The two are not the same thing here: the
+     * column is one track of a grid above 990px and the whole page below it, so a
+     * viewport breakpoint tells a block almost nothing about the room it has.
+     * `base.css` already leans on this for its resource lists.
+     */
+    container-type: inline-size;
+
+    /*
      * The contract the rule block reads, so a hairline can sit at the 20px the file
      * draws inside a column set 24px apart. A block cannot shrink a parent's gap;
      * it can only measure against it. See blocks/_ui-rule.liquid.

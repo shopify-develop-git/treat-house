@@ -217,8 +217,25 @@
     flex-direction: column;
     gap: var(--ui-variant-select-row-gap);
     border-radius: var(--ui-radius-sm);
-    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-border-gray);
     background-color: var(--ui-color-white);
+  }
+
+  /*
+   * The outline gets a layer of its own, for the reason ui-quantity-stepper
+   * documents: as the panel's own inset shadow it painted *under* the rows, and
+   * the rows are opaque white and reach all four edges — they start at the panel's
+   * exact top and left — so the outline was almost entirely covered. Measured
+   * against the file it came out at half strength, 11 against 23, which is the
+   * difference between a hairline you can see and one you cannot. Lifted onto
+   * `::after` it paints above them and matches.
+   */
+  .ui-variant-select__panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-border-gray);
+    pointer-events: none;
   }
   /*
    * These controls are a fixed height by design, so a long value has to be cut
