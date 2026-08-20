@@ -12,12 +12,30 @@
   anywhere else in the file. That is a panel decision rather than a new button
   size, so the height is set here instead of growing a size onto [ui-button].
 
+  Three kinds of group, not one. `checkbox` and `radio` list values; `range` draws
+  the two number fields a price filter needs, because Shopify's `price_range` filter
+  carries a min and a max rather than a list and a panel that ignored that would drop
+  the Price group off the bar without saying so.
+
+  Apply is a real submit and Clear all is a real link, so a panel inside a
+  `<form method="get">` filters with no script at all — which is the whole reason the
+  rows are real inputs. Left without a `clear_link` the Clear all button is inert, as
+  it is in the kit previews.
+
   @param {string} heading - The group's label, e.g. "Select recipient".
-  @param {object[]} values - The filter values to list.
-  @param {string} [type] - `checkbox` or `radio`. Defaults to `checkbox`.
+  @param {object[]} [values] - The filter values to list.
+  @param {string} [type] - `checkbox`, `radio` or `range`. Defaults to `checkbox`.
   @param {string} [name] - The `name` shared by the group's inputs.
+  @param {string} [min_name] - On `range`, the low field's `name`.
+  @param {string} [max_name] - On `range`, the high field's `name`.
+  @param {string} [min_value] - On `range`, the low field's current value.
+  @param {string} [max_value] - On `range`, the high field's current value.
+  @param {string} [range_prefix] - On `range`, the currency or unit shown in each field's label.
+  @param {string} [range_max] - On `range`, the highest value in the set, shown as the high field's placeholder.
   @param {string} [apply_label] - The Apply button's text.
   @param {string} [clear_label] - The Clear all link's text.
+  @param {string} [clear_link] - Where Clear all goes. Without it the button is inert.
+  @param {string} [form_id] - On `range`, the `<form>` the two fields and Apply belong to.
   @param {string} [class] - Additional CSS classes.
 
   @example
@@ -26,7 +44,8 @@
 
 {%- liquid
   assign panel_type = type | default: 'checkbox'
-  unless panel_type == 'radio'
+  assign panel_kinds = 'checkbox,radio,range' | split: ','
+  unless panel_kinds contains panel_type
     assign panel_type = 'checkbox'
   endunless
 
@@ -35,12 +54,55 @@
   if panel_clear == blank
     assign panel_clear = 'actions.clear_all' | t
   endif
+
+  # A number field with no value still posts its name, so a price group sharing the
+  # checkbox groups' form would put `&filter.v.price.gte=` on the URL every time
+  # anybody ticks anything. The `form` attribute is the language's own answer: the
+  # two fields sit inside that form's markup and belong to a different one.
+  assign form_attr = ''
+  if form_id != blank
+    assign form_attr = 'form="' | append: form_id | append: '"'
+  endif
+
+  assign range_from_label = 'From'
+  assign range_to_label = 'To'
+  if range_prefix != blank
+    assign range_from_label = range_from_label | append: ' ' | append: range_prefix
+    assign range_to_label = range_to_label | append: ' ' | append: range_prefix
+  endif
+
+  # A placeholder of "0" in both fields reads like a value that is already there. The
+  # collection's own floor and ceiling say what the fields are for instead.
+  assign range_from_hint = '0'
+  assign range_to_hint = range_max | default: '0'
 -%}
 
 <div class="ui-filter-panel{% if class != blank %} {{ class }}{% endif %}">
   <p class="ui-filter-panel__heading">{{ heading }}</p>
 
   <div class="ui-filter-panel__list">
+    {%- if panel_type == 'range' -%}
+      <div class="ui-filter-panel__range">
+        {% render 'ui-input',
+          type: 'number',
+          label: range_from_label,
+          name: min_name,
+          value: min_value,
+          placeholder: range_from_hint,
+          attributes: form_attr,
+          class: 'ui-filter-panel__range-field'
+        %}
+        {% render 'ui-input',
+          type: 'number',
+          label: range_to_label,
+          name: max_name,
+          value: max_value,
+          placeholder: range_to_hint,
+          attributes: form_attr,
+          class: 'ui-filter-panel__range-field'
+        %}
+      </div>
+    {%- endif -%}
     {%- for value in values -%}
       {%- liquid
         # Resolved up here rather than in the render arguments: a filter inside a
@@ -60,12 +122,46 @@
   </div>
 
   <div class="ui-filter-panel__footer">
-    {% render 'ui-button', variant: 'primary', label: panel_apply, class: 'ui-filter-panel__apply' %}
-    {% render 'ui-button', variant: 'link', label: panel_clear %}
+    {% render 'ui-button',
+      variant: 'primary',
+      label: panel_apply,
+      type: 'submit',
+      attributes: form_attr,
+      class: 'ui-filter-panel__apply'
+    %}
+    {% render 'ui-button', variant: 'link', label: panel_clear, link: clear_link %}
   </div>
 </div>
 
 {% stylesheet %}
+  /*
+   * The two number fields a price group takes, side by side inside the panel.
+   *
+   * The panel itself has no horizontal padding — every row carries its own, which is
+   * what lets a choice row tint edge to edge on hover. So this row has to carry the
+   * same 12px or the fields sit flush against the panel's border while the heading
+   * above them is inset, which is the one thing in the panel that looks like a
+   * mistake rather than a decision.
+   */
+  .ui-filter-panel__range {
+    /*
+     * Sized to the panel rather than to a contact form. The choice row beside it is
+     * 38px tall with 14px text and the panel's own heading is 10px, so the kit's
+     * 44px field at 15px with a 12px label is the loudest thing in the box — and it
+     * is the one thing in there that is not the group's name.
+     */
+    --ui-input-height: 36px;
+    --ui-input-padding: 8px;
+    --ui-input-font-size: 14px;
+    --ui-input-label-size: 10px;
+    --ui-input-label-color: var(--ui-color-gray);
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 10px 12px 12px;
+  }
+
   :root {
     --ui-filter-panel-width: 254px;
     --ui-filter-panel-padding: 12px;

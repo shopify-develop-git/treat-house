@@ -12,9 +12,18 @@
 
   @param {string} label - The filter group's name, shown on the trigger.
   @param {string} heading - The panel's heading.
-  @param {object[]} values - The filter values to list.
-  @param {string} [type] - `checkbox` or `radio`. Defaults to `checkbox`.
+  @param {object[]} [values] - The filter values to list.
+  @param {string} [type] - `checkbox`, `radio` or `range`. Defaults to `checkbox`.
   @param {string} [name] - The `name` shared by the group's inputs.
+  @param {string} [min_name] - On `range`, the low field's `name`.
+  @param {string} [max_name] - On `range`, the high field's `name`.
+  @param {string} [min_value] - On `range`, the low field's current value.
+  @param {string} [max_value] - On `range`, the high field's current value.
+  @param {string} [range_prefix] - On `range`, the currency or unit shown in each field's label.
+  @param {string} [range_max] - On `range`, the highest value in the set.
+  @param {string} [clear_link] - Where the panel's Clear all goes.
+  @param {string} [form_id] - On `range`, the `<form>` the fields and Apply belong to.
+  @param {boolean} [active] - Marks the group as having something applied.
   @param {boolean} [open] - Renders the group already open.
   @param {string} [align] - `start` or `end`; which edge the panel lines up with. Defaults to `start`.
   @param {string} [class] - Additional CSS classes.
@@ -24,17 +33,38 @@
 {%- enddoc -%}
 
 <details
-  class="ui-filter-dropdown{% if align == 'end' %} ui-filter-dropdown--align-end{% endif %}{% if class != blank %} {{ class }}{% endif %}"
+  class="ui-filter-dropdown{% if align == 'end' %} ui-filter-dropdown--align-end{% endif %}{% if active %} ui-filter-dropdown--active{% endif %}{% if class != blank %} {{ class }}{% endif %}"
   data-auto-close-details="desktop mobile"
   {%- if open %} open{% endif -%}
 >
   {% render 'ui-filter-trigger', label: label %}
   <div class="ui-filter-dropdown__panel">
-    {% render 'ui-filter-panel', heading: heading, values: values, type: type, name: name %}
+    {% render 'ui-filter-panel',
+      heading: heading,
+      values: values,
+      type: type,
+      name: name,
+      min_name: min_name,
+      max_name: max_name,
+      min_value: min_value,
+      max_value: max_value,
+      range_prefix: range_prefix,
+      range_max: range_max,
+      clear_link: clear_link,
+      form_id: form_id
+    %}
   </div>
 </details>
 
 {% stylesheet %}
+  /* A group with something applied says so on its trigger, or a shopper who
+     scrolled past the chips has no way to tell which of five groups is doing the
+     filtering. */
+  .ui-filter-dropdown--active > .ui-filter-trigger {
+    --ui-filter-trigger-color: var(--ui-color-primary);
+    --ui-filter-trigger-border-color: var(--ui-color-primary);
+  }
+
   :root {
     --ui-filter-dropdown-offset: 10px;
   }

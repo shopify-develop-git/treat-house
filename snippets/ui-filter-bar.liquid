@@ -8,8 +8,16 @@
   `groups` takes Shopify's `filter` shape — each entry read through `.label`,
   `.param_name` and `.values` — so it can be handed `collection.filters` directly.
 
+  A group Shopify types `price_range` carries a min and a max instead of a list, and
+  is passed down as the panel's `range` kind. Without that the Price group would
+  render an empty panel, which reads as a broken filter rather than as a filter this
+  theme does not draw.
+
   @param {object[]} groups - The filter groups to show.
-  @param {string} [type] - `checkbox` or `radio` for every group. Defaults to `checkbox`.
+  @param {string} [type] - `checkbox` or `radio` for the list groups. Defaults to `checkbox`.
+  @param {string} [clear_link] - Where every panel's Clear all goes.
+  @param {string} [range_prefix] - The currency or unit shown in a price group's fields.
+  @param {string} [range_form_id] - The `<form>` a price group's fields and Apply belong to, so its empty fields do not ride along on every other group's Apply.
   @param {string} [class] - Additional CSS classes.
 
   @example
@@ -18,13 +26,62 @@
 
 <div class="ui-filter-bar{% if class != blank %} {{ class }}{% endif %}">
   {%- for group in groups -%}
-    {%- assign group_heading = group.heading | default: group.label -%}
+    {%- liquid
+      assign group_heading = group.heading | default: group.label
+
+      assign group_type = type | default: 'checkbox'
+      if group.type == 'price_range'
+        assign group_type = 'range'
+      endif
+
+      # Every figure a price group hands back is in cents. Left alone, a $50 filter
+      # comes back into its own field as 5000 and the next Apply asks for products
+      # over five thousand dollars. The comma goes too — a number field cannot hold
+      # a thousands separator. A named render argument takes no filter, so all three
+      # are formatted here rather than at the call.
+      assign group_range_max = ''
+      if group.range_max != blank
+        assign group_range_max = group.range_max | money_without_currency | replace: ',', ''
+      endif
+
+      assign group_min_value = ''
+      if group.min_value.value != blank
+        assign group_min_value = group.min_value.value | money_without_currency | replace: ',', ''
+      endif
+
+      assign group_max_value = ''
+      if group.max_value.value != blank
+        assign group_max_value = group.max_value.value | money_without_currency | replace: ',', ''
+      endif
+
+      assign group_range_form = ''
+      if group_type == 'range'
+        assign group_range_form = range_form_id
+      endif
+
+      assign group_active = false
+      if group.active_values.size > 0
+        assign group_active = true
+      endif
+      if group_min_value != blank or group_max_value != blank
+        assign group_active = true
+      endif
+    -%}
     {% render 'ui-filter-dropdown',
       label: group.label,
       heading: group_heading,
       values: group.values,
       name: group.param_name,
-      type: type
+      type: group_type,
+      min_name: group.min_value.param_name,
+      max_name: group.max_value.param_name,
+      min_value: group_min_value,
+      max_value: group_max_value,
+      range_prefix: range_prefix,
+      range_max: group_range_max,
+      clear_link: clear_link,
+      form_id: group_range_form,
+      active: group_active
     %}
   {%- endfor -%}
 </div>
