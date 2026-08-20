@@ -32,8 +32,13 @@ Six variants in one snippet. Renders an `<a>` when `link` is given and a
 | `basket` | 40/48px icon square |
 | `social` | 40/44px icon circle — set `icon` to `facebook`, `instagram`, `x` or `pinterest` |
 
-`label` · `link` · `icon` · `disabled` · `full_width` · `type` ·
+`label` · `link` · `icon` · `disabled` · `full_width` · `type` · `tag` ·
 `open_in_new_tab` · `id` · `class` · `attributes`
+
+`tag: 'span'` renders the look without the control, for a button whose behaviour
+belongs to an ancestor — the one inside the gift message card's `<summary>`, where
+a real `<button>` would swallow the click the disclosure needs. Nothing clickable
+should use it.
 
 ```liquid
 {% render 'ui-button', variant: 'secondary', label: 'Customize your own', link: '/pages/builder' %}
@@ -124,7 +129,50 @@ snippets; do not merge them.
 A product variant row: optional thumbnail, name, radio at the far end. 48px tall
 with 16px text, against the filter row's 38px and 14px.
 
-`label` · `image` · `name` · `value` · `checked` · `disabled` · `class`
+`label` · `image` · `name` · `value` · `checked` · `disabled` · `class` ·
+`attributes`
+
+`attributes` lands on the input. It is how the row carries the data attributes
+Horizon's variant picker reads, so the kit row can stand in for the theme's own
+without either side knowing about the other.
+
+### `ui-tag`
+
+The informational pill — the Gluten-Free and Arrives gift-ready pair on the product
+page. It wears the secondary button's clothes and is not a control: nothing happens
+when it is clicked and the file gives it no hover, so it renders a `<span>`.
+
+`label` · `icon` · `class` · `attributes`
+
+### `ui-icon-label`
+
+A glyph with its wording beneath, centred — the row of four under the buy buttons.
+Sized by custom properties rather than settings, so the same item runs at 24px under
+a buy row and smaller in a narrow card without growing a variant.
+
+`label` · `icon` · `class`
+
+### `ui-panel`
+
+The bordered white card the product page uses four times: gift message, estimated
+shipping, ingredients, storage. One shape with an optional glyph, an optional
+disclosure, and two paddings.
+
+`title` · `icon` · `intro` · `body` · `collapsible` · `open` · `chevron` ·
+`padding` (`default`/`tight`) · `id` · `class` · `attributes`
+
+`intro` stays visible when the card is closed; `body` is what opening reveals. Both
+arrive as captured markup, since Liquid has no slots. The whole head is the click
+target, not just the caret.
+
+### `ui-breadcrumb`
+
+The trail above a page title. `links` takes anything with `.title` and `.url` —
+the shape a collection, page, blog or article already has — so a caller hands over
+the resources it has instead of assembling hashes. Home is the snippet's own, and
+the current page carries no link.
+
+`links` · `current` · `home_label` · `class`
 
 ---
 
@@ -188,7 +236,47 @@ already have. Plain strings work too.
 Trigger and panel as one disclosure. The kit files them as two components, but
 the panel exists only to be what the trigger opens.
 
-`options` · `label` · `image` · `name` · `open` · `class`
+`options` · `rows` · `label` · `image` · `name` · `open` · `class` · `attributes`
+
+Give it `options` for the simple case. `rows` takes captured `ui-variant-item`
+markup instead, for a caller that has to put its own attributes on every row —
+Liquid cannot build an array of hashes, so the rows arrive already rendered rather
+than teaching this snippet where they came from. `ui-panel` takes its content the
+same way.
+
+### `ui-product-variant-picker`
+
+The wired one. Renders `<variant-picker>` from `assets/variant-picker.js` around
+one `ui-variant-select` per product option, so choosing a variant re-fetches the
+product, updates the URL and fires `variant:update` for the price, the buy button
+and the gallery to answer. The look is entirely the kit's; the behaviour is
+entirely the theme's.
+
+`product_resource` · `label_prefix` · `class`
+
+`label_prefix` leads the option's own name — "Choose your" gives "Choose your Box" —
+and stands down when the name already starts with the same word, because catalogues
+really do have an option called "Choose a Pack".
+
+The disclosure carries `declarative-open`, which is `assets/morph.js`'s opt-out from
+its default of preserving a `<details>`'s open state across a morph. Without it the
+list stays open over the page after every choice.
+
+### `ui-product-gallery`
+
+The product page's media column: a framed stage at the drawn 630:578, a corner
+badge, and thumbnails beneath. Every image is in the markup and all but one carry
+`hidden`, so switching costs no request and a variant change can reveal its featured
+media without the snippet building a URL. `assets/ui-product-gallery.js` moves that
+attribute and nothing else.
+
+`product` · `badge` · `badge_tone` · `eager` · `class`
+
+The image is contained, not cropped — the frame is wider than it is tall and the
+treats are photographed square. The slide is inset out of flow rather than held off
+the edge by padding: a percentage height inside a box sized by `aspect-ratio` is
+circular, and Chrome breaks the cycle by sizing the frame to its contents, which
+made the frame 96px taller than it is drawn.
 
 ### `ui-quantity-stepper`
 
@@ -208,6 +296,42 @@ inside a link is invalid markup — so there the button carries the link.
 
 `title` · `description` · `image` · `link` · `variant` · `button_label` ·
 `class` · `attributes`
+
+### `ui-product-card`
+
+The tile in a product row. One stretched link on the title makes the whole card
+clickable, so the basket beside the price can stay a control of its own rather
+than a button nested inside a link.
+
+`title` · `subtitle` · `price` · `image` · `link` · `badge` · `badge_tone` ·
+`show_add` · `add_label` · `add_attributes` · `add_content` · `class` · `attributes`
+
+Pass `price` already run through `money`. A named `render` argument takes no
+filter, and gets no complaint when you give it one — `price: product.price | money`
+hands the card the raw cents.
+
+The hover ring is drawn on `::after`, not as the card's own inset shadow: an inset
+shadow paints under the element's children, and the photograph runs to three of the
+card's edges.
+
+`add_content` is a slot. Left empty the card draws a decorative basket; fill it and
+the card keeps drawing the square while something else owns the behaviour.
+
+### `ui-product-card-add`
+
+What goes in that slot when the basket has to work. Renders one of two things:
+
+- a submit inside `<product-form-component>` when the product has a single variant,
+  which posts to the cart the same way [_ui-product-buy] does on the product page;
+- a link to the product page when the product has options, because choosing a
+  flavour for the shopper is not a decision a basket icon gets to make.
+
+`product` · `section_id` · `class`
+
+Deliberately not Horizon's `quick-add`, whose chooser fills its modal by fetching
+the product page and lifting `[data-product-grid-content]` out of it — an element
+that belongs to Horizon's `product-information` section and is not on this theme's
+product page. A quick-add in the kit's own clothes is unbuilt, and undrawn.
 
 ### `ui-pagination-item` · `ui-pagination-arrow`
 

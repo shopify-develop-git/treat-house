@@ -67,7 +67,7 @@
 {%- capture add_to_cart_label -%}
   {{- add_to_cart_text -}}
   {%- if block.settings.show_price and can_add_to_cart -%}
-    <span class="ui-product-buy__price"> &ndash; {{ variant.price | money }}</span>
+    <span class="ui-product-buy__price">&ndash; {{ variant.price | money }}</span>
   {%- endif -%}
 {%- endcapture -%}
 
@@ -126,6 +126,7 @@
             variant: 'secondary',
             label: block.settings.buy_now_label,
             disabled: sold_out,
+            full_width: true,
             class: 'ui-product-buy__now'
           %}
         </ui-buy-now>
@@ -165,9 +166,16 @@
     flex: 0 0 auto;
   }
 
+  /*
+   * The lopsided grow factor is what makes one rule serve both arrangements. Both
+   * buttons grow, but Add to cart's share is a thousand to one, so on a shared line
+   * it takes effectively all the slack and Buy now keeps the width its own wording
+   * needs — 314 and 120 across the drawn column, which is what the file draws. Alone
+   * on a wrapped line, Buy now is the only thing growing and fills it.
+   */
   .ui-product-buy__add-wrapper {
     display: flex;
-    flex: 1 1 200px;
+    flex: 999 1 200px;
     min-width: 0;
   }
 
@@ -178,7 +186,14 @@
     padding-block: 0;
   }
 
+  /*
+   * The gap is a margin, not a space in the markup. The button is an inline-flex
+   * box, so this span is a flex item, and flex trims the whitespace at an item's
+   * edges — the space typed before the dash was being thrown away and the label
+   * read "ADD TO CART– $72.00".
+   */
   .ui-product-buy__price {
+    margin-inline-start: 0.35em;
     font-family: var(--ui-font-emphasis);
     font-weight: var(--ui-font-emphasis-weight);
     white-space: nowrap;
@@ -190,7 +205,6 @@
   }
 
   .ui-product-buy__now {
-    width: 100%;
     height: 44px;
     padding-block: 0;
   }

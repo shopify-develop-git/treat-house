@@ -6,9 +6,10 @@ from Figma and living in `snippets/ui-*.liquid`.
 ## Build UI from the kit, not from scratch
 
 **Before writing any markup or CSS for a control, check `docs/ui-kit.md` for a
-component that already covers it.** There are 22, and between them they cover
-buttons, form fields, filters, sorting, pagination, cards, variant pickers and
-the quantity stepper.
+component that already covers it.** There are over thirty, and between them they
+cover buttons, form fields, filters, sorting, pagination, cards, tags, bordered
+panels, breadcrumbs, variant pickers, the product gallery and the quantity
+stepper.
 
 In order of preference:
 
@@ -97,10 +98,18 @@ because its title had started wrapping.
 
 ## What the kit does not do yet
 
-The components are presentational. Filters do not filter, the variant picker does
-not change the variant, the stepper does not touch the cart. Wiring them to
-Shopify's facets, product forms and cart is open work — if you need working
-behaviour, that is a task to do deliberately, not something to assume.
+Most of the components are still presentational: filters do not filter, and the
+pagination does not paginate. Wiring those to Shopify's facets is open work — if you
+need working behaviour somewhere new, that is a task to do deliberately, not
+something to assume.
+
+The product page is the exception, and it is the worked example to copy. Its variant
+picker really changes the variant and its stepper really feeds the cart, done by
+putting kit markup inside Horizon's own elements — `<variant-picker>`,
+`<product-form-component>`, `<add-to-cart-component>`, `<product-price>` — rather
+than by teaching the kit about Shopify. Read
+`snippets/ui-product-variant-picker.liquid` and `blocks/_ui-product-buy.liquid`
+before wiring anything else.
 
 ## Before you claim a component looks right
 

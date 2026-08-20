@@ -19,6 +19,13 @@
     fetch reads out of the *response* — without it the request completes and
     nothing updates.
 
+  `declarative-open` on the disclosure is what closes the list once a variant is
+  chosen. `assets/morph.js` deliberately carries a `<details>`'s open state across
+  a morph — the right default, since a shopper who opened something should not have
+  it snap shut under them — and that attribute is its own opt-out, so this one list
+  takes the server's state instead. Without it the panel stayed open over the copy
+  below it after every choice.
+
   A product with one variant gets nothing: a control with a single option is a
   label wearing a chevron.
 
@@ -107,7 +114,8 @@
           label: trigger_label,
           image: trigger_image,
           rows: option_rows,
-          class: 'ui-product-variant-picker__select'
+          class: 'ui-product-variant-picker__select',
+          attributes: 'declarative-open'
         %}
       </fieldset>
     {%- endfor -%}

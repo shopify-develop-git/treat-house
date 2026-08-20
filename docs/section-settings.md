@@ -328,6 +328,18 @@ gutter ladder is in `CLAUDE.md`.
 | `_ui-stat-row` | gap; hosts statistic blocks | `corporate-gifts`, static |
 | `_ui-stat` | figure, label | `_ui-stat-row` |
 | `_ui-testimonial` | richtext quote, star count, name, role, photo | `testimonials` |
+| `_ui-rule` | colour, thickness, the space either side | `product-main` |
+| `_ui-product-price` | show the was-price, size, mobile size | `product-main` |
+| `_ui-product-chips` | per-product metafield, gap; hosts tag blocks | `product-main` |
+| `_ui-product-chip` | label, icon | `_ui-product-chips` |
+| `_ui-product-assurances` | per-product metafield, gap, narrowest item; hosts item blocks | `product-main` |
+| `_ui-product-assurance` | label, icon | `_ui-product-assurances` |
+| `_ui-product-variants` | the wording above the control | `product-main` |
+| `_ui-product-prompt` | a line of copy and the link at the far end | `product-main` |
+| `_ui-product-gift-message` | title, copy, button label, order line name, placeholder, limit | `product-main` |
+| `_ui-product-buy` | button wording, price on the button, quantity, Buy now, wallet buttons | `product-main` |
+| `_ui-product-panel` | title, icon, opens or not, padding, the two pieces of copy and their metafields; hosts detail lines | `product-main` |
+| `_ui-product-detail-row` | label, value, per-product metafield | `_ui-product-panel` |
 
 ## Some things belong to the shop, not to a section
 
@@ -344,6 +356,44 @@ phone number eventually shows two different phone numbers.
 | `_ui-footer-column` | title, menu | `site-footer` |
 | `_ui-footer-contact` | title, place, phone, email | `site-footer` |
 | `_ui-footer-legal` | copyright, policy menu | `site-footer`, static |
+
+### The same block, reading the product
+
+`_ui-heading`, `_ui-text` and `_ui-review-line` each grew a `source` setting rather
+than a product-page twin. Left on its default each one is what it always was; set to
+the product, the heading takes `product.title`, the copy takes the description, and
+the review line takes `metafields.reviews.rating` and `rating_count`. A fourth,
+fifth and sixth block would have been the same type, the same controls and the same
+CSS with one line reading somewhere else — which is §8's rule, applied to where the
+words come from rather than to how they look.
+
+The two-tone heading needs somewhere per-product to live, so on that path the accent
+comes from `custom.title_accent` — the words to draw in purple, spelled as they
+appear in the title — instead of from `<em>` in a field the merchant is no longer
+typing into.
+
+### Per-product overrides are metafields, and the block holds the default
+
+The product page's editorial copy is set once in the theme editor and overridden per
+product, so a shop's hundredth product is not a hundred settings. Every block that
+takes an override names the field it reads, and a blank metafield leaves the block's
+own wording standing:
+
+| Metafield (`custom.*`) | Type | What reads it |
+| --- | --- | --- |
+| `title_accent` | text | `_ui-heading`, on `source: product_title` |
+| `badge`, `badge_tone` | text | `product-main`'s gallery, and `best-sellers` before it |
+| `product_chips` | list of text, each `icon:Label` | `_ui-product-chips` |
+| `product_assurances` | list of text, each `icon:Label` | `_ui-product-assurances` |
+| `gift_message_note` | text | `_ui-product-gift-message` |
+| `ships_from`, `estimated_delivery`, `shipping_method` | text | `_ui-product-detail-row` |
+| `ingredients_summary`, `ingredients_full` | text / richtext | `_ui-product-panel` |
+| `storage_summary`, `storage_full` | text / richtext | `_ui-product-panel` |
+
+The two lists are lists for the reason §0 gives: a shop that wants a fourth claim on
+one product adds a line, rather than waiting for a fourth setting. The metafield key
+is itself a setting on the row, so the name is the merchant's to choose and this file
+is not the only place it is written down.
 
 `_ui-heading` and `_ui-text` carry the section's decisions as inherited custom
 properties rather than settings: `--ui-heading-color`, `--ui-text-color`,

@@ -134,7 +134,15 @@
     .product-main__layout {
       /* The drawn proportion, not a setting: 630 and 586 either side of the gap. */
       grid-template-columns: minmax(0, 630fr) minmax(0, 586fr);
-      gap: var(--product-main-column-gap, 64px);
+      /*
+       * Held at 40 until the page is wide enough to spare the rest. base.css steps
+       * the gutter from 40 to 80 a side at 1200px, so the content column loses 80px
+       * there on its own; a gap that widened at the same point took another 24 on
+       * top and the details column came out *narrower* at 1200 than at 1199, with
+       * the buy row breaking to two lines as the window got bigger. `min()` so a
+       * merchant who asks for less than 40 still gets it.
+       */
+      column-gap: min(var(--product-main-column-gap, 64px), 40px);
     }
 
     .product-main--media-right .product-main__layout {
@@ -146,9 +154,11 @@
     }
   }
 
-  @media screen and (min-width: 990px) and (max-width: 1199px) {
+  /* The drawn 64px, at the width it is drawn at. By 1400 the content column has
+     stopped growing, so the gap is spending width the columns no longer need. */
+  @media screen and (min-width: 1400px) {
     .product-main__layout {
-      gap: min(var(--product-main-column-gap, 64px), 40px);
+      column-gap: var(--product-main-column-gap, 64px);
     }
   }
 {% endstylesheet %}
@@ -199,7 +209,7 @@
       "type": "range",
       "id": "column_gap",
       "label": "t:settings.gap",
-      "info": "Between the media and the details. Narrowed to 40px between 990px and 1200px.",
+      "info": "Between the media and the details, from 1400px up. Below that it holds at 40px, where the page has less width to spare.",
       "min": 24,
       "max": 96,
       "step": 4,

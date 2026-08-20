@@ -14,7 +14,18 @@
   Thumbnails are real `<button>`s inside the gallery element, so the row is
   keyboard operable without this file spending a `tabindex` on it. They appear only
   when there is more than one image — a single thumbnail under its own photograph
-  is a control that cannot do anything.
+  is a control that cannot do anything. The arrows follow the same rule.
+
+  The arrows are revealed by hovering the frame and are `opacity: 0` rather than
+  `visibility: hidden` at rest, so they stay in the tab order and the frame's
+  `:focus-within` brings them into view for a keyboard. On a touch device there is
+  no hover to reveal them with, so they simply stay.
+
+  Switching is a crossfade, and `hidden` is still what a slide sits at between
+  turns — the fade unhides the incoming photograph, paints it at zero, and takes
+  `hidden` back on the outgoing one once the transition has run. An always-painted
+  stack would read the same and pull every photograph on the product down on first
+  paint.
 
   @param {object} product - The product whose media is shown.
   @param {string} [badge] - Text for the corner badge. Nothing is drawn when blank.
@@ -33,6 +44,9 @@
     assign selected_media = product.featured_media
   endif
   assign badge_tone_class = badge_tone | default: 'purple'
+
+  assign previous_label = 'accessibility.slideshow_previous' | t
+  assign next_label = 'accessibility.slideshow_next' | t
 -%}
 
 <script src="{{ 'ui-product-gallery.js' | asset_url }}" type="module" fetchpriority="low"></script>
@@ -77,6 +91,21 @@
     {%- if badge != blank -%}
       <span class="ui-product-gallery__badge ui-product-gallery__badge--{{ badge_tone_class }}">{{ badge }}</span>
     {%- endif -%}
+
+    {%- if gallery_media.size > 1 -%}
+      {% render 'ui-pagination-arrow',
+        direction: 'left',
+        label: previous_label,
+        class: 'ui-product-gallery__arrow ui-product-gallery__arrow--prev',
+        attributes: 'data-ui-gallery-step="-1"'
+      %}
+      {% render 'ui-pagination-arrow',
+        direction: 'right',
+        label: next_label,
+        class: 'ui-product-gallery__arrow ui-product-gallery__arrow--next',
+        attributes: 'data-ui-gallery-step="1"'
+      %}
+    {%- endif -%}
   </div>
 
   {%- if gallery_media.size > 1 -%}
@@ -113,6 +142,13 @@
     --ui-product-gallery-image-radius: 10px;
     --ui-product-gallery-thumb: 118px;
     --ui-product-gallery-thumb-gap: 10px;
+    --ui-product-gallery-arrow-inset: 16px;
+    /*
+     * The one place the fade is timed. ui-product-gallery.js reads it back off the
+     * slide rather than keeping a copy, so the moment it waits before hiding the
+     * outgoing photograph cannot drift from the moment it takes to disappear.
+     */
+    --ui-product-gallery-fade: 240ms;
   }
 
   .ui-product-gallery {
@@ -142,10 +178,20 @@
   .ui-product-gallery__slide {
     position: absolute;
     inset: var(--ui-product-gallery-inset);
+    opacity: 1;
+    transition: opacity var(--ui-product-gallery-fade) ease;
   }
 
+  /* Still the resting state, and still what keeps a product's other photographs
+     from being fetched before anyone asks for them. The fade happens between two
+     slides that are both briefly out of it. */
   .ui-product-gallery__slide[hidden] {
     display: none;
+  }
+
+  /* Painted, but at zero — the frame a crossfade has to start and end on. */
+  .ui-product-gallery__slide[data-ui-gallery-fading] {
+    opacity: 0;
   }
 
   .ui-product-gallery__image {
@@ -186,6 +232,52 @@
   .ui-product-gallery__badge--yellow {
     background-color: var(--ui-color-yellow);
     color: var(--ui-color-black);
+  }
+
+  /*
+   * Compounded with the component's own class, so which of the two stylesheets is
+   * concatenated last cannot decide whether the arrow keeps its transition — the
+   * same guard best-sellers puts on its carousel arrows.
+   */
+  .ui-pagination-arrow.ui-product-gallery__arrow {
+    position: absolute;
+    z-index: 1;
+    inset-block-start: 50%;
+    translate: 0 -50%;
+    opacity: 0;
+    /* Not `visibility`, which would take the arrows out of the tab order and leave
+       a keyboard with no way to reach what a pointer gets on hover. */
+    pointer-events: none;
+    transition: opacity var(--ui-product-gallery-fade) ease,
+      background-color var(--animation-values);
+  }
+
+  .ui-pagination-arrow.ui-product-gallery__arrow--prev {
+    inset-inline-start: var(--ui-product-gallery-arrow-inset);
+  }
+
+  .ui-pagination-arrow.ui-product-gallery__arrow--next {
+    inset-inline-end: var(--ui-product-gallery-arrow-inset);
+  }
+
+  .ui-product-gallery__stage:is(:hover, :focus-within) .ui-pagination-arrow.ui-product-gallery__arrow {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* No hover to reveal them with, so they stay. */
+  @media (hover: none) {
+    .ui-pagination-arrow.ui-product-gallery__arrow {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ui-product-gallery__slide,
+    .ui-pagination-arrow.ui-product-gallery__arrow {
+      transition: none;
+    }
   }
 
   .ui-product-gallery__thumbs {
@@ -239,6 +331,10 @@
       --ui-product-gallery-thumb: 88px;
       --ui-product-gallery-inset: 16px;
       --ui-product-gallery-radius: 14px;
+      --ui-product-gallery-arrow-inset: 8px;
+      /* A 48px disc against a 358px frame is a lot of chrome for a photograph that
+         a swipe of the thumbnails already gets you past. */
+      --ui-pagination-arrow-size: 40px;
     }
   }
 {% endstylesheet %}
