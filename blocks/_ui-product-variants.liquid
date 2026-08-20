@@ -1,0 +1,48 @@
+{%- doc -%}
+  The variant control (Figma: Standart Product Page → Choose Your Box).
+
+  A merchant wrapper around [ui-product-variant-picker], which is where the kit's
+  disclosure meets Horizon's `<variant-picker>`. Nothing about the look is decided
+  here; what the merchant gets is the wording above the control.
+
+  `label_prefix` leads the option's own name rather than replacing it, so a product
+  whose option is called Box reads "Choose your Box" and one called Size reads
+  "Choose your Size" — one setting that keeps working when the catalogue grows a
+  second kind of product. Left blank, the option's name stands alone.
+{%- enddoc -%}
+
+<div class="ui-product-variants" {{ block.shopify_attributes }}>
+  {% render 'ui-product-variant-picker',
+    product_resource: closest.product,
+    label_prefix: block.settings.label_prefix
+  %}
+</div>
+
+{% stylesheet %}
+  .ui-product-variants {
+    /* Nothing to draw of its own. It exists so the theme editor has an element to
+       outline when the block is selected, and so the picker fills the column. */
+    display: block;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Variant picker",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "label_prefix",
+      "label": "Wording above the control",
+      "info": "Leads the option's own name: \"Choose your\" gives \"Choose your Box\". Leave empty to show the option's name on its own.",
+      "default": "Choose your"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Variant picker"
+    }
+  ]
+}
+{% endschema %}

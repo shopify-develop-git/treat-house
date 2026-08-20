@@ -6,7 +6,10 @@
   COMPONENTS as "Button link". It lives here because it shares this snippet's
   link/button and disabled handling; only its type and colours differ.
 
-  Renders an `<a>` when `link` is given, and a `<button>` otherwise.
+  Renders an `<a>` when `link` is given, and a `<button>` otherwise. `tag: 'span'`
+  overrules both and renders neither — the look without the control, for a button
+  whose behaviour belongs to something around it. A hand-rolled span wearing these
+  class names is how a second, drifting copy of this component starts.
 
   Passing `class: 'ui-button--force-hover'` pins a button in its hover state.
   The UI kit preview section uses it to show every state side by side; it has no
@@ -24,6 +27,10 @@
   @param {boolean} [disabled] - Renders the disabled state.
   @param {boolean} [full_width] - Stretches a text variant to the width of its container.
   @param {string} [type] - The `type` attribute used when rendering a `<button>`. Defaults to `button`.
+  @param {string} [tag] - `span` renders an inert element carrying the button's look, for a
+    control an ancestor already provides — the one inside the gift message card's
+    `<summary>`, where a real `<button>` would swallow the click the disclosure needs.
+    Anything clickable stays a `<button>` or an `<a>`.
   @param {boolean} [open_in_new_tab] - Opens the link in a new tab.
   @param {string} [id] - The `id` attribute.
   @param {string} [class] - Additional CSS classes.

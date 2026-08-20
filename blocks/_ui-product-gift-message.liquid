@@ -1,0 +1,170 @@
+{%- doc -%}
+  The gift message card (Figma: Standart Product Page → Gift Message, closed; and
+  the Gift Message frame, open).
+
+  Closed it is a line of copy with a button beside it; open, the kit's [ui-message]
+  box with its character counter. That is a disclosure, so it is a `<details>` and
+  costs no script — and because the whole head toggles it, the button is drawn with
+  [ui-button]'s `span` tag rather than as a real one. A `<button>` inside a
+  `<summary>` takes the click the disclosure needs.
+
+  The box writes a line item property, so what the shopper types travels with the
+  item into the cart and out onto the order. It reaches the product form through
+  the `form` attribute rather than by sitting inside it: the form belongs to
+  [_ui-product-buy], and a merchant is free to put these two blocks in either
+  order or to leave a rule between them. Both blocks work the id out from the
+  section, so the association survives that.
+
+  A blank box posts nothing — Shopify drops empty properties — so a shopper who
+  opens the card and changes their mind has not attached anything.
+{%- enddoc -%}
+
+{%- liquid
+  assign note = closest.product.metafields.custom.gift_message_note.value
+  if note == blank
+    assign note = closest.product.metafields.custom.gift_message_note
+  endif
+  if note == blank
+    assign note = block.settings.note
+  endif
+
+  assign form_id = 'ui-product-form-' | append: section.id
+  assign field_id = 'ui-gift-message-' | append: block.id
+  assign property_name = 'properties[' | append: block.settings.property | append: ']'
+  assign field_attributes = 'form="' | append: form_id | append: '"'
+-%}
+
+{%- capture gift_intro -%}
+  <div class="ui-product-gift-message__row">
+    {%- if note != blank -%}
+      <p class="ui-product-gift-message__note">{{ note }}</p>
+    {%- endif -%}
+    {% render 'ui-button',
+      variant: 'secondary',
+      tag: 'span',
+      label: block.settings.button_label,
+      class: 'ui-product-gift-message__button'
+    %}
+  </div>
+{%- endcapture -%}
+
+{%- capture gift_body -%}
+  {% render 'ui-message',
+    label: block.settings.property,
+    id: field_id,
+    name: property_name,
+    placeholder: block.settings.placeholder,
+    maxlength: block.settings.maxlength,
+    attributes: field_attributes
+  %}
+{%- endcapture -%}
+
+{% render 'ui-panel',
+  title: block.settings.title,
+  icon: 'envelope',
+  intro: gift_intro,
+  body: gift_body,
+  collapsible: true,
+  chevron: false,
+  class: 'ui-product-gift-message',
+  attributes: block.shopify_attributes
+%}
+
+{% stylesheet %}
+  .ui-product-gift-message__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+  }
+
+  .ui-product-gift-message__note {
+    /* The file sets this at 265px against a 558px inside, which is roughly half;
+       stated as a basis so it gives way rather than forcing the button to wrap. */
+    flex: 1 1 240px;
+    max-inline-size: 320px;
+    margin: 0;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  .ui-product-gift-message__button {
+    flex: 0 0 auto;
+  }
+
+  /*
+   * The head is the control, so the look of pressing it belongs to the whole row
+   * and not only to the part shaped like a button. Written against the summary so
+   * a hover anywhere over the card answers where the shopper is actually aiming.
+   */
+  summary.ui-panel__head:hover .ui-product-gift-message__button {
+    --ui-button-background: var(--ui-color-primary);
+    --ui-button-color: var(--ui-color-white);
+  }
+
+  /* The theme rings whatever holds focus. On a `<summary>` that is the whole card,
+     which is right — but the ring has to clear the card's own edge to be seen. */
+  .ui-product-gift-message > .ui-panel__head:focus-visible {
+    outline: var(--focus-outline-width) solid currentcolor;
+    outline-offset: var(--focus-outline-offset);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Gift message",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Card title",
+      "default": "Gift message"
+    },
+    {
+      "type": "text",
+      "id": "note",
+      "label": "t:settings.text",
+      "info": "A product's own wording, in the custom.gift_message_note metafield, is used instead when there is one.",
+      "default": "Add a complimentary personalized note, printed on our signature card."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:settings.label",
+      "default": "Add gift message"
+    },
+    {
+      "type": "text",
+      "id": "property",
+      "label": "Order line name",
+      "info": "What the message is called on the order. Changing it after orders have been placed leaves the old ones under the old name.",
+      "default": "Gift message"
+    },
+    {
+      "type": "text",
+      "id": "placeholder",
+      "label": "Placeholder",
+      "default": "Write your message here..."
+    },
+    {
+      "type": "range",
+      "id": "maxlength",
+      "label": "Character limit",
+      "min": 40,
+      "max": 400,
+      "step": 20,
+      "default": 200
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gift message"
+    }
+  ]
+}
+{% endschema %}

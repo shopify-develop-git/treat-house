@@ -9,259 +9,214 @@
  */{
   "sections": {
     "main": {
-      "type": "product-information",
+      "type": "product-main",
       "blocks": {
-        "media-gallery": {
-          "type": "_product-media-gallery",
-          "static": true,
+        "title": {
+          "type": "_ui-heading",
           "settings": {
-            "media_presentation": "grid",
-            "media_columns": "two",
-            "image_gap": 4,
-            "large_first_image": false,
-            "icons_style": "none",
-            "slideshow_controls_style": "counter",
-            "slideshow_mobile_controls_style": "dots",
-            "thumbnail_position": "right",
-            "thumbnail_width": 44,
-            "aspect_ratio": "adapt",
-            "constrain_to_viewport": true,
-            "media_fit": "contain",
-            "media_radius": 0,
-            "extend_media": false,
-            "zoom": true,
-            "video_loop": false,
-            "hide_variants": true,
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {}
+            "source": "product_title",
+            "heading_tag": "h1",
+            "heading_size": 40,
+            "heading_size_mobile": 30
+          }
         },
-        "product-details": {
-          "type": "_product-details",
-          "static": true,
+        "rating": {
+          "type": "_ui-review-line",
           "settings": {
-            "width": "fill",
-            "custom_width": 100,
-            "width_mobile": "fill",
-            "custom_width_mobile": 100,
-            "height": "fit",
-            "details_position": "flex-start",
-            "gap": 28,
-            "sticky_details_desktop": true,
-            "inherit_color_scheme": true,
-            "color_scheme": "scheme-1",
-            "background_media": "none",
-            "video_position": "cover",
-            "background_image_position": "cover",
-            "border": "none",
-            "border_width": 1,
-            "border_opacity": 100,
-            "border_radius": 0,
-            "padding-block-start": 24,
-            "padding-block-end": 24,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
+            "source": "product",
+            "layout": "inline"
+          }
+        },
+        "price": {
+          "type": "_ui-product-price"
+        },
+        "description": {
+          "type": "_ui-text",
+          "settings": {
+            "source": "product_description",
+            "text_size": 14,
+            "text_size_mobile": 14,
+            "max_width": 420
+          }
+        },
+        "chips": {
+          "type": "_ui-product-chips",
           "blocks": {
-            "group_icgrde": {
-              "type": "group",
-              "name": "Header",
+            "gluten_free": {
+              "type": "_ui-product-chip",
               "settings": {
-                "open_in_new_tab": false,
-                "content_direction": "column",
-                "vertical_on_mobile": true,
-                "horizontal_alignment": "flex-start",
-                "vertical_alignment": "center",
-                "align_baseline": false,
-                "horizontal_alignment_flex_direction_column": "flex-start",
-                "vertical_alignment_flex_direction_column": "center",
-                "gap": 12,
-                "width": "fill",
-                "custom_width": 100,
-                "width_mobile": "fill",
-                "custom_width_mobile": 100,
-                "height": "fit",
-                "custom_height": 100,
-                "inherit_color_scheme": true,
-                "color_scheme": "",
-                "background_media": "none",
-                "video_position": "cover",
-                "background_image_position": "cover",
-                "border": "none",
-                "border_width": 1,
-                "border_opacity": 100,
-                "border_radius": 0,
-                "toggle_overlay": false,
-                "overlay_color": "#00000026",
-                "overlay_style": "solid",
-                "gradient_direction": "to top",
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {
-                "text_xrnftG": {
-                  "type": "text",
-                  "name": "Product title",
-                  "settings": {
-                    "text": "<h1>{{ closest.product.title }}</h1>",
-                    "width": "100%",
-                    "max_width": "normal",
-                    "alignment": "left",
-                    "type_preset": "h3",
-                    "font": "var(--font-primary--family)",
-                    "font_size": "",
-                    "line_height": "normal",
-                    "letter_spacing": "normal",
-                    "case": "none",
-                    "wrap": "pretty",
-                    "color": "",
-                    "background": false,
-                    "background_color": "#00000026",
-                    "corner_radius": 0,
-                    "padding-block-start": 0,
-                    "padding-block-end": 0,
-                    "padding-inline-start": 0,
-                    "padding-inline-end": 0
-                  },
-                  "blocks": {}
-                },
-                "price_tVjtKg": {
-                  "type": "price",
-                  "settings": {
-                    "show_sale_price_first": true,
-                    "show_installments": false,
-                    "show_tax_info": false,
-                    "type_preset": "paragraph",
-                    "width": "100%",
-                    "alignment": "left",
-                    "font": "var(--font-body--family)",
-                    "font_size": "1rem",
-                    "line_height": "normal",
-                    "letter_spacing": "normal",
-                    "case": "none",
-                    "color": "var(--color-foreground)",
-                    "padding-block-start": 4,
-                    "padding-block-end": 0,
-                    "padding-inline-start": 0,
-                    "padding-inline-end": 0
-                  },
-                  "blocks": {}
-                }
-              },
-              "block_order": [
-                "text_xrnftG",
-                "price_tVjtKg"
-              ]
+                "icon": "wheat-slash",
+                "label": "Gluten-Free"
+              }
             },
-            "divider_VJhene": {
-              "type": "_divider",
-              "name": "t:names.divider",
+            "gift_ready": {
+              "type": "_ui-product-chip",
               "settings": {
-                "thickness": 1,
-                "corner_radius": "square",
-                "width_percent": 100,
-                "padding-block-start": 0,
-                "padding-block-end": 0
-              },
-              "blocks": {}
-            },
-            "variant_picker_R3rGDr": {
-              "type": "variant-picker",
-              "settings": {
-                "variant_style": "buttons",
-                "show_swatches": false,
-                "alignment": "left",
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "buy_buttons_eYQEYi": {
-              "type": "buy-buttons",
-              "settings": {
-                "stacking": true,
-                "show_pickup_availability": false,
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {
-                "quantity": {
-                  "type": "quantity",
-                  "static": true,
-                  "settings": {},
-                  "blocks": {}
-                },
-                "add-to-cart": {
-                  "type": "add-to-cart",
-                  "static": true,
-                  "settings": {
-                    "style_class": "button"
-                  },
-                  "blocks": {}
-                },
-                "accelerated-checkout": {
-                  "type": "accelerated-checkout",
-                  "static": true,
-                  "settings": {},
-                  "blocks": {}
-                }
-              },
-              "block_order": []
-            },
-            "text_aEtTtq": {
-              "type": "text",
-              "name": "Product description",
-              "settings": {
-                "text": "{{ closest.product.description }}",
-                "width": "100%",
-                "max_width": "normal",
-                "alignment": "left",
-                "type_preset": "rte",
-                "font": "var(--font-primary--family)",
-                "font_size": "",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "color": "",
-                "background": false,
-                "background_color": "#00000026",
-                "corner_radius": 0,
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
+                "icon": "gift",
+                "label": "Arrives gift-ready"
+              }
             }
           },
           "block_order": [
-            "group_icgrde",
-            "divider_VJhene",
-            "variant_picker_R3rGDr",
-            "buy_buttons_eYQEYi",
-            "text_aEtTtq"
+            "gluten_free",
+            "gift_ready"
           ]
+        },
+        "rule_variants": {
+          "type": "_ui-rule"
+        },
+        "variants": {
+          "type": "_ui-product-variants"
+        },
+        "prompt": {
+          "type": "_ui-product-prompt"
+        },
+        "gift_message": {
+          "type": "_ui-product-gift-message"
+        },
+        "rule_buy": {
+          "type": "_ui-rule"
+        },
+        "buy": {
+          "type": "_ui-product-buy"
+        },
+        "assurances": {
+          "type": "_ui-product-assurances",
+          "blocks": {
+            "packaging": {
+              "type": "_ui-product-assurance",
+              "settings": {
+                "icon": "gift",
+                "label": "Gift-Ready Packaging"
+              }
+            },
+            "gluten_free": {
+              "type": "_ui-product-assurance",
+              "settings": {
+                "icon": "wheat-slash",
+                "label": "Gluten-Free"
+              }
+            },
+            "handcrafted": {
+              "type": "_ui-product-assurance",
+              "settings": {
+                "icon": "cookie",
+                "label": "Handcrafted Treats"
+              }
+            },
+            "share_love": {
+              "type": "_ui-product-assurance",
+              "settings": {
+                "icon": "hand-holding-heart",
+                "label": "Made to Share Love"
+              }
+            }
+          },
+          "block_order": [
+            "packaging",
+            "gluten_free",
+            "handcrafted",
+            "share_love"
+          ]
+        },
+        "rule_details": {
+          "type": "_ui-rule"
+        },
+        "shipping": {
+          "type": "_ui-product-panel",
+          "settings": {
+            "title": "Estimated shipping",
+            "icon": "shipping-fast",
+            "collapsible": false,
+            "padding": "tight",
+            "intro": "",
+            "intro_metafield": "",
+            "body": "",
+            "body_metafield": ""
+          },
+          "blocks": {
+            "ships_from": {
+              "type": "_ui-product-detail-row",
+              "settings": {
+                "label": "Ships from",
+                "value": "Made fresh, ships within 24 hrs",
+                "metafield": "ships_from"
+              }
+            },
+            "delivery": {
+              "type": "_ui-product-detail-row",
+              "settings": {
+                "label": "Estimated delivery",
+                "value": "3 to 5 business days",
+                "metafield": "estimated_delivery"
+              }
+            },
+            "method": {
+              "type": "_ui-product-detail-row",
+              "settings": {
+                "label": "Shipping method",
+                "value": "Insulated box, ice pack included",
+                "metafield": "shipping_method"
+              }
+            }
+          },
+          "block_order": [
+            "ships_from",
+            "delivery",
+            "method"
+          ]
+        },
+        "ingredients": {
+          "type": "_ui-product-panel",
+          "settings": {
+            "title": "Ingredients & allergens",
+            "icon": "info-circle",
+            "collapsible": true,
+            "intro": "Cocoa, cream, hazelnut, sea salt. Tap to view the full list.",
+            "intro_metafield": "ingredients_summary",
+            "body_metafield": "ingredients_full"
+          }
+        },
+        "storage": {
+          "type": "_ui-product-panel",
+          "settings": {
+            "title": "Storage",
+            "icon": "thermometer",
+            "collapsible": true,
+            "intro": "Keep refrigerated below 18°C. Best enjoyed within 14 days of arrival.",
+            "intro_metafield": "storage_summary",
+            "body_metafield": "storage_full"
+          }
         }
       },
+      "block_order": [
+        "title",
+        "rating",
+        "price",
+        "description",
+        "chips",
+        "rule_variants",
+        "variants",
+        "prompt",
+        "gift_message",
+        "rule_buy",
+        "buy",
+        "assurances",
+        "rule_details",
+        "shipping",
+        "ingredients",
+        "storage"
+      ],
       "settings": {
-        "content_width": "content-center-aligned",
-        "desktop_media_position": "left",
-        "equal_columns": false,
-        "limit_details_width": false,
-        "gap": 48,
-        "color_scheme": "",
-        "padding-block-start": 0,
-        "padding-block-end": 0
+        "show_breadcrumb": true,
+        "media_position": "left",
+        "show_badge": true,
+        "column_gap": 64,
+        "details_gap": 24,
+        "section_width": "page-width",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 32,
+        "padding-block-end": 64
       }
     },
     "product_recommendations_qggXJq": {

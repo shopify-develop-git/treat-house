@@ -117,6 +117,14 @@
 
   .cart-drawer__dialog .cart-drawer__header {
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+
+    /*
+     * Horizon pushes the header's contents to the end, because with an empty
+     * cart it held nothing but the close button. It holds the title now.
+     */
+    justify-content: space-between;
     padding: var(--ui-cart-drawer-gutter);
     border-block-end: var(--ui-hairline-width) solid var(--ui-color-border-gray);
   }
@@ -141,9 +149,17 @@
     font-style: normal;
   }
 
+  /*
+   * Horizon pins the close to the window's corner with `position: fixed`. The
+   * file puts it in the header, on the same line as the title and inside the
+   * same 24px inset, so it goes back into the flow.
+   */
   .cart-drawer__dialog .cart-drawer__close-button {
+    position: static;
+    flex: 0 0 auto;
     width: 24px;
     height: 24px;
+    margin: 0;
     padding: 0;
     color: var(--ui-color-primary);
   }
@@ -164,6 +180,11 @@
   }
 
   /* ---------- Lines ---------- */
+
+  /* The file leaves 24 between the header's rule and the first line. */
+  .cart-drawer__dialog:not(.cart-drawer--empty) .cart-drawer__items {
+    padding-block-start: var(--ui-cart-drawer-gutter);
+  }
 
   .cart-drawer__dialog .cart-items__table-row {
     box-sizing: border-box;
@@ -558,11 +579,90 @@
 
   /* ---------- Empty ---------- */
 
+  /*
+   * The file stands the line and its button together in the upper part of the
+   * drawer rather than in the middle of it, 200 below the header, and sets the
+   * line larger than the drawer's own title.
+   */
+  .cart-drawer__dialog.cart-drawer--empty .cart-drawer__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    /*
+     * Start, not the centring Horizon leaves on it: the file places this group
+     * a fixed 200 below the header rather than in the middle of what is left,
+     * and centred the padding only moves it further down.
+     */
+    justify-content: flex-start;
+    gap: 32px;
+    padding-block-start: 200px;
+  }
+
+  /* The message and the button are 32 apart, and the wrapper adds nothing above. */
+  .cart-drawer__dialog.cart-drawer--empty .cart-drawer__items {
+    margin-block-start: 0;
+  }
+
+  .cart-drawer__dialog.cart-drawer--empty .cart-drawer__items,
+  .cart-drawer__dialog.cart-drawer--empty .cart-items__wrapper {
+    flex: 0 0 auto;
+    padding: 0;
+  }
+
+  /*
+   * Horizon offers a logged-out visitor a sign-in line, and puts it between the
+   * message and the button. The file draws the pair with 32 between them and no
+   * third thing, so the line moves below the button rather than being dropped:
+   * it is worth having, just not in the middle of what the file draws.
+   */
+  .cart-drawer__dialog.cart-drawer--empty .cart-items__wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .cart-drawer__dialog.cart-drawer--empty .cart-items__wrapper > p {
+    order: 1;
+    margin: 0;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    line-height: var(--ui-line-height);
+    text-align: center;
+  }
+
   .cart-drawer__dialog .cart-drawer__heading--empty {
     display: block;
     margin: 0;
     padding-inline: var(--ui-cart-drawer-gutter);
-    font-size: 30px;
+    font-size: 40px;
     text-align: center;
+  }
+
+  /* The button is the kit's primary, at the width the file draws it. */
+  .cart-drawer__dialog.cart-drawer--empty .cart-items__empty-button {
+    box-sizing: border-box;
+    width: 170px;
+    max-width: 100%;
+    height: 44px;
+    margin: 0;
+    padding: 14px var(--ui-button-padding-inline, 32px);
+    border: none;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-primary);
+    color: var(--ui-color-white);
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: var(--ui-line-height);
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .cart-drawer__dialog.cart-drawer--empty .cart-items__empty-button:hover {
+    background-color: var(--ui-color-sky-blue);
+    color: var(--ui-color-primary);
   }
 {% endstylesheet %}

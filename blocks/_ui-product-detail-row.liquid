@@ -1,0 +1,98 @@
+{%- doc -%}
+  A label at one end of a card and its value at the other (Figma: Standart Product
+  Page → the three lines inside Estimated Shipping).
+
+  A row rather than a pair of settings on the card above it, so a shop that also
+  wants to state a cut-off time adds one and does not wait for a developer. The two
+  halves are set differently in the file — the label smaller and grey, the value
+  black and a shade heavier — which is what makes the value read as the answer.
+
+  The value can come from the product: `metafield` names a `custom.*` field, and a
+  product that has one overrules what is typed here. Shipping is the case that needs
+  it — a fresh-baked item and a shelf-stable one do not travel the same way.
+{%- enddoc -%}
+
+{%- liquid
+  assign value = block.settings.value
+  assign key = block.settings.metafield
+  if key != blank
+    assign field = closest.product.metafields.custom[key]
+    assign override = field.value | default: field
+    if override != blank
+      assign value = override
+    endif
+  endif
+-%}
+
+{%- if block.settings.label != blank or value != blank -%}
+  <div class="ui-product-detail-row" {{ block.shopify_attributes }}>
+    {%- if block.settings.label != blank -%}
+      <span class="ui-product-detail-row__label">{{ block.settings.label }}</span>
+    {%- endif -%}
+    {%- if value != blank -%}
+      <span class="ui-product-detail-row__value">{{ value }}</span>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .ui-product-detail-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 16px;
+  }
+
+  .ui-product-detail-row__label {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: 1.1;
+  }
+
+  .ui-product-detail-row__value {
+    /* Pushed to the far end whether or not the row has a label, so a value-only
+       row lines up with the ones above it instead of starting at the left. */
+    margin-inline-start: auto;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-emphasis);
+    font-size: 14px;
+    font-weight: var(--ui-font-emphasis-weight);
+    line-height: var(--ui-line-height);
+    text-align: end;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Detail line",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "t:settings.label",
+      "default": "Ships from"
+    },
+    {
+      "type": "text",
+      "id": "value",
+      "label": "Value",
+      "default": "Made fresh, ships within 24 hrs"
+    },
+    {
+      "type": "text",
+      "id": "metafield",
+      "label": "Per-product metafield",
+      "info": "A custom.* field on the product replaces the value above for that product."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Detail line"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,94 @@
+{%- doc -%}
+  A line of copy with a link at the far end (Figma: Standart Product Page → "Want a
+  different mix in every square?" beside "Customize your box").
+
+  The two belong together — the question is what the link answers — so they are one
+  block rather than a text block and a link block a merchant has to keep next to
+  each other. Which is the exception [_ui-link-row] does not cover: that one lines
+  up buttons, this one pushes a single link away from the sentence that earns it.
+
+  The link is [ui-button]'s `underline` variant, the one the kit files as a
+  purple word with a rule beneath it.
+
+  Below 500px the two stack, since a question and its answer sharing one narrow
+  line leaves neither enough room to read.
+{%- enddoc -%}
+
+{%- liquid
+  assign has_link = false
+  if block.settings.link_label != blank
+    assign has_link = true
+  endif
+-%}
+
+{%- if block.settings.text != blank or has_link -%}
+  <div class="ui-product-prompt" {{ block.shopify_attributes }}>
+    {%- if block.settings.text != blank -%}
+      <p class="ui-product-prompt__text">{{ block.settings.text }}</p>
+    {%- endif -%}
+    {%- if has_link -%}
+      {% render 'ui-button',
+        variant: 'underline',
+        label: block.settings.link_label,
+        link: block.settings.link,
+        class: 'ui-product-prompt__link'
+      %}
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .ui-product-prompt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+  }
+
+  .ui-product-prompt__text {
+    /* Shrinks before it wraps, and wraps before the link is pushed off the line. */
+    flex: 1 1 240px;
+    margin: 0;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  .ui-product-prompt__link {
+    flex: 0 0 auto;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Prompt and link",
+  "tag": null,
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "text",
+      "label": "t:settings.text",
+      "default": "Want a different mix in every square?"
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "t:settings.label",
+      "default": "Customize your box"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:settings.link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Prompt and link"
+    }
+  ]
+}
+{% endschema %}

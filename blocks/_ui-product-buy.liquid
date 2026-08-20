@@ -1,0 +1,259 @@
+{%- doc -%}
+  The buy row (Figma: Standart Product Page → buttons: the quantity stepper, Add to
+  cart carrying the price, and Buy now).
+
+  This is where the kit meets the cart. The look is the kit's throughout —
+  [ui-quantity-stepper] and [ui-button] — and the behaviour is Horizon's:
+  `<product-form-component>` intercepts the submit, posts to the cart and, on a
+  variant change, replaces `[ref="addToCartButton"]` with the one from the newly
+  fetched page. That last part is what keeps the price inside the button honest
+  without this block listening for anything.
+
+  What the element needs is `ref="variantId"` and `ref="liveRegion"`, both here, and
+  `ref="addToCartButton"` inside an `<add-to-cart-component>`. The quantity is a
+  plain number input named `quantity`, so the form reads it the way it reads any
+  field — deliberately not Horizon's `quantity-selector-component`, whose extra
+  contract is volume pricing and cart syncing this row does not draw.
+
+  Buy now is the file's own reading: a secondary button that adds and then goes to
+  checkout, driven by `ui-product-buy-now.js`. Shopify's accelerated checkout is a
+  different control with different words and its own styling, so it is offered as
+  an option rather than substituted for what is drawn.
+
+  The form's id is worked out from the section, not from this block, so a sibling
+  block can post into it — see [_ui-product-gift-message].
+{%- enddoc -%}
+
+{%- liquid
+  assign product_resource = closest.product
+  if request.visual_preview_mode and product_resource == blank
+    assign product_resource = collections.all.products.first
+  endif
+
+  assign variant = product_resource.selected_or_first_available_variant
+
+  assign can_add_to_cart = false
+  assign add_to_cart_text = 'products.product.unavailable' | t
+
+  if variant
+    if variant.available
+      assign can_add_to_cart = true
+      assign add_to_cart_text = block.settings.label
+    else
+      assign add_to_cart_text = 'products.product.sold_out' | t
+    endif
+  endif
+
+  assign sold_out = true
+  if can_add_to_cart
+    assign sold_out = false
+  endif
+
+  assign quantity_min = variant.quantity_rule.min | default: 1
+  assign quantity_max = variant.quantity_rule.max
+
+  assign form_id = 'ui-product-form-' | append: section.id
+
+  assign variant_media = variant.featured_media.preview_image | image_url: width: 100
+  if variant.featured_media.preview_image == blank
+    assign variant_media = product_resource.featured_media.preview_image | image_url: width: 100
+  endif
+-%}
+
+{%- capture checkout_url -%}
+  {{- routes.root_url -}}{%- unless routes.root_url == '/' -%}/{%- endunless -%}checkout
+{%- endcapture -%}
+
+{%- capture add_to_cart_label -%}
+  {{- add_to_cart_text -}}
+  {%- if block.settings.show_price and can_add_to_cart -%}
+    <span class="ui-product-buy__price"> &ndash; {{ variant.price | money }}</span>
+  {%- endif -%}
+{%- endcapture -%}
+
+<product-form-component
+  class="ui-product-buy"
+  data-section-id="{{ section.id }}"
+  data-product-id="{{ product_resource.id }}"
+  data-product-url="{{ product_resource.url }}"
+  on:submit="/handleSubmit"
+  data-quantity-default="{{ quantity_min }}"
+  data-quantity-error-max="{{ 'products.product.quantity_error_max' | t }}"
+  {{ block.shopify_attributes }}
+>
+  <div
+    class="visually-hidden"
+    aria-live="assertive"
+    role="status"
+    aria-atomic="true"
+    ref="liveRegion"
+  ></div>
+
+  {%- form 'product', product_resource, id: form_id, data-type: 'add-to-cart-form' -%}
+    <input type="hidden" name="id" ref="variantId" value="{{ variant.id }}">
+
+    <div class="ui-product-buy__row">
+      {%- if block.settings.show_quantity -%}
+        {% render 'ui-quantity-stepper',
+          value: quantity_min,
+          min: quantity_min,
+          max: quantity_max,
+          name: 'quantity',
+          class: 'ui-product-buy__quantity'
+        %}
+      {%- endif -%}
+
+      <add-to-cart-component
+        class="ui-product-buy__add-wrapper"
+        ref="addToCartButtonContainer"
+        data-product-variant-media="{{ variant_media }}"
+        data-add-to-cart-animation="{{ settings.add_to_cart_animation }}"
+      >
+        {% render 'ui-button',
+          variant: 'primary',
+          label: add_to_cart_label,
+          type: 'submit',
+          full_width: true,
+          disabled: sold_out,
+          class: 'ui-product-buy__add',
+          attributes: 'name="add" ref="addToCartButton" on:click="/handleClick"'
+        %}
+      </add-to-cart-component>
+
+      {%- if block.settings.show_buy_now -%}
+        <ui-buy-now class="ui-product-buy__now-wrapper" data-checkout-url="{{ checkout_url | strip }}">
+          {% render 'ui-button',
+            variant: 'secondary',
+            label: block.settings.buy_now_label,
+            disabled: sold_out,
+            class: 'ui-product-buy__now'
+          %}
+        </ui-buy-now>
+      {%- endif -%}
+
+      {%- if block.settings.show_accelerated_checkout and additional_checkout_buttons -%}
+        <div class="ui-product-buy__accelerated" ref="acceleratedCheckoutButtonContainer">
+          {{ content_for_additional_checkout_buttons }}
+        </div>
+      {%- endif -%}
+    </div>
+  {%- endform -%}
+</product-form-component>
+
+<script src="{{ 'ui-product-buy-now.js' | asset_url }}" type="module" fetchpriority="low"></script>
+
+{% stylesheet %}
+  .ui-product-buy {
+    display: block;
+  }
+
+  /*
+   * Wraps on its own rather than at a breakpoint. The details column is not a
+   * fraction of the viewport — it is one side of a two-column grid that itself
+   * stacks — so the width this row actually gets cannot be named in a media query.
+   * The bases below are what decide it: Add to cart gives way to 200px, and once
+   * the three no longer fit, Buy now drops to its own line and fills it.
+   */
+  .ui-product-buy__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ui-product-buy__quantity {
+    flex: 0 0 auto;
+  }
+
+  .ui-product-buy__add-wrapper {
+    display: flex;
+    flex: 1 1 200px;
+    min-width: 0;
+  }
+
+  .ui-product-buy__add {
+    /* The file sets 44px against the text buttons' 46, and pads the label off
+       centre; height and even padding here, since the label is what is centred. */
+    height: 44px;
+    padding-block: 0;
+  }
+
+  .ui-product-buy__price {
+    font-family: var(--ui-font-emphasis);
+    font-weight: var(--ui-font-emphasis-weight);
+    white-space: nowrap;
+  }
+
+  .ui-product-buy__now-wrapper {
+    display: flex;
+    flex: 1 1 auto;
+  }
+
+  .ui-product-buy__now {
+    width: 100%;
+    height: 44px;
+    padding-block: 0;
+  }
+
+  .ui-product-buy__accelerated {
+    flex: 1 1 100%;
+  }
+
+  .ui-product-buy__now[aria-busy='true'] {
+    opacity: var(--ui-disabled-opacity);
+    pointer-events: none;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Buy buttons",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "t:settings.label",
+      "default": "Add to cart"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show the price on the button",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quantity",
+      "label": "Show the quantity control",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_buy_now",
+      "label": "Show Buy now",
+      "info": "Adds the item and goes straight to checkout.",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "buy_now_label",
+      "label": "Buy now wording",
+      "default": "Buy now",
+      "visible_if": "{{ block.settings.show_buy_now }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_accelerated_checkout",
+      "label": "Show the wallet buttons",
+      "info": "Shop Pay, Apple Pay and the rest, on their own line under the row. Shopify styles these, not the theme.",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Buy buttons"
+    }
+  ]
+}
+{% endschema %}

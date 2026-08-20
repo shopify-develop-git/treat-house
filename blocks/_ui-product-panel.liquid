@@ -1,0 +1,207 @@
+{%- doc -%}
+  A bordered card in the details column. One block, three of the file's cards
+  (Figma: Standart Product Page → Estimated Shipping, Ingredients & Allergens,
+  Storage).
+
+  They are the same card wearing different insides, so this is one block used three
+  times rather than three blocks that would drift apart the first time the border
+  colour moved. What changes between them is the glyph, the title, whether it opens,
+  and whether the body is a paragraph or a run of label-and-value rows — all
+  settings, and the rows are [_ui-product-detail-row] blocks so the merchant can add
+  a fourth shipping line without a fourth setting appearing here.
+
+  Every piece of copy can come from the product instead. `intro_metafield` and
+  `body_metafield` name a `custom.*` field, and a product that has one overrules the
+  wording set here — which is the whole point on a page where "Cocoa, cream,
+  hazelnut, sea salt" is true of exactly one item in the catalogue.
+
+  Opened, the card draws a rule above the revealed copy, which is what the file
+  draws and is why the rule is not a separate block: it belongs to the opening, not
+  to the column.
+{%- enddoc -%}
+
+{%- liquid
+  assign product_resource = closest.product
+
+  assign intro_text = block.settings.intro
+  assign intro_key = block.settings.intro_metafield
+  if intro_key != blank
+    assign intro_field = product_resource.metafields.custom[intro_key]
+    assign intro_override = intro_field.value | default: intro_field
+    if intro_override != blank
+      assign intro_text = intro_override
+    endif
+  endif
+
+  assign body_text = block.settings.body
+  assign body_key = block.settings.body_metafield
+  if body_key != blank
+    assign body_field = product_resource.metafields.custom[body_key]
+    assign body_override = body_field.value | default: body_field
+    if body_override != blank
+      assign body_text = body_override
+    endif
+  endif
+
+  assign panel_icon = block.settings.icon
+  if panel_icon == 'none'
+    assign panel_icon = ''
+  endif
+
+  assign has_rows = false
+  if block.blocks.size > 0
+    assign has_rows = true
+  endif
+-%}
+
+{%- capture panel_intro -%}
+  {%- if intro_text != blank -%}
+    <p class="ui-product-panel__intro">{{ intro_text }}</p>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture panel_body -%}
+  {%- if block.settings.collapsible and body_text != blank -%}
+    <div class="ui-product-panel__rule" role="separator"></div>
+  {%- endif -%}
+  {%- if body_text != blank -%}
+    <div class="ui-product-panel__body">{{ body_text }}</div>
+  {%- endif -%}
+  {%- if has_rows -%}
+    <div class="ui-product-panel__rows">
+      {% content_for 'blocks' %}
+    </div>
+  {%- endif -%}
+{%- endcapture -%}
+
+{% render 'ui-panel',
+  title: block.settings.title,
+  icon: panel_icon,
+  intro: panel_intro,
+  body: panel_body,
+  collapsible: block.settings.collapsible,
+  padding: block.settings.padding,
+  class: 'ui-product-panel',
+  attributes: block.shopify_attributes
+%}
+
+{% stylesheet %}
+  .ui-product-panel__intro,
+  .ui-product-panel__body {
+    margin: 0;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  .ui-product-panel__body > * {
+    margin: 0;
+  }
+
+  .ui-product-panel__body > * + * {
+    margin-block-start: 1em;
+  }
+
+  .ui-product-panel__rule {
+    height: 1px;
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .ui-product-panel__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Detail card",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_ui-product-detail-row"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Card title",
+      "default": "Storage"
+    },
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "t:settings.icon",
+      "options": [
+        { "value": "none", "label": "t:options.none" },
+        { "value": "shipping-fast", "label": "Shipping" },
+        { "value": "info-circle", "label": "Information" },
+        { "value": "thermometer", "label": "Thermometer" },
+        { "value": "gift", "label": "Gift" },
+        { "value": "wheat-slash", "label": "Gluten free" },
+        { "value": "cookie", "label": "Cookie" },
+        { "value": "hand-holding-heart", "label": "Hand and heart" },
+        { "value": "envelope", "label": "Envelope" },
+        { "value": "check", "label": "Check" },
+        { "value": "sparkle", "label": "Sparkle" },
+        { "value": "rating-star", "label": "Star" }
+      ],
+      "default": "info-circle"
+    },
+    {
+      "type": "checkbox",
+      "id": "collapsible",
+      "label": "Opens and closes",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "padding",
+      "label": "t:content.padding",
+      "options": [
+        { "value": "default", "label": "t:options.default" },
+        { "value": "tight", "label": "t:options.tight" }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "header",
+      "content": "Copy"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "intro",
+      "label": "Always shown",
+      "default": "Cocoa, cream, hazelnut, sea salt. Tap to view the full list."
+    },
+    {
+      "type": "text",
+      "id": "intro_metafield",
+      "label": "Per-product metafield",
+      "info": "A custom.* field on the product replaces the line above for that product.",
+      "default": "ingredients_summary"
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Shown when opened"
+    },
+    {
+      "type": "text",
+      "id": "body_metafield",
+      "label": "Per-product metafield",
+      "info": "A custom.* field on the product replaces the copy above for that product.",
+      "default": "ingredients_full"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Detail card"
+    }
+  ]
+}
+{% endschema %}

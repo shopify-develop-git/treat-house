@@ -1814,6 +1814,13 @@
         "default": "/collections/all"
       },
       {
+        "type": "text",
+        "id": "empty_cart_button_label",
+        "label": "Empty cart button label",
+        "info": "Left empty, the theme's own \"Continue shopping\" is used.",
+        "default": "Shop all"
+      },
+      {
         "type": "header",
         "content": "t:content.product_media"
       },

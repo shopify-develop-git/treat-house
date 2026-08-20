@@ -1,0 +1,459 @@
+{% comment %}
+  The product page (Figma: Standart Product Page, node 2032:3113).
+
+  The section owns the page geometry and the media: the trail above the title, the
+  two columns, and the framed gallery with its thumbnails. Everything down the
+  right-hand side is a block, so the merchant reorders the price and the rating,
+  drops the gift message card, or adds a fourth detail card without a deploy. See
+  `docs/section-settings.md`.
+
+  Built from the kit throughout — ui-product-gallery, ui-breadcrumb, and through the
+  blocks ui-variant-select, ui-quantity-stepper, ui-button, ui-panel, ui-tag and
+  ui-message. Horizon's own product blocks are untouched and unused here.
+
+  This one is wired, which most of the kit is not. Choosing a variant re-fetches the
+  product and Horizon's `<variant-picker>` fires `variant:update`; the price block,
+  the buy block and the gallery each answer it. Add to cart posts through
+  `<product-form-component>`. The details of that seam are in
+  `snippets/ui-product-variant-picker.liquid` and `blocks/_ui-product-buy.liquid`,
+  where they can be read next to the markup they explain.
+
+  Three column arrangements, not two. The file draws 630 and 586 side by side at
+  1440 and draws no phone at all. Held down to 750px those two columns leave the
+  details about 300px, which is narrower than the buy row's own controls, so the
+  page stacks below 990px and takes a tighter gap between 990 and 1200. Inside the
+  details column nothing else needs a breakpoint: the buy row and the reassurance
+  grid give way on their own, which they have to, since the width they get is a
+  share of a grid and not a share of the viewport.
+
+  The badge on the gallery is the `custom.badge` metafield, the same pair —
+  `custom.badge` and `custom.badge_tone` — that `best-sellers` already reads for the
+  product cards. One editorial field, two places that show it.
+
+  The breadcrumb steps through the collection the shopper arrived from when there is
+  one, and the product's first collection otherwise. One step, not all of them: a
+  product filed under six collections would otherwise print a trail longer than its
+  own title.
+{% endcomment %}
+
+{%- liquid
+  assign product_resource = product
+  if request.visual_preview_mode and product_resource == blank
+    assign product_resource = collections.all.products.first
+  endif
+
+  assign crumb_source = product_resource.collections
+  if collection != blank
+    assign from_collection = product_resource.collections | where: 'handle', collection.handle
+    if from_collection.size > 0
+      assign crumb_source = from_collection
+    endif
+  endif
+
+  assign crumbs = ''
+  if crumb_source.size > 0
+    assign crumbs = crumb_source | slice: 0, 1
+  endif
+
+  assign badge = ''
+  if section.settings.show_badge
+    assign badge = product_resource.metafields.custom.badge.value | default: product_resource.metafields.custom.badge
+  endif
+-%}
+
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="product-main-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div
+    class="product-main product-main--media-{{ section.settings.media_position }}"
+    style="
+      --product-main-column-gap: {{ section.settings.column_gap }}px;
+      --product-main-details-gap: {{ section.settings.details_gap }}px;
+    "
+  >
+    {%- if section.settings.show_breadcrumb -%}
+      {% render 'ui-breadcrumb', links: crumbs, current: product_resource.title, class: 'product-main__breadcrumb' %}
+    {%- endif -%}
+
+    <div class="product-main__layout">
+      <div class="product-main__media">
+        {% render 'ui-product-gallery',
+          product: product_resource,
+          badge: badge,
+          badge_tone: product_resource.metafields.custom.badge_tone,
+          eager: true
+        %}
+      </div>
+
+      <div class="product-main__details">
+        {% content_for 'blocks' %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .product-main {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .product-main__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .product-main__details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--product-main-details-gap, 24px);
+
+    /*
+     * The contract the rule block reads, so a hairline can sit at the 20px the file
+     * draws inside a column set 24px apart. A block cannot shrink a parent's gap;
+     * it can only measure against it. See blocks/_ui-rule.liquid.
+     */
+    --ui-stack-gap: var(--product-main-details-gap, 24px);
+
+    /* The file sets the rating's stars 4px from its wording, where the kit's own
+       default is the 8px the hero wants. */
+    --ui-review-line-inline-gap: 4px;
+  }
+
+  /*
+   * Two columns only once there is room for both. At 990px the details column is
+   * about 425px, which still holds the buy row; at 750px it would be near 300px,
+   * where the quantity stepper alone takes 132 of it.
+   */
+  @media screen and (min-width: 990px) {
+    .product-main__layout {
+      /* The drawn proportion, not a setting: 630 and 586 either side of the gap. */
+      grid-template-columns: minmax(0, 630fr) minmax(0, 586fr);
+      gap: var(--product-main-column-gap, 64px);
+    }
+
+    .product-main--media-right .product-main__layout {
+      grid-template-columns: minmax(0, 586fr) minmax(0, 630fr);
+    }
+
+    .product-main--media-right .product-main__media {
+      order: 2;
+    }
+  }
+
+  @media screen and (min-width: 990px) and (max-width: 1199px) {
+    .product-main__layout {
+      gap: min(var(--product-main-column-gap, 64px), 40px);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product page",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumb",
+      "label": "Show the trail above the title",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:content.media"
+    },
+    {
+      "type": "select",
+      "id": "media_position",
+      "label": "Position",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:options.left"
+        },
+        {
+          "value": "right",
+          "label": "t:options.right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_badge",
+      "label": "Show the badge",
+      "info": "The product's custom.badge metafield, tinted by custom.badge_tone: purple, orange, yellow or sky-blue.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "range",
+      "id": "column_gap",
+      "label": "t:settings.gap",
+      "info": "Between the media and the details. Narrowed to 40px between 990px and 1200px.",
+      "min": 24,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "details_gap",
+      "label": "Space between details",
+      "min": 8,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "blocks": [
+    { "type": "_ui-heading" },
+    { "type": "_ui-review-line" },
+    { "type": "_ui-product-price" },
+    { "type": "_ui-text" },
+    { "type": "_ui-product-chips" },
+    { "type": "_ui-rule" },
+    { "type": "_ui-product-variants" },
+    { "type": "_ui-product-prompt" },
+    { "type": "_ui-product-gift-message" },
+    { "type": "_ui-product-buy" },
+    { "type": "_ui-product-assurances" },
+    { "type": "_ui-product-panel" },
+    { "type": "_ui-link" }
+  ],
+  "presets": [
+    {
+      "name": "Product page",
+      "category": "t:categories.product",
+      "blocks": {
+        "title": {
+          "type": "_ui-heading",
+          "settings": {
+            "source": "product_title",
+            "heading_tag": "h1",
+            "heading_size": 40,
+            "heading_size_mobile": 30
+          }
+        },
+        "rating": {
+          "type": "_ui-review-line",
+          "settings": {
+            "source": "product",
+            "layout": "inline"
+          }
+        },
+        "price": {
+          "type": "_ui-product-price"
+        },
+        "description": {
+          "type": "_ui-text",
+          "settings": {
+            "source": "product_description",
+            "text_size": 14,
+            "text_size_mobile": 14,
+            "max_width": 420
+          }
+        },
+        "chips": {
+          "type": "_ui-product-chips",
+          "blocks": {
+            "gluten_free": {
+              "type": "_ui-product-chip",
+              "settings": { "icon": "wheat-slash", "label": "Gluten-Free" }
+            },
+            "gift_ready": {
+              "type": "_ui-product-chip",
+              "settings": { "icon": "gift", "label": "Arrives gift-ready" }
+            }
+          },
+          "block_order": ["gluten_free", "gift_ready"]
+        },
+        "rule_variants": {
+          "type": "_ui-rule"
+        },
+        "variants": {
+          "type": "_ui-product-variants"
+        },
+        "prompt": {
+          "type": "_ui-product-prompt"
+        },
+        "gift_message": {
+          "type": "_ui-product-gift-message"
+        },
+        "rule_buy": {
+          "type": "_ui-rule"
+        },
+        "buy": {
+          "type": "_ui-product-buy"
+        },
+        "assurances": {
+          "type": "_ui-product-assurances",
+          "blocks": {
+            "packaging": {
+              "type": "_ui-product-assurance",
+              "settings": { "icon": "gift", "label": "Gift-Ready Packaging" }
+            },
+            "gluten_free": {
+              "type": "_ui-product-assurance",
+              "settings": { "icon": "wheat-slash", "label": "Gluten-Free" }
+            },
+            "handcrafted": {
+              "type": "_ui-product-assurance",
+              "settings": { "icon": "cookie", "label": "Handcrafted Treats" }
+            },
+            "share_love": {
+              "type": "_ui-product-assurance",
+              "settings": { "icon": "hand-holding-heart", "label": "Made to Share Love" }
+            }
+          },
+          "block_order": ["packaging", "gluten_free", "handcrafted", "share_love"]
+        },
+        "rule_details": {
+          "type": "_ui-rule"
+        },
+        "shipping": {
+          "type": "_ui-product-panel",
+          "settings": {
+            "title": "Estimated shipping",
+            "icon": "shipping-fast",
+            "collapsible": false,
+            "padding": "tight",
+            "intro": "",
+            "intro_metafield": "",
+            "body": "",
+            "body_metafield": ""
+          },
+          "blocks": {
+            "ships_from": {
+              "type": "_ui-product-detail-row",
+              "settings": {
+                "label": "Ships from",
+                "value": "Made fresh, ships within 24 hrs",
+                "metafield": "ships_from"
+              }
+            },
+            "delivery": {
+              "type": "_ui-product-detail-row",
+              "settings": {
+                "label": "Estimated delivery",
+                "value": "3 to 5 business days",
+                "metafield": "estimated_delivery"
+              }
+            },
+            "method": {
+              "type": "_ui-product-detail-row",
+              "settings": {
+                "label": "Shipping method",
+                "value": "Insulated box, ice pack included",
+                "metafield": "shipping_method"
+              }
+            }
+          },
+          "block_order": ["ships_from", "delivery", "method"]
+        },
+        "ingredients": {
+          "type": "_ui-product-panel",
+          "settings": {
+            "title": "Ingredients & allergens",
+            "icon": "info-circle",
+            "collapsible": true,
+            "intro": "Cocoa, cream, hazelnut, sea salt. Tap to view the full list.",
+            "intro_metafield": "ingredients_summary",
+            "body_metafield": "ingredients_full"
+          }
+        },
+        "storage": {
+          "type": "_ui-product-panel",
+          "settings": {
+            "title": "Storage",
+            "icon": "thermometer",
+            "collapsible": true,
+            "intro": "Keep refrigerated below 18°C. Best enjoyed within 14 days of arrival.",
+            "intro_metafield": "storage_summary",
+            "body_metafield": "storage_full"
+          }
+        }
+      },
+      "block_order": [
+        "title",
+        "rating",
+        "price",
+        "description",
+        "chips",
+        "rule_variants",
+        "variants",
+        "prompt",
+        "gift_message",
+        "rule_buy",
+        "buy",
+        "assurances",
+        "rule_details",
+        "shipping",
+        "ingredients",
+        "storage"
+      ]
+    }
+  ]
+}
+{% endschema %}
