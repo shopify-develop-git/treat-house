@@ -1,0 +1,238 @@
+{% comment %}
+  Site footer — Figma: Work Page → Footer (desktop 491:15273,
+  mobile 491:14702).
+
+  The brand column on the left, the link columns spread across the rest, and
+  under a rule the payment marks, the copyright and the policies.
+
+  The section owns the arrangement, the rule and the payment row. The mark, the
+  columns, the contact details and the copyright are blocks, so the shop can add
+  a fifth column or drop one without a deploy. See `docs/section-settings.md`.
+
+  The payment marks come from what the shop actually accepts, not from a row of
+  pasted pictures: a shop that turns off Amex should stop advertising it.
+{% endcomment %}
+
+<div
+  class="site-footer"
+  style="
+    --site-footer-padding-start: {{ section.settings.padding_block_start }}px;
+    --site-footer-padding-end: {{ section.settings.padding_block_end }}px;
+  "
+  data-testid="site-footer-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div class="site-footer__inner">
+    <div class="site-footer__top">
+      {% content_for 'block', type: '_ui-footer-brand', id: 'brand' %}
+
+      <div class="site-footer__links">
+        {% content_for 'blocks' %}
+      </div>
+    </div>
+
+    <div class="site-footer__bottom">
+      <div class="site-footer__meta">
+        {%- if section.settings.show_payment_icons and shop.enabled_payment_types.size > 0 -%}
+          <span class="visually-hidden">{{ 'blocks.payment_methods' | t }}</span>
+          <ul class="site-footer__payment" role="list">
+            {%- for type in shop.enabled_payment_types -%}
+              <li class="site-footer__payment-item">
+                {{ type | payment_type_svg_tag: class: 'site-footer__payment-icon' }}
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+
+        <span class="site-footer__rule" aria-hidden="true"></span>
+      </div>
+
+      {% content_for 'block', type: '_ui-footer-legal', id: 'legal' %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  /*
+   * Site footer. Mobile first; the two-part row starts at 990px, where the four
+   * link columns and the brand beside them first have the width they are drawn
+   * at.
+   */
+  .site-footer {
+    --site-footer-payment-size: 32px;
+
+    background-color: var(--ui-color-white);
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    gap: 48px;
+    max-width: var(--page-width, 90rem);
+    margin-inline: auto;
+    padding-block: 64px 16px;
+    padding-inline: var(--ui-page-margin);
+  }
+
+  .site-footer__top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+  }
+
+  /*
+   * Two by two on a phone, in a row above 990px. The blocks are the same
+   * children either way, so only the container changes.
+   */
+  .site-footer__links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+    row-gap: 32px;
+    width: 100%;
+  }
+
+  @media screen and (min-width: 990px) {
+    .site-footer__inner {
+      padding-block: var(--site-footer-padding-start, 80px) var(--site-footer-padding-end, 24px);
+    }
+
+    /*
+     * The file draws the brand 262 wide and the columns 845, inside 1280. As a
+     * fixed pair with the space falling between them, that reproduces the drawn
+     * 173px gap exactly at 1280 and closes it evenly below, instead of the
+     * columns paying for every pixel the page loses.
+     */
+    .site-footer__top {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 64px;
+    }
+
+    .site-footer__top > .ui-footer-brand {
+      flex: 0 0 262px;
+    }
+
+    .site-footer__links {
+      display: flex;
+      flex: 0 1 845px;
+      justify-content: space-between;
+      gap: 24px;
+    }
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  @media screen and (min-width: 990px) {
+    .site-footer__bottom {
+      gap: 24px;
+    }
+  }
+
+  .site-footer__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  @media screen and (min-width: 990px) {
+    .site-footer__meta {
+      --site-footer-payment-size: 36px;
+
+      gap: 16px;
+    }
+  }
+
+  .site-footer__payment {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__payment-item {
+    display: flex;
+    flex: 0 0 auto;
+    width: var(--site-footer-payment-size);
+  }
+
+  .site-footer__payment-icon {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .site-footer__rule {
+    display: block;
+    width: 100%;
+    height: 1px;
+
+    /*
+     * The brand colour at a tenth, which is what the file's stroke carries. A
+     * flat grey would read as the theme's rule rather than as this shop's.
+     *
+     * Carried on `opacity` rather than a relative colour: the token stays the
+     * token, and there is no second place holding the same purple as a hex for
+     * a browser that cannot do `rgb(from …)`.
+     */
+    background-color: var(--ui-color-primary);
+    opacity: 0.1;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Footer",
+  "tag": "footer",
+  "blocks": [
+    { "type": "_ui-footer-column" },
+    { "type": "_ui-footer-contact" }
+  ],
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "label": "Show payment methods",
+      "info": "The marks the shop actually accepts, taken from its payment settings.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_block_start",
+      "label": "t:settings.top",
+      "info": "Above 990px. Below it the footer keeps the 64px the file draws on a phone.",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_block_end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    }
+  ]
+}
+{% endschema %}

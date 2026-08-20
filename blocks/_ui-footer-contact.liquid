@@ -1,0 +1,163 @@
+{%- doc -%}
+  The footer's Contact Us column (Figma: Footer → Contact Us).
+
+  It sits in the same row as the link columns and wears the same title, but its
+  rows are a place, a number and an address rather than menu links, so it is its
+  own block rather than a flag on [_ui-footer-column].
+
+  The number and the address are real links. A phone number that cannot be
+  tapped on a phone is a phone number nobody rings.
+{%- enddoc -%}
+
+<div class="ui-footer-contact" {{ block.shopify_attributes }}>
+  {%- if block.settings.title != blank -%}
+    <h2 class="ui-footer-contact__title">{{ block.settings.title }}</h2>
+  {%- endif -%}
+
+  <ul class="ui-footer-contact__rows" role="list">
+    {%- if block.settings.location != blank -%}
+      <li class="ui-footer-contact__row">
+        <span class="ui-footer-contact__icon" aria-hidden="true">
+          {{- 'icon-ui-pin.svg' | inline_asset_content -}}
+        </span>
+        <span class="ui-footer-contact__text">{{ block.settings.location }}</span>
+      </li>
+    {%- endif -%}
+
+    {%- if block.settings.phone != blank -%}
+      {%- assign phone_href = block.settings.phone | remove: ' ' | remove: '(' | remove: ')' -%}
+      <li class="ui-footer-contact__row">
+        <span class="ui-footer-contact__icon" aria-hidden="true">
+          {{- 'icon-ui-phone.svg' | inline_asset_content -}}
+        </span>
+        <a class="ui-footer-contact__text ui-footer-contact__link" href="tel:{{ phone_href }}">
+          {{- block.settings.phone -}}
+        </a>
+      </li>
+    {%- endif -%}
+
+    {%- if block.settings.email != blank -%}
+      <li class="ui-footer-contact__row">
+        <span class="ui-footer-contact__icon" aria-hidden="true">
+          {{- 'icon-ui-email.svg' | inline_asset_content -}}
+        </span>
+        <a class="ui-footer-contact__text ui-footer-contact__link" href="mailto:{{ block.settings.email }}">
+          {{- block.settings.email -}}
+        </a>
+      </li>
+    {%- endif -%}
+  </ul>
+</div>
+
+{% stylesheet %}
+  .ui-footer-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ui-footer-contact__title {
+    margin: 0;
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .ui-footer-contact__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media screen and (min-width: 990px) {
+    .ui-footer-contact__rows {
+      gap: 14px;
+    }
+  }
+
+  .ui-footer-contact__row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /*
+   * The glyphs keep their own proportions inside a 16px slot: the pin is the
+   * narrow one and the file draws it that way rather than stretched square.
+   */
+  .ui-footer-contact__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    color: var(--ui-color-primary);
+  }
+
+  .ui-footer-contact__icon > svg {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .ui-footer-contact__text {
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+    text-decoration: none;
+  }
+
+  .ui-footer-contact__link {
+    transition: color var(--animation-values);
+  }
+
+  .ui-footer-contact__link:hover {
+    color: var(--ui-color-primary);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Footer contact",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:settings.heading",
+      "default": "Contact Us"
+    },
+    {
+      "type": "text",
+      "id": "location",
+      "label": "Place",
+      "default": "New York City"
+    },
+    {
+      "type": "text",
+      "id": "phone",
+      "label": "Phone",
+      "default": "212-799-7779"
+    },
+    {
+      "type": "text",
+      "id": "email",
+      "label": "Email",
+      "default": "info@treathouse.com"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Footer contact"
+    }
+  ]
+}
+{% endschema %}

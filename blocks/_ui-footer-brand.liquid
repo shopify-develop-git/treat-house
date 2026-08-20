@@ -1,0 +1,162 @@
+{%- doc -%}
+  The footer's brand column: the mark, the line under it and the social row
+  (Figma: Footer → Content).
+
+  The logo falls back to the one set in theme settings, so a shop that has
+  already uploaded it does not upload it twice. With neither, the frame is held
+  so the column still reads in the editor.
+
+  The social buttons are `ui-button` in its `social` variant, unchanged: the kit
+  already draws them at 44 with a 24 glyph on a phone and 40 with a 20 glyph
+  above it, which is what the footer asks for.
+{%- enddoc -%}
+
+{%- liquid
+  assign logo = block.settings.logo | default: settings.logo
+
+  assign networks = 'facebook,instagram,x,pinterest' | split: ','
+-%}
+
+<div class="ui-footer-brand" {{ block.shopify_attributes }}>
+  {%- if logo != blank -%}
+    <a class="ui-footer-brand__logo" href="{{ routes.root_url }}">
+      {% render 'image', image: logo, height: 180, class: 'ui-footer-brand__logo-image' %}
+    </a>
+  {%- else -%}
+    {%- comment -%} The mark is not in yet; hold its frame so the column reads true. {%- endcomment -%}
+    <span class="ui-footer-brand__logo ui-footer-brand__logo--empty" aria-hidden="true"></span>
+  {%- endif -%}
+
+  {%- if block.settings.tagline != blank -%}
+    <p class="ui-footer-brand__tagline">{{ block.settings.tagline }}</p>
+  {%- endif -%}
+
+  {%- capture social_row -%}
+    {%- for network in networks -%}
+      {%- liquid
+        assign url_key = network | append: '_url'
+        assign url = block.settings[url_key]
+        # A named argument takes no filters, so the label is built first.
+        assign network_label = network | capitalize
+      -%}
+      {%- if url != blank -%}
+        {% render 'ui-button', variant: 'social', icon: network, link: url, label: network_label %}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+
+  {%- if social_row != blank -%}
+    <div class="ui-footer-brand__social">{{ social_row }}</div>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .ui-footer-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    width: 262px;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  @media screen and (min-width: 990px) {
+    .ui-footer-brand {
+      align-items: flex-start;
+      text-align: start;
+    }
+  }
+
+  .ui-footer-brand__logo {
+    display: block;
+    flex: 0 0 auto;
+    width: 88px;
+    height: 90px;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .ui-footer-brand__logo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ui-footer-brand__logo--empty {
+    background-color: var(--ui-color-border-gray);
+  }
+
+  .ui-footer-brand__tagline {
+    margin: 0;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    /* The file sets this larger on a phone than on a desktop, not smaller. */
+    font-size: 16px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  @media screen and (min-width: 990px) {
+    .ui-footer-brand__tagline {
+      font-size: 14px;
+    }
+  }
+
+  .ui-footer-brand__social {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  @media screen and (min-width: 990px) {
+    .ui-footer-brand__social {
+      gap: 6px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Footer brand",
+  "tag": null,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "t:settings.logo",
+      "info": "Left empty, the logo from theme settings is used."
+    },
+    {
+      "type": "text",
+      "id": "tagline",
+      "label": "t:settings.text",
+      "default": "Handcrafted sweets made to celebrate life's sweetest moments."
+    },
+    {
+      "type": "header",
+      "content": "t:content.social_media"
+    },
+    {
+      "type": "url",
+      "id": "facebook_url",
+      "label": "Facebook"
+    },
+    {
+      "type": "url",
+      "id": "instagram_url",
+      "label": "Instagram"
+    },
+    {
+      "type": "url",
+      "id": "x_url",
+      "label": "X"
+    },
+    {
+      "type": "url",
+      "id": "pinterest_url",
+      "label": "Pinterest"
+    }
+  ]
+}
+{% endschema %}

@@ -329,6 +329,10 @@ gutter ladder is in `CLAUDE.md`.
 | `_ui-stat` | figure, label | `_ui-stat-row` |
 | `_ui-testimonial` | quote, star count, name, role, photo | `testimonials` |
 | `_ui-newsletter-form` | placeholder, button label, accessible label | `newsletter`, static |
+| `_ui-footer-brand` | logo, tagline, four social urls | `site-footer`, static |
+| `_ui-footer-column` | title, menu | `site-footer` |
+| `_ui-footer-contact` | title, place, phone, email | `site-footer` |
+| `_ui-footer-legal` | copyright, policy menu | `site-footer`, static |
 
 `_ui-heading` and `_ui-text` carry the section's decisions as inherited custom
 properties rather than settings: `--ui-heading-color`, `--ui-text-color`,

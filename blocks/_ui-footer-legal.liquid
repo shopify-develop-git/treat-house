@@ -1,0 +1,117 @@
+{%- doc -%}
+  The line under the footer's rule: the copyright and the policy links
+  (Figma: Footer → Row).
+
+  The year is the shop's own clock rather than a number somebody has to remember
+  to change. A shop that wants different wording overrides it and owns it from
+  then on.
+
+  On a phone the links stand above the copyright, which is the file's order and
+  also the useful one: the thing you can tap comes first.
+{%- enddoc -%}
+
+{%- liquid
+  assign copyright = block.settings.copyright
+  if copyright == blank
+    assign year = 'now' | date: '%Y'
+    assign copyright = '© ' | append: year | append: ' ' | append: shop.name
+  endif
+
+  assign menu = linklists[block.settings.menu]
+-%}
+
+<div class="ui-footer-legal" {{ block.shopify_attributes }}>
+  <p class="ui-footer-legal__copyright">{{ copyright }}</p>
+
+  {%- if menu.links.size > 0 -%}
+    <ul class="ui-footer-legal__links" role="list">
+      {%- for link in menu.links -%}
+        <li>
+          <a class="ui-footer-legal__link" href="{{ link.url }}">{{ link.title }}</a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  /*
+   * Reversed rather than reordered: on a phone the file puts the links above the
+   * copyright, and column-reverse says that once instead of an order on each.
+   */
+  .ui-footer-legal {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  @media screen and (min-width: 990px) {
+    .ui-footer-legal {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+  }
+
+  .ui-footer-legal__copyright {
+    margin: 0;
+  }
+
+  .ui-footer-legal__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media screen and (min-width: 990px) {
+    /* The file spreads the three across 395px at the row's right end. */
+    .ui-footer-legal__links {
+      justify-content: space-between;
+      gap: 32px;
+      width: 395px;
+      max-width: 100%;
+    }
+  }
+
+  .ui-footer-legal__link {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--animation-values);
+  }
+
+  .ui-footer-legal__link:hover {
+    color: var(--ui-color-primary);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Footer legal",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "copyright",
+      "label": "Copyright",
+      "info": "Left empty, the current year and the shop's name are used."
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "t:settings.menu",
+      "info": "The policy links. Managed in Navigation."
+    }
+  ]
+}
+{% endschema %}

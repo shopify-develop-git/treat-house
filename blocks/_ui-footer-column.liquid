@@ -1,0 +1,109 @@
+{%- doc -%}
+  One column of links in the footer: a title over a menu
+  (Figma: Footer → Shop, About, Customer Care).
+
+  The links are a Shopify menu rather than a list typed into the block, so the
+  shop keeps them in Navigation and the same menu can serve the header. A column
+  with no menu picked renders its title and nothing else, which is what the
+  editor should show while the shop is still choosing.
+{%- enddoc -%}
+
+{%- liquid
+  assign menu = linklists[block.settings.menu]
+-%}
+
+<div class="ui-footer-column" {{ block.shopify_attributes }}>
+  {%- if block.settings.title != blank -%}
+    <h2 class="ui-footer-column__title">{{ block.settings.title }}</h2>
+  {%- endif -%}
+
+  {%- if menu.links.size > 0 -%}
+    <ul class="ui-footer-column__links" role="list">
+      {%- for link in menu.links -%}
+        <li>
+          <a class="ui-footer-column__link" href="{{ link.url }}">{{ link.title }}</a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .ui-footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ui-footer-column__title {
+    margin: 0;
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    /* The kit's emphasis token is the 600 cut; the file draws this one at 700. */
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .ui-footer-column__links {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media screen and (min-width: 990px) {
+    /* The file sets the rows closer together where the columns stand side by side. */
+    .ui-footer-column__links {
+      gap: 14px;
+    }
+  }
+
+  /*
+   * Named with its own class so the theme's link colour does not reach it, and
+   * so the hover belongs to the footer rather than to whichever stylesheet the
+   * theme concatenates last.
+   */
+  .ui-footer-column__link {
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+    text-decoration: none;
+    transition: color var(--animation-values);
+  }
+
+  .ui-footer-column__link:hover {
+    color: var(--ui-color-primary);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Footer column",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:settings.heading",
+      "default": "Shop"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "t:settings.menu",
+      "default": "footer",
+      "info": "Managed in Navigation, so the same menu can serve the header."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Footer column"
+    }
+  ]
+}
+{% endschema %}
