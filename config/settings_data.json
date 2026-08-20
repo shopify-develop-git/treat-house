@@ -351,7 +351,13 @@
     },
     "logo_height": 47,
     "logo_height_mobile": 62,
-    "logo": "shopify://shop_images/treat-house-logo.webp"
+    "logo": "shopify://shop_images/treat-house-logo.webp",
+    "contact_phone": "212-799-7779",
+    "contact_email": "info@treathouse.com",
+    "social_facebook_url": "https://www.facebook.com/",
+    "social_instagram_url": "https://www.instagram.com/",
+    "social_x_url": "https://x.com/",
+    "social_pinterest_url": "https://www.pinterest.com/"
   },
   "presets": {
     "Horizon": {

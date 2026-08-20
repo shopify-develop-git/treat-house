@@ -35,14 +35,6 @@
   data-testid="home-hero-{{ section.id }}"
   {{ section.shopify_attributes }}
 >
-  {%- if section.settings.reserve_header_space -%}
-    {%- comment -%}
-      Stands in for the header that is not built yet, at the heights the file
-      draws. Switched off in one click once the real header ships.
-    {%- endcomment -%}
-    <div class="home-hero__header-space" aria-hidden="true"></div>
-  {%- endif -%}
-
   <div class="home-hero__inner">
     <div class="home-hero__grid">
       <div class="home-hero__panel">
@@ -149,17 +141,6 @@
       --home-hero-marquee-padding: 24px;
       --home-hero-marquee-size: 20px;
       --home-hero-marquee-star: 16px;
-    }
-  }
-
-  /* The header is not built; this holds its place at the heights the file draws. */
-  .home-hero__header-space {
-    height: 74px;
-  }
-
-  @media screen and (min-width: 750px) {
-    .home-hero__header-space {
-      height: 67px;
     }
   }
 
@@ -403,10 +384,18 @@
   "name": "Home hero",
   "tag": "section",
   "blocks": [
-    { "type": "_ui-heading" },
-    { "type": "_ui-text" },
-    { "type": "_ui-link" },
-    { "type": "_ui-link-row" }
+    {
+      "type": "_ui-heading"
+    },
+    {
+      "type": "_ui-text"
+    },
+    {
+      "type": "_ui-link"
+    },
+    {
+      "type": "_ui-link-row"
+    }
   ],
   "settings": [
     {
@@ -485,25 +474,17 @@
       "id": "marquee_direction",
       "label": "t:settings.direction",
       "options": [
-        { "value": "normal", "label": "t:options.left" },
-        { "value": "reverse", "label": "t:options.right" }
+        {
+          "value": "normal",
+          "label": "t:options.left"
+        },
+        {
+          "value": "reverse",
+          "label": "t:options.right"
+        }
       ],
       "default": "normal",
       "visible_if": "{{ section.settings.show_marquee }}"
-    },
-    {
-      "type": "header",
-      "content": "Layout"
-    },
-    {
-      "type": "paragraph",
-      "content": "The site header is not built yet. This holds its place so the layout reads correctly; switch it off once the real header ships."
-    },
-    {
-      "type": "checkbox",
-      "id": "reserve_header_space",
-      "label": "Reserve space for the header",
-      "default": true
     }
   ],
   "presets": [
@@ -520,7 +501,7 @@
         "copy": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Discover handcrafted Krispie treats made with premium ingredients, designed to celebrate life's biggest moments—from birthdays to corporate gifting.</p>"
+            "text": "<p>Discover handcrafted Krispie treats made with premium ingredients, designed to celebrate life's biggest moments\u2014from birthdays to corporate gifting.</p>"
           }
         },
         "buttons": {
@@ -528,33 +509,66 @@
           "blocks": {
             "primary": {
               "type": "_ui-link",
-              "settings": { "label": "Shop treats", "variant": "primary" }
+              "settings": {
+                "label": "Shop treats",
+                "variant": "primary"
+              }
             },
             "secondary": {
               "type": "_ui-link",
-              "settings": { "label": "Customize treats", "variant": "secondary" }
+              "settings": {
+                "label": "Customize treats",
+                "variant": "secondary"
+              }
             }
           },
-          "block_order": ["primary", "secondary"]
+          "block_order": [
+            "primary",
+            "secondary"
+          ]
         },
         "gifting": {
           "type": "_ui-link",
-          "settings": { "label": "Corporate gifting", "variant": "underline" }
+          "settings": {
+            "label": "Corporate gifting",
+            "variant": "underline"
+          }
         },
         "review-line": {
           "type": "_ui-review-line",
           "static": true,
           "blocks": {
-            "one": { "type": "_ui-avatar" },
-            "two": { "type": "_ui-avatar" },
-            "three": { "type": "_ui-avatar" },
-            "four": { "type": "_ui-avatar" },
-            "five": { "type": "_ui-avatar" }
+            "one": {
+              "type": "_ui-avatar"
+            },
+            "two": {
+              "type": "_ui-avatar"
+            },
+            "three": {
+              "type": "_ui-avatar"
+            },
+            "four": {
+              "type": "_ui-avatar"
+            },
+            "five": {
+              "type": "_ui-avatar"
+            }
           },
-          "block_order": ["one", "two", "three", "four", "five"]
+          "block_order": [
+            "one",
+            "two",
+            "three",
+            "four",
+            "five"
+          ]
         }
       },
-      "block_order": ["heading", "copy", "buttons", "gifting"]
+      "block_order": [
+        "heading",
+        "copy",
+        "buttons",
+        "gifting"
+      ]
     }
   ]
 }

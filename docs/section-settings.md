@@ -328,6 +328,17 @@ gutter ladder is in `CLAUDE.md`.
 | `_ui-stat-row` | gap; hosts statistic blocks | `corporate-gifts`, static |
 | `_ui-stat` | figure, label | `_ui-stat-row` |
 | `_ui-testimonial` | richtext quote, star count, name, role, photo | `testimonials` |
+
+## Some things belong to the shop, not to a section
+
+The phone number, the email address and the four social links live in **Theme
+settings → Contact and social**, as `contact_phone`, `contact_email` and
+`social_<network>_url`. The top bar and the footer both print them.
+
+Give a block its own field for these only when a place genuinely needs a different
+value, and have it fall back to the theme setting when the field is empty — the
+block stays in charge, the theme is the floor. A shop with two sources for one
+phone number eventually shows two different phone numbers.
 | `_ui-newsletter-form` | placeholder, button label, accessible label | `newsletter`, static |
 | `_ui-footer-brand` | logo, tagline, four social urls | `site-footer`, static |
 | `_ui-footer-column` | title, menu | `site-footer` |

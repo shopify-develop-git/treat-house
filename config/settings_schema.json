@@ -57,6 +57,51 @@
     ]
   },
   {
+    "name": "Contact and social",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Read by the top bar and the footer, so the store says the same thing in both places. A block may still override any of these for itself."
+      },
+      {
+        "type": "text",
+        "id": "contact_phone",
+        "label": "Phone number",
+        "default": "212-799-7779"
+      },
+      {
+        "type": "text",
+        "id": "contact_email",
+        "label": "Email address",
+        "default": "info@treathouse.com"
+      },
+      {
+        "type": "header",
+        "content": "Social"
+      },
+      {
+        "type": "url",
+        "id": "social_facebook_url",
+        "label": "Facebook"
+      },
+      {
+        "type": "url",
+        "id": "social_instagram_url",
+        "label": "Instagram"
+      },
+      {
+        "type": "url",
+        "id": "social_x_url",
+        "label": "X"
+      },
+      {
+        "type": "url",
+        "id": "social_pinterest_url",
+        "label": "Pinterest"
+      }
+    ]
+  },
+  {
     "name": "t:names.colors",
     "settings": [
       {

@@ -1,0 +1,209 @@
+{% comment %}
+  Top bar (Figma: Top, desktop and mobile).
+
+  A purple band above the header: how to reach the shop on one side, where to find
+  it on the other.
+
+  The two arrangements are further apart than they look. On a wide screen the phone
+  and the email are text with a small glyph, and the social links are discs at the
+  far margin. On a phone all six are the same disc, centred, and the text is gone.
+
+  So they are one set of six buttons, not two — every one is the kit's `social`
+  button, which is already a disc with a glyph. The phone and the email additionally
+  carry a visible label, and it is this section that decides at which width that
+  label shows and the disc unrolls into a row. That decision could not live in the
+  component: it is a breakpoint, and a Liquid parameter cannot be one.
+
+  The numbers and the links come from Theme settings rather than from here, because
+  the footer prints the same four addresses and a shop with two sources for one
+  phone number eventually shows two different phone numbers.
+{% endcomment %}
+
+{%- liquid
+  assign phone = settings.contact_phone
+  assign email = settings.contact_email
+  assign phone_href = phone | remove: ' ' | remove: '-' | remove: '(' | remove: ')' | prepend: 'tel:'
+  assign email_href = email | prepend: 'mailto:'
+
+  assign networks = 'facebook,instagram,x,pinterest' | split: ','
+-%}
+
+<div
+  class="top-bar color-{{ section.settings.color_scheme }}"
+  data-testid="top-bar-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div class="top-bar__inner">
+    {%- if phone != blank or email != blank -%}
+      <div class="top-bar__contacts">
+        {%- if phone != blank -%}
+          {% render 'ui-button',
+            variant: 'social',
+            icon: 'phone',
+            label: phone,
+            label_visible: true,
+            link: phone_href,
+            class: 'top-bar__button top-bar__contact'
+          %}
+        {%- endif -%}
+
+        {%- if email != blank -%}
+          {% render 'ui-button',
+            variant: 'social',
+            icon: 'email',
+            label: email,
+            label_visible: true,
+            link: email_href,
+            class: 'top-bar__button top-bar__contact'
+          %}
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div class="top-bar__social">
+      {%- for network in networks -%}
+        {%- liquid
+          assign key = 'social_' | append: network | append: '_url'
+          assign url = settings[key]
+        -%}
+        {%- if url != blank -%}
+          {% render 'ui-button',
+            variant: 'social',
+            icon: network,
+            link: url,
+            open_in_new_tab: true,
+            class: 'top-bar__button'
+          %}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .top-bar {
+    background-color: var(--ui-color-primary);
+  }
+
+  .top-bar__inner {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+
+    /* Everything sits in one centred row on a phone: the six discs read as a single
+       group, so the gap between the two halves is the gap inside them. */
+    justify-content: center;
+    gap: 10px;
+    max-width: var(--page-width, 90rem);
+    margin-inline: auto;
+    padding-block: 10px;
+    padding-inline: var(--ui-page-margin);
+  }
+
+  .top-bar__contacts,
+  .top-bar__social {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* The disc itself is the kit's, and so are the numbers that size it — set here
+     rather than restyled, so the shape stays one thing in one place. */
+  .top-bar__button.top-bar__button {
+    --ui-button-social-size: 32px;
+    --ui-button-social-glyph: 16px;
+    --ui-button-background: var(--ui-color-sky-blue);
+    --ui-button-border-color: var(--ui-color-sky-blue);
+    --ui-button-color: var(--ui-color-primary);
+  }
+
+  /* The kit inverts a social button on hover. Nothing moves here: the band is a
+     place to read a number, not a control worth animating. */
+  .top-bar__button.top-bar__button:hover {
+    --ui-button-background: var(--ui-color-sky-blue);
+    --ui-button-color: var(--ui-color-primary);
+  }
+
+  /* The label rides along on a phone so a screen reader still names the button; it
+     is only out of sight. */
+  .top-bar__contact .ui-button__label {
+    position: absolute;
+    overflow: hidden;
+    clip-path: inset(50%);
+    width: 1px;
+    height: 1px;
+    white-space: nowrap;
+  }
+
+  @media screen and (min-width: 750px) {
+    .top-bar__inner {
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .top-bar__contacts {
+      gap: 24px;
+    }
+
+    .top-bar__social {
+      gap: 6px;
+    }
+
+    .top-bar__button.top-bar__button {
+      --ui-button-social-size: 24px;
+      --ui-button-social-glyph: 12px;
+    }
+
+    /* Here the phone and the email stop being discs and become what they are: a line
+       of text with a mark in front of it. */
+    .top-bar__contact.top-bar__contact {
+      --ui-button-background: transparent;
+      --ui-button-border-color: transparent;
+      --ui-button-color: var(--ui-color-white);
+      --ui-button-social-glyph: 16px;
+
+      width: auto;
+      height: 20px;
+      gap: 6px;
+      border-radius: 0;
+    }
+
+    .top-bar__contact.top-bar__contact:hover {
+      --ui-button-background: transparent;
+      --ui-button-color: var(--ui-color-white);
+    }
+
+    .top-bar__contact .ui-button__label {
+      position: static;
+      clip-path: none;
+      width: auto;
+      height: auto;
+      color: var(--ui-color-white);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Top bar",
+  "tag": "section",
+  "class": "top-bar-section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "The phone, the email and the social links come from Theme settings, under Contact and social, so this bar and the footer always agree."
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    }
+  ],
+  "presets": [{ "name": "Top bar" }]
+}
+{% endschema %}

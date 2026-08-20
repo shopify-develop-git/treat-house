@@ -15,7 +15,12 @@
   @param {string} [variant] - One of `primary`, `secondary`, `secondary-alt`, `link`, `underline`, `basket`, `social`. Defaults to `primary`.
   @param {string} [label] - The button text. For `basket` and `social` it is used as the accessible label instead.
   @param {string} [link] - The URL to link to. When present, the button renders as a link.
-  @param {string} [icon] - The network for the `social` variant: `facebook`, `instagram`, `x` or `pinterest`. Defaults to `facebook`.
+  @param {string} [icon] - The glyph for the `social` variant: `facebook`, `instagram`, `x`,
+    `pinterest`, `phone` or `email`. Defaults to `facebook`.
+  @param {boolean} [label_visible] - `social` only. Renders the label beside the glyph instead of
+    hiding it in an aria-label. The button keeps its round shape either way — a caller that wants a
+    row rather than a disc says so in its own stylesheet, because that is usually a decision per
+    breakpoint and cannot be made here.
   @param {boolean} [disabled] - Renders the disabled state.
   @param {boolean} [full_width] - Stretches a text variant to the width of its container.
   @param {string} [type] - The `type` attribute used when rendering a `<button>`. Defaults to `button`.
@@ -54,7 +59,7 @@
       assign accessible_label = 'actions.add_to_cart' | t
     endif
   elsif ui_variant == 'social'
-    assign ui_icons = 'facebook,instagram,x,pinterest' | split: ','
+    assign ui_icons = 'facebook,instagram,x,pinterest,phone,email' | split: ','
     assign ui_icon = icon | default: 'facebook'
     unless ui_icons contains ui_icon
       assign ui_icon = 'facebook'
@@ -74,9 +79,21 @@
   endif
 -%}
 
+{%- liquid
+  # A visible label labels the button by itself, so the aria-label comes off — two
+  # names on one control is one more than a screen reader should have to reconcile.
+  assign shows_label = false
+  if ui_variant == 'social' and label_visible and label != blank
+    assign shows_label = true
+  endif
+-%}
+
 {%- capture ui_button_content -%}
   {%- if is_icon_only -%}
     <span class="ui-button__icon">{{- icon_asset | inline_asset_content -}}</span>
+    {%- if shows_label -%}
+      <span class="ui-button__label">{{- label -}}</span>
+    {%- endif -%}
   {%- else -%}
     {{- label -}}
   {%- endif -%}
@@ -85,7 +102,7 @@
 {%- capture ui_shared_attributes -%}
   class="{{ ui_classes }}"
   {%- if id != blank %} id="{{ id }}"{% endif -%}
-  {%- if is_icon_only %} aria-label="{{ accessible_label | escape }}"{% endif -%}
+  {%- if is_icon_only and shows_label == false %} aria-label="{{ accessible_label | escape }}"{% endif -%}
   {%- if attributes != blank %} {{ attributes }}{% endif -%}
 {%- endcapture -%}
 
@@ -307,8 +324,27 @@
   }
 
   .ui-button--social .ui-button__icon {
+    flex: 0 0 auto;
     width: var(--ui-button-social-glyph);
     height: var(--ui-button-social-glyph);
+  }
+
+  /* Only ever present when a caller asked for it. It is left in the flow rather than
+     hidden here, because whether the label shows is the caller's decision and often
+     its breakpoint's. */
+  .ui-button__label {
+    /* Buttons in the kit shout: the variant sets uppercase, which is right for a word
+       like SHOP but wrong for the things this label holds. An email address in capitals
+       is both wider than it was drawn and harder to read back. */
+    text-transform: none;
+
+    /* Title/s in the file. Written out rather than taken from a token because the kit
+       has no type scale yet — when it gets one this is one of the call sites to move. */
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.1;
+    white-space: nowrap;
   }
 
   .ui-button__icon {
