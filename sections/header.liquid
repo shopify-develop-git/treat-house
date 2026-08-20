@@ -1250,12 +1250,38 @@
     background-color: var(--ui-color-sky-blue);
   }
 
+  /* Asked for by hand. Nothing in the theme or the file put a top margin on the
+     burger; this is Yevhenii's, kept as its own rule so it lifts out in one line. */
+  #header-component.header .header__drawer .header__icon--summary {
+    margin-block-start: 24px;
+  }
+
   /* The theme sizes the wrapper here rather than the glyph, so setting the svg on its
      own leaves it boxed into whatever the wrapper was given. Both, then. */
   #header-component.header .header__drawer .header__icon--summary :is(.header-drawer-icon, .svg-wrapper),
   #header-component.header .header__drawer .header__icon--summary .svg-wrapper > svg {
     width: var(--th-burger-size);
     height: var(--th-burger-size);
+  }
+
+  /* The close glyph cannot take the burger's size, because the two are drawn at
+     different scales. `icon-ui-menu.svg` has a viewBox of 44 with its bars across
+     22 of it; `icon-close.svg` has a viewBox of 14 with its cross across 10. Given
+     the same 44px box the cross came out 31px wide against the burger's 22 — and,
+     because a stroke scales with the box like everything else in it, 4.7px thick
+     against 1.5. That is the heavy X: not a bolder drawing, the same drawing
+     enlarged 3.1 times.
+
+     So the box is set from the ink instead. 28px puts the cross at 20 — a touch
+     under the burger's 22, which is right for a shape read on its diagonals — and
+     the stroke is then divided back down by the same ratio the box multiplies it
+     by, landing on the 1.5px the burger uses. The tile it sits in does not move. */
+  #header-component.header .header__drawer .header__icon--summary .header-drawer-icon--close,
+  #header-component.header .header__drawer .header__icon--summary .header-drawer-icon--close > svg {
+    --icon-stroke-width: 0.75px;
+
+    width: 28px;
+    height: 28px;
   }
 
   /* A wide screen in drawer mode keeps the theme's own arrangement, which is
