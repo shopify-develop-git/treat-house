@@ -18,7 +18,11 @@
       data-hydration-key="header-drawer-mobile"
       {{ block.shopify_attributes }}
     >
-      {% render 'header-drawer', linklist: block_settings.menu, data_header_drawer_type: 'mobile-drawer' %}
+      {% render 'header-drawer',
+        linklist: block_settings.menu,
+        data_header_drawer_type: 'mobile-drawer',
+        wishlist_url: section.settings.wishlist_url
+      %}
     </div>
 
   {% when 'navigation_bar' %}
@@ -1071,6 +1075,14 @@
     padding-inline: 16px;
   }
 
+  /* The utility area below the navigation is inset 20px by the theme while the
+     navigation above it is on 16, which puts the two columns of text 4px out of
+     line down the whole drawer. One margin, both of them. */
+  #header-component .menu-drawer__utility-links {
+    margin-inline: 16px;
+    padding-inline: 0;
+  }
+
   /* The file draws navigation in the heading black, never the body grey, and a
      row is the same height whether or not it opens anything — Horizon gives the
      ones that do 64px and the ones that do not 56, which reads as a mistake. */
@@ -1131,6 +1143,59 @@
   }
 
   #header-component .menu-drawer__back-button .icon-caret {
+    color: var(--ui-color-primary);
+  }
+
+  /* Close is the burger, still. The theme puts it top left as a bare glyph while
+     the control the reader just pressed was a sky-blue tile on the right, so the
+     button appears to move across the screen and change into something else in
+     the act of opening. Same tile, same corner, and it reads as one control in
+     two states.
+
+     Every close in the drawer takes it — the first view's and the one beside a
+     panel's back button — because they are the same control and a reader who
+     learns the tile once should not have to learn a second thing two taps in. */
+  #header-component .menu-drawer__close-button {
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    width: var(--th-burger-size, 44px);
+    height: var(--th-burger-size, 44px);
+    padding: 0;
+    border-radius: 10px;
+    background-color: var(--ui-color-sky-blue);
+  }
+
+  /* `margin-inline-start: auto` rather than `align-self`, because the two places
+     this button appears run their flex in different directions: the drawer is a
+     column, where `flex-end` would mean the right, and a panel's button row is a
+     row, where the same word means the bottom. An auto margin means the right in
+     both. `flex: 0 0 auto` above it is what stops the row — where the back button
+     is 303px wide and the space is not — from shrinking the tile to 35. */
+  #header-component .menu-drawer > .menu-drawer__close-button {
+    margin: 16px 16px 0 auto;
+  }
+
+  #header-component .menu-drawer__nav-buttons .menu-drawer__close-button {
+    margin-inline: auto 16px;
+  }
+
+  /* The glyph is drawn at a viewBox of 14 with its cross across 10 of it, so a
+     28px box puts the cross at 20 and the stroke divided back to the 1.5px every
+     other icon in the header is drawn with. Left at the box's own scale it comes
+     out over three times as heavy as the burger. */
+  #header-component .menu-drawer__close-button .header-drawer-icon--close,
+  #header-component .menu-drawer__close-button .header-drawer-icon--close > svg {
+    --icon-stroke-width: 0.75px;
+
+    width: 28px;
+    height: 28px;
+  }
+
+  /* The caret takes the brand purple, which is the one place the first view has
+     to say whose menu it is — everything else on it is a word. */
+  #header-component .menu-drawer__menu-item > .icon-caret {
     color: var(--ui-color-primary);
   }
 

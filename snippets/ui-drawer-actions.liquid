@@ -1,0 +1,107 @@
+{%- doc -%}
+  The three header actions, written out as rows for the drawer.
+
+  On a phone the header keeps its icons but loses the room to explain them, and
+  the drawer is where a menu is read rather than glanced at — so search, account
+  and wishlist appear here as labelled rows under the navigation instead of as
+  three more glyphs in a crowded row.
+
+  The search row is the same control the header uses, not a link to a search
+  page: it opens `#search-modal`, so the drawer and the header reach the same
+  dialog and there is one search on the site rather than two.
+
+  A row is dropped rather than disabled when it has nowhere to go — customer
+  accounts switched off, or no wishlist page chosen — because a drawer is a list
+  of places you can get to, and a dead row in it is a worse answer than a
+  shorter list. The header keeps its silent wishlist placeholder for spacing
+  reasons that do not apply here.
+
+  @param {string} [wishlist_url] - The wishlist page. No URL, no row.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-drawer-actions', wishlist_url: section.settings.wishlist_url %}
+{%- enddoc -%}
+
+<ul class="ui-drawer-actions list-unstyled {{ class }}">
+  <li>
+    <button
+      type="button"
+      class="ui-drawer-actions__item"
+      on:click="#search-modal/showDialog"
+    >
+      <span class="ui-drawer-actions__icon" aria-hidden="true">
+        {{- 'icon-ui-search.svg' | inline_asset_content -}}
+      </span>
+      {{ 'content.search' | t }}
+    </button>
+  </li>
+
+  {%- if shop.customer_accounts_enabled -%}
+    <li>
+      <a href="{{ routes.account_url }}" class="ui-drawer-actions__item">
+        <span class="ui-drawer-actions__icon" aria-hidden="true">
+          {{- 'icon-ui-account.svg' | inline_asset_content -}}
+        </span>
+        {{ 'content.account_title' | t }}
+      </a>
+    </li>
+  {%- endif -%}
+
+  {%- if wishlist_url != blank -%}
+    <li>
+      <a href="{{ wishlist_url }}" class="ui-drawer-actions__item">
+        <span class="ui-drawer-actions__icon" aria-hidden="true">
+          {{- 'icon-ui-wishlist.svg' | inline_asset_content -}}
+        </span>
+        {{ 'accessibility.wishlist' | t }}
+      </a>
+    </li>
+  {%- endif -%}
+</ul>
+
+{% stylesheet %}
+  /*
+   * A hairline rather than a gap, because the navigation above this can be
+   * anything from three rows to a dozen: a gap large enough to read as a break
+   * under three items is lost under twelve, and one that survives twelve leaves
+   * a hole under three.
+   */
+  .ui-drawer-actions {
+    margin-block-start: 16px;
+    padding-block-start: 8px;
+    border-block-start: 1px solid var(--ui-color-border-gray);
+  }
+
+  .ui-drawer-actions__item {
+    display: flex;
+    box-sizing: border-box;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 48px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: 1.3;
+    color: var(--color-foreground-heading);
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  /* The kit's glyphs are all drawn at a viewBox of 20 with a 1.5 stroke, so a
+     20px box renders them at the weight the header draws them. Sizing the
+     wrapper alone would leave the svg at its intrinsic size inside it. */
+  .ui-drawer-actions__icon,
+  .ui-drawer-actions__icon > svg {
+    display: block;
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    color: currentcolor;
+  }
+{% endstylesheet %}

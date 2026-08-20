@@ -4,6 +4,7 @@
   @param {object} linklist - The linklist to render
   @param {string} [class] - Additional classes to add to the drawer
   @param {string} [data_header_drawer_type] - The type of header drawer to render
+  @param {string} [wishlist_url] - Passed through to the drawer's action rows
   @param {object} [block] - The block that can be used to provide settings
   @param {object} [section] - The section that can be used to provide settings
 
@@ -562,6 +563,13 @@
         class="menu-drawer__utility-links menu-drawer__animated-element"
         style="--menu-drawer-animation-index: {{ linklist.links.size }};"
       >
+        {%- comment -%}
+          The header's three actions, spelled out. On a phone they are glyphs in
+          a row with no room for labels; here there is room, and the drawer is
+          the one place the whole header is listed rather than glanced at.
+        {%- endcomment -%}
+        {% render 'ui-drawer-actions', wishlist_url: wishlist_url %}
+
         {% liquid
           assign show_language = section.settings.show_language
           if localization.available_languages.size <= 1
