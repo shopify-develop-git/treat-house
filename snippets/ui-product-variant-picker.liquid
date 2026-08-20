@@ -1,0 +1,151 @@
+{%- doc -%}
+  The kit's variant control, wired to the theme (Figma: Standart Product Page →
+  Choose Your Box).
+
+  This is the seam between the two halves of the theme. The look is entirely the
+  kit's — [ui-variant-select] and [ui-variant-item], unchanged — and the behaviour
+  is entirely Horizon's: `<variant-picker>` from `assets/variant-picker.js`, which
+  on a change fetches the product at the chosen option values, morphs itself, and
+  fires `variant:update` for the price, the buy button and the gallery to answer.
+
+  What that element needs from its markup is small and exact, and all of it is
+  here rather than in the kit snippets:
+
+  - the radios inside a `<fieldset ref="fieldsets[]">`, because the element reads
+    the selection back through `fieldset input:checked`;
+  - `data-option-value-id` on every input, which is what the fetched URL is built
+    from;
+  - a `<script type="application/json">` holding the selected variant, which the
+    fetch reads out of the *response* — without it the request completes and
+    nothing updates.
+
+  A product with one variant gets nothing: a control with a single option is a
+  label wearing a chevron.
+
+  @param {object} product_resource - The product to pick a variant of. Named as
+    Horizon names it, so it does not shadow the template's own `product`, which is
+    what tells the element it is on that product's page.
+  @param {string} [label_prefix] - Leads each option's name: "Choose your" gives
+    "Choose your Box". Blank leaves the option's own name standing alone.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-product-variant-picker', product_resource: closest.product, label_prefix: 'Choose your' %}
+{%- enddoc -%}
+
+{%- comment -%}
+  variant-picker.js is loaded on every page by snippets/scripts.liquid, so there is
+  nothing to pull in here.
+{%- endcomment -%}
+{%- unless product_resource.has_only_default_variant -%}
+  <variant-picker
+    class="ui-product-variant-picker{% if class != blank %} {{ class }}{% endif %}"
+    data-section-id="{{ section.id }}"
+    data-product-id="{{ product_resource.id }}"
+    data-product-url="{{ product_resource.url }}"
+    {% if product.id == product_resource.id %}data-template-product-match="true"{% endif %}
+  >
+    {%- for product_option in product_resource.options_with_values -%}
+      {%- liquid
+        assign fieldset_index = forloop.index0
+        assign group_name = product_option.name | handleize | append: '-' | append: section.id | append: '-' | append: product_resource.id
+
+        assign legend = product_option.name
+        if label_prefix != blank
+          assign legend = label_prefix | append: ' ' | append: product_option.name
+        endif
+
+        assign trigger_label = product_option.selected_value
+        assign trigger_image = ''
+      -%}
+
+      {%- capture option_rows -%}
+        {%- for value in product_option.values -%}
+          {%- capture row_attributes -%}
+            data-previous-checked="false"
+            data-fieldset-index="{{ fieldset_index }}"
+            data-input-index="{{ forloop.index0 }}"
+            data-input-id="{{ product_option.position }}-{{ forloop.index0 }}"
+            data-option-value-id="{{ value.id }}"
+            data-option-available="{{ value.available }}"
+            data-connected-product-url="{{ value.product_url }}"
+            {%- if value.variant.id %} data-variant-id="{{ value.variant.id }}"{% endif -%}
+            {%- if value.selected %} data-current-checked="true"{% else %} data-current-checked="false"{% endif -%}
+            {%- unless value.available %} aria-disabled="true"{% endunless -%}
+          {%- endcapture -%}
+
+          {% render 'ui-variant-item',
+            label: value.name,
+            value: value.name,
+            image: value.variant.featured_media.preview_image,
+            checked: value.selected,
+            name: group_name,
+            attributes: row_attributes
+          %}
+        {%- endfor -%}
+      {%- endcapture -%}
+
+      {%- for value in product_option.values -%}
+        {%- if value.selected -%}
+          {%- assign trigger_image = value.variant.featured_media.preview_image -%}
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+
+      <fieldset class="ui-product-variant-picker__option" ref="fieldsets[]">
+        <legend class="ui-product-variant-picker__legend">{{ legend }}</legend>
+        {% render 'ui-variant-select',
+          label: trigger_label,
+          image: trigger_image,
+          rows: option_rows,
+          class: 'ui-product-variant-picker__select'
+        %}
+      </fieldset>
+    {%- endfor -%}
+
+    <script type="application/json">
+      {{ product_resource.selected_or_first_available_variant | json }}
+    </script>
+  </variant-picker>
+{%- endunless -%}
+
+{% stylesheet %}
+  .ui-product-variant-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+  }
+
+  /*
+   * A fieldset carries the grouping the picker element reads its selection out of,
+   * so it stays a fieldset and is stripped back to nothing instead of being traded
+   * for a div. `min-inline-size: 0` is the one that matters: a fieldset otherwise
+   * refuses to shrink below its content and holds the details column open.
+   */
+  .ui-product-variant-picker__option {
+    display: block;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .ui-product-variant-picker__legend {
+    padding: 0;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  /*
+   * The gap sits on the control rather than as a margin under the legend, which
+   * is one of the few boxes browsers still lay out to their own rules.
+   */
+  .ui-product-variant-picker__select {
+    margin-block-start: 10px;
+  }
+{% endstylesheet %}

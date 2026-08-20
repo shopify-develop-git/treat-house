@@ -48,7 +48,13 @@
       href="{{ settings.empty_cart_button_link | default: routes.all_products_collection_url }}"
     >
       <span class="button-text">
-        {{ 'actions.continue_shopping' | t }}
+        {%- liquid
+          assign empty_label = settings.empty_cart_button_label
+          if empty_label == blank
+            assign empty_label = 'actions.continue_shopping' | t
+          endif
+        -%}
+        {{ empty_label }}
       </span>
     </a>
   {%- else -%}

@@ -1,0 +1,125 @@
+{%- doc -%}
+  The product's price (Figma: Standart Product Page → "$ 99.00").
+
+  Wrapped in Horizon's `<product-price>`, which is the element that answers a
+  variant change: `assets/product-price.js` finds the `product-price` with this
+  block's id in the newly fetched page and swaps `[ref="priceContainer"]` for the
+  one it finds there. So the figure inside is replaced and the type around it — set
+  on the wrapper as custom properties — survives, which is why the sizes are not
+  written on the container itself.
+
+  The money format is the shop's. The file draws "$ 99.00" with a space, and that
+  is a currency setting in the admin rather than something to hardcode here.
+{%- enddoc -%}
+
+{%- liquid
+  assign product_resource = closest.product
+  assign variant = product_resource.selected_or_first_available_variant
+  assign price = variant.price
+  assign compare_at = variant.compare_at_price
+
+  assign show_compare = false
+  if block.settings.show_compare_at and compare_at > price
+    assign show_compare = true
+  endif
+-%}
+
+<product-price
+  class="ui-product-price"
+  data-block-id="{{ block.id }}"
+  data-product-id="{{ product_resource.id }}"
+  style="
+    --ui-product-price-size: {{ block.settings.size }}px;
+    --ui-product-price-size-mobile: {{ block.settings.size_mobile }}px;
+  "
+  {{ block.shopify_attributes }}
+>
+  <span class="ui-product-price__row" ref="priceContainer">
+    <span class="ui-product-price__value">
+      {%- if product_resource == blank -%}
+        {{- 1999 | money -}}
+      {%- else -%}
+        {{- price | money -}}
+      {%- endif -%}
+    </span>
+    {%- if show_compare -%}
+      <s class="ui-product-price__compare">{{ compare_at | money }}</s>
+    {%- endif -%}
+  </span>
+</product-price>
+
+{% stylesheet %}
+  .ui-product-price {
+    display: block;
+  }
+
+  .ui-product-price__row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .ui-product-price__value {
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-product-price-size-mobile, 20px);
+    /* The file's Price/m is Nunito Bold, which the theme loads — unlike SemiBold,
+       which is why this reaches for the body face at 700 and not the emphasis one. */
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  @media screen and (min-width: 750px) {
+    .ui-product-price__value {
+      font-size: var(--ui-product-price-size, 24px);
+    }
+  }
+
+  .ui-product-price__compare {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: max(calc(var(--ui-product-price-size, 24px) * 0.66), 14px);
+    font-weight: var(--ui-font-body-weight);
+    line-height: 1;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Price",
+  "tag": null,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_compare_at",
+      "label": "Show the price it was",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "size",
+      "label": "t:settings.size",
+      "min": 14,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "size_mobile",
+      "label": "t:content.mobile_size",
+      "min": 14,
+      "max": 40,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Price"
+    }
+  ]
+}
+{% endschema %}

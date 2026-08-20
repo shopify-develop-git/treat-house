@@ -117,7 +117,19 @@
     ></script>
 
     {% capture empty_cart_drawer_content %}
+      {%- liquid
+        assign cart_title = 'content.your_cart' | t
+        assign title_first = cart_title | split: ' ' | first
+        assign title_rest = cart_title | remove_first: title_first | strip
+      -%}
       <div class="cart-drawer__header">
+        <h2 class="cart-drawer__heading" id="cart-drawer-heading-count">
+          {{ title_first }}
+          <span class="ui-cart-drawer__count">
+            {{- title_rest }} ({{ cart.item_count -}})
+          </span>
+        </h2>
+
         <button
           ref="closeButton"
           on:click="cart-drawer-component/close"
@@ -136,8 +148,7 @@
       >
         {%- liquid
           assign empty_text = 'content.your_cart_is_empty' | t
-          assign empty_lead = 'content.your_cart' | t
-          assign empty_rest = empty_text | remove_first: empty_lead | strip
+          assign empty_rest = empty_text | remove_first: cart_title | strip
         -%}
         <h2
           class="cart-drawer__heading cart-drawer__heading--empty"
@@ -146,7 +157,7 @@
           {%- if empty_rest == empty_text -%}
             {{ empty_text }}
           {%- else -%}
-            <span class="ui-cart-drawer__count">{{ empty_lead }}</span> {{ empty_rest }}
+            <span class="ui-cart-drawer__count">{{ cart_title }}</span> {{ empty_rest }}
           {%- endif -%}
         </h2>
 

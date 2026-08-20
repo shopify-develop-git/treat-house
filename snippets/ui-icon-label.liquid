@@ -1,0 +1,67 @@
+{%- doc -%}
+  A glyph with its wording beneath (Figma: Standart Product Page → info, the row of
+  four under the buy buttons).
+
+  Centred and sized by custom properties rather than by settings, so a caller can
+  run the same item at 24px under a buy row and at 16px in a narrow card without
+  this snippet growing a variant for each.
+
+  The glyph is decorative: the wording beside it says the same thing, and a screen
+  reader that reads both is being told everything twice.
+
+  @param {string} label - The wording.
+  @param {string} [icon] - Icon asset name, with or without the `icon-ui-` prefix and extension.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-icon-label', icon: 'gift', label: 'Gift-Ready Packaging' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign label_icon = icon
+  if label_icon != blank
+    unless label_icon contains 'icon-ui-'
+      assign label_icon = 'icon-ui-' | append: label_icon
+    endunless
+    unless label_icon contains '.svg'
+      assign label_icon = label_icon | append: '.svg'
+    endunless
+  endif
+-%}
+
+<span class="ui-icon-label{% if class != blank %} {{ class }}{% endif %}">
+  {%- if icon != blank -%}
+    <span class="ui-icon-label__glyph" aria-hidden="true">{{- label_icon | inline_asset_content -}}</span>
+  {%- endif -%}
+  <span class="ui-icon-label__text">{{ label }}</span>
+</span>
+
+{% stylesheet %}
+  .ui-icon-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ui-icon-label-gap, 12px);
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-icon-label-font-size, 14px);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+    text-align: center;
+  }
+
+  .ui-icon-label__glyph {
+    display: block;
+    flex: 0 0 auto;
+    width: var(--ui-icon-label-glyph, 24px);
+    height: var(--ui-icon-label-glyph, 24px);
+    /* The glyphs are drawn in the brand purple; the wording under them is not. */
+    color: var(--ui-icon-label-glyph-color, var(--ui-color-primary));
+  }
+
+  .ui-icon-label__glyph > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+{% endstylesheet %}

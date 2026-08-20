@@ -9,14 +9,24 @@
   As with [_ui-heading], a setting left at its default is not written out, so the
   section can set `--ui-text-max-width` or `--ui-text-color` on an ancestor and
   have it inherit.
+
+  `source` switches the copy to the product's own description, which is what a
+  product page wants: the same block, the same type and the same controls, reading
+  a field the merchant already fills in the product admin rather than a second copy
+  of it in the theme editor.
 {%- enddoc -%}
 
 {%- liquid
   assign padding_start = block.settings.padding_block_start
   assign padding_end = block.settings.padding_block_end
+
+  assign copy = block.settings.text
+  if block.settings.source == 'product_description'
+    assign copy = closest.product.description
+  endif
 -%}
 
-{%- if block.settings.text != blank -%}
+{%- if copy != blank -%}
   <div
     class="ui-text"
     style="
@@ -29,7 +39,7 @@
     "
     {{ block.shopify_attributes }}
   >
-    {{ block.settings.text }}
+    {{ copy }}
   </div>
 {%- endif -%}
 
@@ -75,11 +85,28 @@
   "tag": null,
   "settings": [
     {
+      "type": "select",
+      "id": "source",
+      "label": "Copy",
+      "options": [
+        {
+          "value": "custom",
+          "label": "What you write below"
+        },
+        {
+          "value": "product_description",
+          "label": "The product's description"
+        }
+      ],
+      "default": "custom"
+    },
+    {
       "type": "richtext",
       "id": "text",
       "label": "t:settings.text",
       "info": "Leave a blank line between paragraphs.",
-      "default": "<p>Add the sentence that explains the section.</p>"
+      "default": "<p>Add the sentence that explains the section.</p>",
+      "visible_if": "{{ block.settings.source == 'custom' }}"
     },
     {
       "type": "range",

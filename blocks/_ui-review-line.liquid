@@ -20,14 +20,55 @@
   `layout` chooses between the two arrangements the file draws: `stacked` puts the
   stars over the wording, which is what the hero needs beside its faces, and `inline`
   sets them on one line, which is what a section heading needs under it.
+
+  `source` decides where the figures come from. Left on "What you write below" they
+  are the merchant's, which is what a marketing band wants — the shop's overall
+  standing, not one product's. Set to the product, the stars, the score and the
+  count come from `metafields.reviews.rating` and `reviews.rating_count`, the pair
+  Shopify's own review apps write, so a product page shows that product's rating
+  and the faces stand down.
 {%- enddoc -%}
 
 {%- liquid
   assign star_count = block.settings.rating_stars
+  assign rating_text = block.settings.rating_text
+  assign reviews_text = block.settings.reviews_text
   assign padding_start = block.settings.padding_block_start
   assign padding_end = block.settings.padding_block_end
+
+  if block.settings.source == 'product'
+    assign rating = closest.product.metafields.reviews.rating.value
+    assign rating_count = closest.product.metafields.reviews.rating_count.value
+    if rating_count == blank
+      assign rating_count = closest.product.metafields.reviews.rating_count
+    endif
+
+    # A rating app writes the score as a rating object with its own scale; some
+    # write a bare number. Both are read, and neither is invented when absent.
+    assign score = rating.rating | default: rating
+    assign scale_max = rating.scale_max | default: 5
+
+    if score == blank
+      assign star_count = 0
+      assign rating_text = ''
+    else
+      assign star_count = score | round
+      assign rating_text = score
+    endif
+
+    if star_count > scale_max
+      assign star_count = scale_max
+    endif
+
+    if rating_count == blank or rating_count == 0
+      assign reviews_text = ''
+    else
+      assign reviews_text = rating_count | append: ' reviews'
+    endif
+  endif
+
   assign has_text = false
-  if block.settings.rating_text != blank or block.settings.reviews_text != blank
+  if rating_text != blank or reviews_text != blank
     assign has_text = true
   endif
 -%}
@@ -43,7 +84,9 @@
   "
   {{ block.shopify_attributes }}
 >
-  {%- if block.settings.image != blank -%}
+  {%- if block.settings.source == 'product' -%}
+    {%- comment -%} A product's rating stands on its own; the faces belong to the shop. {%- endcomment -%}
+  {%- elsif block.settings.image != blank -%}
     <span class="ui-review-line__strip">
       {% render 'image', image: block.settings.image, height: 33, class: 'ui-review-line__strip-image' %}
     </span>
@@ -65,14 +108,14 @@
 
       {%- if has_text -%}
         <p class="ui-review-line__text">
-          {%- if block.settings.rating_text != blank -%}
-            <span>{{ block.settings.rating_text }}</span>
+          {%- if rating_text != blank -%}
+            <span>{{ rating_text }}</span>
           {%- endif -%}
-          {%- if block.settings.rating_text != blank and block.settings.reviews_text != blank -%}
+          {%- if rating_text != blank and reviews_text != blank -%}
             <span class="ui-review-line__divider" aria-hidden="true"></span>
           {%- endif -%}
-          {%- if block.settings.reviews_text != blank -%}
-            <span>{{ block.settings.reviews_text }}</span>
+          {%- if reviews_text != blank -%}
+            <span>{{ reviews_text }}</span>
           {%- endif -%}
         </p>
       {%- endif -%}
@@ -201,8 +244,26 @@
   ],
   "settings": [
     {
+      "type": "select",
+      "id": "source",
+      "label": "Figures",
+      "options": [
+        {
+          "value": "manual",
+          "label": "What you write below"
+        },
+        {
+          "value": "product",
+          "label": "The product's rating"
+        }
+      ],
+      "default": "manual",
+      "info": "The product's rating comes from the reviews.rating and reviews.rating_count metafields a review app writes. The faces are not shown for it."
+    },
+    {
       "type": "image_picker",
       "id": "image",
+      "visible_if": "{{ block.settings.source == 'manual' }}",
       "label": "Faces as one picture",
       "info": "The whole row already assembled, overlaps and all. Left empty, the row is built from the reviewer blocks below instead."
     },
@@ -213,19 +274,22 @@
       "min": 0,
       "max": 5,
       "step": 1,
-      "default": 5
+      "default": 5,
+      "visible_if": "{{ block.settings.source == 'manual' }}"
     },
     {
       "type": "text",
       "id": "rating_text",
       "label": "Rating",
-      "default": "4.9 rating"
+      "default": "4.9 rating",
+      "visible_if": "{{ block.settings.source == 'manual' }}"
     },
     {
       "type": "text",
       "id": "reviews_text",
       "label": "Review count",
-      "default": "12,000+ reviews"
+      "default": "12,000+ reviews",
+      "visible_if": "{{ block.settings.source == 'manual' }}"
     },
     {
       "type": "select",

@@ -1,0 +1,133 @@
+{%- doc -%}
+  The four reassurances under the buy row (Figma: Standart Product Page → info).
+
+  The same bargain [_ui-product-chips] strikes: the blocks below are the template's
+  defaults, and a product overrides them through a `custom.*` list of single-line
+  text values written `icon:Label`. The two rows are separate because they are two
+  components in the file and not one wearing a flag — these are a 24px glyph above
+  its wording, spread across the column, where a tag is a 14px glyph inside an
+  outlined pill.
+
+  The grid fills itself rather than counting columns. Four items across the drawn
+  586px column come to 146px each, and the same rule gives two rows of two once the
+  column is narrower than about 500px — so a phone needs no breakpoint here and a
+  merchant who adds a fifth item does not get a lone one stranded on its own line.
+{%- enddoc -%}
+
+{%- liquid
+  assign key = block.settings.metafield
+  assign field = ''
+  if key != blank
+    assign field = closest.product.metafields.custom[key]
+  endif
+
+  assign entries = ''
+  if field.type == 'list.single_line_text_field'
+    assign entries = field.value
+  endif
+-%}
+
+<div
+  class="ui-product-assurances"
+  style="
+    --ui-product-assurances-gap: {{ block.settings.gap }}px;
+    --ui-product-assurances-min: {{ block.settings.min_width }}px;
+  "
+  {{ block.shopify_attributes }}
+>
+  {%- if entries.size > 0 -%}
+    {%- for entry in entries -%}
+      {%- liquid
+        assign parts = entry | split: ':'
+        assign entry_icon = ''
+        assign entry_label = entry
+        if parts.size > 1
+          assign entry_icon = parts[0] | strip
+          assign entry_label = parts | slice: 1, 20 | join: ':' | strip
+        endif
+      -%}
+      {% render 'ui-icon-label', icon: entry_icon, label: entry_label %}
+    {%- endfor -%}
+  {%- else -%}
+    {% content_for 'blocks' %}
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .ui-product-assurances {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(var(--ui-product-assurances-min, 120px), 1fr));
+    gap: var(--ui-product-assurances-gap, 20px);
+    align-items: start;
+  }
+
+  .ui-product-assurances:not(:has(*)) {
+    display: none;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Reassurance row",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_ui-product-assurance"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "metafield",
+      "label": "Per-product metafield",
+      "info": "A custom.* list of single-line text values, each one icon:Label. Filled in on a product, it replaces the items below for that product.",
+      "default": "product_assurances"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "min_width",
+      "label": "Narrowest item",
+      "info": "Where the row drops to fewer columns.",
+      "min": 80,
+      "max": 220,
+      "step": 10,
+      "unit": "px",
+      "default": 120
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reassurance row",
+      "blocks": {
+        "packaging": {
+          "type": "_ui-product-assurance",
+          "settings": { "icon": "gift", "label": "Gift-Ready Packaging" }
+        },
+        "gluten_free": {
+          "type": "_ui-product-assurance",
+          "settings": { "icon": "wheat-slash", "label": "Gluten-Free" }
+        },
+        "handcrafted": {
+          "type": "_ui-product-assurance",
+          "settings": { "icon": "cookie", "label": "Handcrafted Treats" }
+        },
+        "share_love": {
+          "type": "_ui-product-assurance",
+          "settings": { "icon": "hand-holding-heart", "label": "Made to Share Love" }
+        }
+      },
+      "block_order": ["packaging", "gluten_free", "handcrafted", "share_love"]
+    }
+  ]
+}
+{% endschema %}

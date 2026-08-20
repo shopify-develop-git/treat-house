@@ -1,0 +1,67 @@
+{%- doc -%}
+  One item in [_ui-product-assurances]. Renders [ui-icon-label] and nothing else,
+  for the reason [_ui-product-chip] gives.
+{%- enddoc -%}
+
+{%- liquid
+  assign item_icon = block.settings.icon
+  if item_icon == 'none'
+    assign item_icon = ''
+  endif
+-%}
+
+{%- if block.settings.label != blank -%}
+  <div class="ui-product-assurance" {{ block.shopify_attributes }}>
+    {% render 'ui-icon-label', icon: item_icon, label: block.settings.label %}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  /* The wrapper the editor needs for its outline has to pass the grid cell's width
+     through, or a long label sets its own and the columns stop matching. */
+  .ui-product-assurance {
+    display: flex;
+    justify-content: center;
+    min-width: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Reassurance",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "t:settings.label",
+      "default": "Gift-Ready Packaging"
+    },
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "t:settings.icon",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "gift", "label": "Gift" },
+        { "value": "wheat-slash", "label": "Gluten free" },
+        { "value": "cookie", "label": "Cookie" },
+        { "value": "hand-holding-heart", "label": "Hand and heart" },
+        { "value": "shipping-fast", "label": "Shipping" },
+        { "value": "thermometer", "label": "Thermometer" },
+        { "value": "info-circle", "label": "Information" },
+        { "value": "envelope", "label": "Envelope" },
+        { "value": "check", "label": "Check" },
+        { "value": "sparkle", "label": "Sparkle" },
+        { "value": "rating-star", "label": "Star" }
+      ],
+      "default": "gift"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Reassurance"
+    }
+  ]
+}
+{% endschema %}

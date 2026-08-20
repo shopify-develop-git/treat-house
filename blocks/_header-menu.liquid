@@ -786,22 +786,40 @@
        hovering an item with children is what opens the panel — so the two are
        written as one.
 
-       The pill's padding widens the item by 32, which pushes the rest of the row
-       along. That is what the file draws: `Items` is 704 wide with a pill in it and
-       672 without. Compensating with a negative margin would hold the row still but
-       close the drawn 24px gap down to 8, so the shift is kept — it happens at the
-       same moment a 384px panel drops down, and reads as part of that. */
+       Drawn outside the box rather than made of padding. Padding would widen the
+       item by 32 and shove every label to its right along by that much — the row
+       moving under the pointer at the moment the panel opens. The pill is the same
+       32 wider and 12 taller than its label either way, but as a pseudo-element it
+       takes part in no layout at all: nothing shifts, nothing reflows, and the hit
+       area of every item is exactly what it was.
+
+       What that costs is the gap. The file moves the neighbours out of the way and
+       keeps 24px of air around the pill; holding them still means the pill reaches
+       into that gap instead, leaving 8. There is no arrangement that has both — a
+       pill 32 wider than its label, 24px of air, and a row that does not move — so
+       this trades the air for the stillness. */
+    #header-component[data-menu-style='menu'] .menu-list__link {
+      /* Somewhere for the pill to sit behind the label rather than behind the row. */
+      position: relative;
+      z-index: 0;
+    }
+
     #header-component[data-menu-style='menu']
       .menu-list__list-item:has(.menu-list__submenu):where(:hover, :focus-within)
       > .menu-list__link {
       --menu-top-level-font-color: var(--ui-color-white);
       --menu-top-level-font-color-rgb: 255 255 255;
+    }
 
-      gap: 6px;
-      padding: 6px 16px;
+    #header-component[data-menu-style='menu']
+      .menu-list__list-item:has(.menu-list__submenu):where(:hover, :focus-within)
+      > .menu-list__link::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset: -6px -16px;
       border-radius: var(--ui-radius-sm);
       background-color: var(--ui-color-primary);
-
     }
 
     #header-component[data-menu-style='menu']

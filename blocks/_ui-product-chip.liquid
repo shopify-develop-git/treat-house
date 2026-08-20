@@ -1,0 +1,60 @@
+{%- doc -%}
+  One tag in [_ui-product-chips]. Renders [ui-tag] from the kit and adds nothing to
+  it — the look lives in the snippet, so a change to the tag reaches every row that
+  has one rather than this file and whichever others grew a copy.
+{%- enddoc -%}
+
+{%- liquid
+  assign chip_icon = block.settings.icon
+  if chip_icon == 'none'
+    assign chip_icon = ''
+  endif
+-%}
+
+{%- if block.settings.label != blank -%}
+  {% render 'ui-tag',
+    icon: chip_icon,
+    label: block.settings.label,
+    attributes: block.shopify_attributes
+  %}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Tag",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "t:settings.label",
+      "default": "Gluten-Free"
+    },
+    {
+      "type": "select",
+      "id": "icon",
+      "label": "t:settings.icon",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "gift", "label": "Gift" },
+        { "value": "wheat-slash", "label": "Gluten free" },
+        { "value": "cookie", "label": "Cookie" },
+        { "value": "hand-holding-heart", "label": "Hand and heart" },
+        { "value": "shipping-fast", "label": "Shipping" },
+        { "value": "thermometer", "label": "Thermometer" },
+        { "value": "info-circle", "label": "Information" },
+        { "value": "envelope", "label": "Envelope" },
+        { "value": "check", "label": "Check" },
+        { "value": "sparkle", "label": "Sparkle" },
+        { "value": "rating-star", "label": "Star" }
+      ],
+      "default": "wheat-slash"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tag"
+    }
+  ]
+}
+{% endschema %}

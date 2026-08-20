@@ -1,0 +1,97 @@
+{%- doc -%}
+  A hairline across the column (Figma: Standart Product Page → separator, drawn
+  three times down the product details).
+
+  A rule is a thing the merchant arranges, not a property of the block above it, so
+  it is its own block: moved, removed and added like anything else in the column
+  rather than switched on from a checkbox on five different neighbours.
+
+  Its own spacing rather than the column's. The file sets the details column 24px
+  apart and its rules 20px, and a block cannot make a parent's `gap` smaller — so
+  the rule takes the difference off its own margins, reading the column's gap from
+  `--ui-stack-gap`. A section that does not set that variable gets the drawn space
+  measured from zero, which is the same figure a rule standing alone would want.
+{%- enddoc -%}
+
+<div
+  class="ui-rule ui-rule--{{ block.settings.color }}"
+  style="--ui-rule-space: {{ block.settings.space }}px; --ui-rule-thickness: {{ block.settings.thickness }}px;"
+  role="separator"
+  {{ block.shopify_attributes }}
+></div>
+
+{% stylesheet %}
+  .ui-rule {
+    height: var(--ui-rule-thickness, 1px);
+    /*
+     * Halved because the gap this cancels sits on both sides of the rule. Clamped
+     * at the low end so a merchant who sets the space below the column's gap gets
+     * a tighter rule rather than one that overlaps its neighbours.
+     */
+    margin-block: max(calc((var(--ui-rule-space, 20px) - var(--ui-stack-gap, 0px)) / 2), calc(var(--ui-stack-gap, 0px) / -2));
+    background-color: var(--ui-rule-color, var(--ui-color-light-blue));
+  }
+
+  .ui-rule--border-gray {
+    --ui-rule-color: var(--ui-color-border-gray);
+  }
+
+  .ui-rule--primary {
+    --ui-rule-color: var(--ui-color-primary);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Rule",
+  "tag": null,
+  "settings": [
+    {
+      "type": "select",
+      "id": "color",
+      "label": "t:settings.color",
+      "options": [
+        {
+          "value": "light-blue",
+          "label": "Light blue"
+        },
+        {
+          "value": "border-gray",
+          "label": "Gray"
+        },
+        {
+          "value": "primary",
+          "label": "Purple"
+        }
+      ],
+      "default": "light-blue"
+    },
+    {
+      "type": "range",
+      "id": "thickness",
+      "label": "t:settings.thickness",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "space",
+      "label": "t:settings.gap",
+      "info": "The space either side of the rule, measured from the column rather than added to it.",
+      "min": 0,
+      "max": 80,
+      "step": 2,
+      "default": 20,
+      "unit": "px"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Rule"
+    }
+  ]
+}
+{% endschema %}

@@ -14,14 +14,53 @@
   block can set it on an ancestor and have it inherit: `--ui-heading-max-width`,
   `--ui-heading-color` and `--ui-heading-accent-color`. A merchant who moves the
   setting writes it on the block itself and wins, which is the point.
+
+  On a product page the words come from the product instead: `source` switches the
+  copy to `product.title` and the level to the `heading_tag` setting, since there is
+  no toolbar to pick it in when the merchant is not the one typing. The accent then
+  comes from the `custom.title_accent` metafield — the words to draw in purple,
+  written out as they appear in the title — which is the same bargain the richtext
+  `<em>` strikes, moved to where a per-product value can live.
 {%- enddoc -%}
 
 {%- liquid
   assign padding_start = block.settings.padding_block_start
   assign padding_end = block.settings.padding_block_end
+
+  assign heading_html = block.settings.heading
+
+  if block.settings.source == 'product_title'
+    assign source_product = closest.product
+    assign heading_tag = block.settings.heading_tag | default: 'h1'
+
+    assign accent = source_product.metafields.custom.title_accent.value
+    if accent == blank
+      assign accent = source_product.metafields.custom.title_accent
+    endif
+
+    # Escaped before the accent is marked, so the `<em>` this adds is the only
+    # markup in the string and a title containing an ampersand still prints as one.
+    assign title_text = source_product.title | escape
+    assign accent_text = accent | escape
+
+    if accent_text != blank and title_text contains accent_text
+      assign marked = '<em>' | append: accent_text | append: '</em>'
+      assign title_text = title_text | replace: accent_text, marked
+    endif
+
+    capture heading_html
+      echo '<'
+      echo heading_tag
+      echo '>'
+      echo title_text
+      echo '</'
+      echo heading_tag
+      echo '>'
+    endcapture
+  endif
 -%}
 
-{%- if block.settings.heading != blank -%}
+{%- if heading_html != blank -%}
   <div
     class="ui-heading"
     style="
@@ -35,7 +74,7 @@
     "
     {{ block.shopify_attributes }}
   >
-    {{ block.settings.heading }}
+    {{ heading_html }}
   </div>
 {%- endif -%}
 
@@ -86,11 +125,50 @@
   "tag": null,
   "settings": [
     {
+      "type": "select",
+      "id": "source",
+      "label": "Words",
+      "options": [
+        {
+          "value": "custom",
+          "label": "What you write below"
+        },
+        {
+          "value": "product_title",
+          "label": "The product's title"
+        }
+      ],
+      "default": "custom",
+      "info": "On a product page, the title can carry an accent through the product's custom.title_accent metafield \u2014 the words to draw in purple, spelled as they appear in the title."
+    },
+    {
       "type": "richtext",
       "id": "heading",
       "label": "t:settings.heading",
       "info": "Pick the heading level in the toolbar. Shift and Enter breaks the line. Italic marks the words drawn in purple.",
-      "default": "<h2>Section heading</h2>"
+      "default": "<h2>Section heading</h2>",
+      "visible_if": "{{ block.settings.source == 'custom' }}"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading level",
+      "options": [
+        {
+          "value": "h1",
+          "label": "H1"
+        },
+        {
+          "value": "h2",
+          "label": "H2"
+        },
+        {
+          "value": "h3",
+          "label": "H3"
+        }
+      ],
+      "default": "h1",
+      "visible_if": "{{ block.settings.source == 'product_title' }}"
     },
     {
       "type": "range",

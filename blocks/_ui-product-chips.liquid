@@ -1,0 +1,123 @@
+{%- doc -%}
+  The row of claim tags under the description (Figma: Standart Product Page →
+  Gluten-Free and Arrives gift-ready).
+
+  What the merchant arranges here are the defaults for the template: the tags every
+  product wears unless it says otherwise. A product says otherwise through the
+  metafield named in `metafield` — a list of single-line text values, each one
+  `icon:Label` or a bare `Label`:
+
+  ```
+  wheat-slash:Gluten-Free
+  gift:Arrives gift-ready
+  ```
+
+  A list, because these are a list: a merchant adds a fourth claim to one product
+  without a developer adding a fourth setting to this block. When the metafield is
+  empty or missing the tag blocks below stand, which is what keeps the row from
+  disappearing on the products nobody has got to yet.
+{%- enddoc -%}
+
+{%- liquid
+  assign key = block.settings.metafield
+  assign field = ''
+  if key != blank
+    assign field = closest.product.metafields.custom[key]
+  endif
+
+  assign entries = ''
+  if field.type == 'list.single_line_text_field'
+    assign entries = field.value
+  endif
+-%}
+
+<div
+  class="ui-product-chips"
+  style="--ui-product-chips-gap: {{ block.settings.gap }}px;"
+  {{ block.shopify_attributes }}
+>
+  {%- if entries.size > 0 -%}
+    {%- for entry in entries -%}
+      {%- liquid
+        assign parts = entry | split: ':'
+        assign entry_icon = ''
+        assign entry_label = entry
+        if parts.size > 1
+          assign entry_icon = parts[0] | strip
+          assign entry_label = parts | slice: 1, 20 | join: ':' | strip
+        endif
+      -%}
+      {% render 'ui-tag', icon: entry_icon, label: entry_label %}
+    {%- endfor -%}
+  {%- else -%}
+    {% content_for 'blocks' %}
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .ui-product-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ui-product-chips-gap, 12px);
+  }
+
+  /* The region has to be in the markup for the editor even when the metafield has
+     taken over, and an empty flex item would still take its share of the gap. */
+  .ui-product-chips:not(:has(*)) {
+    display: none;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tag row",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_ui-product-chip"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "metafield",
+      "label": "Per-product metafield",
+      "info": "A custom.* list of single-line text values, each one icon:Label. Filled in on a product, it replaces the tags below for that product.",
+      "default": "product_chips"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tag row",
+      "blocks": {
+        "gluten_free": {
+          "type": "_ui-product-chip",
+          "settings": {
+            "icon": "wheat-slash",
+            "label": "Gluten-Free"
+          }
+        },
+        "gift_ready": {
+          "type": "_ui-product-chip",
+          "settings": {
+            "icon": "gift",
+            "label": "Arrives gift-ready"
+          }
+        }
+      },
+      "block_order": ["gluten_free", "gift_ready"]
+    }
+  ]
+}
+{% endschema %}
