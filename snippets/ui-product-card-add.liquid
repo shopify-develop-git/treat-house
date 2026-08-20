@@ -1,0 +1,122 @@
+{%- doc -%}
+  The basket on a product card, wired to the cart.
+
+  [ui-product-card] draws this square but cannot fill it: a card is given a title
+  and a price and knows nothing about variants or forms. This snippet is the
+  filling, and it is what a product row passes as the card's `add_content`.
+
+  It does one of two things, and which one it does is decided by the product:
+
+  - **One variant to sell.** The button is the submit of a real `product` form
+    inside `<product-form-component>`, so a click posts to the cart and the drawer
+    opens. Same seam as [_ui-product-buy] on the product page — `ref="variantId"`,
+    `ref="liveRegion"`, and `ref="addToCartButton"` inside an
+    `<add-to-cart-component>`.
+
+  - **Options to choose.** The button is a link to the product page. A shopper
+    buying a box has to pick a flavour, and picking one for them is not a thing a
+    basket icon is allowed to decide.
+
+  Deliberately not Horizon's `quick-add`. That one draws a bubble that floats over
+  the photograph and fades in on hover, which is not what the file draws, and its
+  chooser fills a modal by fetching the product page and lifting
+  `[data-product-grid-content]` out of it — an element that belongs to Horizon's
+  `product-information` section and does not exist on this theme's product page.
+  A quick-add drawer in the kit's own clothes is real work, and it is not drawn
+  anywhere in the file yet.
+
+  @param {object} product - The product to add.
+  @param {string} section_id - The id of the section drawing the card. Keeps one page's forms apart.
+  @param {string} [class] - Additional CSS classes for the host element.
+
+  @example
+  {%- capture add_control -%}
+    {% render 'ui-product-card-add', product: product, section_id: section.id %}
+  {%- endcapture -%}
+  {% render 'ui-product-card', title: product.title, add_content: add_control %}
+{%- enddoc -%}
+
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+
+  # One variant is a thing to add; several are a thing to choose between. A single
+  # option shown as swatches would be choosable from the card too, but this theme's
+  # card draws no swatches, so there is nothing on it to choose with.
+  assign needs_choosing = true
+  if product.has_only_default_variant or product.variants_count == 1
+    assign needs_choosing = false
+  endif
+
+  assign sold_out = true
+  if variant.available
+    assign sold_out = false
+  endif
+
+  assign add_label = 'actions.add_to_cart' | t
+  assign choose_label = 'actions.choose' | t
+  if sold_out
+    assign add_label = 'products.product.sold_out' | t
+  endif
+
+  assign host_classes = 'ui-product-card__add-host'
+  if class != blank
+    assign host_classes = host_classes | append: ' ' | append: class
+  endif
+
+  assign form_id = 'ui-card-form-' | append: section_id | append: '-' | append: product.id
+
+  assign variant_media = variant.featured_media.preview_image | image_url: width: 100
+  if variant.featured_media.preview_image == blank
+    assign variant_media = product.featured_media.preview_image | image_url: width: 100
+  endif
+-%}
+
+{%- if needs_choosing and sold_out == false -%}
+  {% render 'ui-button',
+    variant: 'basket',
+    label: choose_label,
+    link: product.url,
+    class: host_classes
+  %}
+{%- elsif sold_out -%}
+  {% render 'ui-button',
+    variant: 'basket',
+    label: add_label,
+    disabled: true,
+    class: host_classes
+  %}
+{%- else -%}
+  <product-form-component
+    class="{{ host_classes }}"
+    data-section-id="{{ section_id }}"
+    data-product-id="{{ product.id }}"
+    data-product-url="{{ product.url }}"
+    on:submit="/handleSubmit"
+  >
+    <div
+      class="visually-hidden"
+      aria-live="assertive"
+      role="status"
+      aria-atomic="true"
+      ref="liveRegion"
+    ></div>
+
+    {%- form 'product', product, id: form_id, novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+      <input type="hidden" name="id" ref="variantId" value="{{ variant.id }}">
+      <input type="hidden" name="quantity" value="{{ variant.quantity_rule.min | default: 1 }}">
+
+      <add-to-cart-component
+        ref="addToCartButtonContainer"
+        data-product-variant-media="{{ variant_media }}"
+        data-add-to-cart-animation="{{ settings.add_to_cart_animation }}"
+      >
+        {% render 'ui-button',
+          variant: 'basket',
+          label: add_label,
+          type: 'submit',
+          attributes: 'name="add" ref="addToCartButton" on:click="/handleClick"'
+        %}
+      </add-to-cart-component>
+    {%- endform -%}
+  </product-form-component>
+{%- endif -%}
