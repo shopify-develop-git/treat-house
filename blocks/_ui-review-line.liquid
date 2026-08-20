@@ -2,9 +2,17 @@
   The social proof line: a row of reviewers' faces, the stars, and the rating
   beside the number of reviews.
 
-  The faces are [_ui-avatar] blocks rather than a run of numbered image settings,
-  so a merchant can show three or eight of them and reorder them, and the section
-  holding this needs no `case` statement to read them back.
+  The faces come one of two ways. Left to itself the row is [_ui-avatar] blocks,
+  so a merchant can show three or eight and reorder them, and the section holding
+  this needs no `case` statement to read them back. Given a single picture of the
+  whole row — the overlapping strip a designer hands over already assembled — it
+  uses that instead and the blocks stand down.
+
+  Both are here because they fail differently. Separate faces stay separate: a
+  shop swaps one person without re-exporting the row. One picture keeps the
+  overlap, the ordering and the white edges exactly as they were drawn, which is
+  what you want when the strip came out of the design file rather than out of a
+  camera.
 
   The stars are decorative — the rating is written out next to them, so a screen
   reader is told the number rather than counting glyphs.
@@ -35,9 +43,15 @@
   "
   {{ block.shopify_attributes }}
 >
-  <div class="ui-review-line__avatars">
-    {% content_for 'blocks' %}
-  </div>
+  {%- if block.settings.image != blank -%}
+    <span class="ui-review-line__strip">
+      {% render 'image', image: block.settings.image, height: 66, class: 'ui-review-line__strip-image' %}
+    </span>
+  {%- else -%}
+    <div class="ui-review-line__avatars">
+      {% content_for 'blocks' %}
+    </div>
+  {%- endif -%}
 
   {%- if star_count > 0 or has_text -%}
     <div class="ui-review-line__rating">
@@ -68,6 +82,13 @@
 
 {% stylesheet %}
   .ui-review-line {
+    /*
+     * The one place the face size is written. Both arrangements read it, so a
+     * row of blocks and a row that arrived as a single picture stand the same
+     * height as each other.
+     */
+    --ui-avatar-size: 26px;
+
     display: flex;
     align-items: center;
     gap: var(--ui-review-line-gap, 11px);
@@ -77,6 +98,26 @@
   .ui-review-line__avatars {
     display: flex;
     flex: 0 0 auto;
+  }
+
+  /*
+   * The assembled strip carries its own overlap, so it is sized by height alone
+   * and keeps whatever width its proportion asks for. The file's strip is drawn
+   * at the desktop row's proportion, which is why it lands on the same width
+   * there and comes out a little tighter on a phone: the gap between faces is a
+   * fixed step, so the row a merchant sees is not the same shape at both sizes
+   * and one picture can only be one of them.
+   */
+  .ui-review-line__strip {
+    display: block;
+    flex: 0 0 auto;
+    height: var(--ui-avatar-size, 26px);
+  }
+
+  .ui-review-line__strip-image {
+    display: block;
+    width: auto;
+    height: 100%;
   }
 
   /* With no avatar blocks the wrapper is still in the markup — the block region has to
@@ -141,6 +182,7 @@
 
   @media screen and (min-width: 750px) {
     .ui-review-line {
+      --ui-avatar-size: 33px;
       --ui-review-line-stars-gap: 4px;
       --ui-review-line-star-gap: 3.5px;
       --ui-review-line-star-width: 12px;
@@ -158,6 +200,12 @@
     }
   ],
   "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Faces as one picture",
+      "info": "The whole row already assembled, overlaps and all. Left empty, the row is built from the reviewer blocks below instead."
+    },
     {
       "type": "range",
       "id": "rating_stars",

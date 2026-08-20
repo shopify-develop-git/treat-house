@@ -111,7 +111,8 @@
             "three",
             "four",
             "five"
-          ]
+          ],
+          "settings": {}
         }
       },
       "block_order": [

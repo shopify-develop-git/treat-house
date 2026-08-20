@@ -4,6 +4,10 @@
   The overlap falls out of two numbers: the disc's size and the step between two
   discs. The step is the same at every breakpoint, so only the size changes and
   the discs tuck further under each other as they grow.
+
+  The size is set by [_ui-review-line], not here, so a row assembled as one
+  picture and a row built from these stand the same height. Standing alone the
+  disc falls back to the phone's 26px.
 {%- enddoc -%}
 
 <span class="ui-avatar" {{ block.shopify_attributes }}>
@@ -25,12 +29,6 @@
     box-shadow: inset 0 0 0 0.5px var(--ui-color-white);
     /* Stands in until a photograph is uploaded, so the row keeps its shape. */
     background-color: var(--ui-color-border-gray);
-  }
-
-  @media screen and (min-width: 750px) {
-    .ui-avatar {
-      --ui-avatar-size: 33px;
-    }
   }
 
   .ui-avatar:first-child {

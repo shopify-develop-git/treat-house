@@ -323,8 +323,8 @@ gutter ladder is in `CLAUDE.md`.
 | `_ui-text` | richtext copy, size, mobile size, max width, colour | `home-hero`, `our-story`, `shop-by-occasion`, `partner-story`, `newsletter` |
 | `_ui-link` | label, url, variant, full width, new tab | `home-hero`, `shop-by-occasion`, `partner-story`, `best-sellers` (static), `_ui-link-row` |
 | `_ui-link-row` | gap; hosts link blocks | `home-hero` |
-| `_ui-review-line` | stars, rating, review count, layout, text size, mobile text size, gap; hosts avatar blocks | `home-hero`, `testimonials` (static) |
-| `_ui-avatar` | image | `_ui-review-line` |
+| `_ui-review-line` | stars, rating, review count, layout, text size, mobile text size, gap; the row as one picture, or avatar blocks | `home-hero`, `testimonials` (static) |
+| `_ui-avatar` | image; sized by the row it stands in | `_ui-review-line` |
 | `_ui-stat-row` | gap; hosts statistic blocks | `corporate-gifts`, static |
 | `_ui-stat` | figure, label | `_ui-stat-row` |
 | `_ui-testimonial` | richtext quote, star count, name, role, photo | `testimonials` |
