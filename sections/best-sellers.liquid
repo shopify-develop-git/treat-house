@@ -79,6 +79,27 @@
               # hands the card the raw cents and says nothing about it. Format first.
               assign price = product.price | money
             -%}
+
+            {%- comment -%}
+              quick-add reads the product's address off an ancestor `product-card`,
+              through a `ref="productCardLink"` inside it. Without one it fetches
+              an empty string and the chooser opens blank. The kit's card is not
+              that element, so the control is wrapped in one and given the link it
+              is looking for — hidden, and out of the tab order, because the card's
+              own title already links to the same place.
+            {%- endcomment -%}
+            {%- capture add_control -%}
+              <product-card class="ui-product-card__add-host">
+                <a
+                  ref="productCardLink"
+                  href="{{ product.url }}"
+                  class="ui-product-card__add-link"
+                  tabindex="-1"
+                  aria-hidden="true"
+                >{{ product.title | escape }}</a>
+                {% render 'quick-add', product: product, section_id: section.id %}
+              </product-card>
+            {%- endcapture -%}
             <li class="best-sellers__item">
               {% render 'ui-product-card',
                 title: product.title,
@@ -87,7 +108,8 @@
                 image: product.featured_image,
                 link: product.url,
                 badge: product.metafields.custom.badge,
-                badge_tone: product.metafields.custom.badge_tone
+                badge_tone: product.metafields.custom.badge_tone,
+                add_content: add_control
               %}
             </li>
           {%- endfor -%}

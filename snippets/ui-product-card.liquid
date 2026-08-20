@@ -30,6 +30,7 @@
   @param {boolean} [show_add] - Renders the basket button. Defaults to true.
   @param {string} [add_label] - Accessible label for the basket. Defaults to the theme's add-to-cart string.
   @param {string} [add_attributes] - Extra HTML attributes for the basket button, for wiring it to a form.
+  @param {string} [add_content] - Ready-made markup to stand in the basket's place. Pass a real add-to-cart control here; the card keeps drawing the square around it.
   @param {string} [class] - Additional CSS classes.
   @param {string} [attributes] - Extra HTML attributes to render on the card.
 
@@ -85,10 +86,12 @@
     {%- endif -%}
   </div>
 
-  {%- if price != blank or show_add != false -%}
+  {%- if price != blank or show_add != false or add_content != blank -%}
     <div class="ui-product-card__price-row">
       <span class="ui-product-card__price">{{ price }}</span>
-      {%- if show_add != false -%}
+      {%- if add_content != blank -%}
+        {{ add_content }}
+      {%- elsif show_add != false -%}
         {% render 'ui-button',
           variant: 'basket',
           label: basket_label,
@@ -215,6 +218,80 @@
     font-size: 14px;
     line-height: 1.3;
     color: var(--ui-color-gray);
+  }
+
+  /*
+   * A card given a real add-to-cart control wears it as the kit's basket. The
+   * theme's own button is restyled rather than replaced, because the form, the
+   * variant chooser and the drawer that opens after are all hanging off it —
+   * the square is the only part of it that belongs to the design.
+   */
+  .ui-product-card__add-host {
+    display: contents;
+  }
+
+  .ui-product-card__add-link {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ui-product-card__price-row .quick-add,
+  .ui-product-card__price-row .quick-add__product-form-component,
+  .ui-product-card__price-row quick-add-component form {
+    display: flex;
+  }
+
+  .ui-product-card__price-row .quick-add__button {
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    width: var(--ui-button-basket-size);
+    height: var(--ui-button-basket-size);
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    border: none;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-primary);
+    color: var(--ui-color-white);
+    transition: background-color var(--animation-values), color var(--animation-values);
+  }
+
+  .ui-product-card__price-row .quick-add__button:not(:disabled):hover {
+    background-color: var(--ui-color-sky-blue);
+    color: var(--ui-color-primary);
+  }
+
+  /*
+   * Icon only, the way the file draws it. The theme puts the icon inside the
+   * same span as the words, so the usual visually-hidden treatment takes the
+   * icon with it. Zeroing the type hides the words and leaves them readable to
+   * a screen reader, and the icon keeps the size set below.
+   */
+  .ui-product-card__price-row .quick-add__button .add-to-cart-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    font-size: 0;
+    line-height: 0;
+  }
+
+  /*
+   * The theme wraps its icons in a span it sizes, so a rule on the svg alone
+   * gets a 1px wide box to draw in.
+   */
+  .ui-product-card__price-row .quick-add__button .svg-wrapper,
+  .ui-product-card__price-row .quick-add__button svg {
+    display: block;
+    width: var(--ui-button-basket-glyph);
+    height: var(--ui-button-basket-glyph);
   }
 
   .ui-product-card__price-row {
