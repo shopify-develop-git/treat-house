@@ -1873,6 +1873,13 @@
         "default": 0
       },
       {
+        "type": "text",
+        "id": "cart_checkout_note",
+        "label": "Note under the checkout button",
+        "info": "Leave empty to let the theme work the sentence out from the shop's tax and shipping settings instead.",
+        "default": "Shipping & taxes calculated at checkout"
+      },
+      {
         "type": "header",
         "content": "Gift message"
       },

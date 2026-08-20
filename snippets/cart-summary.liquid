@@ -247,9 +247,6 @@
         {% endform %}
       </span>
     {% endif %}
-    <div class="cart-totals__item cart-totals__tax-note cart-primary-typography">
-      {% render 'tax-info', has_discounts_enabled: settings.show_add_discount_code %}
-    </div>
   </div>
 </div>
 
@@ -274,6 +271,20 @@
       <span class="cart__checkout-total" aria-hidden="true"> — {{ total_price }}</span>
     </span>
   </button>
+
+  {%- comment -%}
+    The file puts this line under the button, not over it, and gives it one
+    sentence rather than the four `tax-info` picks between. It is a setting, so
+    the sentence is the merchant's; left empty, `tax-info` works it out from the
+    shop's own tax and shipping settings the way the theme always did.
+  {%- endcomment -%}
+  <div class="cart-totals__item cart-totals__tax-note cart-primary-typography">
+    {%- if settings.cart_checkout_note != blank -%}
+      <small>{{ settings.cart_checkout_note }}</small>
+    {%- else -%}
+      {% render 'tax-info', has_discounts_enabled: settings.show_add_discount_code %}
+    {%- endif -%}
+  </div>
 
   {% if additional_checkout_buttons and settings.show_accelerated_checkout_buttons %}
     <div

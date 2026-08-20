@@ -522,7 +522,23 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
+
+    /* The file leaves 24 between the shipping panel and the rule, and another 24
+       between the subtotal row and the button. One gap does both. */
     gap: var(--ui-cart-drawer-gutter);
+
+    /*
+     * And none at the end. The dialog already pads its own bottom by the gutter,
+     * so the summary's made it 48 — twice what the file draws under the note.
+     */
+    padding-block-end: 0;
+  }
+
+  /* The note goes under the button, 16 below it, centred on the content width. */
+  .cart-drawer__dialog .cart__ctas {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
   /* Horizon renders its own note inside the summary; the drawer has ours above. */
@@ -534,6 +550,22 @@
   .cart-drawer__dialog .cart__ctas,
   .cart-drawer__dialog .cart-actions {
     padding-inline: var(--ui-cart-drawer-gutter);
+  }
+
+  /*
+   * The file draws one row in this container, and Horizon keeps a second slot
+   * under it for Shop Pay installments. This shop is not eligible, so the slot
+   * renders as an empty span — which still counts as a flex item and still took
+   * the container's 8px gap, putting 32 between the total and the button where
+   * the file draws 24. The gap comes back if the slot ever has something in it:
+   * `payment_terms` prints `<shopify-payment-terms>` server-side when it does.
+   */
+  .cart-drawer__dialog .cart-totals__container {
+    gap: 0;
+  }
+
+  .cart-drawer__dialog .cart-totals__container:has(shopify-payment-terms) {
+    gap: 8px;
   }
 
   /*
