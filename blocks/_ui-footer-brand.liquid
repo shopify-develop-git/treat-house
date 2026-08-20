@@ -77,10 +77,16 @@
     overflow: hidden;
   }
 
+  /*
+   * Contain, not cover: the mark is a cut-out and the box is the size the file
+   * draws it at. They share a proportion here, so the two are the same picture —
+   * but a shop that uploads a wide wordmark gets it whole rather than cropped
+   * to a square.
+   */
   .ui-footer-brand__logo-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
   }
 
   .ui-footer-brand__logo--empty {
