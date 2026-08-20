@@ -38,6 +38,7 @@
       --why-choose-us-columns: {{ section.settings.columns }};
       --why-choose-us-columns-md: {{ section.settings.columns_md }};
       --why-choose-us-columns-sm: {{ section.settings.columns_sm }};
+      --why-choose-us-card-title: {{ section.settings.card_title_size }}px;
     "
   >
     {% content_for 'block', type: '_ui-heading', id: 'heading' %}
@@ -158,6 +159,8 @@
   }
 
   .why-choose-us__cards {
+    --ui-feature-card-title-size: var(--why-choose-us-card-title, 24px);
+
     display: grid;
     grid-template-columns: repeat(var(--why-choose-us-columns-sm, 1), minmax(0, 1fr));
     gap: var(--why-choose-us-tile-gap);
@@ -174,7 +177,11 @@
     .why-choose-us__cards {
       --ui-feature-card-padding-inline: 16px;
       --ui-feature-card-gap: 24px;
-      --ui-feature-card-title-size: 20px;
+
+      /* A ceiling, not a size. A row drawn at 20px stays 20px here; the row drawn
+         at 24 comes down to meet it, because that is the tier the cards are
+         narrowest in. */
+      --ui-feature-card-title-size: min(var(--why-choose-us-card-title, 24px), 20px);
 
       grid-template-columns: repeat(var(--why-choose-us-columns-md, 3), minmax(0, 1fr));
     }
@@ -184,7 +191,7 @@
     .why-choose-us__cards {
       --ui-feature-card-padding-inline: 24px;
       --ui-feature-card-gap: 32px;
-      --ui-feature-card-title-size: 24px;
+      --ui-feature-card-title-size: var(--why-choose-us-card-title, 24px);
 
       grid-template-columns: repeat(var(--why-choose-us-columns, 3), minmax(0, 1fr));
     }
@@ -195,7 +202,11 @@
 {
   "name": "Why choose us",
   "tag": "section",
-  "blocks": [{ "type": "_ui-feature-card" }],
+  "blocks": [
+    {
+      "type": "_ui-feature-card"
+    }
+  ],
   "settings": [
     {
       "type": "header",
@@ -213,8 +224,14 @@
       "label": "Image position",
       "info": "Which side of the card the photograph stands on. Below 990px it always follows the card.",
       "options": [
-        { "value": "end", "label": "t:options.right" },
-        { "value": "start", "label": "t:options.left" }
+        {
+          "value": "end",
+          "label": "t:options.right"
+        },
+        {
+          "value": "start",
+          "label": "t:options.left"
+        }
       ],
       "default": "end"
     },
@@ -231,6 +248,17 @@
       "step": 4,
       "unit": "px",
       "default": 48
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "label": "Card title size",
+      "info": "The file draws 24px where three cards share the row and 20px where four do. Between 750px and 1200px it is capped at 20 whatever is set here.",
+      "min": 16,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "default": 24
     },
     {
       "type": "range",
@@ -273,8 +301,14 @@
       "id": "section_width",
       "label": "t:settings.width",
       "options": [
-        { "value": "page-width", "label": "t:options.page" },
-        { "value": "full-width", "label": "t:options.full" }
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
       ],
       "default": "page-width"
     },
@@ -287,10 +321,22 @@
       "id": "background",
       "label": "Background",
       "options": [
-        { "value": "purple", "label": "Purple" },
-        { "value": "light-blue", "label": "Light blue" },
-        { "value": "white", "label": "White" },
-        { "value": "none", "label": "Colour scheme" }
+        {
+          "value": "purple",
+          "label": "Purple"
+        },
+        {
+          "value": "light-blue",
+          "label": "Light blue"
+        },
+        {
+          "value": "white",
+          "label": "White"
+        },
+        {
+          "value": "none",
+          "label": "Colour scheme"
+        }
       ],
       "default": "purple"
     },
@@ -358,7 +404,10 @@
               }
             }
           },
-          "block_order": ["panel_heading", "panel_text"]
+          "block_order": [
+            "panel_heading",
+            "panel_text"
+          ]
         },
         "made_fresh": {
           "type": "_ui-feature-card",
@@ -385,7 +434,12 @@
           }
         }
       },
-      "block_order": ["made_fresh", "ready_to_delight", "celebrate"]
+      "block_order": [
+        "made_fresh",
+        "ready_to_delight",
+        "celebrate"
+      ],
+      "settings": {}
     }
   ]
 }
