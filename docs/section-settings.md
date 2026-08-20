@@ -323,11 +323,11 @@ gutter ladder is in `CLAUDE.md`.
 | `_ui-text` | richtext copy, size, mobile size, max width, colour | `home-hero`, `our-story`, `shop-by-occasion`, `partner-story`, `newsletter` |
 | `_ui-link` | label, url, variant, full width, new tab | `home-hero`, `shop-by-occasion`, `partner-story`, `best-sellers` (static), `_ui-link-row` |
 | `_ui-link-row` | gap; hosts link blocks | `home-hero` |
-| `_ui-review-line` | stars, rating, review count, layout, gap; hosts avatar blocks | `home-hero`, `testimonials` (static) |
+| `_ui-review-line` | stars, rating, review count, layout, text size, mobile text size, gap; hosts avatar blocks | `home-hero`, `testimonials` (static) |
 | `_ui-avatar` | image | `_ui-review-line` |
 | `_ui-stat-row` | gap; hosts statistic blocks | `corporate-gifts`, static |
 | `_ui-stat` | figure, label | `_ui-stat-row` |
-| `_ui-testimonial` | quote, star count, name, role, photo | `testimonials` |
+| `_ui-testimonial` | richtext quote, star count, name, role, photo | `testimonials` |
 | `_ui-newsletter-form` | placeholder, button label, accessible label | `newsletter`, static |
 | `_ui-footer-brand` | logo, tagline, four social urls | `site-footer`, static |
 | `_ui-footer-column` | title, menu | `site-footer` |

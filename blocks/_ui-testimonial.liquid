@@ -61,7 +61,10 @@
     --ui-testimonial-padding: 20px;
     --ui-testimonial-body-gap: 16px;
     --ui-testimonial-author-gap: 32px;
-    --ui-testimonial-quote-size: 14px;
+
+    /* The quote holds 16px at both widths — only the padding and the gaps step. A
+       phone gets a narrower column, not smaller type. */
+    --ui-testimonial-quote-size: 16px;
     --ui-testimonial-avatar-size: 36px;
   }
 
@@ -70,7 +73,6 @@
       --ui-testimonial-padding: 24px;
       --ui-testimonial-body-gap: 24px;
       --ui-testimonial-author-gap: 48px;
-      --ui-testimonial-quote-size: 16px;
     }
   }
 
@@ -185,10 +187,10 @@
   "tag": null,
   "settings": [
     {
-      "type": "text",
+      "type": "richtext",
       "id": "quote",
       "label": "Review",
-      "default": "\"Jen and Chris are a joy to work with. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable.\""
+      "default": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>"
     },
     {
       "type": "range",

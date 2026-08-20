@@ -75,19 +75,34 @@
           "static": true,
           "blocks": {
             "one": {
-              "type": "_ui-avatar"
+              "type": "_ui-avatar",
+              "settings": {
+                "image": "shopify://shop_images/home-hero-reviewer-1.webp"
+              }
             },
             "two": {
-              "type": "_ui-avatar"
+              "type": "_ui-avatar",
+              "settings": {
+                "image": "shopify://shop_images/home-hero-reviewer-2.webp"
+              }
             },
             "three": {
-              "type": "_ui-avatar"
+              "type": "_ui-avatar",
+              "settings": {
+                "image": "shopify://shop_images/home-hero-reviewer-3.webp"
+              }
             },
             "four": {
-              "type": "_ui-avatar"
+              "type": "_ui-avatar",
+              "settings": {
+                "image": "shopify://shop_images/home-hero-reviewer-4.webp"
+              }
             },
             "five": {
-              "type": "_ui-avatar"
+              "type": "_ui-avatar",
+              "settings": {
+                "image": "shopify://shop_images/home-hero-reviewer-5.webp"
+              }
             }
           },
           "block_order": [
@@ -284,39 +299,49 @@
           "settings": {
             "layout": "inline",
             "rating_text": "4.9 rating",
-            "reviews_text": "12,000+ reviews"
+            "reviews_text": "12,000+ reviews",
+            "text_size": 16,
+            "text_size_mobile": 14
           }
         },
         "one": {
           "type": "_ui-testimonial",
           "settings": {
-            "quote": "<p>Ordered a custom cake for my daughter's birthday and it was beyond anything I pictured. It tasted even better than it looked, and it looked incredible.</p>",
-            "name": "Amelia Hart",
-            "role": "Birthday order"
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
           }
         },
         "two": {
           "type": "_ui-testimonial",
           "settings": {
-            "quote": "<p>We send Treat House boxes to every new client. Two years in, people still email us about them.</p>",
-            "name": "Daniel Okafor",
-            "role": "Office manager"
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
           }
         },
         "three": {
           "type": "_ui-testimonial",
           "settings": {
-            "quote": "<p>The wedding dessert table was the thing guests kept talking about. They matched our colours exactly.</p>",
-            "name": "Priya Raman",
-            "role": "Wedding order"
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
           }
         },
         "four": {
           "type": "_ui-testimonial",
           "settings": {
-            "quote": "<p>I have a dairy allergy and had given up on bakery cakes. This one I could actually eat, and it was lovely.</p>",
-            "name": "Grace Whitfield",
-            "role": "Custom order"
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
+          }
+        },
+        "five": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
           }
         }
       },
@@ -324,7 +349,8 @@
         "one",
         "two",
         "three",
-        "four"
+        "four",
+        "five"
       ],
       "settings": {}
     },
