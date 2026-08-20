@@ -204,6 +204,8 @@
       </li>
     {% endcapture %}
 
+    <script src="{{ 'ui-mega-menu-align.js' | asset_url }}" type="module"></script>
+
     <header-menu
       ref="headerMenu"
       class="header-menu"
@@ -211,6 +213,7 @@
       data-hydration-key="header-menu"
     >
       <div class="header-menu__inner">
+        <ui-mega-menu-align>
         <nav
           class="menu-list"
           style="
@@ -228,6 +231,7 @@
             attributes: 'data-skip-node-update'
           %}
         </nav>
+        </ui-mega-menu-align>
       </div>
 
       <script
@@ -962,17 +966,32 @@
       border-end-end-radius: 20px;
     }
 
+    /* The measuring element is not a box: it wraps the nav only so it has the
+       items to measure, and must not become a layout step between the header row
+       and the menu inside it. */
+    ui-mega-menu-align {
+      display: contents;
+    }
+
     #header-component[data-menu-style='menu'] .mega-menu {
+      position: relative;
       display: flex;
       align-items: flex-start;
-      justify-content: space-between;
       gap: 24px;
       box-sizing: border-box;
       padding: 24px var(--ui-page-margin);
     }
 
+    /*
+     * The title is taken out of the flow so it cannot push the columns along.
+     * It belongs to the page margin — the same left edge the header's logo sits
+     * on — while the columns belong to the navigation item overhead, and those
+     * are two different measurements that a row of flex items cannot both obey.
+     */
     #header-component[data-menu-style='menu'] .mega-menu__title {
-      flex: 0 0 175px;
+      position: absolute;
+      inset-block-start: 24px;
+      inset-inline-start: var(--ui-page-margin);
       margin: 0;
       /* Merienda. `--ui-font-accent` is Outfit — the button face — which is not
          this; the display face is the theme's heading family. */
@@ -983,9 +1002,20 @@
       color: var(--ui-color-primary);
     }
 
+    /*
+     * `--th-mega-start` is written by `ui-mega-menu-align.js`: the distance from
+     * this panel's content box to the left edge of the label that opened it. The
+     * file draws every panel that way and the three it draws agree to within
+     * 1.5px, so it is the rule rather than a coincidence of one layout.
+     *
+     * The floor keeps the columns clear of the absolutely-positioned title —
+     * 175px of it plus the 24px gap — for a navigation item far enough left that
+     * the two would otherwise collide.
+     */
     #header-component[data-menu-style='menu'] .mega-menu__grid {
       flex: 0 1 auto;
       min-width: 0;
+      margin-inline-start: max(var(--th-mega-start, 199px), 199px);
       padding-block-start: 9px;
     }
 
