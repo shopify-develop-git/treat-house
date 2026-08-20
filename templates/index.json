@@ -112,7 +112,9 @@
             "four",
             "five"
           ],
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/review-line-composite.webp"
+          }
         }
       },
       "block_order": [
