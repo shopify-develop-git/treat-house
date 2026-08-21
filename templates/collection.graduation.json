@@ -236,6 +236,7 @@
       },
       "block_order": [],
       "settings": {
+        "image": "shopify://shop_images/corporate-gift-holiday-6-pack.webp",
         "media_position": "end",
         "heading_gap": 48,
         "card_title_size": 20,
