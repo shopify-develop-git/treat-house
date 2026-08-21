@@ -15,9 +15,11 @@
   [_ui-feature-card]. The lead card is [_ui-feature-panel], which hosts its own
   heading and copy blocks.
 
-  The file carries three cuts of this band — with the title and without it, with the
-  badge on the lead card and without. They are the same section with a block cleared
-  or a checkbox turned off, not three sections, so nothing here is drawn twice.
+  The file carries several cuts of this band — with the title and without it, with the
+  badge on the lead card and without, and on the occasion pages a title with a line of
+  copy under it and no lead pair at all, four tighter cards carrying the whole section.
+  They are the same section with a block cleared or a switch turned off, not five
+  sections, so nothing here is drawn twice.
 
   The lead row splits into two columns at 990px rather than the theme's usual 750px.
   The card is drawn 630 wide and carries a 40px headline; at 750px it would have 335
@@ -39,11 +41,22 @@
       --why-choose-us-columns-md: {{ section.settings.columns_md }};
       --why-choose-us-columns-sm: {{ section.settings.columns_sm }};
       --why-choose-us-card-title: {{ section.settings.card_title_size }}px;
+      --why-choose-us-card-gap: {{ section.settings.card_gap }}px;
+      --why-choose-us-card-radius: {{ section.settings.card_radius }}px;
     "
   >
-    {% content_for 'block', type: '_ui-heading', id: 'heading' %}
+    <div class="why-choose-us__title">
+      {% content_for 'block', type: '_ui-heading', id: 'heading' %}
+      {%- comment -%}
+        The line under the title. Blank on the cuts that do not draw one, which is
+        what the block does with an empty field — no switch needed for a thing whose
+        absence is just an empty box.
+      {%- endcomment -%}
+      {% content_for 'block', type: '_ui-text', id: 'intro' %}
+    </div>
 
     <div class="why-choose-us__content">
+      {%- if section.settings.show_lead -%}
       <div class="why-choose-us__lead">
         {% content_for 'block', type: '_ui-feature-panel', id: 'panel' %}
 
@@ -55,6 +68,7 @@
           {%- endif -%}
         </div>
       </div>
+      {%- endif -%}
 
       <div class="why-choose-us__cards">
         {% content_for 'blocks' %}
@@ -94,8 +108,11 @@
    * selector outweighs the block's own rules without depending on which stylesheet
    * is concatenated last.
    */
-  .why-choose-us > .ui-heading {
-    justify-self: center;
+  .why-choose-us__title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--why-choose-us-title-gap, 16px);
     text-align: center;
   }
 
@@ -160,10 +177,11 @@
 
   .why-choose-us__cards {
     --ui-feature-card-title-size: var(--why-choose-us-card-title, 24px);
+    --ui-feature-card-radius: var(--why-choose-us-card-radius, 20px);
 
     display: grid;
     grid-template-columns: repeat(var(--why-choose-us-columns-sm, 1), minmax(0, 1fr));
-    gap: var(--why-choose-us-tile-gap);
+    gap: var(--why-choose-us-card-gap, var(--why-choose-us-tile-gap));
   }
 
   /*
@@ -213,10 +231,18 @@
       "content": "t:content.media"
     },
     {
+      "type": "checkbox",
+      "id": "show_lead",
+      "label": "Show the lead card and photograph",
+      "info": "Off leaves the row of cards carrying the section on its own, which is the cut the occasion pages draw.",
+      "default": true
+    },
+    {
       "type": "image_picker",
       "id": "image",
       "label": "t:settings.image",
-      "info": "Stands beside the card. Left empty, the frame is held with a placeholder."
+      "info": "Stands beside the card. Left empty, the frame is held with a placeholder.",
+      "visible_if": "{{ section.settings.show_lead }}"
     },
     {
       "type": "select",
@@ -233,7 +259,8 @@
           "label": "t:options.left"
         }
       ],
-      "default": "end"
+      "default": "end",
+      "visible_if": "{{ section.settings.show_lead }}"
     },
     {
       "type": "header",
@@ -259,6 +286,26 @@
       "step": 1,
       "unit": "px",
       "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "label": "Gap between the cards",
+      "min": 8,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 20
     },
     {
       "type": "range",
@@ -432,6 +479,13 @@
             "title": "Celebrate Every Moment",
             "body": "<p>Whether you're sending love, celebrating a birthday, saying thank you, or simply making someone smile, our gift boxes are designed for life's sweetest moments.</p>"
           }
+        },
+        "intro": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": ""
+          }
         }
       },
       "block_order": [
@@ -439,7 +493,81 @@
         "ready_to_delight",
         "celebrate"
       ],
-      "settings": {}
+      "settings": {
+        "show_lead": true
+      }
+    },
+    {
+      "name": "Why choose us — cards only",
+      "category": "t:categories.storytelling",
+      "settings": {
+        "show_lead": false,
+        "heading_gap": 48,
+        "card_title_size": 20,
+        "card_gap": 16,
+        "card_radius": 10,
+        "columns": 4,
+        "columns_md": 2,
+        "columns_sm": "1",
+        "background": "purple"
+      },
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>Sweet Details for Every Celebration</h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32
+          }
+        },
+        "intro": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": "<p>Thoughtfully crafted treats made to make your celebration extra special.</p>",
+            "max_width": 540
+          }
+        },
+        "shower": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "smiling-baby",
+            "title": "Perfect for Every Shower",
+            "body": "<p>Thoughtful treats for every baby shower celebration.</p>"
+          }
+        },
+        "packaging": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "gift",
+            "title": "Gift-Ready Packaging",
+            "body": "<p>Beautifully packaged and ready to make someone smile.</p>"
+          }
+        },
+        "personal": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "sparkles",
+            "title": "Personalized Celebration",
+            "body": "<p>Add a special touch to make your treats uniquely yours.</p>"
+          }
+        },
+        "fresh": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "leaf",
+            "title": "Made Fresh to Order",
+            "body": "<p>Freshly crafted just for your special occasion.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "shower",
+        "packaging",
+        "personal",
+        "fresh"
+      ]
     }
   ]
 }

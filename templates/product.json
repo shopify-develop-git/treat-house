@@ -6,7 +6,8 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
     "main": {
       "type": "product-main",
@@ -28,7 +29,8 @@
           }
         },
         "price": {
-          "type": "_ui-product-price"
+          "type": "_ui-product-price",
+          "settings": {}
         },
         "description": {
           "type": "_ui-text",
@@ -41,19 +43,20 @@
         },
         "chips": {
           "type": "_ui-product-chips",
+          "settings": {},
           "blocks": {
             "gluten_free": {
               "type": "_ui-product-chip",
               "settings": {
-                "icon": "wheat-slash",
-                "label": "Gluten-Free"
+                "label": "Gluten-Free",
+                "icon": "wheat-slash"
               }
             },
             "gift_ready": {
               "type": "_ui-product-chip",
               "settings": {
-                "icon": "gift",
-                "label": "Arrives gift-ready"
+                "label": "Arrives gift-ready",
+                "icon": "gift"
               }
             }
           },
@@ -63,52 +66,59 @@
           ]
         },
         "rule_variants": {
-          "type": "_ui-rule"
+          "type": "_ui-rule",
+          "settings": {}
         },
         "variants": {
-          "type": "_ui-product-variants"
+          "type": "_ui-product-variants",
+          "settings": {}
         },
         "prompt": {
-          "type": "_ui-product-prompt"
+          "type": "_ui-product-prompt",
+          "settings": {}
         },
         "gift_message": {
-          "type": "_ui-product-gift-message"
+          "type": "_ui-product-gift-message",
+          "settings": {}
         },
         "rule_buy": {
-          "type": "_ui-rule"
+          "type": "_ui-rule",
+          "settings": {}
         },
         "buy": {
-          "type": "_ui-product-buy"
+          "type": "_ui-product-buy",
+          "settings": {}
         },
         "assurances": {
           "type": "_ui-product-assurances",
+          "settings": {},
           "blocks": {
             "packaging": {
               "type": "_ui-product-assurance",
               "settings": {
-                "icon": "gift",
-                "label": "Gift-Ready Packaging"
+                "label": "Gift-Ready Packaging",
+                "icon": "gift"
               }
             },
             "gluten_free": {
               "type": "_ui-product-assurance",
               "settings": {
-                "icon": "wheat-slash",
-                "label": "Gluten-Free"
+                "label": "Gluten-Free",
+                "icon": "wheat-slash"
               }
             },
             "handcrafted": {
               "type": "_ui-product-assurance",
               "settings": {
-                "icon": "cookie",
-                "label": "Handcrafted Treats"
+                "label": "Handcrafted Treats",
+                "icon": "cookie"
               }
             },
             "share_love": {
               "type": "_ui-product-assurance",
               "settings": {
-                "icon": "hand-holding-heart",
-                "label": "Made to Share Love"
+                "label": "Made to Share Love",
+                "icon": "hand-holding-heart"
               }
             }
           },
@@ -120,7 +130,8 @@
           ]
         },
         "rule_details": {
-          "type": "_ui-rule"
+          "type": "_ui-rule",
+          "settings": {}
         },
         "shipping": {
           "type": "_ui-product-panel",
@@ -233,9 +244,20 @@
             "heading_size_mobile": 32
           }
         },
+        "intro": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": ""
+          }
+        },
         "panel": {
           "type": "_ui-feature-panel",
           "static": true,
+          "settings": {
+            "show_logo": true,
+            "image": "shopify://shop_images/birthday-krispie-treat-candle.webp"
+          },
           "blocks": {
             "panel_heading": {
               "type": "_ui-heading",
@@ -255,11 +277,7 @@
           "block_order": [
             "panel_heading",
             "panel_text"
-          ],
-          "settings": {
-            "show_logo": true,
-            "image": "shopify://shop_images/birthday-krispie-treat-candle.webp"
-          }
+          ]
         },
         "made_fresh": {
           "type": "_ui-feature-card",
@@ -302,7 +320,10 @@
         "background": "purple",
         "color_scheme": "scheme-1",
         "padding-block-start": 80,
-        "padding-block-end": 80
+        "padding-block-end": 80,
+        "show_lead": true,
+        "card_gap": 20,
+        "card_radius": 20
       }
     },
     "related_products": {
@@ -320,22 +341,22 @@
           "static": true,
           "settings": {
             "label": "View all products",
-            "variant": "primary",
-            "link": "shopify://collections/all"
+            "link": "shopify://collections/all",
+            "variant": "primary"
           }
         }
       },
       "settings": {
         "source": "related",
+        "max_products": 5,
         "heading_alignment": "start",
         "cta_position": "heading",
-        "background": "light-blue",
-        "max_products": 5,
         "media_ratio": "240 / 215",
         "columns": 5,
         "columns_md": 4,
         "columns_sm": 3,
         "section_width": "page-width",
+        "background": "light-blue",
         "color_scheme": "scheme-1",
         "padding-block-start": 80,
         "padding-block-end": 80
@@ -361,15 +382,15 @@
       },
       "settings": {
         "source": "recently_viewed",
+        "max_products": 5,
         "heading_alignment": "center",
         "cta_position": "below",
-        "background": "white",
-        "max_products": 5,
         "media_ratio": "240 / 215",
         "columns": 5,
         "columns_md": 4,
         "columns_sm": 3,
         "section_width": "page-width",
+        "background": "white",
         "color_scheme": "scheme-1",
         "padding-block-start": 80,
         "padding-block-end": 80
@@ -458,7 +479,8 @@
         },
         "signup": {
           "type": "_ui-newsletter-form",
-          "static": true
+          "static": true,
+          "settings": {}
         }
       },
       "block_order": [

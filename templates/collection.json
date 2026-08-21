@@ -6,7 +6,8 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
     "hero": {
       "type": "collection-hero",
@@ -90,8 +91,8 @@
           "static": true,
           "settings": {
             "label": "Customize your birthday box",
-            "variant": "primary",
-            "link": "shopify://pages/customize"
+            "link": "shopify://pages/customize",
+            "variant": "primary"
           }
         }
       },
@@ -118,9 +119,20 @@
             "heading_size_mobile": 32
           }
         },
+        "intro": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": ""
+          }
+        },
         "panel": {
           "type": "_ui-feature-panel",
           "static": true,
+          "settings": {
+            "show_logo": true,
+            "image": "shopify://shop_images/birthday-krispie-treat-candle.webp"
+          },
           "blocks": {
             "panel_heading": {
               "type": "_ui-heading",
@@ -140,11 +152,7 @@
           "block_order": [
             "panel_heading",
             "panel_text"
-          ],
-          "settings": {
-            "show_logo": true,
-            "image": "shopify://shop_images/birthday-krispie-treat-candle.webp"
-          }
+          ]
         },
         "packaging": {
           "type": "_ui-feature-card",
@@ -197,7 +205,10 @@
         "background": "purple",
         "color_scheme": "scheme-1",
         "padding-block-start": 80,
-        "padding-block-end": 80
+        "padding-block-end": 80,
+        "show_lead": true,
+        "card_gap": 20,
+        "card_radius": 20
       }
     },
     "testimonials": {
@@ -215,9 +226,9 @@
           "type": "_ui-review-line",
           "static": true,
           "settings": {
-            "layout": "inline",
             "rating_text": "4.9 rating",
             "reviews_text": "12,000+ reviews",
+            "layout": "inline",
             "text_size": 16,
             "text_size_mobile": 14
           }
@@ -310,32 +321,32 @@
           "static": true,
           "settings": {
             "label": "View all products",
-            "variant": "primary",
-            "link": "shopify://collections/all"
+            "link": "shopify://collections/all",
+            "variant": "primary"
           }
         }
       },
       "settings": {
         "source": "chosen",
-        "heading_alignment": "start",
-        "cta_position": "heading",
-        "background": "light-blue",
-        "max_products": 5,
-        "media_ratio": "240 / 215",
-        "columns": 5,
-        "columns_md": 4,
-        "columns_sm": 3,
-        "section_width": "page-width",
-        "color_scheme": "scheme-1",
-        "padding-block-start": 80,
-        "padding-block-end": 80,
         "products": [
           "12-pack-of-custom-treats",
           "12-pack-choose-your-own",
           "birthday-12-pack",
           "assorted-12-pack",
           "gluten-free-12-pack"
-        ]
+        ],
+        "max_products": 5,
+        "heading_alignment": "start",
+        "cta_position": "heading",
+        "media_ratio": "240 / 215",
+        "columns": 5,
+        "columns_md": 4,
+        "columns_sm": 3,
+        "section_width": "page-width",
+        "background": "light-blue",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 80,
+        "padding-block-end": 80
       }
     },
     "faq": {
@@ -421,7 +432,8 @@
         },
         "signup": {
           "type": "_ui-newsletter-form",
-          "static": true
+          "static": true,
+          "settings": {}
         }
       },
       "block_order": [
