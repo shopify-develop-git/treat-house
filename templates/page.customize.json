@@ -42,7 +42,19 @@
         "breadcrumb_parent_title": "Gift Boxes",
         "breadcrumb_parent_url": "shopify://collections/choose-your-own-treat",
         "padding-block-start": 20,
-        "padding-block-end": 80
+        "padding-block-end": 80,
+        "flavour_products": [
+          "birthday-cake",
+          "chocolate-peanut-butter",
+          "caramel-sea-salt",
+          "smores",
+          "mm",
+          "emoji-treat",
+          "hot-cocoa",
+          "triple-threat",
+          "bubble-gum",
+          "funn-fruity"
+        ]
       }
     }
   },

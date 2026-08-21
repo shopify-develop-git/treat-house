@@ -20,7 +20,13 @@
 
 {%- liquid
   assign packs = section.settings.pack_collection.products
-  assign flavours = section.settings.flavour_collection.products
+  # The ten treats the file draws exist as products but belong to no collection,
+  # so a picked list is the shorter road: a shop that keeps its flavours in a
+  # collection can still point at one, and the list wins when both are set.
+  assign flavours = section.settings.flavour_products
+  if flavours == blank or flavours.size == 0
+    assign flavours = section.settings.flavour_collection.products
+  endif
   assign first_pack = packs.first
   assign form_id = 'customize-box-' | append: section.id
 
@@ -766,7 +772,14 @@
     {
       "type": "collection",
       "id": "flavour_collection",
-      "label": "Flavours"
+      "label": "Flavours collection"
+    },
+    {
+      "type": "product_list",
+      "id": "flavour_products",
+      "label": "Flavours",
+      "limit": 24,
+      "info": "Used instead of the collection above when it has anything in it."
     },
     {
       "type": "text",
