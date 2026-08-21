@@ -17,12 +17,21 @@
       <a class="ui-logo__link" href="{{ block.settings.link }}">
     {%- endif -%}
 
-    {% render 'image',
-      image: block.settings.image,
-      height: 210,
-      class: 'ui-logo__image',
-      alt: block.settings.name
-    %}
+    {%- comment -%}
+      Tagged here rather than through the theme's `image` snippet, which takes no
+      alt and falls back to whatever Shopify Files holds — empty, on a freshly
+      uploaded logo. A mark with no name is a mark a screen reader cannot report,
+      and "trusted by" is the one thing this row is saying.
+    {%- endcomment -%}
+    {{
+      block.settings.image
+      | image_url: width: 440
+      | image_tag:
+        class: 'ui-logo__image',
+        alt: block.settings.name,
+        widths: '160, 320, 440',
+        sizes: '(min-width: 1200px) 160px, (min-width: 750px) 25vw, 45vw'
+    }}
 
     {%- if block.settings.link != blank -%}
       </a>

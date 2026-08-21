@@ -132,35 +132,59 @@
         },
         "logo1": {
           "type": "_ui-logo",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/trusted-by-whole-foods-market.webp",
+            "name": "Whole Foods Market"
+          }
         },
         "logo2": {
           "type": "_ui-logo",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/trusted-by-equator-coffees.webp",
+            "name": "Equator Coffees & Teas"
+          }
         },
         "logo3": {
           "type": "_ui-logo",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/trusted-by-four-seasons.webp",
+            "name": "Four Seasons Hotels and Resorts"
+          }
         },
         "logo4": {
           "type": "_ui-logo",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/trusted-by-jenis-ice-creams.webp",
+            "name": "Jeni's Ice Creams"
+          }
         },
         "logo5": {
           "type": "_ui-logo",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/trusted-by-west-bourne-market.webp",
+            "name": "West~Bourne Market"
+          }
         },
         "logo6": {
           "type": "_ui-logo",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/trusted-by-tatte-bakery.webp",
+            "name": "Tatte Bakery & Café"
+          }
         },
         "logo7": {
           "type": "_ui-logo",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/trusted-by-barrington-coffee.webp",
+            "name": "Barrington Coffee"
+          }
         },
         "logo8": {
           "type": "_ui-logo",
-          "settings": {}
+          "settings": {
+            "image": "shopify://shop_images/trusted-by-blue-plate-catering.webp",
+            "name": "Blue Plate Catering"
+          }
         }
       },
       "block_order": [
