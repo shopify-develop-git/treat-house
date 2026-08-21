@@ -12,13 +12,26 @@
 
   Mobile centres the text; desktop sets it to the left. That is the file, not an
   oversight.
+
+  The file draws this frame twice. Our story is a photograph on a tinted band; Custom
+  Treats is a cut-out standing on a tinted tile with a button under the copy, on the
+  white page. The columns are the same to within three pixels — 618 of media, about
+  560 of copy, 100 between — so they are one section with `background`, `media_style`
+  and a `_ui-link` block, not two sections that would drift apart the first time the
+  gutter moves.
+
+  `media_style` is the substantive one. `photo` crops a photograph to fill the frame
+  at the ratio Our story draws. `cut-out` gives the frame its own tinted fill and sets
+  the picture inside it whole, because a cut-out treat cropped to fill is a cut-out
+  with its corners cut off.
 {% endcomment %}
 
 <div
-  class="our-story our-story--media-{{ section.settings.media_position }}"
+  class="our-story our-story--on-{{ section.settings.background }} our-story--media-{{ section.settings.media_position }} our-story--{{ section.settings.media_style }}"
   style="
     --our-story-block-padding: {{ section.settings.vertical_padding_mobile }}px;
     --our-story-block-padding-desktop: {{ section.settings.vertical_padding }}px;
+    --our-story-text-gap-desktop: {{ section.settings.text_gap }}px;
   "
   data-testid="our-story-{{ section.id }}"
   {{ section.shopify_attributes }}
@@ -46,7 +59,20 @@
     --our-story-text-gap: 24px;
     --our-story-radius: 16px;
 
-    background-color: var(--ui-color-light-blue);
+    background-color: var(--our-story-background, var(--ui-color-light-blue));
+  }
+
+  /*
+   * The band is the section's; the tile behind a cut-out is the frame's. They are
+   * two decisions and the file makes them differently in each cut — Custom Treats
+   * puts the tint inside the frame and leaves the page white.
+   */
+  .our-story--on-white {
+    --our-story-background: var(--ui-color-white);
+  }
+
+  .our-story--on-none {
+    --our-story-background: transparent;
   }
 
   .our-story__inner {
@@ -118,10 +144,26 @@
       --ui-text-max-width: 521px;
 
       align-items: flex-start;
-      gap: 32px;
+      gap: var(--our-story-text-gap-desktop, 32px);
       max-width: none;
       margin-inline: 0;
       text-align: start;
+    }
+  }
+
+  /*
+   * The button stands further from the copy than the copy does from the heading —
+   * 32 on a phone and 48 above it, against the column's own 24. That is the
+   * section saying where a block stands, not the block saying it: `_ui-link` has
+   * one padding setting and this wants two figures.
+   */
+  .our-story__text > .ui-link {
+    margin-block-start: 8px;
+  }
+
+  @media screen and (min-width: 990px) {
+    .our-story__text > .ui-link {
+      margin-block-start: 24px;
     }
   }
 
@@ -148,10 +190,53 @@
   .our-story__image-placeholder {
     display: block;
     width: 100%;
-    /* Both sizes in the file share this ratio, so one rule covers them. */
-    aspect-ratio: 345 / 308;
+    aspect-ratio: var(--our-story-ratio, 345 / 308);
     border-radius: var(--our-story-radius);
-    object-fit: cover;
+    object-fit: var(--our-story-image-fit, cover);
+  }
+
+  /*
+   * The cut-out frame. Its two ratios are the file's own and are not the
+   * photograph's: 358 by 278 on a phone and 618 by 419 above it, against the one
+   * ratio a photograph keeps at both sizes. They ride with the style rather than
+   * becoming settings, because the frame is the drawn geometry and the merchant's
+   * decision is which of the two treatments this is.
+   */
+  .our-story--cut-out {
+    --our-story-ratio: 358 / 278;
+  }
+
+  /*
+   * On this style the frame holds the shape and the tint, and the picture sits
+   * inside it whole. The file gives the tile no padding — the cut-out simply does
+   * not reach the sides, which is what `contain` does on its own once the frame is
+   * wider than the picture.
+   */
+  .our-story--cut-out .our-story__media {
+    aspect-ratio: var(--our-story-ratio);
+    overflow: hidden;
+    border-radius: var(--our-story-radius);
+    background-color: var(--our-story-tile, var(--ui-color-light-blue));
+  }
+
+  .our-story--cut-out .our-story__image,
+  .our-story--cut-out .our-story__image-placeholder {
+    /* The frame carries the ratio now, so the picture takes the height it is given
+       and keeps its own proportions inside it. */
+    aspect-ratio: auto;
+    block-size: 100%;
+    border-radius: 0;
+    object-fit: contain;
+  }
+
+  .our-story--cut-out .our-story__image-placeholder {
+    background-color: transparent;
+  }
+
+  @media screen and (min-width: 990px) {
+    .our-story--cut-out {
+      --our-story-ratio: 618 / 419;
+    }
   }
 
   .our-story__image-placeholder {
@@ -164,8 +249,15 @@
   "name": "Our story",
   "tag": "section",
   "blocks": [
-    { "type": "_ui-heading" },
-    { "type": "_ui-text" }
+    {
+      "type": "_ui-heading"
+    },
+    {
+      "type": "_ui-text"
+    },
+    {
+      "type": "_ui-link"
+    }
   ],
   "settings": [
     {
@@ -180,14 +272,75 @@
     },
     {
       "type": "select",
+      "id": "media_style",
+      "label": "How the picture sits in its frame",
+      "options": [
+        {
+          "value": "photo",
+          "label": "A photograph, cropped to fill"
+        },
+        {
+          "value": "cut-out",
+          "label": "A cut-out on a tinted tile"
+        }
+      ],
+      "default": "photo"
+    },
+    {
+      "type": "select",
       "id": "media_position",
       "label": "Image position",
       "info": "Which side of the copy the photograph stands on. Below 750px it always follows the copy.",
       "options": [
-        { "value": "end", "label": "t:options.right" },
-        { "value": "start", "label": "t:options.left" }
+        {
+          "value": "end",
+          "label": "t:options.right"
+        },
+        {
+          "value": "start",
+          "label": "t:options.left"
+        }
       ],
       "default": "end"
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "range",
+      "id": "text_gap",
+      "label": "Gap between the heading and the copy",
+      "info": "Above 990px. Below it the file draws 24 in both cuts, which is what the column takes.",
+      "min": 8,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "options": [
+        {
+          "value": "light-blue",
+          "label": "Light blue"
+        },
+        {
+          "value": "white",
+          "label": "White"
+        },
+        {
+          "value": "none",
+          "label": "Transparent"
+        }
+      ],
+      "default": "light-blue"
     },
     {
       "type": "header",
@@ -233,7 +386,49 @@
           }
         }
       },
-      "block_order": ["heading", "body"]
+      "block_order": [
+        "heading",
+        "body"
+      ]
+    },
+    {
+      "name": "Custom treats",
+      "category": "t:categories.storytelling",
+      "settings": {
+        "media_style": "cut-out",
+        "media_position": "start",
+        "background": "white",
+        "text_gap": 24,
+        "vertical_padding": 80,
+        "vertical_padding_mobile": 64
+      },
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2><em>Custom</em> Treats</h2>"
+          }
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Create a one-of-a-kind treat made just for you. Personalize it with your own photo, message, or design.</p>",
+            "max_width": 400
+          }
+        },
+        "cta": {
+          "type": "_ui-link",
+          "settings": {
+            "label": "Create your custom treat",
+            "variant": "primary"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "body",
+        "cta"
+      ]
     }
   ]
 }
