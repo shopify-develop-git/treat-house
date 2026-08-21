@@ -24,6 +24,7 @@
 {%- liquid
   assign gift_types = section.settings.gift_types
   assign quantity_hint = section.settings.quantity_hint
+  assign submit_label = section.settings.submit_label | default: 'Submit request'
 -%}
 
 <div
@@ -113,9 +114,20 @@
         </div>
       </div>
 
-      <button type="submit" class="ui-button ui-button--primary corporate-quote__submit">
-        {{- section.settings.submit_label | default: 'Submit request' -}}
-      </button>
+      {%- comment -%}
+        The kit's own button, not a `<button>` wearing its class names. Hand-rolled,
+        it was `width: fit-content` and `margin: 0` — the snippet's own rules, which
+        a section stylesheet of the same weight loses to on order alone, so the
+        button came out 163 wide against the 630 the file draws and sat flush under
+        the notes field. `full_width` is the switch that answers it.
+      {%- endcomment -%}
+      {% render 'ui-button',
+        variant: 'primary',
+        label: submit_label,
+        type: 'submit',
+        full_width: true,
+        class: 'corporate-quote__submit'
+      %}
     {%- endif -%}
   {%- endform -%}
 </div>
@@ -173,8 +185,12 @@
   }
 
   /* The file leaves 48 between the last field and the button, which runs full width. */
-  .corporate-quote__submit {
-    width: 100%;
+  /*
+   * Weighed one class heavier than `.ui-button`, whose `margin: 0` is declared in
+   * the snippet's own stylesheet and wins on order against a lone class here. The
+   * width is the snippet's `full_width` rather than a figure of ours.
+   */
+  .corporate-quote .corporate-quote__submit {
     margin-block-start: 48px;
   }
 
