@@ -11,6 +11,10 @@
   [_ui-testimonial] owns its portrait: they are part of what this card is, and a
   section that showed the band without the card would have nowhere to put them.
 
+  On the occasion pages the card ends with a row of small tinted tiles instead of a
+  cut-out. That is [_ui-feature-tile-row], hosted here like the heading and the copy,
+  so a page picks the ending it draws rather than the card growing a switch.
+
   The card is white, so it declares black headings and grey copy on itself. The band
   it stands on sets white for its own title, and inheritance would otherwise carry
   that in here.
@@ -53,6 +57,13 @@
 
 {% stylesheet %}
   .ui-feature-panel {
+    /*
+     * The card is a container, so what stands in it can answer to its width rather
+     * than the window's. It has to be: below 990 the card is the page column and
+     * above it half of one, so a 990px viewport gives it 440 where 750 gave it 659.
+     */
+    container-type: inline-size;
+
     /* White card: the band's own heading colour must not inherit in here. */
     --ui-heading-color: var(--ui-color-black);
     --ui-heading-accent-color: var(--ui-color-primary);
@@ -152,7 +163,7 @@
 {
   "name": "Highlight panel",
   "tag": null,
-  "blocks": [{ "type": "_ui-heading" }, { "type": "_ui-text" }],
+  "blocks": [{ "type": "_ui-heading" }, { "type": "_ui-text" }, { "type": "_ui-feature-tile-row" }],
   "settings": [
     {
       "type": "checkbox",

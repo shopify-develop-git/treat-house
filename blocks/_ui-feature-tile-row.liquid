@@ -1,0 +1,160 @@
+{%- doc -%}
+  The row of small tinted tiles along the bottom of a lead card (Figma: Graduation
+  Occasion collection page → Why Choose Us → Content → Cards, 508:14563).
+
+  It hosts [_ui-feature-card] blocks and nothing else. A tile is that card with
+  different figures — light blue instead of white, 10px corners instead of 20, half
+  the padding, a 20px glyph and a 14px title — and every one of those is a custom
+  property the card already reads. So this sets them once on the row and the tiles
+  inherit; there is no second card component and no `variant` on the first one.
+
+  A tile carries a glyph and a title. Leave the card's copy empty and the card draws
+  nothing under the title, which is the tile the file draws.
+
+  The count answers to the card it stands in, not to the window — a container query,
+  for the reason [_ui-stat-row] gives. The card is the page column below 990 and half
+  of it above, so the width it hands the row does not climb with the viewport: 659 at
+  750, then 440 at 990, then 630 at 1440. Read off the viewport, four tiles would be
+  134 wide at 750, drop to 90 at 990 — two words on four lines — and come back to 134
+  at 1440. Read off the card, the row is four across whenever the card is wide enough
+  to give them the width they are drawn at, and two across the rest of the time.
+
+  The gap above the row is the row's own. Inside the card's text column the file sets
+  16 between the headline and the paragraph and 64 between the paragraph and these,
+  which is one column with two rhythms — so the row pushes itself down rather than
+  the column growing a second gap setting.
+{%- enddoc -%}
+
+<div
+  class="ui-feature-tile-row"
+  style="
+    --ui-feature-tile-row-columns: {{ block.settings.columns }};
+    --ui-feature-tile-row-columns-sm: {{ block.settings.columns_sm }};
+  "
+  {{ block.shopify_attributes }}
+>
+  {% content_for 'blocks' %}
+</div>
+
+{% stylesheet %}
+  .ui-feature-tile-row {
+    /* The tile skin, handed to the cards inside. Every one is a hook
+       `ui-feature-card` already reads with its own figure behind it. */
+    --ui-feature-card-background: var(--ui-color-light-blue);
+    --ui-feature-card-radius: 10px;
+    --ui-feature-card-padding-block: 16px;
+
+    /*
+     * 9, not the 16 the frame is drawn with. The file pads the tile 16 and then sets
+     * a 116px text box inside a 134px tile, which is 9 either side — the title is
+     * allowed past the padding, and held to 102 instead it takes a third line.
+     */
+    --ui-feature-card-padding-inline: 9px;
+    --ui-feature-card-gap: 24px;
+    --ui-feature-card-glyph: 20px;
+    --ui-feature-card-title-size: 14px;
+
+    display: grid;
+    grid-template-columns: repeat(var(--ui-feature-tile-row-columns-sm, 2), minmax(0, 1fr));
+    gap: 10px;
+    box-sizing: border-box;
+    inline-size: 100%;
+
+    /* Drawn 566 inside a 630 card, which is 32 either side — the same margin the
+       card's own padding gives it on a phone, so neither has to know about the
+       other. */
+    max-inline-size: 566px;
+    margin-block-start: 16px;
+    margin-inline: auto;
+  }
+
+  /*
+   * 566 is the row's own drawn width, and a container query is asked of the card's
+   * content box, so the card's padding is already out of the figure. Below it four
+   * tiles would be narrower than the 134 they are drawn at.
+   */
+  @container (min-width: 566px) {
+    .ui-feature-tile-row {
+      grid-template-columns: repeat(var(--ui-feature-tile-row-columns, 4), minmax(0, 1fr));
+
+      /* 16 from the column above plus 48 is the 64 the file draws. */
+      margin-block-start: 48px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Tile row",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_ui-feature-card"
+    }
+  ],
+  "settings": [
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Tiles across",
+      "info": "From 750px up. The row keeps the width it is drawn at, so a wider page gives the tiles more room rather than more of them.",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "columns_sm",
+      "label": "Tiles across on mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "2"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Tile row",
+      "blocks": {
+        "one": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "gift",
+            "title": "Gift-Ready Packaging",
+            "body": ""
+          }
+        },
+        "two": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "sparkles",
+            "title": "Personalized Celebration",
+            "body": ""
+          }
+        },
+        "three": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "leaf",
+            "title": "Made Fresh to Order",
+            "body": ""
+          }
+        }
+      },
+      "block_order": [
+        "one",
+        "two",
+        "three"
+      ]
+    }
+  ]
+}
+{% endschema %}

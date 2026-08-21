@@ -178,52 +178,63 @@
               "settings": {
                 "text": "<p>Share joy, love, and self-expression with handcrafted Krispie treats created for Pride celebrations. Whether you're hosting a community event, celebrating with friends, or sending a thoughtful gift, every treat is freshly made and beautifully crafted to make every moment more meaningful.</p>"
               }
+            },
+            "tiles": {
+              "type": "_ui-feature-tile-row",
+              "settings": {
+                "columns": 4,
+                "columns_sm": "2"
+              },
+              "blocks": {
+                "celebration": {
+                  "type": "_ui-feature-card",
+                  "settings": {
+                    "icon": "party-horn",
+                    "title": "Perfect for Every Celebration",
+                    "body": ""
+                  }
+                },
+                "packaging": {
+                  "type": "_ui-feature-card",
+                  "settings": {
+                    "icon": "gift",
+                    "title": "Gift-Ready Packaging",
+                    "body": ""
+                  }
+                },
+                "personal": {
+                  "type": "_ui-feature-card",
+                  "settings": {
+                    "icon": "sparkles",
+                    "title": "Personalized Pride Treats",
+                    "body": ""
+                  }
+                },
+                "fresh": {
+                  "type": "_ui-feature-card",
+                  "settings": {
+                    "icon": "leaf",
+                    "title": "Made Fresh to Order",
+                    "body": ""
+                  }
+                }
+              },
+              "block_order": [
+                "celebration",
+                "packaging",
+                "personal",
+                "fresh"
+              ]
             }
           },
           "block_order": [
             "panel_heading",
-            "panel_text"
+            "panel_text",
+            "tiles"
           ]
-        },
-        "celebration": {
-          "type": "_ui-feature-card",
-          "settings": {
-            "icon": "party-horn",
-            "title": "Perfect for Every Celebration",
-            "body": ""
-          }
-        },
-        "packaging": {
-          "type": "_ui-feature-card",
-          "settings": {
-            "icon": "gift",
-            "title": "Gift-Ready Packaging",
-            "body": ""
-          }
-        },
-        "personal": {
-          "type": "_ui-feature-card",
-          "settings": {
-            "icon": "sparkles",
-            "title": "Personalized Pride Treats",
-            "body": ""
-          }
-        },
-        "fresh": {
-          "type": "_ui-feature-card",
-          "settings": {
-            "icon": "leaf",
-            "title": "Made Fresh to Order",
-            "body": ""
-          }
         }
       },
-      "block_order": [
-        "celebration",
-        "packaging",
-        "personal",
-        "fresh"
-      ],
+      "block_order": [],
       "settings": {
         "media_position": "end",
         "heading_gap": 48,

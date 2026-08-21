@@ -195,6 +195,17 @@
   }
 
   /*
+   * The occasion cut puts these four inside the lead card instead, which leaves
+   * this row standing empty — and an empty grid still spends the content gap above
+   * it. `:empty` will not do: the block region prints whitespace whether or not it
+   * has anything in it, so the test has to be for element children. Weighed one
+   * class heavier than the rule above, which it has to undo.
+   */
+  .why-choose-us .why-choose-us__cards:not(:has(*)) {
+    display: none;
+  }
+
+  /*
    * Three counts, not two, as `CLAUDE.md` asks. The middle tier keeps the drawn
    * three across — for a row of equals, wrapping to two leaves a lone third card
    * that reads as a mistake — and pays for it by tightening the card instead: at
