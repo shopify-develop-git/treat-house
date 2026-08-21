@@ -299,7 +299,9 @@
         "heading",
         "intro"
       ],
-      "settings": {}
+      "settings": {
+        "submit_label": "Submit request"
+      }
     },
     "contact": {
       "type": "newsletter",

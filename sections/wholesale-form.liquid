@@ -27,7 +27,7 @@
 {% endcomment %}
 
 {%- liquid
-  assign submit_label = section.settings.submit_label | default: 'Submit application'
+  assign submit_label = section.settings.submit_label | default: 'Submit request'
   assign quantity_hint = section.settings.quantity_hint
   assign dialling_codes = section.settings.dialling_codes | default: '+1'
 -%}
@@ -219,6 +219,13 @@
   .wholesale-form__legend {
     box-sizing: border-box;
     inline-size: 100%;
+    /*
+     * The 16 under the rule is the legend's own margin and not the group's gap. A
+     * `<legend>` is laid out by the fieldset rather than by the flex container it
+     * sits in, so the gap never reached it and every group opened 16 short — which
+     * the whole form then carried down, 64 by the time it reached the button.
+     */
+    margin-block-end: 16px;
     padding: 0 0 6px;
     border-block-end: 1px solid var(--ui-color-border-gray);
     color: var(--ui-color-primary);
@@ -322,7 +329,7 @@
       "type": "text",
       "id": "submit_label",
       "label": "Submit button",
-      "default": "Submit application"
+      "default": "Submit request"
     },
     {
       "type": "header",
