@@ -122,7 +122,7 @@
   "content": {
     "added": "Added",
     "customize_box_setup": "Pick the pack sizes collection in this section's settings to switch the builder on.",
-    "customize_box_flavours_setup": "Pick the flavours collection in this section's settings.",
+    "customize_box_flavours_setup": "Choose the flavours in this section's settings — a product list, or a collection.",
     "included": "Included",
     "step_of": "Step {{ step }} of {{ total }}",
     "reviews": "arvostelua",
