@@ -190,9 +190,7 @@
           "birthday-12-pack",
           "assorted-12-pack",
           "gluten-free-12-pack"
-        ],
-        "source": "collection",
-        "collection": "choose-your-own-treat"
+        ]
       }
     },
     "custom_treats_preview": {
@@ -448,6 +446,7 @@
         "cta"
       ],
       "settings": {
+        "image": "shopify://shop_images/image_38.webp",
         "media_style": "cut-out",
         "media_position": "start",
         "text_gap": 24,
