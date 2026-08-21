@@ -203,7 +203,9 @@
           "settings": {
             "title": "Logo Treats",
             "description": "For branded orders and events.",
-            "button_label": "Shop now"
+            "button_label": "Shop now",
+            "image": "shopify://shop_images/corporate-gifts-top-right.webp",
+            "link": "/collections/custom-treats"
           }
         },
         "gift-boxes": {
@@ -211,7 +213,9 @@
           "settings": {
             "title": "Deluxe Gift Boxes",
             "description": "For clients and employee gifting.",
-            "button_label": "Shop now"
+            "button_label": "Shop now",
+            "image": "shopify://shop_images/corporate-gift-holiday-6-pack.webp",
+            "link": "/collections/deluxe-gift-box"
           }
         },
         "bulk": {
@@ -219,7 +223,9 @@
           "settings": {
             "title": "Bulk Custom Orders",
             "description": "50+ treats · Custom quantities · Personalization",
-            "button_label": "Get a quote"
+            "button_label": "Get a quote",
+            "image": "shopify://shop_images/corporate-gifts-top-left.webp",
+            "link": "/pages/corporate-gifting#quote"
           }
         }
       },
@@ -290,7 +296,10 @@
             "one",
             "two",
             "three"
-          ]
+          ],
+          "settings": {
+            "caption": "Trusted by:"
+          }
         }
       },
       "block_order": [
@@ -300,7 +309,11 @@
       ],
       "settings": {
         "media_position": "left",
-        "show_star": true
+        "show_star": true,
+        "image_top_left": "shopify://shop_images/corporate-gifts-top-left.webp",
+        "image_top_right": "shopify://shop_images/corporate-gifts-top-right.webp",
+        "image_bottom_left": "shopify://shop_images/corporate-gifts-bottom-left.webp",
+        "image_bottom_right": "shopify://shop_images/corporate-gifts-bottom-right.webp"
       }
     },
     "quote": {
@@ -316,7 +329,9 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2><em>Thanks.</em><br>We have your inquiry.</h2>"
+            "heading": "<h2><em>Thanks.</em><br>We have your inquiry.</h2>",
+            "heading_size": 40,
+            "heading_size_mobile": 28
           }
         },
         "success-copy": {
@@ -334,7 +349,8 @@
               "type": "_ui-link",
               "settings": {
                 "label": "Shop gift cards",
-                "variant": "primary"
+                "variant": "primary",
+                "link": "shopify://collections/all"
               }
             },
             "secondary": {
@@ -349,7 +365,10 @@
           "block_order": [
             "primary",
             "secondary"
-          ]
+          ],
+          "settings": {
+            "gap": 20
+          }
         }
       },
       "block_order": [

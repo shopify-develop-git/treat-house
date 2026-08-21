@@ -207,7 +207,9 @@
     align-items: center;
     box-sizing: border-box;
     padding: 32px 24px 48px;
-    border-radius: var(--ui-radius-lg, 16px);
+    /* 20, the figure the file draws. It was `var(--ui-radius-lg, 16px)` and there is
+       no such token in the kit, so it had been quietly resolving to the fallback. */
+    border-radius: 20px;
     background-color: var(--ui-color-light-blue);
     text-align: center;
   }
@@ -225,8 +227,8 @@
     height: 100%;
   }
 
-  /* Star, then 80 to the heading — 112 from the panel's top edge, less the 32 the
-     star occupies. */
+  /* The panel declares no gap, so this is the whole of the 48 the file leaves
+     between the star and the heading. */
   .corporate-quote__confirmation-content {
     display: flex;
     flex-direction: column;
@@ -247,7 +249,8 @@
     max-width: 445px;
   }
 
-  /* The file leaves 48 between the copy and the pair of buttons. */
+  /* The file leaves 48 between the copy and the pair of buttons: the column's own
+     16 and 32 more here. */
   .corporate-quote__confirmation-content > .ui-link-row {
     margin-block-start: 32px;
   }
