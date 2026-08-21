@@ -8,11 +8,29 @@
   draws them as zero-width vectors between flex children, which is the same spacing
   as a border plus the row's gap on each side, and a border cannot be left behind
   when a merchant removes the figure next to it.
+
+  The row does not wrap. It used to, and a wrapped figure carried its rule onto the
+  new line with it — a hairline hanging to the left of a lone centred number, which
+  is the one arrangement in the row that looks like a fault. There is no selector
+  for "first on its line", so the answer is not to make lines: the figures shrink
+  instead and a long label takes two rows of its own.
+
+  What is left is the spacing, and that answers to the panel holding the row rather
+  than to the viewport, through a container query. At the width the file draws, 32px
+  either side of a rule is a quarter of the row; in a 440px column it is more than
+  half of it.
+
+  The merchant's figure arrives as `--ui-stat-row-gap-set` and not as the gap
+  itself, because an inline style outranks every rule in a stylesheet — written
+  straight onto `--ui-stat-row-gap` it silenced the 750px step, which had been
+  quietly dead since it was written, and would have silenced the container query
+  too. The tiers read the set figure and cap it, so a merchant who tightens the row
+  tightens it everywhere and a merchant who leaves it alone gets the file.
 {%- enddoc -%}
 
 <div
   class="ui-stat-row"
-  style="--ui-stat-row-gap: {{ block.settings.gap }}px;"
+  style="--ui-stat-row-gap-set: {{ block.settings.gap }}px;"
   {{ block.shopify_attributes }}
 >
   {% content_for 'blocks' %}
@@ -20,23 +38,42 @@
 
 {% stylesheet %}
   .ui-stat-row {
+    /* The set figure is the row's widest; the narrower tiers cap it. */
+    --ui-stat-row-gap: min(var(--ui-stat-row-gap-set, 32px), 25px);
+
     display: flex;
     align-items: stretch;
     justify-content: center;
-    flex-wrap: wrap;
-    gap: var(--ui-stat-row-gap, 25px);
+    gap: var(--ui-stat-row-gap);
+  }
+
+  /* Free to shrink, or `nowrap` would push the row out of the panel instead. */
+  .ui-stat-row > * {
+    min-inline-size: 0;
   }
 
   /* Gap on one side, padding on the other, with the rule between them — so the
      spacing either side of a rule matches, and the first figure carries none. */
   .ui-stat-row > :not(:first-child) {
-    padding-inline-start: var(--ui-stat-row-gap, 25px);
+    padding-inline-start: var(--ui-stat-row-gap);
     border-inline-start: 1px solid var(--ui-color-border-gray);
   }
 
   @media screen and (min-width: 750px) {
     .ui-stat-row {
-      --ui-stat-row-gap: var(--ui-stat-row-gap-desktop, 32px);
+      --ui-stat-row-gap: var(--ui-stat-row-gap-set, 32px);
+    }
+  }
+
+  /*
+   * Narrow panel, tighter rhythm. Written as a container query so it fires on the
+   * column the row actually stands in — at 990px that column is 440px wide while
+   * the viewport says 990, and the media query above would give it the widest
+   * spacing in the file at its narrowest moment.
+   */
+  @container (max-width: 480px) {
+    .ui-stat-row {
+      --ui-stat-row-gap: min(var(--ui-stat-row-gap-set, 32px), 14px);
     }
   }
 {% endstylesheet %}
@@ -45,7 +82,11 @@
 {
   "name": "Statistics row",
   "tag": null,
-  "blocks": [{ "type": "_ui-stat" }],
+  "blocks": [
+    {
+      "type": "_ui-stat"
+    }
+  ],
   "settings": [
     {
       "type": "range",
@@ -55,18 +96,37 @@
       "max": 48,
       "step": 1,
       "unit": "px",
-      "default": 25
+      "default": 32,
+      "info": "The row's widest spacing. A phone caps it at 25 and a narrow panel at 14, so tightening this tightens every width."
     }
   ],
   "presets": [
     {
       "name": "Statistics row",
       "blocks": {
-        "one": { "type": "_ui-stat" },
-        "two": { "type": "_ui-stat", "settings": { "value": "40+", "label": "Countries served" } },
-        "three": { "type": "_ui-stat", "settings": { "value": "98%", "label": "Client satisfaction" } }
+        "one": {
+          "type": "_ui-stat"
+        },
+        "two": {
+          "type": "_ui-stat",
+          "settings": {
+            "value": "40+",
+            "label": "Countries served"
+          }
+        },
+        "three": {
+          "type": "_ui-stat",
+          "settings": {
+            "value": "98%",
+            "label": "Client satisfaction"
+          }
+        }
       },
-      "block_order": ["one", "two", "three"]
+      "block_order": [
+        "one",
+        "two",
+        "three"
+      ]
     }
   ]
 }
