@@ -255,9 +255,13 @@
      * The two pieces of copy are drawn 410 and 416 wide inside a 1280 card, which
      * is a measure rather than a preference — a headline set across the whole card
      * is a line nobody finishes. Handed down, so a block that sets its own wins.
+     *
+     * The sentence is the tighter of the two. Across the seven occasion frames it
+     * runs between 352 and 408, so 400 is the width that holds all of them without
+     * letting the longest one spread past what the file draws.
      */
     --ui-heading-max-width: 440px;
-    --ui-text-max-width: 440px;
+    --ui-text-max-width: 400px;
 
     text-align: center;
   }
