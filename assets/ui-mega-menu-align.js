@@ -12,56 +12,99 @@
  * are the rendered text — known only once the fonts are in. So it is measured,
  * and written back as a custom property the stylesheet consumes.
  *
- * Measured once the fonts have settled — before that the widths are the
- * fallback face's and the answer would be wrong — then again on pointerenter,
- * which is the moment a panel is about to open and the answer is certainly
- * current, and on resize. The first pass is what stops the first panel opening
- * at one offset and correcting itself to another.
+ * Three things about how it is wired, each of which was a way the columns moved
+ * on their own:
+ *
+ * It is a module in the document, not a script beside the menu. Horizon
+ * re-renders the header through the Section Rendering API, and a `<script>`
+ * arriving that way is inserted as markup and never runs.
+ *
+ * It is not a custom element. An element that re-render brings in is not always
+ * upgraded, so its `connectedCallback` never fires and it measures nothing.
+ * Listeners on the document have no lifecycle to lose.
+ *
+ * And the property is put back synchronously when the header is re-rendered.
+ * That re-render replaces the markup and takes the inline property with it,
+ * dropping the columns to the stylesheet's fallback; restoring it a frame later
+ * is a frame of the panel in the wrong place, which is the jump this used to
+ * make on a reload or a page change. The observer writes the remembered value
+ * straight back, before anything is painted, and only measures again when
+ * something has actually moved.
  */
-class MegaMenuAlign extends HTMLElement {
-  #items = [];
+const ITEM = '#header-component .menu-list__list-item';
 
-  connectedCallback() {
-    this.#items = [...this.querySelectorAll('.menu-list__list-item')].filter((item) =>
-      item.querySelector('.mega-menu')
-    );
+let measured = new WeakMap();
 
-    for (const item of this.#items) {
-      item.addEventListener('pointerenter', () => this.#align(item));
-      item.addEventListener('focusin', () => this.#align(item));
-    }
+function apply(item, remeasure) {
+  const panel = item.querySelector('.mega-menu');
+  const label = item.querySelector('.menu-list__link-title');
+  if (!panel || !label) return;
 
-    const settle = document.fonts?.ready ?? Promise.resolve();
-    settle.then(() => {
-      for (const item of this.#items) this.#align(item);
-    });
+  let value = measured.get(item);
 
-    this.#resize = new ResizeObserver(() => {
-      for (const item of this.#items) this.#align(item);
-    });
-    this.#resize.observe(this);
-  }
-
-  disconnectedCallback() {
-    this.#resize?.disconnect();
-  }
-
-  #resize = null;
-
-  #align(item) {
-    const panel = item.querySelector('.mega-menu');
-    const label = item.querySelector('.menu-list__link-title');
-    if (!panel || !label) return;
-
+  if (remeasure || value == null) {
     // The panel runs the full width of the window, so its content box — not its
     // border box — is what the columns are laid out from.
     const padding = parseFloat(getComputedStyle(panel).paddingInlineStart) || 0;
     const start = label.getBoundingClientRect().left - (panel.getBoundingClientRect().left + padding);
+    value = `${Math.round(start)}px`;
+    measured.set(item, value);
+  }
 
-    panel.style.setProperty('--th-mega-start', `${Math.round(start)}px`);
+  if (panel.style.getPropertyValue('--th-mega-start') !== value) {
+    panel.style.setProperty('--th-mega-start', value);
   }
 }
 
-if (!customElements.get('ui-mega-menu-align')) {
-  customElements.define('ui-mega-menu-align', MegaMenuAlign);
+function restore() {
+  for (const item of document.querySelectorAll(ITEM)) apply(item, false);
 }
+
+function remeasure() {
+  measured = new WeakMap();
+  for (const item of document.querySelectorAll(ITEM)) apply(item, true);
+}
+
+// `pointerover` and `focusin` bubble where `pointerenter` and `focus` do not,
+// which is what lets one listener serve rows that arrive later.
+const onPoint = (event) => {
+  const item = event.target?.closest?.(ITEM);
+  if (item) apply(item, false);
+};
+
+document.addEventListener('pointerover', onPoint, { passive: true });
+document.addEventListener('focusin', onPoint);
+window.addEventListener('resize', remeasure, { passive: true });
+
+const start = () => {
+  // A MutationObserver's callback is delivered before the next paint, so putting
+  // the value back here means there is no frame in which the panel is drawn
+  // without it. Watching the group rather than the body keeps this to the one
+  // subtree that can move the menu.
+  const group = document.getElementById('header-group');
+  if (group) {
+    new MutationObserver(restore).observe(group, {
+      childList: true,
+      subtree: true,
+      // The property does not leave with a replaced node. Horizon morphs the
+      // header in place, and morphing an element whose new markup carries no
+      // `style` removes the attribute — so what has to be watched is the
+      // attribute, not the children. Putting it back writes `style` again,
+      // which calls this a second time; that pass finds the value already
+      // there, writes nothing, and it stops.
+      attributes: true,
+      attributeFilter: ['style'],
+    });
+  }
+  remeasure();
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', start, { once: true });
+} else {
+  start();
+}
+
+// Before the fonts land the widths belong to the fallback face — a few pixels
+// out on each item — so the measurement is taken again once the real one is in.
+document.fonts?.ready.then(remeasure);

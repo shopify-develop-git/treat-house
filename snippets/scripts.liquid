@@ -113,6 +113,18 @@
   type="module"
   fetchpriority="low"
 ></script>
+{% comment %}
+  Loaded here rather than beside the menu it measures. Horizon re-renders the
+  header through the Section Rendering API, and a script arriving that way is
+  inserted as markup and never runs — so the element went undefined on exactly
+  the loads where the header was hydrated, which is what made the mega menu's
+  columns settle in the wrong place some of the time and not others.
+{% endcomment %}
+<script
+  src="{{ 'ui-mega-menu-align.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
 <script
   src="{{ 'quick-add.js' | asset_url }}"
   type="module"

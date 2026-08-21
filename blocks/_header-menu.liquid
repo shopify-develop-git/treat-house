@@ -204,8 +204,6 @@
       </li>
     {% endcapture %}
 
-    <script src="{{ 'ui-mega-menu-align.js' | asset_url }}" type="module"></script>
-
     <header-menu
       ref="headerMenu"
       class="header-menu"
@@ -213,7 +211,6 @@
       data-hydration-key="header-menu"
     >
       <div class="header-menu__inner">
-        <ui-mega-menu-align>
         <nav
           class="menu-list"
           style="
@@ -231,7 +228,6 @@
             attributes: 'data-skip-node-update'
           %}
         </nav>
-        </ui-mega-menu-align>
       </div>
 
       <script
@@ -970,13 +966,6 @@
       padding-block-end: 0;
       border-end-start-radius: 20px;
       border-end-end-radius: 20px;
-    }
-
-    /* The measuring element is not a box: it wraps the nav only so it has the
-       items to measure, and must not become a layout step between the header row
-       and the menu inside it. */
-    ui-mega-menu-align {
-      display: contents;
     }
 
     #header-component[data-menu-style='menu'] .mega-menu {
