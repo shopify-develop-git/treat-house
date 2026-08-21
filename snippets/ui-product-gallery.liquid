@@ -29,7 +29,7 @@
 
   @param {object} product - The product whose media is shown.
   @param {string} [badge] - Text for the corner badge. Nothing is drawn when blank.
-  @param {string} [badge_tone] - `purple`, `orange`, `yellow` or `sky-blue`. Defaults to `purple`.
+  @param {string} [badge_color] - Background colour for the badge, any CSS colour. Defaults to the kit purple. The text colour is measured against it, as on [ui-product-card].
   @param {boolean} [eager] - Loads the first image eagerly. Set on the page's main gallery.
   @param {string} [class] - Additional CSS classes.
 
@@ -43,7 +43,13 @@
   if selected_media == blank
     assign selected_media = product.featured_media
   endif
-  assign badge_tone_class = badge_tone | default: 'purple'
+  assign badge_background = badge_color | default: '#6c276a'
+  assign badge_on_white = badge_background | color_contrast: '#ffffff'
+  assign badge_on_black = badge_background | color_contrast: '#000000'
+  assign badge_foreground = '#000000'
+  if badge_on_white > badge_on_black
+    assign badge_foreground = '#ffffff'
+  endif
 
   assign previous_label = 'accessibility.slideshow_previous' | t
   assign next_label = 'accessibility.slideshow_next' | t
@@ -89,7 +95,10 @@
     {%- endif -%}
 
     {%- if badge != blank -%}
-      <span class="ui-product-gallery__badge ui-product-gallery__badge--{{ badge_tone_class }}">{{ badge }}</span>
+      <span
+        class="ui-product-gallery__badge"
+        style="background-color: {{ badge_background }}; color: {{ badge_foreground }};"
+      >{{ badge }}</span>
     {%- endif -%}
 
     {%- if gallery_media.size > 1 -%}
@@ -218,20 +227,6 @@
     line-height: 1.35;
     text-transform: uppercase;
     white-space: nowrap;
-  }
-
-  .ui-product-gallery__badge--orange {
-    background-color: var(--ui-color-orange);
-  }
-
-  .ui-product-gallery__badge--sky-blue {
-    background-color: var(--ui-color-sky-blue);
-    color: var(--ui-color-black);
-  }
-
-  .ui-product-gallery__badge--yellow {
-    background-color: var(--ui-color-yellow);
-    color: var(--ui-color-black);
   }
 
   /*

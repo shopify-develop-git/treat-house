@@ -365,7 +365,7 @@ the markup and all but one carry `hidden`, so switching costs no request and a
 variant change can reveal its featured media without the snippet building a URL.
 `assets/ui-product-gallery.js` moves attributes and nothing else.
 
-`product` · `badge` · `badge_tone` · `eager` · `class`
+`product` · `badge` · `badge_color` · `eager` · `class`
 
 Switching is a crossfade: the incoming photograph is unhidden and painted at zero,
 both slides transition, and the outgoing one takes `hidden` back once the transition
@@ -433,7 +433,7 @@ The tile in a product row. One stretched link on the title makes the whole card
 clickable, so the basket beside the price can stay a control of its own rather
 than a button nested inside a link.
 
-`title` · `subtitle` · `price` · `image` · `link` · `badge` · `badge_tone` ·
+`title` · `subtitle` · `price` · `image` · `link` · `badge` · `badge_color` ·
 `show_add` · `add_label` · `add_attributes` · `add_content` · `class` · `attributes`
 
 Pass `price` already run through `money`. A named `render` argument takes no

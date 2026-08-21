@@ -1,60 +1,54 @@
 {%- doc -%}
   Works out which badge a product wears, from its tags.
 
-  The rules live in one theme setting — `Name = colour`, one per line — so a shop
-  runs its badges from a single list rather than from a field on every product.
-  Tagging is something a merchant already does, and often already has done: the
-  products in this store carry tags like "Custom Treats" and "gift box" written
-  in whatever casing the day called for, so the match ignores case.
+  The badges themselves are five slots in Theme settings under Product badges —
+  a match title and a colour each — so a shop runs its badges from one place
+  rather than from a field on every product. Tagging is something a merchant
+  already does, and often already has: the products here arrive carrying
+  "Custom Treats" and "choose your own" in whatever casing the day called for,
+  which is why the match ignores case.
 
-  The first line that matches wins, which makes the order of that list the order
-  of precedence. A product tagged both Bestsellers and New shows whichever the
-  merchant put higher, and they change their mind by dragging a line, not by
-  editing products.
+  The first filled slot that matches wins, so the order of the slots is the
+  order of precedence: a product tagged both Bestsellers and New shows whichever
+  sits higher. The title in the slot is what the card prints, not the tag as the
+  product spells it, so "choose your own" still reads "Choose your own".
 
-  The name in the rule is what the card shows, not the tag as the product spells
-  it — so "bestsellers" on the product still reads "Bestsellers" on the card.
-
-  Outputs `Name|colour`, or nothing at all when no rule matches. Liquid has no
-  way to hand back two values, and a snippet that rendered the badge itself would
-  put the card's own positioning outside the card; so the caller splits on the
-  pipe. Both callers do it in two lines.
+  Outputs `Title|#colour`, or nothing when no slot matches. Liquid has no way to
+  hand back two values, and a snippet that rendered the badge itself would put
+  the card's own positioning outside the card; so the caller splits on the pipe,
+  in two lines.
 
   @param {object} product - The product to read tags from.
 
   @example
   {%- capture badge -%}{% render 'ui-product-badge', product: product %}{%- endcapture -%}
   {%- assign badge_parts = badge | strip | split: '|' -%}
-  {% render 'ui-product-card', badge: badge_parts[0], badge_tone: badge_parts[1] %}
+  {% render 'ui-product-card', badge: badge_parts[0], badge_color: badge_parts[1] %}
 {%- enddoc -%}
 
 {%- liquid
   assign found = ''
+  assign slots = '1,2,3,4,5' | split: ','
 
-  assign rules = settings.badge_rules | newline_to_br | split: '<br />'
-
-  for rule in rules
+  for slot in slots
     if found != ''
       break
     endif
 
-    assign parts = rule | split: '='
-    if parts.size < 2
+    assign title_key = 'badge_' | append: slot | append: '_title'
+    assign color_key = 'badge_' | append: slot | append: '_color'
+
+    assign slot_title = settings[title_key]
+    if slot_title == blank
       continue
     endif
 
-    assign rule_name = parts[0] | strip
-    assign rule_tone = parts[1] | strip | downcase
-    if rule_name == blank or rule_tone == blank
-      continue
-    endif
-
-    assign wanted = rule_name | downcase
+    assign wanted = slot_title | strip | downcase
 
     for tag in product.tags
       assign candidate = tag | strip | downcase
       if candidate == wanted
-        assign found = rule_name | append: '|' | append: rule_tone
+        assign found = slot_title | append: '|' | append: settings[color_key]
         break
       endif
     endfor

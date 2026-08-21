@@ -14,11 +14,11 @@
   The basket is `ui-button`'s `basket` variant — the file uses the very same
   component here as in the BUTTONS section.
 
-  Badge tones set their own text colour, and not the white the file draws. White
-  measures 1.53:1 on sky blue and 1.67:1 on yellow, against the 4.5:1 that 12px
-  text needs; black reads 13.71:1 and 12.61:1 on the same two. Purple keeps white,
-  which is the one tone where white is the better of the two at 9.83:1. To go back
-  to the drawing, set `--ui-product-card-badge-text` on the tone.
+  The badge takes whatever colour it is given and works out its own text colour,
+  black or white, by measuring both against the background. A colour picked in
+  the theme settings can be anything, so this cannot be decided once in the
+  stylesheet: white reads 1.53:1 on the kit's sky blue and 9.83:1 on its purple,
+  and 12px text wants 4.5:1.
 
   @param {string} title - The product name.
   @param {string} [subtitle] - The supporting line under it.
@@ -26,7 +26,7 @@
   @param {object} [image] - A Shopify image object for the media box.
   @param {string} [link] - The product URL. Without it the card is not clickable.
   @param {string} [badge] - Badge text, shown over the top-left of the media.
-  @param {string} [badge_tone] - `purple`, `orange`, `yellow` or `sky-blue`. Defaults to `purple`.
+  @param {string} [badge_color] - Background colour for the badge, any CSS colour. Defaults to the kit purple. The text colour follows from it.
   @param {boolean} [show_add] - Renders the basket button. Defaults to true.
   @param {string} [add_label] - Accessible label for the basket. Defaults to the theme's add-to-cart string.
   @param {string} [add_attributes] - Extra HTML attributes for the basket button, for wiring it to a form.
@@ -42,17 +42,18 @@
     image: product.featured_image,
     link: product.url,
     badge: 'Bestsellers',
-    badge_tone: 'orange'
+    badge_color: '#ea6f36'
   %}
 {%- enddoc -%}
 
 {%- liquid
-  assign tones = 'purple,orange,yellow,sky-blue' | split: ','
-  assign card_tone = badge_tone | default: 'purple'
-  unless tones contains card_tone
-    assign card_tone = 'purple'
-  endunless
-
+  assign badge_background = badge_color | default: '#6c276a'
+  assign badge_on_white = badge_background | color_contrast: '#ffffff'
+  assign badge_on_black = badge_background | color_contrast: '#000000'
+  assign badge_foreground = '#000000'
+  if badge_on_white > badge_on_black
+    assign badge_foreground = '#ffffff'
+  endif
   assign basket_label = add_label
   if basket_label == blank
     assign basket_label = 'actions.add_to_cart' | t
@@ -103,7 +104,10 @@
   {%- endif -%}
 
   {%- if badge != blank -%}
-    <span class="ui-product-card__badge ui-product-card__badge--{{ card_tone }}">{{ badge }}</span>
+    <span
+      class="ui-product-card__badge"
+      style="--ui-product-card-badge-background: {{ badge_background }}; --ui-product-card-badge-text: {{ badge_foreground }};"
+    >{{ badge }}</span>
   {%- endif -%}
 </article>
 
@@ -274,24 +278,4 @@
     color: var(--ui-product-card-badge-text);
   }
 
-  /*
-   * Text colour is set per tone, not white across the board as drawn. White reads
-   * 1.53:1 on sky blue and 1.67:1 on yellow, where 12px text wants 4.5:1; black
-   * reads 13.71:1 and 12.61:1. Purple is the one tone where white is the better
-   * choice, at 9.83:1.
-   */
-  .ui-product-card__badge--orange {
-    --ui-product-card-badge-background: var(--ui-color-orange);
-    --ui-product-card-badge-text: var(--ui-color-black);
-  }
-
-  .ui-product-card__badge--yellow {
-    --ui-product-card-badge-background: var(--ui-color-yellow);
-    --ui-product-card-badge-text: var(--ui-color-black);
-  }
-
-  .ui-product-card__badge--sky-blue {
-    --ui-product-card-badge-background: var(--ui-color-sky-blue);
-    --ui-product-card-badge-text: var(--ui-color-black);
-  }
 {% endstylesheet %}

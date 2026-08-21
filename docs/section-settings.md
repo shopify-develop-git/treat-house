@@ -443,7 +443,7 @@ own wording standing:
 | Metafield (`custom.*`) | Type | What reads it |
 | --- | --- | --- |
 | `title_accent` | text | `_ui-heading`, on `source: product_title` |
-| `badge`, `badge_tone` | text | `product-main`'s gallery, and `best-sellers` before it |
+| — | — | Badges no longer read a metafield: they come from the product's tags, matched against the five slots in Theme settings → Product badges |
 | `product_chips` | list of text, each `icon:Label` | `_ui-product-chips` |
 | `product_assurances` | list of text, each `icon:Label` | `_ui-product-assurances` |
 | `gift_message_note` | text | `_ui-product-gift-message` |

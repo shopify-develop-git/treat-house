@@ -106,14 +106,86 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "The badge on a product card comes from the product's tags. Tag a product Bestsellers and it wears the Bestsellers badge — nothing to fill in per product beyond the tag it already has."
+        "content": "A product wears a badge by carrying the tag — nothing to fill in on the product itself. Match title is both the tag looked for and the words printed on the card, so a product tagged “bestsellers” still reads “Bestsellers”. Tags match whatever their casing. A product carrying several of these takes the first filled slot below, so the order is the priority. Leave a title empty to switch that slot off."
       },
       {
-        "type": "textarea",
-        "id": "badge_rules",
-        "label": "Badges",
-        "info": "One per line, written as Name = colour. The name is both the tag looked for and the words shown, so casing here is what appears on the card. Tags are matched whatever their own casing. A product carrying several of these takes the first line that matches, so the order here is the priority. Colours: purple, orange, yellow, sky-blue.",
-        "default": "Bestsellers = orange\nNew = yellow\nGift ready = purple\nCustom photo = sky-blue"
+        "type": "header",
+        "content": "Badge 1"
+      },
+      {
+        "type": "text",
+        "id": "badge_1_title",
+        "label": "Match title",
+        "default": "Bestsellers"
+      },
+      {
+        "type": "color",
+        "id": "badge_1_color",
+        "label": "Colour",
+        "default": "#ea6f36"
+      },
+      {
+        "type": "header",
+        "content": "Badge 2"
+      },
+      {
+        "type": "text",
+        "id": "badge_2_title",
+        "label": "Match title",
+        "default": "New"
+      },
+      {
+        "type": "color",
+        "id": "badge_2_color",
+        "label": "Colour",
+        "default": "#ffbd42"
+      },
+      {
+        "type": "header",
+        "content": "Badge 3"
+      },
+      {
+        "type": "text",
+        "id": "badge_3_title",
+        "label": "Match title",
+        "default": "Gift ready"
+      },
+      {
+        "type": "color",
+        "id": "badge_3_color",
+        "label": "Colour",
+        "default": "#6c276a"
+      },
+      {
+        "type": "header",
+        "content": "Badge 4"
+      },
+      {
+        "type": "text",
+        "id": "badge_4_title",
+        "label": "Match title",
+        "default": "Custom photo"
+      },
+      {
+        "type": "color",
+        "id": "badge_4_color",
+        "label": "Colour",
+        "default": "#a3d8f6"
+      },
+      {
+        "type": "header",
+        "content": "Badge 5"
+      },
+      {
+        "type": "text",
+        "id": "badge_5_title",
+        "label": "Match title"
+      },
+      {
+        "type": "color",
+        "id": "badge_5_color",
+        "label": "Colour",
+        "default": "#6c276a"
       }
     ]
   },

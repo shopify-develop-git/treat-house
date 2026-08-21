@@ -119,7 +119,7 @@
   assign onboarding_copy = 'Classic birthday assortment,Birthday Party in a box,Classic birthday assortment,12 Pack of Custom Birthday Treats,Gluten-Free Crispy Rice' | split: ','
   assign onboarding_prices = '$ 38.00,$ 99.00,$ 60.00,$ 42.00,$ 36.00' | split: ','
   assign onboarding_badges = 'Bestsellers,New,Gift ready,Custom photo,' | split: ','
-  assign onboarding_tones = 'orange,yellow,purple,sky-blue,purple' | split: ','
+  assign onboarding_colors = '#ea6f36,#ffbd42,#6c276a,#a3d8f6,#6c276a' | split: ','
 -%}
 
 {%- comment -%}
@@ -201,7 +201,7 @@
                 image: card_product.featured_image,
                 link: card_product.url,
                 badge: card_badge_parts[0],
-                badge_tone: card_badge_parts[1],
+                badge_color: card_badge_parts[1],
                 add_content: add_control
               %}
             </li>
@@ -215,7 +215,7 @@
                 subtitle: onboarding_copy[i],
                 price: onboarding_prices[i],
                 badge: onboarding_badges[i],
-                badge_tone: onboarding_tones[i]
+                badge_color: onboarding_colors[i]
               %}
             </li>
           {%- endfor -%}
