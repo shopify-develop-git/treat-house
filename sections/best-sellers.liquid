@@ -75,6 +75,9 @@
     when 'recently_viewed'
       assign row = search.results
       assign row_answered = search.performed
+    when 'collection'
+      assign row = section.settings.collection.products
+      assign row_answered = true
     else
       assign row = section.settings.products
       assign row_answered = true
@@ -100,7 +103,12 @@
   # an IntersectionObserver — an element hidden before the answer never intersects
   # and never asks. So before the answer there is no attribute at all.
   assign has_row = ''
-  if row_answered and source != 'chosen'
+  assign source_is_deferred = false
+  if source == 'related' or source == 'recently_viewed'
+    assign source_is_deferred = true
+  endif
+
+  if row_answered and source_is_deferred
     assign has_row = 'false'
     if row_size > 0
       assign has_row = 'true'
@@ -486,6 +494,10 @@
           "label": "The ones you pick"
         },
         {
+          "value": "collection",
+          "label": "Everything in a collection"
+        },
+        {
           "value": "related",
           "label": "Related to this product"
         },
@@ -504,14 +516,20 @@
       "type": "product_list",
       "id": "products",
       "label": "Products",
-      "info": "Only read when the source above is \"The ones you pick\". The other two build their own list.",
+      "info": "Only read when the source above is \"The ones you pick\". The other three build their own list.",
       "limit": 12
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Only read when the source above is \"Everything in a collection\". Cards come in the collection's own order, as many as the count below allows."
     },
     {
       "type": "range",
       "id": "max_products",
       "label": "Cards to show",
-      "info": "The most the row will hold. Related and Recently viewed may have fewer.",
+      "info": "The most the row will hold. A collection is cut to it; Related and Recently viewed may have fewer.",
       "min": 2,
       "max": 12,
       "step": 1,
