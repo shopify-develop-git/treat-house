@@ -78,6 +78,8 @@
     "slideshow": "Diavetítés"
   },
   "actions": {
+    "continue": "Continue",
+    "edit": "Edit",
     "add_to_cart": "Hozzáadás a kosárhoz",
     "clear_all": "Az összes törléses",
     "remove": "Eltávolítás",
@@ -118,6 +120,11 @@
     "open": "Megnyitás"
   },
   "content": {
+    "added": "Added",
+    "customize_box_setup": "Pick the pack sizes collection in this section's settings to switch the builder on.",
+    "customize_box_flavours_setup": "Pick the flavours collection in this section's settings.",
+    "included": "Included",
+    "step_of": "Step {{ step }} of {{ total }}",
     "reviews": "összegzés",
     "no_results_found": "Nincs találat",
     "language": "Nyelv",

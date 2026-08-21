@@ -1,0 +1,74 @@
+{%- doc -%}
+  The step counter above a card in the box builder: a caption and one bar per
+  step, filled up to where the reader has got to.
+
+  The bars are `aria-hidden`; the caption already says "Step 2 of 4" in words, and
+  a screen reader gains nothing from four more elements saying it in colour.
+
+  @param {number} step - The step being shown, from 1.
+  @param {number} [total] - How many steps there are. Defaults to 4.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes.
+
+  @example
+  {% render 'ui-step-progress', step: 2, total: 4 %}
+{%- enddoc -%}
+
+{%- liquid
+  assign progress_total = total | default: 4
+  assign progress_step = step | default: 1 | at_least: 1 | at_most: progress_total
+-%}
+
+<div class="ui-step-progress {{ class }}" {{ attributes }}>
+  <p class="ui-step-progress__label">
+    {{- 'content.step_of' | t: step: progress_step, total: progress_total -}}
+  </p>
+  <div class="ui-step-progress__bars" aria-hidden="true">
+    {%- for i in (1..progress_total) -%}
+      <span
+        class="ui-step-progress__bar{% if i <= progress_step %} ui-step-progress__bar--done{% endif %}"
+      ></span>
+    {%- endfor -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .ui-step-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .ui-step-progress__label {
+    margin: 0;
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: var(--font-accent--weight-semibold, 600);
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: var(--ui-color-primary);
+  }
+
+  /*
+   * The bars share the row equally however many there are, so a builder with
+   * three steps or five needs nothing here.
+   */
+  .ui-step-progress__bars {
+    display: flex;
+    gap: 5px;
+  }
+
+  .ui-step-progress__bar {
+    flex: 1 1 0;
+    block-size: 3px;
+    border-radius: 1px;
+
+    /* The file tints the page rather than naming a grey, so the bar sits on
+       whatever is behind it instead of punching a light rectangle into it. */
+    background-color: rgb(var(--ui-color-gray-rgb, 85 85 85) / 0.1);
+  }
+
+  .ui-step-progress__bar--done {
+    background-color: var(--ui-color-primary);
+  }
+{% endstylesheet %}

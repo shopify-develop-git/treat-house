@@ -1,0 +1,1029 @@
+{%- doc -%}
+  The box builder: four steps that end in one line item.
+
+  What the store already knows, and what this therefore does not decide:
+
+  The three pack sizes are three products, not one product with a size option, so
+  step 1 chooses a product. Packaging is that product's own two options — a gift
+  box, individually wrapped — so step 3 chooses a variant of it. Between them
+  every combination is a variant Shopify has already priced, which is why nothing
+  here adds money up: each packaging block publishes the price of the variant it
+  resolves to for every pack, and the summary shows whichever one is currently
+  chosen. A builder that totalled its own prices would eventually disagree with
+  the cart, and the cart would be right.
+
+  Flavours and the gift message are not variants — they are what the box holds
+  and what is written on the card — so they travel as line item properties.
+
+  The result is one `/cart/add`, no app, and a price that is Shopify's throughout.
+{%- enddoc -%}
+
+{%- liquid
+  assign packs = section.settings.pack_collection.products
+  assign flavours = section.settings.flavour_collection.products
+  assign first_pack = packs.first
+  assign form_id = 'customize-box-' | append: section.id
+
+  assign scheme_class = 'color-' | append: section.settings.color_scheme
+
+  # `render` takes no filters on a named argument, so every translated label is
+  # resolved here rather than at the call.
+  assign back_label = 'actions.back' | t
+  assign continue_label = 'actions.continue' | t
+  assign add_to_cart_label = 'actions.add_to_cart' | t
+  assign full_heading = section.settings.heading | append: ' ' | append: section.settings.heading_accent | strip
+  assign breadcrumb_current = page.title | default: full_heading
+-%}
+
+<div class="section section--{{ section.settings.section_width }} spacing-style {{ scheme_class }} customize-box">
+  {% render 'ui-breadcrumb',
+    parent_title: section.settings.breadcrumb_parent_title,
+    parent_url: section.settings.breadcrumb_parent_url,
+    current: breadcrumb_current
+  %}
+
+  {%- comment -%}
+    The band is full width inside the page column, not full bleed: the file runs
+    it from margin to margin like every card under it.
+  {%- endcomment -%}
+  <div class="customize-box__hero">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="customize-box__eyebrow">
+        <span class="customize-box__eyebrow-icon" aria-hidden="true">
+          {{- 'icon-ui-square-pen.svg' | inline_asset_content -}}
+        </span>
+        {{ section.settings.eyebrow }}
+      </p>
+    {%- endif -%}
+
+    <h1 class="customize-box__heading">
+      {{ section.settings.heading }}
+      {%- if section.settings.heading_accent != blank -%}
+        <span class="customize-box__heading-accent">{{ section.settings.heading_accent }}</span>
+      {%- endif -%}
+    </h1>
+
+    {%- if section.settings.subheading != blank -%}
+      <p class="customize-box__subheading">{{ section.settings.subheading }}</p>
+    {%- endif -%}
+  </div>
+
+  {%- if first_pack == blank -%}
+    <p class="customize-box__setup">
+      {{ 'content.customize_box_setup' | t }}
+    </p>
+  {%- else -%}
+    <customize-box
+      class="customize-box__builder"
+      data-total-steps="4"
+    >
+      <product-form-component
+        data-section-id="{{ section.id }}"
+        data-product-id="{{ first_pack.id }}"
+        data-product-url="{{ first_pack.url }}"
+        on:submit="/handleSubmit"
+      >
+        <div
+          class="visually-hidden"
+          aria-live="assertive"
+          role="status"
+          aria-atomic="true"
+          ref="liveRegion"
+        ></div>
+
+        {%- form 'product', first_pack, id: form_id, data-type: 'add-to-cart-form' -%}
+          <input type="hidden" name="id" ref="variantId" value="" data-variant-input>
+          <input type="hidden" name="properties[Flavors]" value="" data-property-flavours>
+          <input type="hidden" name="properties[Packaging]" value="" data-property-packaging>
+          <input type="hidden" name="properties[Gift message]" value="" data-property-message>
+
+          <div class="customize-box__layout">
+            <div class="customize-box__main">
+              {%- comment -%} Screen 1 carries steps 1 and 2, as the file draws them. {%- endcomment -%}
+              <section class="customize-box__screen" data-screen="1">
+                <div class="customize-box__step">
+                  {% render 'ui-step-progress', step: 1, total: 4 %}
+                  <div class="customize-box__card">
+                    <div class="customize-box__card-head">
+                      <h2 class="customize-box__card-title">
+                        <span class="customize-box__card-number">1.</span>
+                        {{ section.settings.step_1_title }}
+                      </h2>
+                      {%- if section.settings.step_1_intro != blank -%}
+                        <p class="customize-box__card-intro">{{ section.settings.step_1_intro }}</p>
+                      {%- endif -%}
+                    </div>
+                    <hr class="customize-box__rule">
+
+                    <div class="customize-box__packs" role="radiogroup" aria-label="{{ section.settings.step_1_title | escape }}">
+                      {%- for pack in packs -%}
+                        {%- liquid
+                          assign short_title = pack.title | split: '–' | first | strip
+                          assign pack_size = pack.metafields.custom.pack_size.value | default: pack.metafields.custom.pack_size
+                          if pack_size == blank
+                            assign pack_size = pack.title | split: ' ' | first | times: 1
+                          endif
+
+                          assign base_variant = pack.variants.first
+                          for variant in pack.variants
+                            if variant.price < base_variant.price
+                              assign base_variant = variant
+                            endif
+                          endfor
+
+                          assign per_treat = ''
+                          if pack_size > 0
+                            assign per_unit = base_variant.price | divided_by: pack_size
+                            assign per_treat = per_unit | money | append: ' / ' | append: section.settings.unit_noun
+                          endif
+
+                          assign safe_title = short_title | escape
+                          assign tile_attributes = 'data-pack="' | append: pack.handle
+                          assign tile_attributes = tile_attributes | append: '" data-pack-size="' | append: pack_size
+                          assign tile_attributes = tile_attributes | append: '" data-pack-title="' | append: safe_title | append: '"'
+                        -%}
+                        {% render 'ui-choice-tile',
+                          name: 'customize-pack',
+                          value: pack.handle,
+                          title: short_title,
+                          note: per_treat,
+                          image: pack.featured_image,
+                          attributes: tile_attributes
+                        %}
+                      {%- endfor -%}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="customize-box__step">
+                  {% render 'ui-step-progress', step: 2, total: 4 %}
+                  <div class="customize-box__card">
+                    <div class="customize-box__card-head">
+                      <h2 class="customize-box__card-title">
+                        <span class="customize-box__card-number">2.</span>
+                        {{ section.settings.step_2_title }}
+                      </h2>
+                      {%- if section.settings.step_2_intro != blank -%}
+                        <p class="customize-box__card-intro">{{ section.settings.step_2_intro }}</p>
+                      {%- endif -%}
+                    </div>
+                    <hr class="customize-box__rule">
+
+                    {%- if flavours.size > 0 -%}
+                      <div class="customize-box__flavours">
+                        {%- for flavour in flavours -%}
+                          {% render 'ui-flavour-card',
+                            handle: flavour.handle,
+                            title: flavour.title,
+                            image: flavour.featured_image
+                          %}
+                        {%- endfor -%}
+                      </div>
+                      <p class="customize-box__tally" data-tally aria-live="polite"></p>
+                    {%- else -%}
+                      <p class="customize-box__setup">{{ 'content.customize_box_flavours_setup' | t }}</p>
+                    {%- endif -%}
+
+                    <hr class="customize-box__rule">
+                    <div class="customize-box__actions">
+                      {% render 'ui-button', variant: 'secondary', label: back_label, attributes: 'data-step-back' %}
+                      {% render 'ui-button', variant: 'primary', label: continue_label, attributes: 'data-step-next' %}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="customize-box__screen" data-screen="2" hidden>
+                {% render 'ui-step-progress', step: 3, total: 4 %}
+                <div class="customize-box__card">
+                  <div class="customize-box__card-head">
+                    <h2 class="customize-box__card-title">
+                      <span class="customize-box__card-number">3.</span>
+                      {{ section.settings.step_3_title }}
+                    </h2>
+                    {%- if section.settings.step_3_intro != blank -%}
+                      <p class="customize-box__card-intro">{{ section.settings.step_3_intro }}</p>
+                    {%- endif -%}
+                  </div>
+                  <hr class="customize-box__rule">
+
+                  <div class="customize-box__packaging" role="radiogroup" aria-label="{{ section.settings.step_3_title | escape }}">
+                    {% content_for 'blocks' %}
+                  </div>
+
+                  <hr class="customize-box__rule">
+                  <div class="customize-box__actions">
+                    {% render 'ui-button', variant: 'secondary', label: back_label, attributes: 'data-step-back' %}
+                    {% render 'ui-button', variant: 'primary', label: continue_label, attributes: 'data-step-next' %}
+                  </div>
+                </div>
+              </section>
+
+              <section class="customize-box__screen" data-screen="3" hidden>
+                {% render 'ui-step-progress', step: 4, total: 4 %}
+                <div class="customize-box__card">
+                  <div class="customize-box__card-head">
+                    <h2 class="customize-box__card-title">
+                      <span class="customize-box__card-number">4.</span>
+                      {{ section.settings.step_4_title }}
+                    </h2>
+                    {%- if section.settings.step_4_intro != blank -%}
+                      <p class="customize-box__card-intro">{{ section.settings.step_4_intro }}</p>
+                    {%- endif -%}
+                  </div>
+                  <hr class="customize-box__rule">
+
+                  {% render 'ui-message',
+                    placeholder: section.settings.message_placeholder,
+                    maxlength: section.settings.message_maxlength,
+                    class: 'customize-box__message',
+                    attributes: 'data-message'
+                  %}
+
+                  <hr class="customize-box__rule">
+                  <div class="customize-box__actions">
+                    {% render 'ui-button', variant: 'secondary', label: back_label, attributes: 'data-step-back' %}
+                    {% render 'ui-button', variant: 'primary', label: continue_label, attributes: 'data-step-next' %}
+                  </div>
+                </div>
+              </section>
+
+              <section class="customize-box__screen" data-screen="4" hidden>
+                <div class="customize-box__card">
+                  <div class="customize-box__card-head">
+                    <h2 class="customize-box__card-title">{{ section.settings.review_title }}</h2>
+                    {%- if section.settings.review_intro != blank -%}
+                      <p class="customize-box__card-intro">{{ section.settings.review_intro }}</p>
+                    {%- endif -%}
+                  </div>
+                  <hr class="customize-box__rule">
+
+                  <div class="customize-box__review">
+                    {% render 'ui-review-row', label: section.settings.label_flavours, value: '', edit_step: '1', class: 'customize-box__review-flavours' %}
+                    {% render 'ui-review-row', label: section.settings.label_quantity, value: '', edit_step: '1', class: 'customize-box__review-pack' %}
+                    {% render 'ui-review-row', label: section.settings.label_packaging, value: '', edit_step: '2', class: 'customize-box__review-packaging' %}
+                    {% render 'ui-review-row', label: section.settings.label_message, value: '', edit_step: '3', class: 'customize-box__review-message' %}
+                  </div>
+
+                  <hr class="customize-box__rule">
+                  <div class="customize-box__actions">
+                    {% render 'ui-button', variant: 'secondary', label: back_label, attributes: 'data-step-back' %}
+                  </div>
+                </div>
+              </section>
+
+              {%- if section.settings.promo_title != blank -%}
+                <aside class="customize-box__promo">
+                  <div class="customize-box__promo-text">
+                    <p class="customize-box__promo-title">
+                      <span class="customize-box__promo-icon" aria-hidden="true">
+                        {{- 'icon-ui-tag.svg' | inline_asset_content -}}
+                      </span>
+                      {{ section.settings.promo_title }}
+                    </p>
+                    {%- if section.settings.promo_text != blank -%}
+                      <p class="customize-box__promo-copy">{{ section.settings.promo_text }}</p>
+                    {%- endif -%}
+                  </div>
+                  {%- if section.settings.promo_button_label != blank -%}
+                    {% render 'ui-button',
+                      variant: 'secondary',
+                      label: section.settings.promo_button_label,
+                      link: section.settings.promo_button_link
+                    %}
+                  {%- endif -%}
+                </aside>
+              {%- endif -%}
+            </div>
+
+            <aside class="customize-box__summary">
+              <div class="customize-box__summary-inner">
+                <h2 class="customize-box__summary-title">{{ section.settings.summary_title }}</h2>
+                <hr class="customize-box__rule">
+
+                <div class="customize-box__summary-row">
+                  <span>{{ section.settings.label_quantity }}</span>
+                  <strong data-summary-pack>&mdash;</strong>
+                </div>
+
+                <div class="customize-box__summary-row">
+                  <span>{{ section.settings.label_flavours_selected }}</span>
+                  <strong data-summary-flavour-count>0</strong>
+                </div>
+
+                <div class="customize-box__summary-chips" data-summary-chips hidden></div>
+
+                <div class="customize-box__summary-row" data-summary-packaging-row hidden>
+                  <span>{{ section.settings.label_packaging }}</span>
+                  <strong data-summary-packaging></strong>
+                </div>
+
+                <div class="customize-box__summary-row" data-summary-message-row hidden>
+                  <span>{{ section.settings.label_message }}</span>
+                  <strong>{{ 'content.added' | t }}</strong>
+                </div>
+
+                <hr class="customize-box__rule">
+
+                <div class="customize-box__summary-total">
+                  <span>{{ section.settings.summary_total_label }}</span>
+                  <strong data-summary-total>{{ 0 | money }}</strong>
+                </div>
+
+                <add-to-cart-component
+                  class="customize-box__add"
+                  ref="addToCartButtonContainer"
+                  data-add-to-cart-animation="{{ settings.add_to_cart_animation }}"
+                  hidden
+                  data-add-wrapper
+                >
+                  {% render 'ui-button',
+                    variant: 'primary',
+                    label: add_to_cart_label,
+                    type: 'submit',
+                    full_width: true,
+                    attributes: 'name="add" ref="addToCartButton" on:click="/handleClick"'
+                  %}
+                </add-to-cart-component>
+              </div>
+            </aside>
+          </div>
+        {%- endform -%}
+      </product-form-component>
+    </customize-box>
+  {%- endif -%}
+</div>
+
+<script src="{{ 'ui-customize-box.js' | asset_url }}" type="module"></script>
+
+{% stylesheet %}
+  .customize-box__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 40px 24px 48px;
+    border-radius: 20px;
+    background-color: var(--ui-color-light-blue);
+    text-align: center;
+  }
+
+  .customize-box__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: var(--font-accent--weight-semibold, 600);
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: var(--ui-color-primary);
+  }
+
+  .customize-box__eyebrow-icon,
+  .customize-box__eyebrow-icon > svg {
+    display: block;
+    inline-size: 16px;
+    block-size: 16px;
+  }
+
+  .customize-box__heading {
+    margin: 40px 0 16px;
+    font-family: var(--font-heading--family);
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--ui-color-black);
+  }
+
+  .customize-box__heading-accent {
+    color: var(--ui-color-primary);
+  }
+
+  .customize-box__subheading {
+    max-inline-size: 46ch;
+    margin: 0;
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    line-height: 1.3;
+    color: var(--ui-color-gray);
+  }
+
+  /*
+   * 710 and 522 with 48 between them is what the file draws at 1440, and 1280 is
+   * the column they sit in — so the two are written as their own share of it and
+   * hold their proportions wherever the column ends up.
+   */
+  .customize-box__layout {
+    display: grid;
+    gap: 48px;
+    margin-block-start: 40px;
+  }
+
+  @media screen and (min-width: 1200px) {
+    .customize-box__layout {
+      grid-template-columns: minmax(0, 710fr) minmax(0, 522fr);
+      align-items: start;
+    }
+  }
+
+  .customize-box__main {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    min-inline-size: 0;
+  }
+
+  .customize-box__screen {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .customize-box__screen[hidden] {
+    display: none;
+  }
+
+  .customize-box__step {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Half the border gray, which is what the file draws: a line lighter than the
+     one around the choices inside it, so the card reads as the ground and they
+     read as the things on it. */
+  .customize-box__card {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    box-sizing: border-box;
+    padding: 24px;
+    border: 1px solid rgb(var(--ui-color-border-gray-rgb) / 0.5);
+  }
+
+  .customize-box__card-head {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .customize-box__card-title {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--ui-color-black);
+  }
+
+  .customize-box__card-number {
+    margin-inline-end: 4px;
+  }
+
+  .customize-box__card-intro {
+    margin: 0;
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    line-height: 1.1;
+    color: var(--ui-color-gray);
+  }
+
+  .customize-box__rule {
+    inline-size: 100%;
+    margin: 0;
+    border: 0;
+    border-block-start: 1px solid rgb(var(--ui-color-border-gray-rgb) / 0.5);
+  }
+
+  .customize-box__packs {
+    display: flex;
+    gap: 24px;
+    align-items: stretch;
+  }
+
+  .customize-box__packs > .ui-choice-tile {
+    block-size: 203px;
+  }
+
+  /*
+   * Three counts, not two. The file draws four columns at 1440 and nothing in
+   * between; run four from 750 and each card is barely 110px, which is narrower
+   * than the two-line names the grid is full of.
+   */
+  .customize-box__flavours {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .customize-box__flavours {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    .customize-box__flavours {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .customize-box__tally {
+    margin: 0;
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    line-height: 1.3;
+    color: var(--ui-color-gray);
+  }
+
+  .customize-box__tally[data-complete] {
+    color: var(--ui-color-primary);
+  }
+
+  .customize-box__packaging {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .customize-box__review {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .customize-box__actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .customize-box__promo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-sizing: border-box;
+    padding: 14px;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .customize-box__promo-title {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: var(--font-accent--weight-semibold, 600);
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: var(--ui-color-primary);
+  }
+
+  .customize-box__promo-icon,
+  .customize-box__promo-icon > svg {
+    display: block;
+    inline-size: 16px;
+    block-size: 16px;
+  }
+
+  .customize-box__promo-text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .customize-box__promo-copy {
+    margin: 0;
+    max-inline-size: 62ch;
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--ui-color-black);
+  }
+
+  @media screen and (min-width: 750px) {
+    .customize-box__promo {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      column-gap: 24px;
+    }
+
+    .customize-box__promo-title {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .customize-box__summary-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    box-sizing: border-box;
+    padding: 20px;
+    border: 1px solid rgb(var(--ui-color-border-gray-rgb) / 0.5);
+  }
+
+  @media screen and (min-width: 1200px) {
+    .customize-box__summary {
+      position: sticky;
+      inset-block-start: calc(var(--header-height, 0px) + 24px);
+    }
+  }
+
+  .customize-box__summary-title {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--ui-color-black);
+  }
+
+  .customize-box__summary-row,
+  .customize-box__summary-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    line-height: 1.1;
+    color: var(--color-foreground-heading);
+  }
+
+  .customize-box__summary-row > span {
+    color: var(--ui-color-gray);
+  }
+
+  .customize-box__summary-total > span {
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: var(--font-accent--weight-semibold, 600);
+    text-transform: uppercase;
+  }
+
+  .customize-box__summary-total > strong {
+    font-size: 24px;
+    line-height: 1.1;
+  }
+
+  .customize-box__summary-chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .customize-box__chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-sizing: border-box;
+    padding: 6px 8px;
+    border: 1px solid rgb(var(--ui-color-border-gray-rgb) / 0.5);
+    border-radius: var(--ui-radius-sm);
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    line-height: 1.2;
+    color: var(--color-foreground-heading);
+  }
+
+  .customize-box__chip img {
+    display: block;
+    flex: 0 0 auto;
+    inline-size: 28px;
+    block-size: 28px;
+    object-fit: contain;
+  }
+
+  .customize-box__chip-count {
+    margin-inline-start: auto;
+    font-weight: 700;
+  }
+
+  .customize-box__setup {
+    margin: 24px 0 0;
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--ui-color-gray);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Customize your box",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "The pack sizes are products and the packaging is their own options, so the price always comes from Shopify. Flavours and the gift message ride along as line item properties."
+    },
+    {
+      "type": "collection",
+      "id": "pack_collection",
+      "label": "Pack sizes",
+      "info": "One product per size. The size is read from the product's custom.pack_size metafield, or from the number its title starts with."
+    },
+    {
+      "type": "collection",
+      "id": "flavour_collection",
+      "label": "Flavours"
+    },
+    {
+      "type": "text",
+      "id": "unit_noun",
+      "label": "Unit name",
+      "default": "treat",
+      "info": "Used for the per-unit price under each pack: “$3.00 / treat”."
+    },
+    {
+      "type": "header",
+      "content": "Breadcrumb"
+    },
+    {
+      "type": "text",
+      "id": "breadcrumb_parent_title",
+      "label": "Parent page",
+      "default": "Gift Boxes"
+    },
+    {
+      "type": "url",
+      "id": "breadcrumb_parent_url",
+      "label": "t:settings.link"
+    },
+    {
+      "type": "header",
+      "content": "t:content.header"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "Customize"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "t:settings.heading",
+      "default": "Choose"
+    },
+    {
+      "type": "text",
+      "id": "heading_accent",
+      "label": "Heading in purple",
+      "default": "Your Own Flavors"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "t:settings.text",
+      "default": "Four quick steps: pick your flavors, choose how it's packaged, add a note, then confirm. You can jump back anytime."
+    },
+    {
+      "type": "header",
+      "content": "Steps"
+    },
+    {
+      "type": "text",
+      "id": "step_1_title",
+      "label": "Step 1",
+      "default": "Choose your quantity"
+    },
+    {
+      "type": "text",
+      "id": "step_1_intro",
+      "label": "Step 1 note",
+      "default": "Price per treat improves at higher quantities."
+    },
+    {
+      "type": "text",
+      "id": "step_2_title",
+      "label": "Step 2",
+      "default": "Pick your flavors"
+    },
+    {
+      "type": "text",
+      "id": "step_2_intro",
+      "label": "Step 2 note",
+      "default": "Tap a treat to select it, then set how many you'd like."
+    },
+    {
+      "type": "text",
+      "id": "step_3_title",
+      "label": "Step 3",
+      "default": "Select packaging"
+    },
+    {
+      "type": "text",
+      "id": "step_3_intro",
+      "label": "Step 3 note",
+      "default": "How your treats arrive."
+    },
+    {
+      "type": "text",
+      "id": "step_4_title",
+      "label": "Step 4",
+      "default": "Add a gift message"
+    },
+    {
+      "type": "text",
+      "id": "step_4_intro",
+      "label": "Step 4 note",
+      "default": "Optional — printed on our signature card and included in the box."
+    },
+    {
+      "type": "text",
+      "id": "message_placeholder",
+      "label": "Message placeholder",
+      "default": "Message."
+    },
+    {
+      "type": "range",
+      "id": "message_maxlength",
+      "label": "Message length",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "default": 200
+    },
+    {
+      "type": "header",
+      "content": "Review"
+    },
+    {
+      "type": "text",
+      "id": "review_title",
+      "label": "t:settings.title",
+      "default": "Review your box"
+    },
+    {
+      "type": "text",
+      "id": "review_intro",
+      "label": "t:settings.text",
+      "default": "Everything looks good? Add it to your cart below."
+    },
+    {
+      "type": "header",
+      "content": "Summary"
+    },
+    {
+      "type": "text",
+      "id": "summary_title",
+      "label": "t:settings.title",
+      "default": "Your box"
+    },
+    {
+      "type": "text",
+      "id": "label_flavours",
+      "label": "Flavours",
+      "default": "Flavors"
+    },
+    {
+      "type": "text",
+      "id": "label_flavours_selected",
+      "label": "Flavours chosen",
+      "default": "Flavors selected"
+    },
+    {
+      "type": "text",
+      "id": "label_quantity",
+      "label": "Quantity",
+      "default": "Quantity"
+    },
+    {
+      "type": "text",
+      "id": "label_packaging",
+      "label": "Packaging",
+      "default": "Packaging"
+    },
+    {
+      "type": "text",
+      "id": "label_message",
+      "label": "Gift message",
+      "default": "Gift message"
+    },
+    {
+      "type": "text",
+      "id": "summary_total_label",
+      "label": "Total row",
+      "default": "Total"
+    },
+    {
+      "type": "header",
+      "content": "Corporate branding note"
+    },
+    {
+      "type": "text",
+      "id": "promo_title",
+      "label": "t:settings.title",
+      "default": "Custom logo & corporate branding"
+    },
+    {
+      "type": "textarea",
+      "id": "promo_text",
+      "label": "t:settings.text",
+      "default": "Want your company logo printed on every treat? Available for bulk corporate orders — our team will follow up with pricing and a proof."
+    },
+    {
+      "type": "text",
+      "id": "promo_button_label",
+      "label": "t:settings.label",
+      "default": "Request a quote"
+    },
+    {
+      "type": "url",
+      "id": "promo_button_link",
+      "label": "t:settings.link"
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top_padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom_padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "blocks": [
+    {
+      "type": "_ui-box-packaging"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customize your box",
+      "blocks": [
+        {
+          "type": "_ui-box-packaging",
+          "settings": {
+            "title": "Clear Tray",
+            "description": "Simple, everyday packaging",
+            "gift_box": false,
+            "individual_packs": false
+          }
+        },
+        {
+          "type": "_ui-box-packaging",
+          "settings": {
+            "title": "Gift Box",
+            "description": "Signature box, ready to give",
+            "gift_box": true,
+            "individual_packs": false
+          }
+        },
+        {
+          "type": "_ui-box-packaging",
+          "settings": {
+            "title": "Individually Wrapped",
+            "description": "Great for sharing or favors",
+            "gift_box": false,
+            "individual_packs": true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

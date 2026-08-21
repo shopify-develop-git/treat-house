@@ -1,0 +1,50 @@
+{
+  "sections": {
+    "customize": {
+      "type": "customize-box",
+      "blocks": {
+        "tray": {
+          "type": "_ui-box-packaging",
+          "settings": {
+            "title": "Clear Tray",
+            "description": "Simple, everyday packaging",
+            "gift_box": false,
+            "individual_packs": false
+          }
+        },
+        "gift": {
+          "type": "_ui-box-packaging",
+          "settings": {
+            "title": "Gift Box",
+            "description": "Signature box, ready to give",
+            "gift_box": true,
+            "individual_packs": false
+          }
+        },
+        "individual": {
+          "type": "_ui-box-packaging",
+          "settings": {
+            "title": "Individually Wrapped",
+            "description": "Great for sharing or favors",
+            "gift_box": false,
+            "individual_packs": true
+          }
+        }
+      },
+      "block_order": [
+        "tray",
+        "gift",
+        "individual"
+      ],
+      "settings": {
+        "pack_collection": "choose-your-own-treat",
+        "flavour_collection": "",
+        "breadcrumb_parent_title": "Gift Boxes",
+        "breadcrumb_parent_url": "shopify://collections/choose-your-own-treat"
+      }
+    }
+  },
+  "order": [
+    "customize"
+  ]
+}

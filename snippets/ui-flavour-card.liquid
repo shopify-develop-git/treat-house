@@ -1,0 +1,167 @@
+{%- doc -%}
+  One treat in the box builder's grid: a picture, its name, and the control that
+  puts it in the box.
+
+  Two states. Untouched it is what the file draws — the name with a square `+`
+  beside it. Chosen, that square becomes a stepper on its own line, because the
+  step's own copy promises the reader they can "set how many you'd like" and the
+  file draws nowhere to do it. The card keeps one height across both: it is fixed,
+  and the picture above the footer is the flexible part, so a grid of these does
+  not reflow as treats go in and out of the box.
+
+  The count is a real number input carrying the flavour's title, so what the
+  builder posts to the cart is assembled from the DOM rather than from a second
+  copy of the state kept in script.
+
+  @param {string} handle - Identifies the flavour to the builder's script.
+  @param {string} title - The treat's name.
+  @param {object} [image] - A Shopify image object.
+  @param {number} [count] - How many are in the box. 0, the default, is untouched.
+  @param {number} [max] - The most that may be chosen. Defaults to 36.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-flavour-card', handle: product.handle, title: product.title, image: product.featured_image %}
+{%- enddoc -%}
+
+{%- liquid
+  assign flavour_count = count | default: 0
+  assign flavour_max = max | default: 36
+  assign is_chosen = false
+  if flavour_count > 0
+    assign is_chosen = true
+  endif
+-%}
+
+<div
+  class="ui-flavour-card {{ class }}"
+  data-flavour="{{ handle }}"
+  data-flavour-title="{{ title | escape }}"
+  {% if is_chosen %}data-chosen{% endif %}
+>
+  <div class="ui-flavour-card__media">
+    {%- if image != blank -%}
+      {{
+        image
+        | image_url: width: 320
+        | image_tag: loading: 'lazy', class: 'ui-flavour-card__image', widths: '160, 320', sizes: '160px', alt: ''
+      }}
+    {%- endif -%}
+  </div>
+
+  <div class="ui-flavour-card__footer">
+    <p class="ui-flavour-card__title">{{ title }}</p>
+
+    <button
+      type="button"
+      class="ui-flavour-card__add"
+      data-flavour-add
+      aria-label="{{ 'actions.add_to_cart' | t }}: {{ title | escape }}"
+    >
+      <span aria-hidden="true">+</span>
+    </button>
+
+    <div class="ui-flavour-card__stepper">
+      {% render 'ui-quantity-stepper',
+        value: flavour_count,
+        min: 0,
+        max: flavour_max,
+        label: title,
+        class: 'ui-flavour-card__count'
+      %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .ui-flavour-card {
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: column;
+    gap: 8px;
+    block-size: 200px;
+    padding: 5px 5px 10px;
+    border: 1px solid var(--ui-color-border-gray);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
+  }
+
+  .ui-flavour-card[data-chosen] {
+    border-color: var(--ui-color-primary);
+  }
+
+  /* The slack. Everything below is its natural height and this takes what is
+     left, which is how the card stays 200px whether its footer is one row or
+     two, and whether its name wraps. */
+  .ui-flavour-card__media {
+    flex: 1 1 auto;
+    min-block-size: 0;
+  }
+
+  .ui-flavour-card__image {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+  }
+
+  .ui-flavour-card__footer {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    padding-inline: 5px;
+  }
+
+  .ui-flavour-card__title {
+    flex: 1 1 auto;
+    margin: 0;
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    line-height: 1.15;
+    color: var(--color-foreground-heading);
+  }
+
+  .ui-flavour-card__add {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    inline-size: 32px;
+    block-size: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-primary);
+    font-family: var(--ui-font-accent);
+    font-size: 18px;
+    line-height: 1;
+    color: var(--ui-color-white);
+    cursor: pointer;
+  }
+
+  .ui-flavour-card__stepper {
+    display: none;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  /* Chosen, the footer becomes two rows: the name keeps the first to itself and
+     the stepper takes the second across the card, which is the only way a
+     three-part control fits 156px without the name shrinking to nothing. */
+  .ui-flavour-card[data-chosen] .ui-flavour-card__footer {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .ui-flavour-card[data-chosen] .ui-flavour-card__title {
+    flex: 1 0 100%;
+  }
+
+  .ui-flavour-card[data-chosen] .ui-flavour-card__add {
+    display: none;
+  }
+
+  .ui-flavour-card[data-chosen] .ui-flavour-card__stepper {
+    display: block;
+  }
+{% endstylesheet %}

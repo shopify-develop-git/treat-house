@@ -1,0 +1,154 @@
+{%- doc -%}
+  One packaging choice in the box builder.
+
+  It does not name a variant. The three pack sizes are three separate products
+  whose option values do not match — "Individual packs + ($3.00)" on the twelve,
+  "+ ($9.00)" on the thirty-six — so a choice written as a value string would
+  bind to one pack and miss the others. It is written as the two answers instead,
+  and the section finds the variant that gives them for whichever pack is
+  currently chosen.
+
+  That is also why the price is not a setting: what this adds is the difference
+  between two variants of the same product, which Shopify already knows and which
+  changes with the pack size.
+{%- enddoc -%}
+
+{%- liquid
+  assign packs = section.settings.pack_collection.products
+
+  # One entry per pack: the variant this choice resolves to there, what it costs,
+  # and what it adds over the same pack with nothing chosen. The script only ever
+  # reads these, so no price is ever worked out in JavaScript.
+  assign entries = ''
+
+  for pack in packs
+    assign option_one = pack.options_with_values[0]
+    assign option_two = pack.options_with_values[1]
+
+    assign want_one = option_one.values[0]
+    if block.settings.gift_box and option_one.values.size > 1
+      assign want_one = option_one.values[1]
+    endif
+
+    assign want_two = option_two.values[0]
+    if block.settings.individual_packs and option_two.values.size > 1
+      assign want_two = option_two.values[1]
+    endif
+
+    assign chosen = null
+    assign base = null
+    for variant in pack.variants
+      if variant.option1 == option_one.values[0] and variant.option2 == option_two.values[0]
+        assign base = variant
+      endif
+      if variant.option1 == want_one and variant.option2 == want_two
+        assign chosen = variant
+      endif
+    endfor
+
+    if chosen == null
+      continue
+    endif
+
+    assign extra = chosen.price | minus: base.price
+    if extra > 0
+      assign note = extra | money | prepend: '+ '
+    else
+      assign note = 'content.included' | t
+    endif
+
+    # Money is formatted into its own variable first. A `money` in the middle of
+    # an append chain formats everything accumulated so far, not the price — the
+    # same trap the Product row documents, and here it silently produced a map
+    # that would not parse.
+    assign price_text = chosen.price | money
+
+    assign entry = '"' | append: pack.handle | append: '":{"id":' | append: chosen.id
+    assign entry = entry | append: ',"available":' | append: chosen.available
+    assign entry = entry | append: ',"price":' | append: chosen.price
+    assign entry = entry | append: ',"priceText":"' | append: price_text | append: '"'
+    assign entry = entry | append: ',"note":"' | append: note | append: '"}'
+
+    if entries == ''
+      assign entries = entry
+    else
+      assign entries = entries | append: ',' | append: entry
+    endif
+  endfor
+
+  assign packaging_map = entries | prepend: '{' | append: '}'
+
+  # The row shows the first pack's figures until the reader picks another.
+  assign first_handle = packs.first.handle
+  assign first_note = ''
+  if first_handle != blank
+    assign marker = '"' | append: first_handle | append: '":'
+    assign after = packaging_map | split: marker | last | split: '"note":"' | last
+    assign first_note = after | split: '"' | first
+  endif
+-%}
+
+{%- if packaging_map != '{}' -%}
+  {% capture packaging_attributes %}
+    data-packaging="{{ block.id }}"
+    data-packaging-map="{{ packaging_map | escape }}"
+  {% endcapture %}
+
+  {% render 'ui-option-row',
+    name: 'customize-packaging',
+    value: block.id,
+    title: block.settings.title,
+    description: block.settings.description,
+    price_note: first_note,
+    image: block.settings.image,
+    attributes: packaging_attributes,
+    class: 'customize-box__packaging-row'
+  %}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Packaging choice",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:settings.title",
+      "default": "Clear Tray"
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "t:settings.description",
+      "default": "Simple, everyday packaging"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image"
+    },
+    {
+      "type": "header",
+      "content": "Product options"
+    },
+    {
+      "type": "paragraph",
+      "content": "Which answers this choice gives to the pack product's own options. The price follows from them."
+    },
+    {
+      "type": "checkbox",
+      "id": "gift_box",
+      "label": "Gift box",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "individual_packs",
+      "label": "Individually wrapped",
+      "default": false
+    }
+  ],
+  "presets": [{ "name": "Packaging choice" }]
+}
+{% endschema %}

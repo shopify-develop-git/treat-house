@@ -504,6 +504,58 @@ instead of vanishing from the tab order at the ends of a list.
 
 ---
 
+## The box builder
+
+Five components that exist for `customize-box` and are built to be reusable
+beyond it. The builder itself is documented in `docs/section-settings.md`.
+
+### `ui-step-progress`
+
+The caption and the row of bars above a step. The bars share the row equally
+however many there are, so three steps or five need nothing here, and they are
+`aria-hidden` — the caption already says "Step 2 of 4" in words.
+
+`step` · `total` · `class` · `attributes`
+
+### `ui-choice-tile`
+
+A picture, a name and a note, chosen one from a row. A real radio inside a real
+label: `:checked` draws the selected border, so the state survives a re-render
+and posts without script.
+
+`name` · `value` · `title` · `note` · `image` · `checked` · `id` · `class` ·
+`attributes`
+
+### `ui-option-row`
+
+The same contract laid out as a full-width line — thumbnail, name, explanation,
+what it adds to the price. Separate from the tile because the two share no box:
+a tile is a column sized by its picture, a row is a line sized by its text.
+
+`name` · `value` · `title` · `description` · `price_note` · `image` · `checked` ·
+`class` · `attributes`
+
+Note that `attributes` lands on the input, not the label — reach the row with
+`closest('.ui-option-row')`.
+
+### `ui-flavour-card`
+
+Two states in one fixed height. Untouched it is a name and a square `+`; chosen,
+that becomes a stepper on its own line. The picture above the footer is the
+flexible part, so a grid of these does not reflow as things go in and out of the
+box.
+
+`handle` · `title` · `image` · `count` · `max` · `class`
+
+### `ui-review-row`
+
+What was chosen, under a tinted label strip, with the way back to change it. The
+control is a `<button>` and not a link: it moves within a form the reader is
+already inside, and a link would put a history entry in front of the back button.
+
+`label` · `value` · `edit_label` · `edit_step` · `class`
+
+
 ## Tokens
 
 Defined in `snippets/ui-kit-tokens.liquid`, rendered once from `layout/theme.liquid`.

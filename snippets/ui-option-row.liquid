@@ -1,0 +1,136 @@
+{%- doc -%}
+  A full-width row chosen one from a stack — the box builder's packaging, where
+  each choice carries a thumbnail, a name, a line of explanation and what it adds
+  to the price.
+
+  Same contract as [ui-choice-tile]: a real radio inside a real label, `:checked`
+  drawing the selected border. They are separate components because the two
+  arrangements share no box — a tile is a column sized by its picture, a row is a
+  line sized by its text — and merging them would mean a variant flag on every
+  parameter.
+
+  @param {string} name - The radio group.
+  @param {string} value - What this row posts.
+  @param {string} title - The choice.
+  @param {string} [description] - The line under it.
+  @param {string} [price_note] - What it adds, already formatted. "Included" when free.
+  @param {object} [image] - A Shopify image object for the thumbnail.
+  @param {boolean} [checked] - Selected on load.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes for the input.
+
+  @example
+  {% render 'ui-option-row', name: 'packaging', value: 'gift-box', title: 'Gift Box', description: 'Signature box, ready to give', price_note: '+ $6.00' %}
+{%- enddoc -%}
+
+<label class="ui-option-row {{ class }}">
+  <input
+    type="radio"
+    class="ui-option-row__input"
+    name="{{ name }}"
+    value="{{ value }}"
+    {% if checked %}checked{% endif %}
+    {{ attributes }}
+  >
+
+  {%- if image != blank -%}
+    <span class="ui-option-row__media">
+      {{
+        image
+        | image_url: width: 176
+        | image_tag: loading: 'lazy', class: 'ui-option-row__image', widths: '88, 176', sizes: '88px', alt: ''
+      }}
+    </span>
+  {%- endif -%}
+
+  <span class="ui-option-row__text">
+    <span class="ui-option-row__title">{{ title }}</span>
+    {%- if description != blank -%}
+      <span class="ui-option-row__description">{{ description }}</span>
+    {%- endif -%}
+  </span>
+
+  {%- if price_note != blank -%}
+    <span class="ui-option-row__price">{{ price_note }}</span>
+  {%- endif -%}
+</label>
+
+{% stylesheet %}
+  .ui-option-row {
+    display: flex;
+    box-sizing: border-box;
+    align-items: center;
+    gap: 16px;
+    inline-size: 100%;
+    padding: 10px 16px;
+    border: 1px solid var(--ui-color-border-gray);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
+    cursor: pointer;
+  }
+
+  .ui-option-row__input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ui-option-row:has(.ui-option-row__input:checked) {
+    border-color: var(--ui-color-primary);
+  }
+
+  .ui-option-row:has(.ui-option-row__input:focus-visible) {
+    outline: 2px solid var(--ui-color-primary);
+    outline-offset: 2px;
+  }
+
+  .ui-option-row__media {
+    display: block;
+    flex: 0 0 auto;
+    inline-size: 88px;
+  }
+
+  .ui-option-row__image {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+  }
+
+  .ui-option-row__text {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 2px;
+    min-inline-size: 0;
+  }
+
+  .ui-option-row__title {
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ui-color-black);
+  }
+
+  .ui-option-row__description {
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    line-height: 1.2;
+    color: var(--ui-color-gray);
+  }
+
+  .ui-option-row__price {
+    flex: 0 0 auto;
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ui-color-black);
+  }
+{% endstylesheet %}

@@ -1,0 +1,126 @@
+{%- doc -%}
+  A picture, a name and a note, chosen one from a row — the box builder's pack
+  sizes.
+
+  A real radio inside a real label, so the row is keyboard operable, announces
+  itself as a group, and posts without a line of script. The input is hidden from
+  sight but not from the accessibility tree; `:checked` on it is what draws the
+  selected border, which is why the state survives a re-render that JavaScript
+  would have to be told about.
+
+  @param {string} name - The radio group. Every tile in a row shares it.
+  @param {string} value - What this tile posts.
+  @param {string} title - The name, in the file's bold body face.
+  @param {string} [note] - The line under it — a per-unit price, a size.
+  @param {object} [image] - A Shopify image object.
+  @param {boolean} [checked] - Selected on load.
+  @param {string} [id] - The input's id.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes for the input.
+
+  @example
+  {% render 'ui-choice-tile', name: 'pack', value: '12', title: '12 Pack', note: '$3.00 / treat', image: product.featured_image %}
+{%- enddoc -%}
+
+<label class="ui-choice-tile {{ class }}">
+  <input
+    type="radio"
+    class="ui-choice-tile__input"
+    name="{{ name }}"
+    value="{{ value }}"
+    {% if id != blank %}id="{{ id }}"{% endif %}
+    {% if checked %}checked{% endif %}
+    {{ attributes }}
+  >
+
+  <span class="ui-choice-tile__media">
+    {%- if image != blank -%}
+      {{
+        image
+        | image_url: width: 420
+        | image_tag: loading: 'lazy', class: 'ui-choice-tile__image', widths: '210, 420', sizes: '210px', alt: ''
+      }}
+    {%- endif -%}
+  </span>
+
+  <span class="ui-choice-tile__title">{{ title }}</span>
+  {%- if note != blank -%}
+    <span class="ui-choice-tile__note">{{ note }}</span>
+  {%- endif -%}
+</label>
+
+{% stylesheet %}
+  .ui-choice-tile {
+    display: flex;
+    flex: 1 1 0;
+    box-sizing: border-box;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-inline-size: 0;
+    padding: 5px 5px 16px;
+    border: 1px solid var(--ui-color-border-gray);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
+    cursor: pointer;
+  }
+
+  /*
+   * Off the screen rather than `display: none`, which would take the radio out
+   * of the tab order and out of the group a screen reader announces.
+   */
+  .ui-choice-tile__input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ui-choice-tile:has(.ui-choice-tile__input:checked) {
+    border-color: var(--ui-color-primary);
+  }
+
+  .ui-choice-tile:has(.ui-choice-tile__input:focus-visible) {
+    outline: 2px solid var(--ui-color-primary);
+    outline-offset: 2px;
+  }
+
+  /* The picture is the tile's slack: the row is as tall as its tallest name and
+     the images give way, so three tiles stay the same height whatever they are
+     called. */
+  .ui-choice-tile__media {
+    display: block;
+    flex: 1 1 auto;
+    inline-size: 100%;
+    min-block-size: 0;
+  }
+
+  .ui-choice-tile__image {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .ui-choice-tile__title {
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.1;
+    text-align: center;
+    color: var(--ui-color-black);
+  }
+
+  .ui-choice-tile__note {
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    line-height: 1.1;
+    text-align: center;
+    color: var(--ui-color-gray);
+  }
+{% endstylesheet %}
