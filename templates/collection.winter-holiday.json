@@ -256,9 +256,9 @@
       ],
       "settings": {
         "collections": [
-          "birthday",
           "christmas-treats",
           "halloween",
+          "birthday",
           "deluxe-gift-box"
         ],
         "max_collections": 4

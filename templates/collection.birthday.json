@@ -102,7 +102,7 @@
       ],
       "settings": {
         "action": "button",
-        "background": "light-blue",
+        "background": "sky-blue",
         "vertical_padding": 80,
         "vertical_padding_mobile": 64
       }
@@ -130,8 +130,7 @@
           "type": "_ui-feature-panel",
           "static": true,
           "settings": {
-            "show_logo": true,
-            "image": "shopify://shop_images/birthday-krispie-treat-candle.webp"
+            "show_logo": true
           },
           "blocks": {
             "panel_heading": {
@@ -139,13 +138,15 @@
               "settings": {
                 "heading": "<h3><em>Sweet birthday moments,</em> made unforgettable</h3>",
                 "heading_size": 40,
-                "heading_size_mobile": 28
+                "heading_size_mobile": 28,
+                "max_width": 510
               }
             },
             "panel_text": {
               "type": "_ui-text",
               "settings": {
-                "text": "<p>Celebrate birthdays with handcrafted Krispie treats that are as joyful as the occasion itself. From colorful party favors to personalized gift boxes, every treat is freshly made to help create memorable celebrations for friends, family, coworkers, and loved ones.</p>"
+                "text": "<p>Celebrate birthdays with handcrafted Krispie treats that are as joyful as the occasion itself. From colorful party favors to personalized gift boxes, every treat is freshly made to help create memorable celebrations for friends, family, coworkers, and loved ones.</p>",
+                "max_width": 500
               }
             }
           },
@@ -300,7 +301,7 @@
         "collections": [
           "graduation",
           "baby-shower",
-          "patriotic",
+          "pride",
           "deluxe-gift-box"
         ],
         "max_collections": 4

@@ -258,8 +258,8 @@
       "settings": {
         "collections": [
           "birthday",
-          "graduation",
           "camp",
+          "graduation",
           "deluxe-gift-box"
         ],
         "max_collections": 4

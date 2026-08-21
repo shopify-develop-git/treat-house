@@ -14,10 +14,14 @@
   a purple band is the same control in different clothes, not a second snippet.
 
   The same card does the occasion pages' "Want something more personal?" band: the
-  file draws it light blue with a button where the signup goes, and everything else
+  file draws it sky blue with a button where the signup goes, and everything else
   — the inset, the radius, the star, the centred copy — is identical. So `background`
   and `action` are settings rather than a second section that would drift from this
   one. Read `docs/section-settings.md` §8.
+
+  Two pale fills, not one. Sky blue is the call-out on an occasion page; light blue
+  is the tint the rest of the theme's bands take, and a merchant who puts the
+  call-out on a light blue page needs the card to be the other one.
 
   The inverted field hooks belong to the purple card only. On the light one the
   kit's own field is already right, and a white field on light blue is a field
@@ -86,11 +90,24 @@
     background-color: var(--newsletter-card-background, var(--ui-color-primary));
   }
 
-  .newsletter--on-light-blue {
-    --newsletter-card-background: var(--ui-color-light-blue);
+  /*
+   * The two light cards are one treatment in two fills. Purple copy on a pale
+   * ground reads the same on either, so only the ground is written twice — a
+   * second full block would be three declarations waiting to drift apart.
+   */
+  .newsletter--on-light-blue,
+  .newsletter--on-sky-blue {
     --newsletter-sparkle-color: var(--ui-color-primary);
     --newsletter-heading-color: var(--ui-color-black);
     --newsletter-text-color: var(--ui-color-gray);
+  }
+
+  .newsletter--on-light-blue {
+    --newsletter-card-background: var(--ui-color-light-blue);
+  }
+
+  .newsletter--on-sky-blue {
+    --newsletter-card-background: var(--ui-color-sky-blue);
   }
 
   .newsletter--on-purple .newsletter__card {
@@ -254,6 +271,10 @@
         {
           "value": "light-blue",
           "label": "Light blue"
+        },
+        {
+          "value": "sky-blue",
+          "label": "Sky blue"
         }
       ],
       "default": "purple"
