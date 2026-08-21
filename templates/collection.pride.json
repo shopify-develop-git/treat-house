@@ -234,12 +234,14 @@
           ]
         }
       },
-      "block_order": [],
       "settings": {
+        "show_lead": true,
         "image": "shopify://shop_images/corporate-gift-holiday-6-pack.webp",
         "media_position": "end",
         "heading_gap": 48,
         "card_title_size": 20,
+        "card_gap": 20,
+        "card_radius": 20,
         "columns": 4,
         "columns_md": 2,
         "columns_sm": "1",
@@ -247,10 +249,7 @@
         "background": "purple",
         "color_scheme": "scheme-1",
         "padding-block-start": 80,
-        "padding-block-end": 80,
-        "show_lead": true,
-        "card_gap": 20,
-        "card_radius": 20
+        "padding-block-end": 80
       }
     },
     "you_may_also_like": {
