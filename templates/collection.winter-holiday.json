@@ -1,0 +1,414 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "hero": {
+      "type": "collection-hero",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "source": "custom",
+            "heading": "<h1><em>Winter Holiday</em> Treats</h1>",
+            "heading_size": 48,
+            "heading_size_mobile": 32
+          }
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "source": "custom",
+            "text": "<p>Celebrate the season with handcrafted treats, festive gift boxes, and personalized desserts made to share joy with family, friends, clients, and coworkers.</p>",
+            "text_size": 16,
+            "text_size_mobile": 14
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "body"
+      ],
+      "settings": {
+        "show_star": true,
+        "show_breadcrumb": true,
+        "parent_title": "Shop Treats",
+        "parent_link": "shopify://collections/all",
+        "height": 380,
+        "height_mobile": 260,
+        "section_width": "page-width",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 24,
+        "padding-block-end": 0
+      }
+    },
+    "products": {
+      "type": "collection-products",
+      "settings": {
+        "show_filters": true,
+        "filters_label": "Filters",
+        "show_sort": true,
+        "show_count": true,
+        "empty_text": "No products match these filters.",
+        "columns": 4,
+        "columns_md": 3,
+        "columns_sm": "2",
+        "products_per_page": 24,
+        "section_width": "page-width",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 80,
+        "padding-block-end": 80
+      }
+    },
+    "testimonials": {
+      "type": "testimonials",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>Sweet words from <em>Happy Customers</em></h2>",
+            "max_width": 520
+          }
+        },
+        "rating": {
+          "type": "_ui-review-line",
+          "static": true,
+          "settings": {
+            "rating_text": "4.9 rating",
+            "reviews_text": "12,000+ reviews",
+            "layout": "inline",
+            "text_size": 16,
+            "text_size_mobile": 14
+          }
+        },
+        "one": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
+          }
+        },
+        "two": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
+          }
+        },
+        "three": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
+          }
+        },
+        "four": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
+          }
+        },
+        "five": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
+          }
+        }
+      },
+      "block_order": [
+        "one",
+        "two",
+        "three",
+        "four",
+        "five"
+      ],
+      "settings": {}
+    },
+    "why_choose_us": {
+      "type": "why-choose-us",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>Why these fit Holiday</h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32
+          }
+        },
+        "intro": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": ""
+          }
+        },
+        "panel": {
+          "type": "_ui-feature-panel",
+          "static": true,
+          "settings": {
+            "show_logo": true
+          },
+          "blocks": {
+            "panel_heading": {
+              "type": "_ui-heading",
+              "settings": {
+                "heading": "<h3><em>Celebrate every holiday,</em> handcrafted with care</h3>",
+                "heading_size": 40,
+                "heading_size_mobile": 28,
+                "max_width": 520
+              }
+            },
+            "panel_text": {
+              "type": "_ui-text",
+              "settings": {
+                "text": "<p>Make every holiday gathering a little sweeter with handcrafted Krispie treats designed for sharing and gifting. From festive family celebrations to corporate holiday gifts, every treat is freshly made and beautifully packaged to spread seasonal joy.</p>"
+              }
+            }
+          },
+          "block_order": [
+            "panel_heading",
+            "panel_text"
+          ]
+        },
+        "celebration": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "party-horn",
+            "title": "Perfect for Every Celebration",
+            "body": ""
+          }
+        },
+        "packaging": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "gift",
+            "title": "Gift-Ready Packaging",
+            "body": ""
+          }
+        },
+        "personal": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "sparkles",
+            "title": "Personalized Holiday Treats",
+            "body": ""
+          }
+        },
+        "fresh": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "leaf",
+            "title": "Made Fresh to Order",
+            "body": ""
+          }
+        }
+      },
+      "block_order": [
+        "celebration",
+        "packaging",
+        "personal",
+        "fresh"
+      ],
+      "settings": {
+        "media_position": "end",
+        "heading_gap": 48,
+        "card_title_size": 20,
+        "columns": 4,
+        "columns_md": 2,
+        "columns_sm": "1",
+        "section_width": "page-width",
+        "background": "purple",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 80,
+        "padding-block-end": 80,
+        "show_lead": true,
+        "card_gap": 20,
+        "card_radius": 20
+      }
+    },
+    "you_may_also_like": {
+      "type": "shop-by-occasion",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>You may also like</h2>"
+          }
+        }
+      },
+      "block_order": [
+        "heading"
+      ],
+      "settings": {
+        "collections": [
+          "birthday",
+          "christmas-treats",
+          "halloween",
+          "deluxe-gift-box"
+        ],
+        "max_collections": 4
+      }
+    },
+    "related_products": {
+      "type": "best-sellers",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>Related Products</h2>"
+          }
+        },
+        "cta": {
+          "type": "_ui-link",
+          "static": true,
+          "settings": {
+            "label": "View all products",
+            "link": "shopify://collections/all",
+            "variant": "primary"
+          }
+        }
+      },
+      "settings": {
+        "source": "chosen",
+        "products": [
+          "12-pack-of-custom-treats",
+          "12-pack-choose-your-own",
+          "birthday-12-pack",
+          "assorted-12-pack",
+          "gluten-free-12-pack"
+        ],
+        "max_products": 5,
+        "heading_alignment": "start",
+        "cta_position": "heading",
+        "media_ratio": "240 / 215",
+        "columns": 5,
+        "columns_md": 4,
+        "columns_sm": 3,
+        "section_width": "page-width",
+        "background": "light-blue",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 80,
+        "padding-block-end": 80
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>How can <em>we help?</em></h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32
+          }
+        },
+        "kinds": {
+          "type": "_ui-faq-item",
+          "settings": {
+            "question": "What types of treats do you offer?",
+            "answer": "<p>Handcrafted Krispie treats in twelve-packs, gift boxes and party bars, plus custom photo treats and gluten-free options. Every box is made to order in small batches.</p>"
+          }
+        },
+        "customize": {
+          "type": "_ui-faq-item",
+          "settings": {
+            "question": "Can I customize my order?",
+            "answer": "<p>Yes. Choose your own mix of flavors, add a printed photo, and include a gift message at checkout. Corporate orders can carry your branding.</p>"
+          }
+        },
+        "allergies": {
+          "type": "_ui-faq-item",
+          "settings": {
+            "question": "Do you accommodate food allergies or dietary restrictions?",
+            "answer": "<p>We make gluten-free treats, and every product page lists its full ingredients and allergens. Our kitchen handles milk, tree nuts, peanut, soy and gluten, so we cannot promise a trace-free box.</p>"
+          }
+        },
+        "lead_time": {
+          "type": "_ui-faq-item",
+          "settings": {
+            "question": "How far in advance should I place my order?",
+            "answer": "<p>Most orders are made fresh and ship within 24 hours. For a dated delivery or a large corporate order, three to five business days ahead is safest.</p>"
+          }
+        },
+        "storage": {
+          "type": "_ui-faq-item",
+          "settings": {
+            "question": "How do I store my treats after receiving them?",
+            "answer": "<p>Keep them refrigerated below 18°C in their original packaging and enjoy them within 14 days. Let a treat sit at room temperature for 10 to 15 minutes before serving.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "kinds",
+        "customize",
+        "allergies",
+        "lead_time",
+        "storage"
+      ],
+      "settings": {
+        "exclusive": true,
+        "heading_gap": 48,
+        "section_width": "page-width",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 80,
+        "padding-block-end": 80
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Newsletter</h2>"
+          }
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Subscribe to our newsletter and be the first to hear about new arrivals, exclusive offers, seasonal collections, and special promotions.</p>",
+            "text_size": 16,
+            "text_size_mobile": 14
+          }
+        },
+        "signup": {
+          "type": "_ui-newsletter-form",
+          "static": true,
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "heading",
+        "body"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero",
+    "products",
+    "testimonials",
+    "why_choose_us",
+    "you_may_also_like",
+    "related_products",
+    "faq",
+    "newsletter"
+  ]
+}
