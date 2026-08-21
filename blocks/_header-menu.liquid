@@ -884,15 +884,21 @@
       height: 100%;
     }
 
+    /* Every top-level item takes the pill, not only the ones that open a panel.
+       An item that goes straight to a page answers a pointer the same way as one
+       that drops — otherwise half the row responds and half looks dead, and which
+       half is which is not something a reader can see before pointing at it. Only
+       the caret below stays behind `:has(.menu-list__submenu)`, because only those
+       items have one to turn. */
     #header-component[data-menu-style='menu']
-      .menu-list__list-item:has(.menu-list__submenu):where(:hover, :focus-within)
+      .menu-list__list-item:where(:hover, :focus-within)
       > .menu-list__link {
       --menu-top-level-font-color: var(--ui-color-white);
       --menu-top-level-font-color-rgb: 255 255 255;
     }
 
     #header-component[data-menu-style='menu']
-      .menu-list__list-item:has(.menu-list__submenu):where(:hover, :focus-within)
+      .menu-list__list-item:where(:hover, :focus-within)
       > .menu-list__link::before {
       content: '';
       position: absolute;
