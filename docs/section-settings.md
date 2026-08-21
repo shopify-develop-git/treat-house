@@ -435,6 +435,16 @@ things that fall out of that and are easy to get wrong:
 
 ### Per-product overrides are metafields, and the block holds the default
 
+The same goes for a collection. `templates/collection.json` is one template behind
+eight occasion pages, so anything that differs between them is a metafield and the
+section holds the floor — `collection-hero` reads `custom.hero_image` and falls back
+to its own picker, which is the picture every collection shares until one says
+otherwise.
+
+Note which field it does **not** read. `collection.image` is the catalogue thumbnail
+and is spoken for elsewhere; a banner is 3.37:1 with room in the middle for a heading
+and a thumbnail is not. Two jobs, two fields.
+
 The product page's editorial copy is set once in the theme editor and overridden per
 product, so a shop's hundredth product is not a hundred settings. Every block that
 takes an override names the field it reads, and a blank metafield leaves the block's
@@ -450,6 +460,7 @@ own wording standing:
 | `ships_from`, `estimated_delivery`, `shipping_method` | text | `_ui-product-detail-row` |
 | `ingredients_summary`, `ingredients_full` | text / richtext | `_ui-product-panel` |
 | `storage_summary`, `storage_full` | text / richtext | `_ui-product-panel` |
+| `hero_image`, `hero_image_mobile` | file (image) | `collection-hero`, on a collection |
 
 The two lists are lists for the reason §0 gives: a shop that wants a fourth claim on
 one product adds a line, rather than waiting for a fourth setting. The metafield key

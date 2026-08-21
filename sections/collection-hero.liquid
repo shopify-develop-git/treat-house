@@ -7,10 +7,21 @@
   inside the page column rather than running to the window edge, which is what the
   20px radius is for.
 
-  The words and the picture are the template's, not the collection's. The heading and
-  the copy are ordinary [_ui-heading] and [_ui-text] blocks a merchant types into, and
-  the photograph is the section's own picker — this is a banner laid out per template,
-  the way any other section is.
+  The words are the template's, not the collection's. The heading and the copy are
+  ordinary [_ui-heading] and [_ui-text] blocks a merchant types into — this is a
+  banner laid out per template, the way any other section is.
+
+  The picture is the collection's, but through a metafield of its own and not through
+  `collection.image`. That field is spoken for in production, and a banner and a
+  thumbnail are not the same picture anyway: one is 3.37:1 with room in the middle for
+  a heading, the other is whatever the catalogue needs.
+
+  So `custom.hero_image` on the collection, with the section's picker behind it — the
+  metafield is the per-collection answer and the picker is the floor for a template
+  eight collections share. That is the bargain `docs/section-settings.md` describes for
+  the product page, and a blank metafield leaves the section's own picture standing.
+  The key is a setting rather than a constant, so the name is the merchant's and this
+  file is not the only place it is written down.
 
   Both blocks can read the collection instead: their `source` setting offers
   `collection_title` and `collection_description`, and on that path the two-tone accent
@@ -49,6 +60,25 @@
 
   assign hero_image = section.settings.image
   assign hero_image_mobile = section.settings.image_mobile
+
+  # The collection's own banner wins over the template's. `.value` is what a
+  # file_reference hands back — the metafield object itself is not an image, and
+  # asking it for a URL renders nothing rather than failing loudly.
+  assign image_key = section.settings.image_metafield
+  if image_key != blank
+    assign from_collection = hero_collection.metafields.custom[image_key].value
+    if from_collection != blank
+      assign hero_image = from_collection
+    endif
+  endif
+
+  assign image_key_mobile = section.settings.image_mobile_metafield
+  if image_key_mobile != blank
+    assign from_collection_mobile = hero_collection.metafields.custom[image_key_mobile].value
+    if from_collection_mobile != blank
+      assign hero_image_mobile = from_collection_mobile
+    endif
+  endif
 
   # Either picker on its own is a whole banner. Only both empty holds the frame.
   if hero_image == blank
@@ -266,14 +296,35 @@
     {
       "type": "image_picker",
       "id": "image",
-      "label": "t:settings.image",
-      "info": "The banner behind the words. Left empty, the frame is held with a placeholder."
+      "label": "Banner, every collection",
+      "info": "The floor for a template every collection shares. A collection that fills in its own metafield below wins over this. With neither, the frame is held with a placeholder."
     },
     {
       "type": "image_picker",
       "id": "image_mobile",
-      "label": "Banner on mobile",
+      "label": "Banner on mobile, every collection",
       "info": "A crop cut for the taller shape a phone gives the banner. Left empty, the desktop picture is centre-cropped and loses about three fifths of its width."
+    },
+    {
+      "type": "header",
+      "content": "Per collection"
+    },
+    {
+      "type": "paragraph",
+      "content": "Add these under Settings → Custom data → Collections as File metafields that accept images, then fill them in per collection. A collection that leaves one blank falls back to the pictures above."
+    },
+    {
+      "type": "text",
+      "id": "image_metafield",
+      "label": "Banner metafield",
+      "info": "The key under the custom namespace. Empty switches the metafield off.",
+      "default": "hero_image"
+    },
+    {
+      "type": "text",
+      "id": "image_mobile_metafield",
+      "label": "Mobile banner metafield",
+      "default": "hero_image_mobile"
     },
     {
       "type": "checkbox",
