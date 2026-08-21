@@ -37,7 +37,6 @@
     },
     "home_hero_Kx9Ln4": {
       "type": "home-hero",
-      "name": "Home hero",
       "blocks": {
         "heading": {
           "type": "_ui-heading",
@@ -48,11 +47,12 @@
         "copy": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Discover handcrafted Krispie treats made with premium ingredients, designed to celebrate life's biggest moments\u2014from birthdays to corporate gifting.</p>"
+            "text": "<p>Discover handcrafted Krispie treats made with premium ingredients, designed to celebrate life's biggest moments—from birthdays to corporate gifting.</p>"
           }
         },
         "buttons": {
           "type": "_ui-link-row",
+          "settings": {},
           "blocks": {
             "primary": {
               "type": "_ui-link",
@@ -84,6 +84,9 @@
         "review-line": {
           "type": "_ui-review-line",
           "static": true,
+          "settings": {
+            "image": "shopify://shop_images/review-line-composite.webp"
+          },
           "blocks": {
             "one": {
               "type": "_ui-avatar",
@@ -122,10 +125,7 @@
             "three",
             "four",
             "five"
-          ],
-          "settings": {
-            "image": "shopify://shop_images/review-line-composite.webp"
-          }
+          ]
         }
       },
       "block_order": [
@@ -134,13 +134,13 @@
         "buttons",
         "gifting"
       ],
+      "name": "Home hero",
       "settings": {
         "image": "shopify://shop_images/home-hero-image.webp"
       }
     },
     "our_story_Vt6Rw1": {
       "type": "our-story",
-      "name": "Our story",
       "blocks": {
         "heading": {
           "type": "_ui-heading",
@@ -159,6 +159,7 @@
         "heading",
         "body"
       ],
+      "name": "Our story",
       "settings": {
         "image": "shopify://shop_images/our-story-image.webp"
       }
@@ -189,7 +190,9 @@
           "birthday-12-pack",
           "assorted-12-pack",
           "gluten-free-12-pack"
-        ]
+        ],
+        "source": "collection",
+        "collection": "choose-your-own-treat"
       }
     },
     "custom_treats_preview": {
@@ -212,17 +215,17 @@
         }
       },
       "settings": {
-        "heading_alignment": "center",
-        "cta_position": "below",
-        "background": "white",
-        "media_ratio": "4 / 3",
         "products": [
           "12-pack-of-custom-birthday-treats",
           "12-pack-of-custom-baby-shower",
           "12-pack-of-custom-graduation-treats",
           "12-pack-of-custom-wedding-treats",
           "custom-college-deluxe"
-        ]
+        ],
+        "heading_alignment": "center",
+        "cta_position": "below",
+        "media_ratio": "4 / 3",
+        "background": "white"
       }
     },
     "corporate_gifts_preview": {
@@ -249,9 +252,11 @@
         "stat-row": {
           "type": "_ui-stat-row",
           "static": true,
+          "settings": {},
           "blocks": {
             "one": {
-              "type": "_ui-stat"
+              "type": "_ui-stat",
+              "settings": {}
             },
             "two": {
               "type": "_ui-stat",
@@ -299,7 +304,7 @@
         "body": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>The Andrew McDonough B+ Foundation honors the life of Andrew McDonough. Andrew battled leukemia, septic shock, and complications of childhood cancer for 167 days before passing away on July 14, 2007, at the age of 14.</p><p>Andrew's B+ blood type became his family's and friends' motto throughout his fight against childhood cancer \u2014 to \u201cBe Positive\u201d. The B+ Foundation is the largest provider of financial assistance to families of kids with cancer nationwide.</p><p>Additionally, The B+ Foundation funds cutting-edge childhood cancer research and advocates on behalf of kids with cancer.</p>"
+            "text": "<p>The Andrew McDonough B+ Foundation honors the life of Andrew McDonough. Andrew battled leukemia, septic shock, and complications of childhood cancer for 167 days before passing away on July 14, 2007, at the age of 14.</p><p>Andrew's B+ blood type became his family's and friends' motto throughout his fight against childhood cancer — to “Be Positive”. The B+ Foundation is the largest provider of financial assistance to families of kids with cancer nationwide.</p><p>Additionally, The B+ Foundation funds cutting-edge childhood cancer research and advocates on behalf of kids with cancer.</p>"
           }
         }
       },
@@ -326,9 +331,9 @@
           "type": "_ui-review-line",
           "static": true,
           "settings": {
-            "layout": "inline",
             "rating_text": "4.9 rating",
             "reviews_text": "12,000+ reviews",
+            "layout": "inline",
             "text_size": 16,
             "text_size_mobile": 14
           }
@@ -402,7 +407,8 @@
         },
         "signup": {
           "type": "_ui-newsletter-form",
-          "static": true
+          "static": true,
+          "settings": {}
         }
       },
       "block_order": [
@@ -410,12 +416,52 @@
         "body"
       ],
       "settings": {}
+    },
+    "custom_treats_banner": {
+      "type": "our-story",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2><em>Custom</em> Treats</h2>"
+          }
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Create a one-of-a-kind treat made just for you. Personalize it with your own photo, message, or design.</p>",
+            "max_width": 400
+          }
+        },
+        "cta": {
+          "type": "_ui-link",
+          "settings": {
+            "label": "Create your custom treat",
+            "link": "shopify://pages/customize",
+            "variant": "primary"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "body",
+        "cta"
+      ],
+      "settings": {
+        "media_style": "cut-out",
+        "media_position": "start",
+        "text_gap": 24,
+        "background": "white",
+        "vertical_padding": 80,
+        "vertical_padding_mobile": 64
+      }
     }
   },
   "order": [
     "home_hero_Kx9Ln4",
     "shop_by_occasion_preview",
     "best_sellers_preview",
+    "custom_treats_banner",
     "custom_treats_preview",
     "our_story_Vt6Rw1",
     "corporate_gifts_preview",
