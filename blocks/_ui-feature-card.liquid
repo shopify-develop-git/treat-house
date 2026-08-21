@@ -17,6 +17,16 @@
 
 {%- if block.settings.title != blank or block.settings.body != blank -%}
   <div class="ui-feature-card-block" {{ block.shopify_attributes }}>
+    {%- comment -%}
+      The pill straddling the card's top edge on a numbered row. It belongs to the
+      wrapper rather than to [ui-feature-card] because it is not part of what that
+      card is — it is the row saying which of its cards this one is, and a card
+      standing on its own never wears one.
+    {%- endcomment -%}
+    {%- if block.settings.badge != blank -%}
+      <span class="ui-feature-card-block__badge">{{ block.settings.badge }}</span>
+    {%- endif -%}
+
     {% render 'ui-feature-card',
       icon: card_icon,
       title: block.settings.title,
@@ -32,8 +42,32 @@
    * columns stop matching, and its height, or the card inside cannot fill the row.
    */
   .ui-feature-card-block {
+    position: relative;
     display: flex;
     min-inline-size: 0;
+  }
+
+  /*
+   * Centred on the card's top edge and lifted by half its own height, so it sits
+   * across the edge the way the file draws it whatever the badge's height is.
+   */
+  .ui-feature-card-block__badge {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    z-index: 1;
+    inline-size: fit-content;
+    margin-inline: auto;
+    padding: 4px 8px;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-primary);
+    color: var(--ui-color-white);
+    font-family: var(--ui-font-accent);
+    font-weight: var(--font-accent--weight-semibold, 600);
+    font-size: 12px;
+    line-height: 1.35;
+    text-transform: uppercase;
+    transform: translateY(-50%);
   }
 
   .ui-feature-card-block > .ui-feature-card {
@@ -128,11 +162,33 @@
           "label": "Leaf"
         },
         {
+          "value": "box-add",
+          "label": "Box"
+        },
+        {
+          "value": "document",
+          "label": "Document"
+        },
+        {
+          "value": "audit",
+          "label": "Document under review"
+        },
+        {
+          "value": "badge-check",
+          "label": "Approved"
+        },
+        {
           "value": "rating-star",
           "label": "Star"
         }
       ],
       "default": "gift"
+    },
+    {
+      "type": "text",
+      "id": "badge",
+      "label": "Badge",
+      "info": "A pill across the card's top edge, for a row that is a sequence. Empty on an ordinary card."
     },
     {
       "type": "text",

@@ -1,0 +1,232 @@
+{% comment %}
+  Trusted by (Figma: V1 Wholesale → Trusted by, 508:13392).
+
+  A line of type over a row of customers' marks. The marks are [_ui-logo] blocks, so
+  the row is however many the shop actually has — the file draws eight and a shop
+  with five should show five rather than three grey boxes.
+
+  The heading is a block for the reason `docs/section-settings.md` opens with: it is
+  words a merchant writes. It is drawn smaller than a section heading here — 30
+  against 48 — which is the block's own size setting rather than a figure baked in.
+
+  Three counts, as CLAUDE.md asks. Eight across is the file's, and it only earns
+  that from 1200: at 750 eight marks are 73px each, which is a wordmark nobody can
+  read. Four in the middle, two on a phone.
+{% endcomment %}
+
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="logo-row-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div
+    class="logo-row"
+    style="
+      --logo-row-gap: {{ section.settings.heading_gap }}px;
+      --logo-row-columns: {{ section.settings.columns }};
+      --logo-row-columns-md: {{ section.settings.columns_md }};
+      --logo-row-columns-sm: {{ section.settings.columns_sm }};
+      --ui-logo-height: {{ section.settings.logo_height }}px;
+    "
+  >
+    <div class="logo-row__title">
+      {% content_for 'block', type: '_ui-heading', id: 'heading' %}
+    </div>
+
+    <div class="logo-row__marks">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .logo-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--logo-row-gap, 48px);
+  }
+
+  .logo-row__title {
+    text-align: center;
+  }
+
+  .logo-row .logo-row__title:not(:has(*)) {
+    display: none;
+  }
+
+  .logo-row__title > :is(.ui-heading, h1, h2, h3) {
+    margin: 0;
+  }
+
+  .logo-row__marks {
+    display: grid;
+    grid-template-columns: repeat(var(--logo-row-columns-sm, 2), minmax(0, 1fr));
+    align-items: center;
+    gap: 20px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .logo-row__marks {
+      grid-template-columns: repeat(var(--logo-row-columns-md, 4), minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    .logo-row__marks {
+      grid-template-columns: repeat(var(--logo-row-columns, 8), minmax(0, 1fr));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Logo row",
+  "tag": "section",
+  "blocks": [
+    {
+      "type": "_ui-logo"
+    }
+  ],
+  "settings": [
+    {
+      "type": "range",
+      "id": "heading_gap",
+      "label": "Gap under the heading",
+      "min": 16,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "logo_height",
+      "label": "Mark height",
+      "min": 45,
+      "max": 165,
+      "step": 5,
+      "unit": "px",
+      "default": 105
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Marks across from 1200px",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "columns_md",
+      "label": "Marks across 750–1199px",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "columns_sm",
+      "label": "Marks across below 750px",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "Logo row",
+      "category": "t:categories.storytelling",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2><em>Trusted by</em> retailers, cafés &amp; corporate teams</h2>",
+            "heading_size": 30,
+            "heading_size_mobile": 24
+          }
+        },
+        "one": {
+          "type": "_ui-logo"
+        },
+        "two": {
+          "type": "_ui-logo"
+        },
+        "three": {
+          "type": "_ui-logo"
+        },
+        "four": {
+          "type": "_ui-logo"
+        }
+      },
+      "block_order": ["one", "two", "three", "four"]
+    }
+  ]
+}
+{% endschema %}

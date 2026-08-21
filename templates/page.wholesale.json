@@ -65,6 +65,180 @@
         "marquee_repeat": 8
       }
     },
+    "claims": {
+      "type": "step-cards",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": ""
+          }
+        },
+        "gluten": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "wheat-slash",
+            "title": "Certified Gluten Free",
+            "body": "<p>Consistent quality at wholesale volume.</p>"
+          }
+        },
+        "minimums": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "box-add",
+            "title": "Low Minimums",
+            "body": "<p>Case packs sized for retail and café shelves.</p>"
+          }
+        },
+        "seasonal": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "sparkles",
+            "title": "Seasonal Flavors",
+            "body": "<p>One point of contact from application to reorder.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "gluten",
+        "minimums",
+        "seasonal"
+      ],
+      "settings": {
+        "show_connector": false,
+        "heading_gap": 64,
+        "columns": 3,
+        "columns_md": 2,
+        "columns_sm": "1",
+        "card_background": "light-blue",
+        "background": "white",
+        "padding-block-start": 80,
+        "padding-block-end": 80
+      }
+    },
+    "trusted": {
+      "type": "logo-row",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2><em>Trusted by</em> retailers, cafés &amp; corporate teams</h2>",
+            "heading_size": 30,
+            "heading_size_mobile": 24
+          }
+        },
+        "logo1": {
+          "type": "_ui-logo",
+          "settings": {}
+        },
+        "logo2": {
+          "type": "_ui-logo",
+          "settings": {}
+        },
+        "logo3": {
+          "type": "_ui-logo",
+          "settings": {}
+        },
+        "logo4": {
+          "type": "_ui-logo",
+          "settings": {}
+        },
+        "logo5": {
+          "type": "_ui-logo",
+          "settings": {}
+        },
+        "logo6": {
+          "type": "_ui-logo",
+          "settings": {}
+        },
+        "logo7": {
+          "type": "_ui-logo",
+          "settings": {}
+        },
+        "logo8": {
+          "type": "_ui-logo",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "logo1",
+        "logo2",
+        "logo3",
+        "logo4",
+        "logo5",
+        "logo6",
+        "logo7",
+        "logo8"
+      ],
+      "settings": {
+        "heading_gap": 48,
+        "logo_height": 105,
+        "columns": 8,
+        "columns_md": 4,
+        "columns_sm": "2",
+        "padding-block-start": 80,
+        "padding-block-end": 80
+      }
+    },
+    "steps": {
+      "type": "step-cards",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>How wholesale <em>works</em></h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32
+          }
+        },
+        "apply": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "badge": "Step 1",
+            "icon": "document",
+            "title": "Submit Your Application",
+            "body": "<p>Complete the wholesale inquiry form and tell us about your business.</p>"
+          }
+        },
+        "review": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "badge": "Step 2",
+            "icon": "audit",
+            "title": "Application Review",
+            "body": "<p>Our team reviews your business information and contacts you if additional details are needed.</p>"
+          }
+        },
+        "approved": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "badge": "Step 3",
+            "icon": "badge-check",
+            "title": "Get Approved",
+            "body": "<p>Once approved, you will be given access to our wholesale page.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "apply",
+        "review",
+        "approved"
+      ],
+      "settings": {
+        "show_connector": true,
+        "heading_gap": 64,
+        "columns": 3,
+        "columns_md": 2,
+        "columns_sm": "1",
+        "card_background": "light-blue",
+        "background": "white",
+        "padding-block-start": 80,
+        "padding-block-end": 80
+      }
+    },
     "apply": {
       "type": "wholesale-form",
       "blocks": {
@@ -168,6 +342,9 @@
   },
   "order": [
     "hero",
+    "claims",
+    "trusted",
+    "steps",
     "apply",
     "contact"
   ]

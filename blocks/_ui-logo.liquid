@@ -1,0 +1,81 @@
+{%- doc -%}
+  One mark in a row of them (Figma: V1 Wholesale → Trusted by, 508:13395).
+
+  A picture in a fixed-height box, set inside it whole rather than cropped to fill:
+  these are wordmarks of different proportions and a crop would cut the words off.
+
+  The height is the row's, handed down, so eight marks line up on one baseline
+  without each block being told what the row is doing.
+
+  Left without a picture the block renders nothing. A row of grey rectangles says
+  less than a shorter row of real marks.
+{%- enddoc -%}
+
+{%- if block.settings.image != blank -%}
+  <div class="ui-logo" {{ block.shopify_attributes }}>
+    {%- if block.settings.link != blank -%}
+      <a class="ui-logo__link" href="{{ block.settings.link }}">
+    {%- endif -%}
+
+    {% render 'image',
+      image: block.settings.image,
+      height: 210,
+      class: 'ui-logo__image',
+      alt: block.settings.name
+    %}
+
+    {%- if block.settings.link != blank -%}
+      </a>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .ui-logo,
+  .ui-logo__link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 100%;
+    min-inline-size: 0;
+    block-size: var(--ui-logo-height, 105px);
+  }
+
+  .ui-logo__image {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    /* Whole, not cropped — see the note above. */
+    object-fit: contain;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Logo",
+  "tag": null,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image"
+    },
+    {
+      "type": "text",
+      "id": "name",
+      "label": "Who it is",
+      "info": "Read out in place of the picture. Leave empty for a mark that is decoration rather than information."
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:settings.link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Logo"
+    }
+  ]
+}
+{% endschema %}

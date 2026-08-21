@@ -1,0 +1,333 @@
+{% comment %}
+  A row of tinted cards, optionally numbered and joined (Figma: V1 Wholesale —
+  the three claims at 508:13330 and How wholesale works at 508:13404).
+
+  The file draws those two as the same row twice. The claims are three cards and
+  nothing else; the steps are the same three cards under a heading, each wearing a
+  pill on its top edge, with a dashed line running behind them. So this is one
+  section with the heading, the numbering and the line each able to be absent,
+  rather than two that would drift the first time a card's padding moves.
+
+  The cards are [_ui-feature-card] blocks and the pill is that block's own `badge`.
+  A merchant runs three or four; the count is however many blocks are in the row.
+
+  The line is drawn by the row rather than between the cards. It runs the row's full
+  width at the cards' vertical centre and passes behind them, so only the gaps show —
+  which is what the file draws and what survives a card growing a line of copy.
+
+  Three counts, not two, as CLAUDE.md asks: three across from 1200, two from 750, one
+  below. Held at three from 750 a card is 230 wide against the 413 it is drawn at,
+  and "Submit Your Application" starts wrapping to three lines.
+{% endcomment %}
+
+<div class="section-background color-{{ section.settings.color_scheme }} step-cards-bg step-cards-bg--{{ section.settings.background }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="step-cards-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div
+    class="step-cards step-cards--cards-{{ section.settings.card_background }}{% if section.settings.show_connector %} step-cards--joined{% endif %}"
+    style="
+      --step-cards-heading-gap: {{ section.settings.heading_gap }}px;
+      --step-cards-columns: {{ section.settings.columns }};
+      --step-cards-columns-md: {{ section.settings.columns_md }};
+      --step-cards-columns-sm: {{ section.settings.columns_sm }};
+    "
+  >
+    {%- comment -%}
+      Blank on the cut that draws no heading, which is what an empty field gives —
+      no switch needed for a thing whose absence is an empty box. The wrapper takes
+      itself out of the flow when nothing rendered into it, or the row would pay the
+      heading gap for a heading that is not there.
+    {%- endcomment -%}
+    <div class="step-cards__title">
+      {% content_for 'block', type: '_ui-heading', id: 'heading' %}
+    </div>
+
+    <div class="step-cards__row">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .section-background.step-cards-bg--light-blue {
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .section-background.step-cards-bg--white {
+    background-color: var(--ui-color-white);
+  }
+
+  .step-cards {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--step-cards-heading-gap, 64px);
+  }
+
+  .step-cards__title {
+    text-align: center;
+  }
+
+  .step-cards .step-cards__title:not(:has(*)) {
+    display: none;
+  }
+
+  .step-cards__title > :is(.ui-heading, h1, h2, h3) {
+    margin: 0;
+  }
+
+  /*
+   * The row. `position: relative` for the line behind it, and the 20px gutter is
+   * drawn geometry — 413.33 three times with 20 between is the 1280 the page column
+   * already caps at.
+   */
+  .step-cards__row {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--step-cards-columns-sm, 1), minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .step-cards__row {
+      grid-template-columns: repeat(var(--step-cards-columns-md, 2), minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    .step-cards__row {
+      grid-template-columns: repeat(var(--step-cards-columns, 3), minmax(0, 1fr));
+    }
+  }
+
+  /*
+   * The dashed rule, at the row's vertical centre and behind the cards. Drawn only
+   * where the cards actually stand side by side — stacked, a line down the middle of
+   * a column of cards is not the same picture.
+   */
+  @media screen and (min-width: 750px) {
+    .step-cards--joined .step-cards__row::before {
+      content: '';
+      position: absolute;
+      inset-inline: 0;
+      inset-block-start: 50%;
+      z-index: 0;
+      display: block;
+      block-size: 0;
+      border-block-start: 1px dashed var(--ui-color-primary);
+    }
+  }
+
+  /* Above the line, so it passes behind them and shows in the gaps alone. */
+  .step-cards__row > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* The tint the file gives these cards, handed to the card through its own hook. */
+  .step-cards--cards-light-blue .step-cards__row {
+    --ui-feature-card-background: var(--ui-color-light-blue);
+  }
+
+  .step-cards__row {
+    --ui-feature-card-padding-block: 24px 20px;
+    --ui-feature-card-padding-inline: 20px;
+    --ui-feature-card-title-size: 20px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Card row",
+  "tag": "section",
+  "blocks": [
+    {
+      "type": "_ui-feature-card"
+    }
+  ],
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_connector",
+      "label": "Join the cards with a dashed line",
+      "info": "For a row that is a sequence. Drawn behind the cards, so only the gaps show it.",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "heading_gap",
+      "label": "Gap under the heading",
+      "min": 16,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Columns from 1200px",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "columns_md",
+      "label": "Columns 750–1199px",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "select",
+      "id": "columns_sm",
+      "label": "Columns below 750px",
+      "options": [
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "select",
+      "id": "card_background",
+      "label": "Card colour",
+      "options": [
+        {
+          "value": "light-blue",
+          "label": "Light blue"
+        },
+        {
+          "value": "white",
+          "label": "White"
+        }
+      ],
+      "default": "light-blue"
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Band colour",
+      "options": [
+        {
+          "value": "none",
+          "label": "Colour scheme"
+        },
+        {
+          "value": "white",
+          "label": "White"
+        },
+        {
+          "value": "light-blue",
+          "label": "Light blue"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "Card row",
+      "category": "t:categories.storytelling",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "",
+            "heading_size": 48,
+            "heading_size_mobile": 32
+          }
+        },
+        "one": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "wheat-slash",
+            "title": "Certified Gluten Free",
+            "body": "<p>Consistent quality at wholesale volume.</p>"
+          }
+        },
+        "two": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "box-add",
+            "title": "Low Minimums",
+            "body": "<p>Case packs sized for retail and café shelves.</p>"
+          }
+        },
+        "three": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "sparkles",
+            "title": "Seasonal Flavors",
+            "body": "<p>One point of contact from application to reorder.</p>"
+          }
+        }
+      },
+      "block_order": ["one", "two", "three"]
+    }
+  ]
+}
+{% endschema %}
