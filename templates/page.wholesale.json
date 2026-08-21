@@ -1,0 +1,174 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "hero": {
+      "type": "home-hero",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h1><em>Bring Treat House</em><br>to your shelves</h1>",
+            "heading_size": 44,
+            "heading_size_mobile": 32
+          }
+        },
+        "copy": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Partner with us to stock handcrafted Krispie treats in your store, café, or venue. Submit an inquiry and our wholesale team will follow up with pricing and minimums.</p>"
+          }
+        },
+        "buttons": {
+          "type": "_ui-link-row",
+          "settings": {},
+          "blocks": {
+            "primary": {
+              "type": "_ui-link",
+              "settings": {
+                "label": "Apply for wholesale",
+                "variant": "primary",
+                "link": "/pages/wholesale#apply"
+              }
+            }
+          },
+          "block_order": [
+            "primary"
+          ]
+        },
+        "review-line": {
+          "type": "_ui-review-line",
+          "static": true,
+          "settings": {
+            "image": "shopify://shop_images/review-line-composite.webp"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "copy",
+        "buttons"
+      ],
+      "settings": {
+        "image": "shopify://shop_images/corporate-gift-holiday-6-pack.webp",
+        "show_badge": false,
+        "show_reviews": true,
+        "show_marquee": true,
+        "marquee_text": "nationwide shipping",
+        "marquee_repeat": 8
+      }
+    },
+    "apply": {
+      "type": "wholesale-form",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Apply for a <em>wholesale account</em></h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32
+          }
+        },
+        "intro": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Complete the form below and we'll review your application within 1–2 business days.</p>",
+            "text_size": 16,
+            "text_size_mobile": 14
+          }
+        },
+        "sent-heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2><em>Thanks.</em><br>We have your inquiry.</h2>",
+            "heading_size": 40,
+            "heading_size_mobile": 28
+          }
+        },
+        "sent-copy": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": "<p>Your wholesale application has been received. Our team will review your information and get back to you within 1–2 business days. If we need additional details, we'll contact you using the information you provided.</p>"
+          }
+        },
+        "sent-buttons": {
+          "type": "_ui-link-row",
+          "static": true,
+          "settings": {
+            "gap": 20
+          },
+          "blocks": {
+            "home": {
+              "type": "_ui-link",
+              "settings": {
+                "label": "Return home",
+                "variant": "primary",
+                "link": "/"
+              }
+            }
+          },
+          "block_order": [
+            "home"
+          ]
+        }
+      },
+      "block_order": [
+        "heading",
+        "intro"
+      ],
+      "settings": {}
+    },
+    "contact": {
+      "type": "newsletter",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Need to <em>Contact Our Team</em></h2>"
+          }
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Have questions before applying? We'd love to help.</p><p>212-799-7779 &nbsp;·&nbsp; info@treathouse.com</p>",
+            "text_size": 16,
+            "text_size_mobile": 14
+          }
+        },
+        "cta": {
+          "type": "_ui-link",
+          "static": true,
+          "settings": {
+            "label": "Contact us",
+            "link": "/pages/contact",
+            "variant": "secondary"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "body"
+      ],
+      "settings": {
+        "action": "button",
+        "background": "light-blue",
+        "vertical_padding": 80,
+        "vertical_padding_mobile": 64
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "apply",
+    "contact"
+  ]
+}

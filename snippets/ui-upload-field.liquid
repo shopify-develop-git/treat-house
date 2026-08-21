@@ -1,0 +1,159 @@
+{%- doc -%}
+  The dashed panel a document is attached through (Figma: V1 Wholesale → Apply for a
+  wholesale account → Field/Artwork, 508:13490).
+
+  Label from [ui-input], then a 121-tall panel with a dashed edge, the upload glyph
+  and two lines: what to do, and what is accepted.
+
+  Two ways to render, and the caller picks by which parameter it passes:
+
+  - `name` makes the panel a real file field. The input lies over the whole panel at
+    zero opacity, so a click and a drop both land on it without a line of script.
+  - `link` makes the panel a link instead — for a form that cannot carry a file, where
+    a control that looks like it takes one is worse than an instruction that works.
+    Shopify's own `{% form 'contact' %}` is that case: it posts no attachment, so a
+    file input on it would swallow the document in silence.
+
+  Neither, and the panel is inert.
+
+  @param {string} label - The field label, rendered above in caps.
+  @param {string} [prompt] - The line inside the panel.
+  @param {string} [hint] - The smaller line under it, usually the formats accepted.
+  @param {string} [name] - The `name` attribute. Renders a real file input.
+  @param {string} [accept] - The `accept` attribute for that input.
+  @param {string} [link] - Renders the panel as a link instead — a `mailto:` typically.
+  @param {string} [id] - The `id` attribute. Defaults to a handle of the label.
+  @param {boolean} [required] - Marks a real input required.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-upload-field', label: 'Upload your certificate', prompt: 'Click or drag image to upload', hint: 'Supports JPG, PNG, WEBP (Max 10MB)', name: 'contact[Certificate]' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign ui_label = label | default: ''
+  assign ui_id = id
+  if ui_id == blank
+    assign ui_id = ui_label | handleize | prepend: 'ui-upload-'
+  endif
+-%}
+
+{%- capture ui_upload_inner -%}
+  <span class="ui-upload-field__glyph" aria-hidden="true">
+    {{- 'icon-ui-upload.svg' | inline_asset_content -}}
+  </span>
+  <span class="ui-upload-field__text">
+    {%- if prompt != blank -%}
+      <span class="ui-upload-field__prompt">{{ prompt }}</span>
+    {%- endif -%}
+    {%- if hint != blank -%}
+      <span class="ui-upload-field__hint">{{ hint }}</span>
+    {%- endif -%}
+  </span>
+{%- endcapture -%}
+
+<div class="ui-input ui-upload-field{% if class != blank %} {{ class }}{% endif %}">
+  {%- if ui_label != blank -%}
+    <label class="ui-input__label" for="{{ ui_id }}">{{ ui_label }}</label>
+  {%- endif -%}
+
+  {%- if name != blank -%}
+    <label class="ui-upload-field__zone" for="{{ ui_id }}">
+      {{ ui_upload_inner }}
+      <input
+        class="ui-upload-field__input"
+        type="file"
+        id="{{ ui_id }}"
+        name="{{ name }}"
+        {% if accept != blank %}accept="{{ accept }}"{% endif %}
+        {% if required %}required{% endif %}
+      >
+    </label>
+  {%- elsif link != blank -%}
+    <a class="ui-upload-field__zone" id="{{ ui_id }}" href="{{ link }}">
+      {{ ui_upload_inner }}
+    </a>
+  {%- else -%}
+    <span class="ui-upload-field__zone" id="{{ ui_id }}">
+      {{ ui_upload_inner }}
+    </span>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .ui-upload-field__zone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-block-size: var(--ui-upload-field-height, 121px);
+    padding: 12px;
+    /* Dashed, where every other field in the kit is solid — the one place the file
+       marks a box you put something into rather than type into. */
+    border: 1px dashed var(--ui-input-border-color, var(--ui-color-border-gray));
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-input-background, var(--ui-color-white));
+    text-align: center;
+    text-decoration: none;
+  }
+
+  a.ui-upload-field__zone:hover,
+  a.ui-upload-field__zone:focus-visible,
+  label.ui-upload-field__zone:hover,
+  .ui-upload-field__zone:focus-within {
+    border-color: var(--ui-input-border-color-engaged, var(--ui-color-primary));
+  }
+
+  .ui-upload-field__glyph {
+    display: block;
+    flex: 0 0 auto;
+    inline-size: 32px;
+    block-size: 34px;
+    color: var(--ui-color-primary);
+  }
+
+  .ui-upload-field__glyph > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .ui-upload-field__text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    inline-size: 100%;
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+  }
+
+  .ui-upload-field__prompt {
+    color: var(--ui-color-black);
+    font-size: 14px;
+    line-height: var(--ui-line-height);
+  }
+
+  .ui-upload-field__hint {
+    color: var(--ui-color-gray);
+    font-size: 12px;
+    line-height: 1.1;
+  }
+
+  /*
+   * Over the whole panel rather than hidden away in a corner, which is what makes a
+   * drop land on it. Invisible, so the panel the file draws is what shows.
+   */
+  .ui-upload-field__input {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+{% endstylesheet %}

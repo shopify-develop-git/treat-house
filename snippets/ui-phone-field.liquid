@@ -1,0 +1,183 @@
+{%- doc -%}
+  A telephone field with its dialling code in a filled block beside it (Figma:
+  V1 Wholesale → Apply for a wholesale account → Field/Email, 508:13452 — the
+  component is named for the field it was copied from; the control is a phone).
+
+  Built on [ui-input]: the label, the box and every colour are that field's, read
+  through the same custom properties, so a phone and a name line up and change
+  together. What is added is the code block — 44 square, filled in the brand
+  purple, the code in white — and the 7px between it and the number.
+
+  The code is a real `<select>` drawn without its chrome, not a block with a
+  decorative caret over a hidden control. It keeps its own text, so the chosen code
+  shows without a line of script; a caret that needs JavaScript to tell the truth is
+  a caret that lies with it off.
+
+  One code offered and the select is a block instead. A control that cannot be
+  changed should not look like one.
+
+  @param {string} label - The field label, rendered above in caps.
+  @param {string} [name] - The `name` attribute for the number.
+  @param {string} [code_name] - The `name` attribute for the dialling code. Without it the code is not submitted.
+  @param {string} [codes] - Comma separated dialling codes. Defaults to `+1`.
+  @param {string} [value] - The current number.
+  @param {string} [code_value] - The code to select. Defaults to the first offered.
+  @param {string} [placeholder] - Placeholder for the number.
+  @param {string} [hint] - Helper line under the field.
+  @param {string} [error] - The error message. Puts the field in the error state.
+  @param {string} [id] - The `id` attribute. Defaults to a handle of the label.
+  @param {boolean} [required] - Marks the number required.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {% render 'ui-phone-field', label: 'Customer phone', name: 'contact[Phone]', code_name: 'contact[Dialling code]' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign ui_label = label | default: ''
+  assign ui_id = id
+  if ui_id == blank
+    assign ui_id = ui_label | handleize | prepend: 'ui-phone-'
+  endif
+
+  assign ui_codes = codes | default: '+1' | split: ','
+  assign ui_code_value = code_value | default: ui_codes[0] | strip
+  assign ui_placeholder = placeholder | default: ' '
+-%}
+
+<div class="ui-input ui-phone-field{% if error != blank %} ui-input--error{% endif %}{% if class != blank %} {{ class }}{% endif %}">
+  {%- if ui_label != blank -%}
+    <label class="ui-input__label" for="{{ ui_id }}">{{ ui_label }}</label>
+  {%- endif -%}
+
+  <div class="ui-phone-field__row">
+    <span class="ui-phone-field__code{% if ui_codes.size > 1 %} ui-phone-field__code--choice{% endif %}">
+      {%- if ui_codes.size > 1 -%}
+        <select
+          class="ui-phone-field__select"
+          {% if code_name != blank %}name="{{ code_name }}"{% endif %}
+          aria-label="Dialling code"
+        >
+          {%- for code in ui_codes -%}
+            {%- assign trimmed = code | strip -%}
+            <option value="{{ trimmed | escape }}" {% if trimmed == ui_code_value %}selected{% endif %}>{{ trimmed }}</option>
+          {%- endfor -%}
+        </select>
+        <span class="ui-phone-field__caret" aria-hidden="true">
+          {{- 'icon-ui-caret-down.svg' | inline_asset_content -}}
+        </span>
+      {%- else -%}
+        {{ ui_code_value }}
+        {%- if code_name != blank -%}
+          <input type="hidden" name="{{ code_name }}" value="{{ ui_code_value | escape }}">
+        {%- endif -%}
+      {%- endif -%}
+    </span>
+
+    <input
+      class="ui-input__control ui-phone-field__number"
+      type="tel"
+      inputmode="tel"
+      id="{{ ui_id }}"
+      placeholder="{{ ui_placeholder }}"
+      value="{{ value }}"
+      {% if name != blank %}name="{{ name }}"{% endif %}
+      {% if required %}required{% endif %}
+      {%- if error != blank %} aria-invalid="true" aria-describedby="{{ ui_id }}-message"
+      {%- elsif hint != blank %} aria-describedby="{{ ui_id }}-message"{% endif %}
+    >
+  </div>
+
+  {%- if error != blank -%}
+    <p class="ui-input__message ui-input__message--error" id="{{ ui_id }}-message">{{ error }}</p>
+  {%- elsif hint != blank -%}
+    <p class="ui-input__message" id="{{ ui_id }}-message">{{ hint }}</p>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .ui-phone-field__row {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    inline-size: 100%;
+  }
+
+  /*
+   * The filled square holding the code. It carries the height rather than the
+   * control inside it, so the code and the number stay level whatever the field's
+   * height is set to.
+   */
+  .ui-phone-field__code {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    inline-size: var(--ui-input-height, 44px);
+    block-size: var(--ui-input-height, 44px);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-primary);
+    color: var(--ui-color-white);
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: var(--ui-input-font-size, 15px);
+    line-height: 1.35;
+  }
+
+  /* The caret needs 8 of the block and 2 beside it, which the code has to clear. */
+  .ui-phone-field__code--choice {
+    padding-inline-end: 10px;
+  }
+
+  /*
+   * The select keeps its own text — only its chrome comes off. Sized to the block
+   * so the whole 44 square is the hit area, and transparent so the block's fill
+   * shows through.
+   */
+  .ui-phone-field__select {
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: 100%;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: center;
+    text-align-last: center;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .ui-phone-field__select:focus-visible {
+    outline: 2px solid var(--ui-color-white);
+    outline-offset: -3px;
+  }
+
+  /* A dropped-open select paints its list with the page's colours, not the block's. */
+  .ui-phone-field__select > option {
+    color: var(--ui-color-black);
+  }
+
+  .ui-phone-field__caret {
+    position: absolute;
+    inset-inline-end: 8px;
+    display: block;
+    inline-size: 8px;
+    block-size: 10px;
+    pointer-events: none;
+  }
+
+  .ui-phone-field__caret > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .ui-phone-field .ui-phone-field__number {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+{% endstylesheet %}

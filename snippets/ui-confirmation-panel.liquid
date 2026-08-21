@@ -1,0 +1,96 @@
+{%- doc -%}
+  The tinted panel a form is replaced by once it has been sent (Figma: 508:12684 on
+  the corporate quote, 508:12824 on the wholesale application — the same panel with
+  different words and one button instead of two).
+
+  Chrome only: the light blue ground, the 20px corners, the star, and the rhythm the
+  file sets inside — 48 from the star to the words, 16 between the headline and the
+  copy, 48 again down to the buttons. What goes in it is the caller's, captured and
+  passed as `content`, because those are blocks a merchant edits and this snippet
+  should not know what they say.
+
+  The 48 below the copy is the caller's to place on its own buttons: the column here
+  runs at 16 so a headline and its paragraph sit together, and a row of buttons adds
+  the other 32.
+
+  @param {string} content - The captured markup that goes in the panel.
+  @param {string} [class] - Additional CSS classes.
+
+  @example
+  {%- capture sent -%}{% content_for 'block', type: '_ui-heading', id: 'sent-heading' %}{%- endcapture -%}
+  {% render 'ui-confirmation-panel', content: sent %}
+{%- enddoc -%}
+
+<div class="ui-confirmation-panel{% if class != blank %} {{ class }}{% endif %}">
+  <span class="ui-confirmation-panel__star" aria-hidden="true">
+    {{- 'icon-ui-sparkle.svg' | inline_asset_content -}}
+  </span>
+
+  <div class="ui-confirmation-panel__content">
+    {{ content }}
+  </div>
+</div>
+
+{% stylesheet %}
+  .ui-confirmation-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    inline-size: 100%;
+    /* The file gives the panel no inline padding — the copy inside is capped
+       instead. On a phone the panel is the page column and the caps never come
+       into it, so it needs the padding the file did not have to write down. */
+    padding: 32px 24px 48px;
+    border-radius: 20px;
+    background-color: var(--ui-color-light-blue);
+    text-align: center;
+  }
+
+  .ui-confirmation-panel__star {
+    display: block;
+    flex: 0 0 auto;
+    inline-size: 32px;
+    block-size: 32px;
+    color: var(--ui-color-primary);
+  }
+
+  .ui-confirmation-panel__star > svg {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  /* The panel declares no gap, so this is the whole of the 48 between the star and
+     the headline. */
+  .ui-confirmation-panel__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    inline-size: 100%;
+    margin-block-start: 48px;
+  }
+
+  .ui-confirmation-panel__content > :is(.ui-heading, h1, h2, h3) {
+    margin: 0;
+  }
+
+  /* Drawn at 445 inside the 630 panel, so it wraps where the file wraps it rather
+     than running the panel's full width. */
+  .ui-confirmation-panel__content > :is(.ui-text, p) {
+    margin: 0;
+    max-inline-size: 445px;
+  }
+
+  /* 48 between the copy and the buttons: the column's own 16 and 32 more here. */
+  .ui-confirmation-panel__content > .ui-link-row {
+    margin-block-start: 32px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ui-confirmation-panel {
+      padding-inline: 16px;
+    }
+  }
+{% endstylesheet %}

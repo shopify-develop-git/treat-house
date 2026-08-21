@@ -1,0 +1,450 @@
+{% comment %}
+  Apply for a wholesale account (Figma: 508:13439, and 508:12824 for the state after
+  it is sent).
+
+  The same shape as `corporate-quote-form` and for the same reasons: two states of
+  one thing rather than two sections a merchant has to swap by hand. Shopify decides
+  which — `{% form 'contact' %}` posts to the shop, redirects back with
+  `?contact_posted=true`, and `form.posted_successfully?` is true on that render. So
+  the confirmation survives a reload, works with JavaScript off, and cannot be
+  reached by anyone who has not sent anything.
+
+  Where the quote form is one run of fields, this one is grouped: Contact info,
+  Business info, Billing address, Shipping address. Those are `<fieldset>`s with the
+  legend the file draws — purple caps over a hairline — because that is what the
+  markup is for, and a screen reader then says which address it is reading.
+
+  The fifteen fields are a fixed composition, not a merchant's list. What a merchant
+  changes is exposed: the note under the company field, the dialling codes, every
+  word around the certificate panel, and all of the confirmation, which is blocks.
+
+  The certificate panel is a link and not a file input, and that is the platform
+  rather than a shortcut. Shopify's contact form posts no attachment — a file field
+  on it takes the document and drops it without a word. So the panel is drawn as the
+  file draws it and points at an address instead. Put a form app behind this and the
+  panel becomes a real input by passing `name` in place of `link`; see
+  [ui-upload-field].
+{% endcomment %}
+
+{%- liquid
+  assign submit_label = section.settings.submit_label | default: 'Submit application'
+  assign quantity_hint = section.settings.quantity_hint
+  assign dialling_codes = section.settings.dialling_codes | default: '+1'
+-%}
+
+<div
+  class="section section--page-width spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="wholesale-form-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  {%- form 'contact', class: 'wholesale-form' -%}
+    {%- if form.posted_successfully? -%}
+      {%- capture wholesale_sent -%}
+        {% content_for 'block', type: '_ui-heading', id: 'sent-heading' %}
+        {% content_for 'block', type: '_ui-text', id: 'sent-copy' %}
+        {% content_for 'block', type: '_ui-link-row', id: 'sent-buttons' %}
+      {%- endcapture -%}
+
+      {% render 'ui-confirmation-panel', content: wholesale_sent %}
+    {%- else -%}
+      <div class="wholesale-form__intro">
+        {% content_for 'blocks' %}
+      </div>
+
+      {%- comment -%}
+        Shopify validates the email and nothing else, so its message is put on that
+        field — the error lands where the fix is rather than in a banner above a
+        form the applicant then has to search.
+      {%- endcomment -%}
+      {%- liquid
+        assign email_error = blank
+        if form.errors
+          assign email_error = form.errors.messages.email | default: form.errors.messages.form
+        endif
+      -%}
+
+      <fieldset class="wholesale-form__group">
+        <legend class="wholesale-form__legend">{{ section.settings.contact_legend }}</legend>
+
+        <div class="wholesale-form__row">
+          {% render 'ui-input',
+            label: 'Customer name',
+            name: 'contact[name]',
+            value: form.name
+          %}
+
+          {% render 'ui-phone-field',
+            label: 'Customer phone',
+            name: 'contact[Phone]',
+            code_name: 'contact[Dialling code]',
+            codes: dialling_codes
+          %}
+        </div>
+
+        <div class="wholesale-form__row">
+          {% render 'ui-input',
+            label: 'Customer email',
+            type: 'email',
+            name: 'contact[email]',
+            value: form.email,
+            error: email_error,
+            required: true
+          %}
+
+          {% render 'ui-input',
+            label: 'Company name',
+            name: 'contact[Company]',
+            hint: quantity_hint
+          %}
+        </div>
+      </fieldset>
+
+      <fieldset class="wholesale-form__group">
+        <legend class="wholesale-form__legend">{{ section.settings.business_legend }}</legend>
+
+        {% render 'ui-input',
+          label: 'Company website',
+          type: 'url',
+          name: 'contact[Company website]'
+        %}
+      </fieldset>
+
+      <fieldset class="wholesale-form__group">
+        <legend class="wholesale-form__legend">{{ section.settings.billing_legend }}</legend>
+
+        <div class="wholesale-form__row wholesale-form__row--pairs">
+          {% render 'ui-input', label: 'Billing address', name: 'contact[Billing address]' %}
+          {% render 'ui-input', label: 'Billing city', name: 'contact[Billing city]' %}
+          {% render 'ui-input', label: 'Billing state', name: 'contact[Billing state]' %}
+          {% render 'ui-input', label: 'Billing zip', name: 'contact[Billing zip]' %}
+        </div>
+      </fieldset>
+
+      <fieldset class="wholesale-form__group">
+        <legend class="wholesale-form__legend">{{ section.settings.shipping_legend }}</legend>
+
+        <div class="wholesale-form__row wholesale-form__row--pairs">
+          {% render 'ui-input', label: 'Shipping address', name: 'contact[Shipping address]' %}
+          {% render 'ui-input', label: 'Shipping city', name: 'contact[Shipping city]' %}
+          {% render 'ui-input', label: 'Shipping state', name: 'contact[Shipping state]' %}
+          {% render 'ui-input', label: 'Shipping zip', name: 'contact[Shipping zip]' %}
+        </div>
+      </fieldset>
+
+      {% render 'ui-upload-field',
+        label: section.settings.certificate_label,
+        prompt: section.settings.certificate_prompt,
+        hint: section.settings.certificate_hint,
+        link: section.settings.certificate_link,
+        class: 'wholesale-form__certificate'
+      %}
+
+      {% render 'ui-button',
+        variant: 'primary',
+        label: submit_label,
+        type: 'submit',
+        full_width: true,
+        class: 'wholesale-form__submit'
+      %}
+    {%- endif -%}
+  {%- endform -%}
+</div>
+
+{% stylesheet %}
+  /*
+   * 630 centred, whatever the page is doing around it. The section already sits in
+   * the `.section` grid's central column, so this narrows that column rather than
+   * padding itself — see the page geometry note in CLAUDE.md.
+   */
+  .wholesale-form {
+    box-sizing: border-box;
+    inline-size: 100%;
+    max-inline-size: 630px;
+    margin-inline: auto;
+  }
+
+  /*
+   * The heading and its line are drawn wider than the form — 716 against 630 — and
+   * centred on it. Given the full page column and capped, so the pair is centred on
+   * the page rather than on the form's left edge.
+   */
+  .wholesale-form__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    box-sizing: border-box;
+    inline-size: 100vw;
+    max-inline-size: 716px;
+    margin-block-end: 48px;
+    margin-inline: calc(50% - 50vw);
+    text-align: center;
+  }
+
+  @media screen and (min-width: 750px) {
+    .wholesale-form__intro {
+      /* Past 716 the intro is wider than the form, so the negative margin can go
+         and the block simply centres over it. */
+      inline-size: 716px;
+      margin-inline: calc((630px - 716px) / 2);
+    }
+  }
+
+  .wholesale-form__intro > :is(.ui-heading, h1, h2, h3) {
+    margin: 0;
+  }
+
+  .wholesale-form__intro > :is(.ui-text, p) {
+    margin: 0;
+  }
+
+  /* A fieldset carries a border and padding of its own in every browser. */
+  .wholesale-form__group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    inline-size: 100%;
+    min-inline-size: 0;
+    margin: 0 0 24px;
+    padding: 0;
+    border: none;
+  }
+
+  /*
+   * The legend, and the hairline the file draws under it. As a border on the legend
+   * rather than an element of its own: a legend is `display: block` inside a flex
+   * fieldset in every engine, so it already spans the group.
+   */
+  .wholesale-form__legend {
+    box-sizing: border-box;
+    inline-size: 100%;
+    padding: 0 0 6px;
+    border-block-end: 1px solid var(--ui-color-border-gray);
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-accent);
+    font-weight: var(--font-accent--weight-semibold, 600);
+    font-size: 12px;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  /*
+   * Two columns of 305 with 20 between, which is the 630 the form is. One column
+   * below 750, where the page has nothing like 630 to give it.
+   */
+  .wholesale-form__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .wholesale-form__row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /*
+   * The address groups run four fields as two rows of two. `align-items: start`
+   * because a field carrying a hint is taller than one that is not, and stretched
+   * they would drag their neighbour's box down with them.
+   */
+  .wholesale-form__row--pairs {
+    align-items: start;
+  }
+
+  .wholesale-form .wholesale-form__certificate {
+    margin-block-start: 0;
+  }
+
+  /*
+   * Weighed one class heavier than `.ui-button`, whose `margin: 0` is declared in
+   * the snippet's own stylesheet and wins on order against a lone class here.
+   */
+  .wholesale-form .wholesale-form__submit {
+    margin-block-start: 48px;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Wholesale application",
+  "tag": "section",
+  "blocks": [{ "type": "_ui-heading" }, { "type": "_ui-text" }, { "type": "_ui-link-row" }],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Groups"
+    },
+    {
+      "type": "text",
+      "id": "contact_legend",
+      "label": "First group",
+      "default": "Contact info"
+    },
+    {
+      "type": "text",
+      "id": "business_legend",
+      "label": "Second group",
+      "default": "Business info"
+    },
+    {
+      "type": "text",
+      "id": "billing_legend",
+      "label": "Third group",
+      "default": "Billing address"
+    },
+    {
+      "type": "text",
+      "id": "shipping_legend",
+      "label": "Fourth group",
+      "default": "Shipping address"
+    },
+    {
+      "type": "header",
+      "content": "Fields"
+    },
+    {
+      "type": "text",
+      "id": "quantity_hint",
+      "label": "Note under the company field",
+      "default": "Minimum order setup: 25 boxes"
+    },
+    {
+      "type": "text",
+      "id": "dialling_codes",
+      "label": "Dialling codes",
+      "info": "Comma separated. One code and the block is not a menu.",
+      "default": "+1"
+    },
+    {
+      "type": "text",
+      "id": "submit_label",
+      "label": "Submit button",
+      "default": "Submit application"
+    },
+    {
+      "type": "header",
+      "content": "Certificate"
+    },
+    {
+      "type": "paragraph",
+      "content": "Shopify's contact form carries no attachment, so this panel points at an address rather than taking a file. Behind a form app that does take one, it becomes a real upload."
+    },
+    {
+      "type": "text",
+      "id": "certificate_label",
+      "label": "Label",
+      "default": "Required: upload certificate of authority or tax exempt form"
+    },
+    {
+      "type": "text",
+      "id": "certificate_prompt",
+      "label": "Line inside the panel",
+      "default": "Email your certificate to info@treathouse.com"
+    },
+    {
+      "type": "text",
+      "id": "certificate_hint",
+      "label": "Line under it",
+      "default": "JPG, PNG, WEBP or PDF, up to 10MB"
+    },
+    {
+      "type": "text",
+      "id": "certificate_link",
+      "label": "Where the panel goes",
+      "default": "mailto:info@treathouse.com?subject=Wholesale%20certificate"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "Wholesale application",
+      "category": "t:categories.forms",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Apply for a <em>wholesale account</em></h2>"
+          }
+        },
+        "intro": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Complete the form below and we'll review your application within 1–2 business days.</p>"
+          }
+        },
+        "sent-heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2><em>Thanks.</em><br>We have your inquiry.</h2>",
+            "heading_size": 40,
+            "heading_size_mobile": 28
+          }
+        },
+        "sent-copy": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": "<p>Your wholesale application has been received. Our team will review your information and get back to you within 1–2 business days. If we need additional details, we'll contact you using the information you provided.</p>"
+          }
+        },
+        "sent-buttons": {
+          "type": "_ui-link-row",
+          "static": true,
+          "settings": {
+            "gap": 20
+          },
+          "blocks": {
+            "home": {
+              "type": "_ui-link",
+              "settings": {
+                "label": "Return home",
+                "variant": "primary",
+                "link": "/"
+              }
+            }
+          },
+          "block_order": ["home"]
+        }
+      },
+      "block_order": ["heading", "intro"]
+    }
+  ]
+}
+{% endschema %}
