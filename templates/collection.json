@@ -9,46 +9,6 @@
  */
 {
   "sections": {
-    "hero": {
-      "type": "collection-hero",
-      "blocks": {
-        "heading": {
-          "type": "_ui-heading",
-          "settings": {
-            "source": "custom",
-            "heading": "<h1><em>Birthday</em> Treats</h1>",
-            "heading_size": 48,
-            "heading_size_mobile": 32
-          }
-        },
-        "body": {
-          "type": "_ui-text",
-          "settings": {
-            "source": "custom",
-            "text": "<p>Shop birthday-ready packs, custom image treats, gift boxes, and choose-your-own options.</p>",
-            "text_size": 16,
-            "text_size_mobile": 14
-          }
-        }
-      },
-      "block_order": [
-        "heading",
-        "body"
-      ],
-      "settings": {
-        "image": "shopify://shop_images/collection-hero-birthday.webp",
-        "show_star": true,
-        "show_breadcrumb": true,
-        "parent_title": "Shop Treats",
-        "parent_link": "shopify://collections/all",
-        "height": 380,
-        "height_mobile": 260,
-        "section_width": "page-width",
-        "color_scheme": "scheme-1",
-        "padding-block-start": 24,
-        "padding-block-end": 0
-      }
-    },
     "products": {
       "type": "collection-products",
       "settings": {
@@ -444,7 +404,6 @@
     }
   },
   "order": [
-    "hero",
     "products",
     "customize",
     "why_choose_us",
