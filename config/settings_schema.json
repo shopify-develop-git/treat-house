@@ -102,6 +102,22 @@
     ]
   },
   {
+    "name": "Product badges",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "The badge on a product card comes from the product's tags. Tag a product Bestsellers and it wears the Bestsellers badge — nothing to fill in per product beyond the tag it already has."
+      },
+      {
+        "type": "textarea",
+        "id": "badge_rules",
+        "label": "Badges",
+        "info": "One per line, written as Name = colour. The name is both the tag looked for and the words shown, so casing here is what appears on the card. Tags are matched whatever their own casing. A product carrying several of these takes the first line that matches, so the order here is the priority. Colours: purple, orange, yellow, sky-blue.",
+        "default": "Bestsellers = orange\nNew = yellow\nGift ready = purple\nCustom photo = sky-blue"
+      }
+    ]
+  },
+  {
     "name": "t:names.colors",
     "settings": [
       {

@@ -26,9 +26,9 @@
   grid give way on their own, which they have to, since the width they get is a
   share of a grid and not a share of the viewport.
 
-  The badge on the gallery is the `custom.badge` metafield, the same pair —
-  `custom.badge` and `custom.badge_tone` — that `best-sellers` already reads for the
-  product cards. One editorial field, two places that show it.
+  The badge on the gallery comes from the product's tags, matched against the list
+  in the theme's Product badges settings — the same list the product cards read.
+  One list, every place a badge appears.
 
   The breadcrumb steps through the collection the shopper arrived from when there is
   one, and the product's first collection otherwise. One step, not all of them: a
@@ -55,11 +55,19 @@
     assign crumbs = crumb_source | slice: 0, 1
   endif
 
-  assign badge = ''
-  if section.settings.show_badge
-    assign badge = product_resource.metafields.custom.badge.value | default: product_resource.metafields.custom.badge
-  endif
 -%}
+
+{%- comment -%}
+  The gallery badge reads the same tag list the product cards read, so a product
+  tagged Bestsellers says so on the card and again on its own page without the
+  shop stating it twice. `show_badge` still decides whether this page shows it.
+{%- endcomment -%}
+{%- capture page_badge -%}
+  {%- if section.settings.show_badge -%}
+    {% render 'ui-product-badge', product: product_resource %}
+  {%- endif -%}
+{%- endcapture -%}
+{%- assign page_badge_parts = page_badge | strip | split: '|' -%}
 
 <div
   class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
@@ -82,8 +90,8 @@
       <div class="product-main__media">
         {% render 'ui-product-gallery',
           product: product_resource,
-          badge: badge,
-          badge_tone: product_resource.metafields.custom.badge_tone,
+          badge: page_badge_parts[0],
+          badge_tone: page_badge_parts[1],
           eager: true
         %}
       </div>
@@ -207,7 +215,7 @@
       "type": "checkbox",
       "id": "show_badge",
       "label": "Show the badge",
-      "info": "The product's custom.badge metafield, tinted by custom.badge_tone: purple, orange, yellow or sky-blue.",
+      "info": "Set by the product's tags, against the list in Theme settings \u2192 Product badges.",
       "default": true
     },
     {

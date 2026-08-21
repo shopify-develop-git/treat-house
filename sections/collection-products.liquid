@@ -222,6 +222,9 @@
 
               assign price = product.price | money
             -%}
+            {%- capture grid_badge -%}{% render 'ui-product-badge', product: product %}{%- endcapture -%}
+            {%- assign grid_badge_parts = grid_badge | strip | split: '|' -%}
+
             {%- capture add_control -%}
               {% render 'ui-product-card-add', product: product, section_id: section.id %}
             {%- endcapture -%}
@@ -232,8 +235,8 @@
                 price: price,
                 image: product.featured_image,
                 link: product.url,
-                badge: product.metafields.custom.badge,
-                badge_tone: product.metafields.custom.badge_tone,
+                badge: grid_badge_parts[0],
+                badge_tone: grid_badge_parts[1],
                 add_content: add_control
               %}
             </li>

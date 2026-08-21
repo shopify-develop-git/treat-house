@@ -30,8 +30,8 @@
   element `data-scrollable` whenever the track overflows, so a row that fits has no
   controls and needs no breakpoint to hide them.
 
-  Badges come from product metafields — `custom.badge` for the text and
-  `custom.badge_tone` for the colour — since they are editorial and change per
+  Badges come from the product's tags, matched against the list in the theme's
+  Product badges settings. See [ui-product-badge]. They are editorial and change per
   product, not per section. The same goes for `custom.tagline`, which falls back to
   the start of the product's description.
 
@@ -190,6 +190,9 @@
             {%- capture add_control -%}
               {% render 'ui-product-card-add', product: card_product, section_id: section.id %}
             {%- endcapture -%}
+
+            {%- capture card_badge -%}{% render 'ui-product-badge', product: card_product %}{%- endcapture -%}
+            {%- assign card_badge_parts = card_badge | strip | split: '|' -%}
             <li class="best-sellers__item" data-product-id="{{ card_product.id }}">
               {% render 'ui-product-card',
                 title: card_product.title,
@@ -197,8 +200,8 @@
                 price: price,
                 image: card_product.featured_image,
                 link: card_product.url,
-                badge: card_product.metafields.custom.badge,
-                badge_tone: card_product.metafields.custom.badge_tone,
+                badge: card_badge_parts[0],
+                badge_tone: card_badge_parts[1],
                 add_content: add_control
               %}
             </li>
@@ -537,7 +540,7 @@
     },
     {
       "type": "paragraph",
-      "content": "Badges and taglines come from the product metafields custom.badge, custom.badge_tone and custom.tagline. Tones: purple, orange, yellow, sky-blue."
+      "content": "A badge comes from the product's tags, matched against the list in Theme settings \u2192 Product badges. The tagline still comes from the custom.tagline metafield."
     },
     {
       "type": "header",
