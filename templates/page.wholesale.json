@@ -114,7 +114,8 @@
         "card_background": "light-blue",
         "background": "white",
         "padding-block-start": 80,
-        "padding-block-end": 80
+        "padding-block-end": 80,
+        "card_height": 0
       }
     },
     "trusted": {
@@ -236,7 +237,8 @@
         "card_background": "light-blue",
         "background": "white",
         "padding-block-start": 80,
-        "padding-block-end": 80
+        "padding-block-end": 80,
+        "card_height": 230
       }
     },
     "apply": {
@@ -309,13 +311,14 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Need to <em>Contact Our Team</em></h2>"
+            "heading": "<h2>Need to <em>Contact Our Team</em></h2>",
+            "max_width": 600
           }
         },
         "body": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Have questions before applying? We'd love to help.</p><p>212-799-7779 &nbsp;·&nbsp; info@treathouse.com</p>",
+            "text": "<p>Have questions before applying? We'd love to help.</p>",
             "text_size": 16,
             "text_size_mobile": 14
           }
@@ -328,11 +331,22 @@
             "link": "/pages/contact",
             "variant": "secondary"
           }
+        },
+        "contacts": {
+          "type": "_ui-footer-contact",
+          "settings": {
+            "layout": "row",
+            "title": "",
+            "location": "",
+            "phone": "212-799-7779",
+            "email": "info@treathouse.com"
+          }
         }
       },
       "block_order": [
         "heading",
-        "body"
+        "body",
+        "contacts"
       ],
       "settings": {
         "action": "button",

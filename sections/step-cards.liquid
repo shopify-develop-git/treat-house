@@ -34,6 +34,7 @@
       --step-cards-columns: {{ section.settings.columns }};
       --step-cards-columns-md: {{ section.settings.columns_md }};
       --step-cards-columns-sm: {{ section.settings.columns_sm }};
+      --step-cards-card-height: {{ section.settings.card_height }}px;
     "
   >
     {%- comment -%}
@@ -137,6 +138,17 @@
     --ui-feature-card-padding-inline: 20px;
     --ui-feature-card-title-size: 20px;
   }
+
+  /*
+   * A floor, not a height. The file fixes the numbered cards at 230 and centres
+   * their contents, so three cards of unequal copy still read as one row; left to
+   * their content they come out 180 and the row sits 50 short of the drawing. A
+   * card with more copy than that simply grows past it.
+   */
+  .step-cards__row > * > .ui-feature-card {
+    min-block-size: var(--step-cards-card-height, 0);
+    justify-content: center;
+  }
 {% endstylesheet %}
 
 {% schema %}
@@ -155,6 +167,17 @@
       "label": "Join the cards with a dashed line",
       "info": "For a row that is a sequence. Drawn behind the cards, so only the gaps show it.",
       "default": false
+    },
+    {
+      "type": "range",
+      "id": "card_height",
+      "label": "Card height",
+      "info": "A floor. 0 lets each card be as tall as its copy; the file fixes a numbered row at 230 so the three read as one.",
+      "min": 0,
+      "max": 320,
+      "step": 10,
+      "unit": "px",
+      "default": 0
     },
     {
       "type": "range",

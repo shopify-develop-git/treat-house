@@ -7,9 +7,14 @@
 
   The number and the address are real links. A phone number that cannot be
   tapped on a phone is a phone number nobody rings.
+
+  It lays out as a column in the footer and as a row under a heading in the
+  wholesale page's closing band (Figma 508:13528). One block with a `layout`
+  rather than two, because the rows are the same rows either way — only the
+  direction changes, and the row cut simply carries no title.
 {%- enddoc -%}
 
-<div class="ui-footer-contact" {{ block.shopify_attributes }}>
+<div class="ui-footer-contact ui-footer-contact--{{ block.settings.layout | default: 'column' }}" {{ block.shopify_attributes }}>
   {%- if block.settings.title != blank -%}
     <h2 class="ui-footer-contact__title">{{ block.settings.title }}</h2>
   {%- endif -%}
@@ -74,6 +79,22 @@
     list-style: none;
   }
 
+  /*
+   * The row cut. Centred and free to wrap, so a narrow screen breaks it onto two
+   * lines rather than pushing the address out of the band it stands in.
+   */
+  .ui-footer-contact--row {
+    align-items: center;
+  }
+
+  .ui-footer-contact--row .ui-footer-contact__rows {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    column-gap: 16px;
+  }
+
   @media screen and (min-width: 990px) {
     .ui-footer-contact__rows {
       gap: 14px;
@@ -129,6 +150,22 @@
   "name": "Footer contact",
   "tag": null,
   "settings": [
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Direction",
+      "options": [
+        {
+          "value": "column",
+          "label": "Stacked"
+        },
+        {
+          "value": "row",
+          "label": "In a row"
+        }
+      ],
+      "default": "column"
+    },
     {
       "type": "text",
       "id": "title",
