@@ -35,7 +35,11 @@
   assign breadcrumb_current = page.title | default: full_heading
 -%}
 
-<div class="section section--{{ section.settings.section_width }} spacing-style {{ scheme_class }} customize-box">
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style {{ scheme_class }} customize-box"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  {{ section.shopify_attributes }}
+>
   {% render 'ui-breadcrumb',
     parent_title: section.settings.breadcrumb_parent_title,
     parent_url: section.settings.breadcrumb_parent_url,
@@ -274,17 +278,22 @@
 
               {%- if section.settings.promo_title != blank -%}
                 <aside class="customize-box__promo">
-                  <div class="customize-box__promo-text">
-                    <p class="customize-box__promo-title">
-                      <span class="customize-box__promo-icon" aria-hidden="true">
-                        {{- 'icon-ui-tag.svg' | inline_asset_content -}}
-                      </span>
-                      {{ section.settings.promo_title }}
-                    </p>
-                    {%- if section.settings.promo_text != blank -%}
+                  {%- comment -%}
+                    The title is a child of the strip, not of the copy beside the
+                    button: the file gives it a row of its own across the full
+                    width, and a grid can only span something it owns.
+                  {%- endcomment -%}
+                  <p class="customize-box__promo-title">
+                    <span class="customize-box__promo-icon" aria-hidden="true">
+                      {{- 'icon-ui-tag.svg' | inline_asset_content -}}
+                    </span>
+                    {{ section.settings.promo_title }}
+                  </p>
+                  {%- if section.settings.promo_text != blank -%}
+                    <div class="customize-box__promo-text">
                       <p class="customize-box__promo-copy">{{ section.settings.promo_text }}</p>
-                    {%- endif -%}
-                  </div>
+                    </div>
+                  {%- endif -%}
                   {%- if section.settings.promo_button_label != blank -%}
                     {% render 'ui-button',
                       variant: 'secondary',
@@ -358,6 +367,7 @@
 
 {% stylesheet %}
   .customize-box__hero {
+    margin-block-start: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -418,7 +428,15 @@
   .customize-box__layout {
     display: grid;
     gap: 48px;
-    margin-block-start: 40px;
+    margin-block-start: 20px;
+
+    /*
+     * The indicator and the gap under it — the height of everything above the
+     * first card. The file starts the summary level with that card and not with
+     * the indicator over it, and starts the review card there too even though it
+     * has no indicator of its own, so both are given the same lead.
+     */
+    --th-step-lead: 49px;
   }
 
   @media screen and (min-width: 1200px) {
@@ -431,14 +449,24 @@
   .customize-box__main {
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 48px;
     min-inline-size: 0;
   }
 
+  /*
+   * 48 is the space between two step blocks, which only the first screen has —
+   * it carries steps 1 and 2 together, the way the file draws them. Every other
+   * screen is one indicator and one card, and that pair is 20 apart like the
+   * pair inside a step block.
+   */
   .customize-box__screen {
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 48px;
+  }
+
+  .customize-box__screen:not([data-screen='1']) {
+    gap: 20px;
   }
 
   .customize-box__screen[hidden] {
@@ -629,8 +657,15 @@
 
   @media screen and (min-width: 1200px) {
     .customize-box__summary {
+      margin-block-start: var(--th-step-lead);
       position: sticky;
       inset-block-start: calc(var(--header-height, 0px) + 24px);
+    }
+
+    /* The one screen with no indicator keeps the space where one would be, so
+       its card starts level with the summary like every other screen's does. */
+    .customize-box__screen[data-screen='4'] {
+      margin-block-start: var(--th-step-lead);
     }
   }
 
@@ -973,7 +1008,7 @@
       "max": 100,
       "step": 4,
       "unit": "px",
-      "default": 24
+      "default": 20
     },
     {
       "type": "range",
@@ -983,7 +1018,7 @@
       "max": 100,
       "step": 4,
       "unit": "px",
-      "default": 64
+      "default": 80
     }
   ],
   "blocks": [

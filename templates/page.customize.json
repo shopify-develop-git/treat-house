@@ -40,7 +40,9 @@
         "pack_collection": "choose-your-own-treat",
         "flavour_collection": "",
         "breadcrumb_parent_title": "Gift Boxes",
-        "breadcrumb_parent_url": "shopify://collections/choose-your-own-treat"
+        "breadcrumb_parent_url": "shopify://collections/choose-your-own-treat",
+        "padding-block-start": 20,
+        "padding-block-end": 80
       }
     }
   },
