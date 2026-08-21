@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "customize": {
@@ -10,7 +19,8 @@
             "description": "Simple, everyday packaging",
             "gift_box": false,
             "individual_packs": false
-          }
+          },
+          "blocks": {}
         },
         "gift": {
           "type": "_ui-box-packaging",
@@ -19,7 +29,8 @@
             "description": "Signature box, ready to give",
             "gift_box": true,
             "individual_packs": false
-          }
+          },
+          "blocks": {}
         },
         "individual": {
           "type": "_ui-box-packaging",
@@ -28,7 +39,8 @@
             "description": "Great for sharing or favors",
             "gift_box": false,
             "individual_packs": true
-          }
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -39,10 +51,6 @@
       "settings": {
         "pack_collection": "choose-your-own-treat",
         "flavour_collection": "",
-        "breadcrumb_parent_title": "Gift Boxes",
-        "breadcrumb_parent_url": "shopify://collections/choose-your-own-treat",
-        "padding-block-start": 20,
-        "padding-block-end": 80,
         "flavour_products": [
           "birthday-cake",
           "chocolate-peanut-butter",
@@ -54,7 +62,41 @@
           "triple-threat",
           "bubble-gum",
           "funn-fruity"
-        ]
+        ],
+        "unit_noun": "treat",
+        "breadcrumb_parent_title": "Gift Boxes",
+        "breadcrumb_parent_url": "shopify://collections/choose-your-own-treat",
+        "eyebrow": "Customize",
+        "heading": "Choose",
+        "heading_accent": "Your Own Flavors",
+        "subheading": "Four quick steps: pick your flavors, choose how it's packaged, add a note, then confirm. You can jump back anytime.",
+        "step_1_title": "Choose your quantity",
+        "step_1_intro": "Price per treat improves at higher quantities.",
+        "step_2_title": "Pick your flavors",
+        "step_2_intro": "Tap a treat to select it, then set how many you'd like.",
+        "step_3_title": "Select packaging",
+        "step_3_intro": "How your treats arrive.",
+        "step_4_title": "Add a gift message",
+        "step_4_intro": "Optional — printed on our signature card and included in the box.",
+        "message_placeholder": "Message.",
+        "message_maxlength": 200,
+        "review_title": "Review your box",
+        "review_intro": "Everything looks good? Add it to your cart below.",
+        "summary_title": "Your box",
+        "label_flavours": "Flavors",
+        "label_flavours_selected": "Flavors selected",
+        "label_quantity": "Quantity",
+        "label_packaging": "Packaging",
+        "label_message": "Gift message",
+        "summary_total_label": "Total",
+        "promo_title": "Custom logo & corporate branding",
+        "promo_text": "Want your company logo printed on every treat? Available for bulk corporate orders — our team will follow up with pricing and a proof.",
+        "promo_button_label": "Request a quote",
+        "promo_button_link": "",
+        "section_width": "page-width",
+        "color_scheme": "",
+        "padding-block-start": 20,
+        "padding-block-end": 80
       }
     }
   },
