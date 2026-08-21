@@ -1,10 +1,11 @@
 {%- doc -%}
   The four reassurances under the buy row (Figma: Standart Product Page → info).
 
-  The same bargain [_ui-product-chips] strikes: the blocks below are the template's
-  defaults, and a product overrides them through a `custom.*` list of single-line
-  text values written `icon:Label`. The two rows are separate because they are two
-  components in the file and not one wearing a flag — these are a 24px glyph above
+  Unlike [_ui-product-chips] these carry no per-product override. The four are the
+  shop's promises — gift-ready packaging, handcrafted, made to share — and they read
+  the same on every treat, so they live on blocks in the theme editor and nowhere
+  else. The two rows are separate because they are two components in the file and
+  not one wearing a flag — these are a 24px glyph above
   its wording, spread across the column, where a tag is a 14px glyph inside an
   outlined pill.
 
@@ -15,19 +16,6 @@
   here, and a merchant who adds a fifth item does not have to be given one.
 {%- enddoc -%}
 
-{%- liquid
-  assign key = block.settings.metafield
-  assign field = ''
-  if key != blank
-    assign field = closest.product.metafields.custom[key]
-  endif
-
-  assign entries = ''
-  if field.type == 'list.single_line_text_field'
-    assign entries = field.value
-  endif
--%}
-
 <div
   class="ui-product-assurances"
   style="
@@ -37,22 +25,7 @@
   "
   {{ block.shopify_attributes }}
 >
-  {%- if entries.size > 0 -%}
-    {%- for entry in entries -%}
-      {%- liquid
-        assign parts = entry | split: ':'
-        assign entry_icon = ''
-        assign entry_label = entry
-        if parts.size > 1
-          assign entry_icon = parts[0] | strip
-          assign entry_label = parts | slice: 1, 20 | join: ':' | strip
-        endif
-      -%}
-      {% render 'ui-icon-label', icon: entry_icon, label: entry_label %}
-    {%- endfor -%}
-  {%- else -%}
-    {% content_for 'blocks' %}
-  {%- endif -%}
+  {% content_for 'blocks' %}
 </div>
 
 {% stylesheet %}
@@ -132,13 +105,6 @@
     }
   ],
   "settings": [
-    {
-      "type": "text",
-      "id": "metafield",
-      "label": "Per-product metafield",
-      "info": "A custom.* list of single-line text values, each one icon:Label. Filled in on a product, it replaces the items below for that product.",
-      "default": "product_assurances"
-    },
     {
       "type": "range",
       "id": "gap",

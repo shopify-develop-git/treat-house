@@ -1,0 +1,135 @@
+{% comment %}
+  The row of routes off the corporate page (Figma: 508:12148 — Category cards).
+
+  Three cards of 305 with a 20 gutter, centred in the page rather than filling it:
+  the file leaves 242.5 either side at 1440, which is what a centred row of three
+  comes to. So the row is centred and the cards keep the width they are drawn at
+  instead of stretching to a third of the page each.
+
+  Each card is a [_ui-cta-card] block, so the merchant can run two or four. The
+  count is not a setting for the same reason: the row is however many cards are in
+  it.
+
+  Three tiers, not two — see CLAUDE.md. Three across from 1200, two from 750, one
+  below that. Held at three from 750px up, a card would be 210 wide against the
+  305 it is drawn at, and the button under it would start wrapping.
+{% endcomment %}
+
+<div
+  class="section section--page-width spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="corporate-cards-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div class="corporate-cards">
+    {% content_for 'blocks' %}
+  </div>
+</div>
+
+{% stylesheet %}
+  /*
+   * A centred row rather than a grid of equal columns: the cards are a fixed
+   * 305 in the file and the space either side is whatever is left, not a share
+   * of the row. `flex-wrap` then does the tiers on its own for any count of
+   * cards, which a fixed column template could not.
+   */
+  .corporate-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .corporate-cards > * {
+    flex: 0 1 305px;
+    max-width: 305px;
+  }
+
+  /*
+   * Two across in the middle range, and the cards keep their drawn width. Below
+   * 750 one card takes the row, and the cap is lifted so it does not sit at 305
+   * in the middle of a 358px column.
+   */
+  @media screen and (max-width: 749px) {
+    .corporate-cards > * {
+      flex-basis: 100%;
+      max-width: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Corporate cards",
+  "tag": "section",
+  "blocks": [{ "type": "_ui-cta-card" }],
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "Corporate cards",
+      "blocks": {
+        "one": {
+          "type": "_ui-cta-card",
+          "settings": {
+            "title": "Logo Treats",
+            "description": "For branded orders and events.",
+            "button_label": "Shop now"
+          }
+        },
+        "two": {
+          "type": "_ui-cta-card",
+          "settings": {
+            "title": "Deluxe Gift Boxes",
+            "description": "For clients and employee gifting.",
+            "button_label": "Shop now"
+          }
+        },
+        "three": {
+          "type": "_ui-cta-card",
+          "settings": {
+            "title": "Bulk Custom Orders",
+            "description": "50+ treats · Custom quantities · Personalization",
+            "button_label": "Get a quote"
+          }
+        }
+      },
+      "block_order": ["one", "two", "three"]
+    }
+  ]
+}
+{% endschema %}

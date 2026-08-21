@@ -1,0 +1,371 @@
+{
+  "sections": {
+    "hero": {
+      "type": "home-hero",
+      "name": "Corporate hero",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h1><em>Corporate</em> Gifting</h1>"
+          }
+        },
+        "copy": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Custom treats, gift boxes, and bulk gifting support for teams, clients, events, and employee moments.</p>"
+          }
+        },
+        "buttons": {
+          "type": "_ui-link-row",
+          "blocks": {
+            "primary": {
+              "type": "_ui-link",
+              "settings": {
+                "label": "Request a quote",
+                "variant": "primary"
+              }
+            }
+          },
+          "block_order": [
+            "primary"
+          ]
+        },
+        "review-line": {
+          "type": "_ui-review-line",
+          "static": true,
+          "settings": {
+            "image": "shopify://shop_images/review-line-composite.webp"
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "copy",
+        "buttons"
+      ],
+      "settings": {
+        "show_badge": false,
+        "show_reviews": true,
+        "show_marquee": true,
+        "image": "shopify://shop_images/corporate-hero-image.webp"
+      }
+    },
+    "banner": {
+      "type": "corporate-banner",
+      "settings": {
+        "image": "shopify://shop_images/corporate-banner-image.webp"
+      }
+    },
+    "reassurance": {
+      "type": "why-choose-us",
+      "name": "Why corporate teams choose us",
+      "blocks": {
+        "one": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "title": "Nationwide Drop-Ship",
+            "body": "<p>We ship directly to every recipient - no repacking on your end.</p>",
+            "icon": "shipping-fast"
+          }
+        },
+        "two": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "title": "Quick Turnaround",
+            "body": "<p>Standard orders ready in 3–5 business days. Rush available.</p>",
+            "icon": "sparkles"
+          }
+        },
+        "three": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "title": "Flexible Pack Sizes",
+            "body": "<p>1 packs, 2 packs, 4 packs, 6 packs, and 12 packs</p>",
+            "icon": "gift"
+          }
+        },
+        "four": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "title": "Dedicated Support",
+            "body": "<p>A real person manages your order from quote to delivery.</p>",
+            "icon": "hand-holding-heart"
+          }
+        },
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": ""
+          }
+        },
+        "intro": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": ""
+          }
+        }
+      },
+      "block_order": [
+        "one",
+        "two",
+        "three",
+        "four"
+      ],
+      "settings": {
+        "show_lead": false,
+        "columns": 4,
+        "columns_md": 2,
+        "columns_sm": "1",
+        "background": "none",
+        "card_background": "light-blue"
+      }
+    },
+    "testimonials": {
+      "type": "testimonials",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>Sweet words from <em>Happy Customers</em></h2>",
+            "max_width": 520
+          }
+        },
+        "rating": {
+          "type": "_ui-review-line",
+          "static": true,
+          "settings": {
+            "rating_text": "4.9 rating",
+            "reviews_text": "12,000+ reviews",
+            "layout": "inline",
+            "text_size": 16,
+            "text_size_mobile": 14
+          }
+        },
+        "one": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
+          }
+        },
+        "two": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
+          }
+        },
+        "three": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
+          }
+        },
+        "four": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
+          }
+        },
+        "five": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
+          }
+        }
+      },
+      "block_order": [
+        "one",
+        "two",
+        "three",
+        "four",
+        "five"
+      ],
+      "settings": {}
+    },
+    "cards": {
+      "type": "corporate-cards",
+      "blocks": {
+        "logo-treats": {
+          "type": "_ui-cta-card",
+          "settings": {
+            "title": "Logo Treats",
+            "description": "For branded orders and events.",
+            "button_label": "Shop now"
+          }
+        },
+        "gift-boxes": {
+          "type": "_ui-cta-card",
+          "settings": {
+            "title": "Deluxe Gift Boxes",
+            "description": "For clients and employee gifting.",
+            "button_label": "Shop now"
+          }
+        },
+        "bulk": {
+          "type": "_ui-cta-card",
+          "settings": {
+            "title": "Bulk Custom Orders",
+            "description": "50+ treats · Custom quantities · Personalization",
+            "button_label": "Get a quote"
+          }
+        }
+      },
+      "block_order": [
+        "logo-treats",
+        "gift-boxes",
+        "bulk"
+      ],
+      "settings": {}
+    },
+    "band": {
+      "type": "corporate-band",
+      "settings": {
+        "label": "Email our corporate gifting and events specialist.",
+        "link": "mailto:info@treathouse.com"
+      }
+    },
+    "catalog": {
+      "type": "corporate-gifts",
+      "name": "Corporate catalog",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Browse our<br><em>corporate catalog</em></h2>"
+          }
+        },
+        "copy": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>See full pack sizes, branding options, and pricing tiers in one PDF.</p>"
+          }
+        },
+        "button": {
+          "type": "_ui-link",
+          "settings": {
+            "label": "Download catalog (PDF)",
+            "variant": "primary"
+          }
+        },
+        "stat-row": {
+          "type": "_ui-stat-row",
+          "static": true,
+          "blocks": {
+            "one": {
+              "type": "_ui-stat",
+              "settings": {
+                "value": "ServiceNow",
+                "label": ""
+              }
+            },
+            "two": {
+              "type": "_ui-stat",
+              "settings": {
+                "value": "NBC",
+                "label": ""
+              }
+            },
+            "three": {
+              "type": "_ui-stat",
+              "settings": {
+                "value": "Restaurant Associates",
+                "label": ""
+              }
+            }
+          },
+          "block_order": [
+            "one",
+            "two",
+            "three"
+          ]
+        }
+      },
+      "block_order": [
+        "heading",
+        "copy",
+        "button"
+      ],
+      "settings": {
+        "media_position": "left",
+        "show_star": true
+      }
+    },
+    "quote": {
+      "type": "corporate-quote-form",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Request a<br><em>Corporate Gifting Quote</em></h2>"
+          }
+        },
+        "success-heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2><em>Thanks.</em><br>We have your inquiry.</h2>"
+          }
+        },
+        "success-copy": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": "<p>The Treat House team will review your order details and follow up with next steps. If your order has a firm event date, please include that in your request.</p>"
+          }
+        },
+        "success-buttons": {
+          "type": "_ui-link-row",
+          "static": true,
+          "blocks": {
+            "primary": {
+              "type": "_ui-link",
+              "settings": {
+                "label": "Shop gift cards",
+                "variant": "primary"
+              }
+            },
+            "secondary": {
+              "type": "_ui-link",
+              "settings": {
+                "label": "Return home",
+                "variant": "secondary",
+                "link": "/"
+              }
+            }
+          },
+          "block_order": [
+            "primary",
+            "secondary"
+          ]
+        }
+      },
+      "block_order": [
+        "heading"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero",
+    "banner",
+    "reassurance",
+    "testimonials",
+    "cards",
+    "band",
+    "catalog",
+    "quote"
+  ]
+}

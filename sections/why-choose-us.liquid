@@ -43,6 +43,16 @@
       --why-choose-us-card-title: {{ section.settings.card_title_size }}px;
       --why-choose-us-card-gap: {{ section.settings.card_gap }}px;
       --why-choose-us-card-radius: {{ section.settings.card_radius }}px;
+      {%- comment -%}
+        The card's own fill. [ui-feature-card] reads this variable and falls back
+        to white, which is right on a tinted band — the home page stands white
+        cards on light blue. A page that runs this row on white needs the other
+        way round, and the corporate page draws exactly that, so the fill is the
+        merchant's rather than a consequence of which page the section is on.
+      {%- endcomment -%}
+      {%- if section.settings.card_background != 'white' -%}
+        --ui-feature-card-background: var(--ui-color-{{ section.settings.card_background }});
+      {%- endif -%}
     "
   >
     <div class="why-choose-us__title">
@@ -362,6 +372,17 @@
     {
       "type": "header",
       "content": "t:content.colors"
+    },
+    {
+      "type": "select",
+      "id": "card_background",
+      "label": "Card fill",
+      "info": "White reads on a tinted band; light blue reads on a white page.",
+      "options": [
+        { "value": "white", "label": "White" },
+        { "value": "light-blue", "label": "Light blue" }
+      ],
+      "default": "white"
     },
     {
       "type": "select",

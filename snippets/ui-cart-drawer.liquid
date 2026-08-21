@@ -61,40 +61,106 @@
 
 {%- if part == 'shipping' and settings.show_cart_shipping_estimate -%}
   {%- liquid
-    assign min_days = settings.cart_delivery_min_days | default: 3
-    assign max_days = settings.cart_delivery_max_days | default: 5
+    assign lead_days = settings.cart_delivery_min_days | default: 3
+    assign window_days = settings.cart_delivery_max_days | default: 60
+    if window_days < lead_days
+      assign window_days = lead_days
+    endif
+
     assign now_seconds = 'now' | date: '%s'
-    assign from_date = min_days | times: 86400 | plus: now_seconds | date: '%b %-d'
-    assign to_date = max_days | times: 86400 | plus: now_seconds | date: '%b %-d'
+    assign earliest = lead_days | times: 86400 | plus: now_seconds | date: '%Y-%m-%d'
+    assign latest = window_days | times: 86400 | plus: now_seconds | date: '%Y-%m-%d'
+
+    assign date_attribute = settings.cart_delivery_attribute | default: 'Delivery date'
+    assign chosen = cart.attributes[date_attribute]
+    assign chosen_iso = cart.attributes['_delivery_date']
+
+    assign choose_label = settings.cart_delivery_choose_label | default: 'Choose a date'
+    assign change_label = settings.cart_delivery_change_label | default: 'Change'
   -%}
 
-  <div class="ui-cart-shipping">
-    <p class="ui-cart-shipping__heading">
-      <span class="ui-cart-shipping__icon" aria-hidden="true">
-        {{- 'icon-ui-truck.svg' | inline_asset_content -}}
-      </span>
-      Estimated shipping
-    </p>
-
-    {%- if settings.cart_shipping_from != blank -%}
-      <p class="ui-cart-shipping__row">
-        <span class="ui-cart-shipping__label">Ships from</span>
-        <span class="ui-cart-shipping__value">{{ settings.cart_shipping_from }}</span>
+  {%- comment -%}
+    The panel and the calendar are one control — the third row opens the thing
+    below it — so they share a wrapper rather than being two siblings the script
+    has to find each other by id.
+  {%- endcomment -%}
+  <cart-delivery-date
+    class="ui-cart-date"
+    data-earliest="{{ earliest }}"
+    data-latest="{{ latest }}"
+    data-selected="{{ chosen_iso }}"
+    data-attribute="{{ date_attribute | escape }}"
+    data-change-label="{{ change_label | escape }}"
+  >
+    {%- comment -%}
+      The script that drives this is loaded from `header-actions.liquid`, not
+      from here: this markup is swapped in through `innerHTML` when a line is
+      added, and a `<script>` inserted that way never runs.
+    {%- endcomment -%}
+    <div class="ui-cart-shipping">
+      <p class="ui-cart-shipping__heading">
+        <span class="ui-cart-shipping__icon" aria-hidden="true">
+          {{- 'icon-ui-truck.svg' | inline_asset_content -}}
+        </span>
+        Estimated shipping
       </p>
-    {%- endif -%}
 
-    <p class="ui-cart-shipping__row">
-      <span class="ui-cart-shipping__label">Estimated delivery</span>
-      <span class="ui-cart-shipping__value">{{ from_date }} – {{ to_date }}</span>
-    </p>
+      {%- if settings.cart_shipping_from != blank -%}
+        <p class="ui-cart-shipping__row">
+          <span class="ui-cart-shipping__label">Ships from</span>
+          <span class="ui-cart-shipping__value">{{ settings.cart_shipping_from }}</span>
+        </p>
+      {%- endif -%}
 
-    {%- if settings.cart_shipping_method != blank -%}
-      <p class="ui-cart-shipping__row">
-        <span class="ui-cart-shipping__label">Shipping method</span>
-        <span class="ui-cart-shipping__value">{{ settings.cart_shipping_method }}</span>
+      <p class="ui-cart-shipping__row ui-cart-shipping__row--date">
+        <span class="ui-cart-shipping__label">Estimated delivery</span>
+
+        {%- if settings.show_cart_delivery_date -%}
+          <span class="ui-cart-date__value">
+            <span class="ui-cart-date__pill" data-date-pill {% if chosen == blank %}hidden{% endif %}>
+              {{- chosen -}}
+            </span>
+
+            <button
+              type="button"
+              class="ui-button ui-button--underline ui-cart-date__toggle"
+              data-date-toggle
+              aria-expanded="false"
+              aria-controls="cart-delivery-picker"
+            >
+              {%- if chosen != blank -%}{{ change_label }}{%- else -%}{{ choose_label }}{%- endif -%}
+            </button>
+          </span>
+        {%- else -%}
+          {%- comment -%}
+            With the picker off the row still has a job: the window the shop
+            quotes, which is what it said before a date could be booked at all.
+          {%- endcomment -%}
+          {%- liquid
+            assign from_date = lead_days | times: 86400 | plus: now_seconds | date: '%b %-d'
+            assign to_date = window_days | times: 86400 | plus: now_seconds | date: '%b %-d'
+          -%}
+          <span class="ui-cart-shipping__value">{{ from_date }} – {{ to_date }}</span>
+        {%- endif -%}
       </p>
+
+      {%- if settings.cart_shipping_method != blank -%}
+        <p class="ui-cart-shipping__row">
+          <span class="ui-cart-shipping__label">Shipping method</span>
+          <span class="ui-cart-shipping__value">{{ settings.cart_shipping_method }}</span>
+        </p>
+      {%- endif -%}
+    </div>
+
+    {%- if settings.show_cart_delivery_date -%}
+      {% render 'ui-date-picker',
+        id: 'cart-delivery-picker',
+        class: 'ui-cart-date__picker',
+        confirm_label: 'Confirm delivery date',
+        attributes: 'hidden'
+      %}
     {%- endif -%}
-  </div>
+  </cart-delivery-date>
 {%- endif -%}
 
 {% stylesheet %}
@@ -582,6 +648,103 @@
     text-align: end;
   }
 
+  /* ---------- Delivery date ---------- */
+
+  /*
+   * The wrapper is the summary's flex item now, so the 24 the summary leaves
+   * between its panels no longer falls between the shipping panel and the
+   * calendar — they are inside one item. The calendar carries it instead, which
+   * is also the 24 the file draws between the two boxes (537:22858 sits 24
+   * under Frame 241).
+   */
+  .ui-cart-date {
+    display: block;
+  }
+
+  .ui-cart-date__picker {
+    margin-block-start: var(--ui-cart-drawer-gutter);
+    margin-inline: var(--ui-cart-drawer-gutter);
+  }
+
+  /*
+   * One scrollbar while the calendar is open, not two.
+   *
+   * The drawer normally has a scroller inside a scroller and gets away with it:
+   * the lines scroll in `.cart-drawer__items` and the summary is short enough
+   * that `.cart-drawer__content` around it never overflows, so only one bar is
+   * ever drawn. The calendar is rendered into that summary and adds some 370px
+   * to it, which pushes the outer one over as well — and the two sat side by
+   * side.
+   *
+   * So while the calendar is open the drawer becomes the single column the file
+   * draws it as (537:22547 is 1176 tall against an 862 window): the lines give
+   * up their own scroller, the summary stops being pinned, and everything
+   * scrolls together in `.cart-drawer__content`. Horizon has the same pair of
+   * rules behind `[cart-summary-sticky='false']`, but that attribute is the
+   * drawer's own and something else may be setting it, so the state is read off
+   * the calendar instead of borrowed from it.
+   *
+   * `:has()` takes the weight of its argument, so these land at (0,4,0) and
+   * clear both Horizon's rules and the kit's own.
+   */
+  .cart-drawer__dialog:has(.ui-cart-date__picker:not([hidden])) .cart-drawer__items {
+    overflow: visible;
+  }
+
+  .cart-drawer__dialog:has(.ui-cart-date__picker:not([hidden])) .cart-drawer__summary {
+    position: static;
+    mask-image: none;
+  }
+
+  /*
+   * Booked, the row grows from 18 to 23 and the panel with it — the pill is
+   * taller than the plain value it replaces. The row is aligned rather than
+   * fixed so the panel takes the height it needs in either state, which is the
+   * 124 and the 129 the file draws.
+   */
+  .ui-cart-shipping__row--date {
+    align-items: center;
+    min-height: 18px;
+  }
+
+  .ui-cart-date__value {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  /*
+   * The date reads as a chip rather than as text, because next to a link that
+   * says CHANGE it has to be obvious which half is the answer and which half is
+   * the control.
+   */
+  .ui-cart-date__pill {
+    padding: 5px 10px;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-light-blue);
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 13px;
+    white-space: nowrap;
+  }
+
+  .ui-cart-date__pill[hidden] {
+    display: none;
+  }
+
+  /*
+   * The kit's underline button as it comes: its own 12px over a 1.3 line, plus
+   * the 2 under the label and the rule, already measures the 18 the file draws
+   * for this row (537:22748). Nothing to resize — only to stop it wrapping and
+   * to keep it from being the thing that gives way when the row is tight.
+   */
+  .ui-cart-date__toggle {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
   /* ---------- Summary ---------- */
 
   /*
@@ -766,33 +929,36 @@
   }
 
   /*
-   * Horizon offers a logged-out visitor a sign-in line, and puts it between the
-   * message and the button. The file draws the pair with 32 between them and no
-   * third thing, so the line moves below the button rather than being dropped:
-   * it is worth having, just not in the middle of what the file draws.
+   * Horizon offers a logged-out visitor a sign-in line and puts it between the
+   * message and the button. The file (508:11149) draws the message and the
+   * button alone in the panel with nothing under them, so the line goes rather
+   * than moving below the button — it carries the account link's own colour,
+   * which is the one warm accent in an otherwise purple panel.
+   *
+   * The cart page keeps it: this is scoped to the drawer, and `_cart-title` and
+   * the page's own empty state are untouched.
    */
   .cart-drawer__dialog.cart-drawer--empty .cart-items__wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 32px;
   }
 
   .cart-drawer__dialog.cart-drawer--empty .cart-items__wrapper > p {
-    order: 1;
-    margin: 0;
-    color: var(--ui-color-gray);
-    font-family: var(--ui-font-body);
-    font-size: 14px;
-    line-height: var(--ui-line-height);
-    text-align: center;
+    display: none;
   }
 
+  /*
+   * The drawer's own title runs at a line-height of 1, and this line inherits
+   * it — which made the block 40 tall against the 44 the file draws (508:11150)
+   * and pulled the button up with it. 1.1 is the file's own ratio at this size.
+   */
   .cart-drawer__dialog .cart-drawer__heading--empty {
     display: block;
     margin: 0;
     padding-inline: var(--ui-cart-drawer-gutter);
     font-size: 40px;
+    line-height: 1.1;
     text-align: center;
   }
 

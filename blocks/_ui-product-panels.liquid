@@ -1,0 +1,113 @@
+{%- doc -%}
+  The run of detail cards down the product column (Figma: Standart Product Page →
+  Ingredients & Allergens, Storage).
+
+  The cards below are the template's default, the ones every product shows unless it
+  says otherwise. A product says otherwise through the metafield named in
+  `metafield` — a list of `detail_panel` entries, each carrying a title, a glyph, the
+  line that stays visible and the copy behind the caret.
+
+  A list, and one metafield, because these are a list. It used to be four fields —
+  a summary and a body for each of two fixed cards — which is the numbered run
+  `docs/section-settings.md` §0 warns about: a merchant could not add a third card,
+  reorder them, or drop one. Now they can, and the count went from four to one.
+
+  Entries reuse well where the words do: a Storage card that reads the same on every
+  treat is one entry pointed at from every product, while an ingredients list is an
+  entry of its own.
+{%- enddoc -%}
+
+{%- liquid
+  assign key = block.settings.metafield
+  assign entries = ''
+  if key != blank
+    assign field = closest.product.metafields.custom[key]
+    if field.type == 'list.metaobject_reference'
+      assign entries = field.value
+    endif
+  endif
+-%}
+
+<div
+  class="ui-product-panels"
+  style="--ui-product-panels-gap: {{ block.settings.gap }}px;"
+  {{ block.shopify_attributes }}
+>
+  {%- if entries.size > 0 -%}
+    {%- for entry in entries -%}
+      {%- comment -%}
+        The body is rich text, and neither `.value` nor the field itself gives
+        back markup here — both print the parsed tree, so the card ended up with
+        a page of JSON on it. `metafield_tag` is what renders it, and it wraps
+        the copy in a div of its own. Captured, because the card tests `body`
+        with `blank` and a drop would not answer that honestly.
+      {%- endcomment -%}
+      {%- capture panel_body -%}{{ entry.body | metafield_tag }}{%- endcapture -%}
+      {%- comment -%}
+        `icon` is a readable name off a choice list; `custom_icon` takes an asset
+        name for the glyphs the list does not offer, and being the more specific
+        of the two it wins when it is filled.
+      {%- endcomment -%}
+      {%- assign entry_icon = entry.custom_icon.value | default: entry.icon.value -%}
+      {% render 'ui-detail-card',
+        title: entry.title.value,
+        icon: entry_icon,
+        summary: entry.summary.value,
+        body: panel_body,
+        collapsible: true
+      %}
+    {%- endfor -%}
+  {%- else -%}
+    {% content_for 'blocks' %}
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .ui-product-panels {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-product-panels-gap, 12px);
+  }
+
+  /* The region has to be in the markup for the editor even when the metafield has
+     taken over, and an empty flex item would still take its share of the column. */
+  .ui-product-panels:not(:has(*)) {
+    display: none;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Detail cards",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_ui-product-panel"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "metafield",
+      "label": "Per-product cards",
+      "info": "A custom.* list of detail_panel metaobject entries. Filled in on a product, it replaces the cards below for that product.",
+      "default": "detail_panels"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    }
+  ],
+  "presets": [
+    {
+      "name": "Detail cards"
+    }
+  ]
+}
+{% endschema %}

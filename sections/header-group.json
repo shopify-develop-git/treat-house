@@ -45,16 +45,17 @@
             "menu_style": "text",
             "featured_products_aspect_ratio": "4 / 5",
             "featured_collections_aspect_ratio": "16 / 9",
+            "promo_image": "shopify://shop_images/choose_you_own_WP_06032025.jpg",
+            "promo_heading": "Choose Your Own Treat",
+            "promo_text": "Design your box",
+            "promo_button_label": "Shop now",
+            "promo_button_link": "shopify://collections/choose-your-own-treat",
             "image_border_radius": 0,
             "navigation_bar": false,
             "color_scheme_navigation_bar": "",
             "drawer_accordion": false,
             "drawer_accordion_expand_first": false,
-            "drawer_dividers": false,
-            "promo_heading": "Choose Your Own Treat",
-            "promo_text": "Design your box",
-            "promo_button_label": "Shop now",
-            "promo_button_link": "shopify://collections/choose-your-own-treat"
+            "drawer_dividers": false
           },
           "blocks": {}
         }
@@ -63,6 +64,7 @@
         "logo_position": "left",
         "menu_position": "center",
         "menu_row": "top",
+        "wishlist_url": "/",
         "show_search": true,
         "search_position": "right",
         "search_row": "top",
@@ -87,8 +89,7 @@
         "enable_transparent_header_product": false,
         "product_color_scheme": "default",
         "enable_transparent_header_collection": false,
-        "collection_color_scheme": "default",
-        "wishlist_url": "/"
+        "collection_color_scheme": "default"
       }
     }
   },

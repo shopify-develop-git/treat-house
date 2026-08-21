@@ -12,8 +12,8 @@
   so a 24px export and a 14px one both land on the drawn 14px square.
 
   @param {string} label - The tag's text.
-  @param {string} [icon] - Icon asset name, with or without the `icon-ui-` prefix
-    and the extension: `gift`, `icon-ui-gift`, `icon-ui-gift.svg` all work.
+  @param {string} [icon] - The glyph, as an asset name or a readable one — `gift`,
+    `wheat-slash`, `Gluten free`. Resolved by [ui-icon-name].
   @param {string} [class] - Additional CSS classes.
   @param {string} [attributes] - Extra HTML attributes to render on the element.
 
@@ -22,21 +22,13 @@
   {% render 'ui-tag', label: 'Arrives gift-ready' %}
 {%- enddoc -%}
 
-{%- liquid
-  assign tag_icon = icon
-  unless tag_icon contains 'icon-ui-'
-    assign tag_icon = 'icon-ui-' | append: tag_icon
-  endunless
-  unless tag_icon contains '.svg'
-    assign tag_icon = tag_icon | append: '.svg'
-  endunless
--%}
+{%- capture tag_icon -%}{% render 'ui-icon-name', name: icon %}{%- endcapture -%}
 
 <span
   class="ui-tag{% if class != blank %} {{ class }}{% endif %}"
   {%- if attributes != blank %} {{ attributes }}{% endif -%}
 >
-  {%- if icon != blank -%}
+  {%- if tag_icon != blank -%}
     <span class="ui-tag__icon" aria-hidden="true">{{- tag_icon | inline_asset_content -}}</span>
   {%- endif -%}
   <span class="ui-tag__label">{{ label }}</span>

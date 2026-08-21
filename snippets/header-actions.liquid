@@ -116,6 +116,26 @@
       fetchpriority="low"
     ></script>
 
+    {%- comment -%}
+      Loaded here rather than beside the panel it drives, and without asking
+      whether the cart has anything in it.
+
+      The drawer's contents are swapped in through `innerHTML` when a line is
+      added, and a `<script>` that arrives that way never runs. Rendered next to
+      the shipping panel, the tag was therefore only executed for a visitor who
+      already had a cart when the page loaded — everybody who added their first
+      treat got the markup with no custom element behind it, and the date link
+      did nothing. Defining the element up front means whatever the drawer
+      renders later is upgraded on arrival.
+    {%- endcomment -%}
+    {%- if settings.show_cart_shipping_estimate and settings.show_cart_delivery_date -%}
+      <script
+        src="{{ 'cart-delivery-date.js' | asset_url }}"
+        type="module"
+        fetchpriority="low"
+      ></script>
+    {%- endif -%}
+
     {% capture empty_cart_drawer_content %}
       {%- liquid
         assign cart_title = 'content.your_cart' | t

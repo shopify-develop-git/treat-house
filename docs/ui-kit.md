@@ -533,6 +533,20 @@ Note `--ui-font-emphasis`: the design asks for Nunito SemiBold, and the theme on
 loads the body face at 400 and 700, so `--ui-font-body` at weight 600 would render
 a synthesised face.
 
+The theme loads each font role at its chosen weight plus a bold, and nothing else.
+Where the file genuinely asks for a weight outside that — the home hero's badge is
+set in Outfit Black — a section can load the one face it needs itself rather than
+settling for a synthesised one or editing Horizon's font block:
+
+```liquid
+{%- assign accent_black = settings.type_accent_font | font_modify: 'weight', '900' -%}
+{%- if accent_black -%}<style>{{ accent_black | font_face: font_display: 'swap' }}</style>{%- endif -%}
+```
+
+`font_modify` returns nothing when the family has no such weight, so the guard
+leaves the browser to synthesise — which is what it would have done anyway. Keep
+this rare: it is another font file on the page.
+
 ---
 
 ## Conventions worth keeping

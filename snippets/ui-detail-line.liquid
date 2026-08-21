@@ -1,0 +1,67 @@
+{%- doc -%}
+  A label at one end of a card and its value at the other (Figma: Standart Product
+  Page → the three lines inside Estimated Shipping).
+
+  The two halves are set differently — the label smaller and grey, the value black
+  and a shade heavier — which is what makes the value read as the answer.
+
+  It lives in the kit rather than in the block because two callers draw it: the
+  [_ui-product-detail-row] block, which is what a merchant arranges in the theme
+  editor, and [_ui-product-panel], which draws one of these per `detail_row`
+  metaobject entry when a product carries its own lines. One markup, so the two
+  paths cannot drift.
+
+  @param {string} [label] - The wording at the start.
+  @param {string} [value] - The answer, pushed to the far end.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the element.
+
+  @example
+  {% render 'ui-detail-line', label: 'Ships from', value: 'Made fresh, ships within 24 hrs' %}
+{%- enddoc -%}
+
+{%- if label != blank or value != blank -%}
+  <div
+    class="ui-detail-line{% if class != blank %} {{ class }}{% endif %}"
+    {%- if attributes != blank %} {{ attributes }}{% endif -%}
+  >
+    {%- if label != blank -%}
+      <span class="ui-detail-line__label">{{ label }}</span>
+    {%- endif -%}
+    {%- if value != blank -%}
+      <span class="ui-detail-line__value">{{ value }}</span>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .ui-detail-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 16px;
+  }
+
+  .ui-detail-line__label {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: 1.1;
+  }
+
+  /*
+   * Pushed to the far end whether or not the line has a label, so a value-only line
+   * stays in column with the ones above it instead of starting at the left.
+   */
+  .ui-detail-line__value {
+    margin-inline-start: auto;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-emphasis);
+    font-size: 14px;
+    font-weight: var(--ui-font-emphasis-weight);
+    line-height: var(--ui-line-height);
+    text-align: end;
+  }
+{% endstylesheet %}

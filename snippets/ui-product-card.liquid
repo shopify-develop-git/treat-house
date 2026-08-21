@@ -37,7 +37,7 @@
   @example
   {% render 'ui-product-card',
     title: product.title,
-    subtitle: product.metafields.custom.tagline,
+    subtitle: product.description | strip_html | truncatewords: 15,
     price: product.price | money,
     image: product.featured_image,
     link: product.url,
@@ -215,7 +215,18 @@
     border-radius: var(--ui-radius-sm);
   }
 
+  /*
+   * Clamped in lines rather than cut in words. How many words fit is a function of
+   * the card's width, and that runs from 171px on a phone to 305px on a desktop —
+   * so a word count that reads well at one size overflows at the other. Lines are
+   * what actually break the grid, so lines are what is capped.
+   */
   .ui-product-card__subtitle {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
     margin: 0;
     font-family: var(--ui-font-body);
     font-weight: var(--ui-font-body-weight);

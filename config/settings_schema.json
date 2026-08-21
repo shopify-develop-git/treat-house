@@ -2018,10 +2018,17 @@
         "default": "Insulated box, ice pack included"
       },
       {
+        "type": "checkbox",
+        "id": "show_cart_delivery_date",
+        "label": "Let the customer pick a delivery date",
+        "info": "Turned off, the delivery row quotes the window below instead of opening a calendar.",
+        "default": true
+      },
+      {
         "type": "range",
         "id": "cart_delivery_min_days",
         "label": "Delivery, earliest",
-        "info": "Days from today. The drawer works the dates out rather than showing a figure somebody has to remember to change.",
+        "info": "Days from today. The drawer works the dates out rather than showing a figure somebody has to remember to change. The calendar rings this day and greys out everything before it.",
         "min": 1,
         "max": 21,
         "step": 1,
@@ -2032,11 +2039,31 @@
         "type": "range",
         "id": "cart_delivery_max_days",
         "label": "Delivery, latest",
-        "min": 1,
-        "max": 30,
-        "step": 1,
+        "info": "How far ahead the calendar lets a date be booked.",
+        "min": 8,
+        "max": 180,
+        "step": 2,
         "unit": "d",
-        "default": 5
+        "default": 60
+      },
+      {
+        "type": "text",
+        "id": "cart_delivery_attribute",
+        "label": "Order field for the date",
+        "info": "What the chosen date is called on the order. Left empty, \"Delivery date\" is used.",
+        "default": "Delivery date"
+      },
+      {
+        "type": "text",
+        "id": "cart_delivery_choose_label",
+        "label": "Delivery date link, before a date is picked",
+        "default": "Choose a date"
+      },
+      {
+        "type": "text",
+        "id": "cart_delivery_change_label",
+        "label": "Delivery date link, after a date is picked",
+        "default": "Change"
       }
     ]
   },

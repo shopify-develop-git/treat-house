@@ -1,0 +1,95 @@
+{% comment %}
+  The photograph under the corporate hero (Figma: 535:21305 — Frame 267).
+
+  One image across the content column, 1280 wide against the 295 the file draws it
+  at. It is a single picture of four boxes rather than four pictures, so it is one
+  image_picker and not a list — cropping it into four would be inventing a
+  composition the file does not have.
+
+  Left empty the section renders nothing rather than a placeholder: it is a
+  decorative band, and a grey rectangle across the page is worse than the page
+  closing up.
+{% endcomment %}
+
+<div
+  class="section section--page-width spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="corporate-banner-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  {%- if section.settings.image != blank -%}
+    {% render 'image',
+      image: section.settings.image,
+      height: 295,
+      class: 'corporate-banner__image'
+    %}
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  /*
+   * The ratio is the file's own, so the band keeps its proportion as the column
+   * narrows instead of the picture growing taller than the row it sits in.
+   */
+  .corporate-banner__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1280 / 295;
+    object-fit: contain;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Corporate banner",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image",
+      "info": "Left empty, the section does not render."
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "presets": [
+    {
+      "name": "Corporate banner"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,120 @@
+{% comment %}
+  The purple strip that offers a person instead of a form (Figma: 535:22503).
+
+  A full-bleed band with one line in it. The band reaches the window edges, so it
+  stands outside the `.section` grid and pads itself from `--page-margin` rather
+  than retyping the gutter — see the page geometry note in CLAUDE.md.
+
+  The line is a setting rather than a block. It is one link in a band drawn around
+  it, not a list a merchant would lengthen, and the same reasoning the four
+  photographs in `corporate-gifts` are settings applies: naming the thing by where
+  it sits is honest about there being exactly one of it.
+
+  Left empty, the whole section renders nothing. A band of colour with no offer in
+  it is worse than no band.
+{% endcomment %}
+
+{%- liquid
+  assign band_label = section.settings.label
+  assign band_link = section.settings.link
+-%}
+
+{%- if band_label != blank -%}
+  <div
+    class="corporate-band"
+    style="{% render 'spacing-style', settings: section.settings %}"
+    data-testid="corporate-band-{{ section.id }}"
+    {{ section.shopify_attributes }}
+  >
+    {%- if band_link != blank -%}
+      <a class="corporate-band__link" href="{{ band_link }}">{{ band_label }}</a>
+    {%- else -%}
+      <span class="corporate-band__link">{{ band_label }}</span>
+    {%- endif -%}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  .corporate-band {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding-inline: var(--page-margin);
+    background-color: var(--ui-color-primary);
+    text-align: center;
+  }
+
+  /*
+   * The heading face, not the body one — the file sets this line in the same
+   * italic the page's headings take, at the size a subheading would be. It is an
+   * invitation, and it is meant to read like the rest of the page's voice rather
+   * than like a footer link.
+   */
+  .corporate-band__link {
+    color: var(--ui-color-white);
+    font-family: var(--font-heading--family);
+    font-size: 20px;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 26px;
+    text-decoration: underline solid;
+    text-decoration-thickness: from-font;
+    text-underline-position: from-font;
+  }
+
+  a.corporate-band__link:hover {
+    color: var(--ui-color-sky-blue);
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Corporate band",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "label",
+      "label": "t:settings.text",
+      "info": "Left empty, the band does not render.",
+      "default": "Email our corporate gifting and events specialist."
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:settings.link",
+      "info": "A mailto: address works here."
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    }
+  ],
+  "presets": [
+    {
+      "name": "Corporate band"
+    }
+  ]
+}
+{% endschema %}

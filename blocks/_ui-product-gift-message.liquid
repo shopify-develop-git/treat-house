@@ -8,6 +8,9 @@
   [ui-button]'s `span` tag rather than as a real one. A `<button>` inside a
   `<summary>` takes the click the disclosure needs.
 
+  The wording is the block's own and has no per-product override: it describes the
+  shop's gift-message service, which does not change from one treat to the next.
+
   The box writes a line item property, so what the shopper types travels with the
   item into the cart and out onto the order. It reaches the product form through
   the `form` attribute rather than by sitting inside it: the form belongs to
@@ -20,13 +23,7 @@
 {%- enddoc -%}
 
 {%- liquid
-  assign note = closest.product.metafields.custom.gift_message_note.value
-  if note == blank
-    assign note = closest.product.metafields.custom.gift_message_note
-  endif
-  if note == blank
-    assign note = block.settings.note
-  endif
+  assign note = block.settings.note
 
   assign form_id = 'ui-product-form-' | append: section.id
   assign field_id = 'ui-gift-message-' | append: block.id
@@ -129,7 +126,6 @@
       "type": "text",
       "id": "note",
       "label": "t:settings.text",
-      "info": "A product's own wording, in the custom.gift_message_note metafield, is used instead when there is one.",
       "default": "Add a complimentary personalized note, printed on our signature card."
     },
     {

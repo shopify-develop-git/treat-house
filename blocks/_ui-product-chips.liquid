@@ -4,18 +4,16 @@
 
   What the merchant arranges here are the defaults for the template: the tags every
   product wears unless it says otherwise. A product says otherwise through the
-  metafield named in `metafield` — a list of single-line text values, each one
-  `icon:Label` or a bare `Label`:
+  metafield named in `metafield` — a list of `icon_label` metaobject entries, each
+  carrying an `icon` and a `label`.
 
-  ```
-  wheat-slash:Gluten-Free
-  gift:Arrives gift-ready
-  ```
+  Metaobjects rather than text: the same claims repeat across the catalogue, so
+  "Gluten-Free" is one entry every product points at rather than a string retyped on
+  each. It also ends the `icon:Label` encoding this block used to parse by hand,
+  which was a string pretending to be two fields.
 
-  A list, because these are a list: a merchant adds a fourth claim to one product
-  without a developer adding a fourth setting to this block. When the metafield is
-  empty or missing the tag blocks below stand, which is what keeps the row from
-  disappearing on the products nobody has got to yet.
+  When the metafield is empty or missing the tag blocks below stand, which is what
+  keeps the row from disappearing on the products nobody has got to yet.
 {%- enddoc -%}
 
 {%- liquid
@@ -26,7 +24,7 @@
   endif
 
   assign entries = ''
-  if field.type == 'list.single_line_text_field'
+  if field.type == 'list.metaobject_reference'
     assign entries = field.value
   endif
 -%}
@@ -39,15 +37,18 @@
   {%- if entries.size > 0 -%}
     {%- for entry in entries -%}
       {%- liquid
-        assign parts = entry | split: ':'
-        assign entry_icon = ''
-        assign entry_label = entry
-        if parts.size > 1
-          assign entry_icon = parts[0] | strip
-          assign entry_label = parts | slice: 1, 20 | join: ':' | strip
-        endif
+        # `.value` rather than the field itself: a metaobject field hands back a
+        # metafield drop, and the icon is resolved by string.
+        #
+        # The picked icon is a readable name off a choice list, so anything the
+        # list does not offer goes in `custom_icon` as an asset name — and when
+        # it is filled it is the more specific of the two, so it wins.
+        assign entry_icon = entry.custom_icon.value | default: entry.icon.value
+        assign entry_label = entry.label.value
       -%}
-      {% render 'ui-tag', icon: entry_icon, label: entry_label %}
+      {%- if entry_label != blank -%}
+        {% render 'ui-tag', icon: entry_icon, label: entry_label %}
+      {%- endif -%}
     {%- endfor -%}
   {%- else -%}
     {% content_for 'blocks' %}
@@ -83,7 +84,7 @@
       "type": "text",
       "id": "metafield",
       "label": "Per-product metafield",
-      "info": "A custom.* list of single-line text values, each one icon:Label. Filled in on a product, it replaces the tags below for that product.",
+      "info": "A custom.* list of icon_label metaobject entries. Filled in on a product, it replaces the tags below for that product.",
       "default": "product_chips"
     },
     {

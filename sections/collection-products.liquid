@@ -215,10 +215,10 @@
         <ul class="collection-products__grid" role="list">
           {%- for product in collection.products -%}
             {%- liquid
-              assign tagline = product.metafields.custom.tagline
-              if tagline == blank
-                assign tagline = product.description | strip_html | truncatewords: 6
-              endif
+              # The supporting line is the product's own description, cut to a length the
+              # card can hold. The empty second argument drops truncatewords' ellipsis,
+              # because the card clamps the line in CSS and adds its own.
+              assign tagline = product.description | strip_html | truncatewords: 15, ''
 
               assign price = product.price | money
             -%}

@@ -32,8 +32,10 @@
 
   Badges come from the product's tags, matched against the list in the theme's
   Product badges settings. See [ui-product-badge]. They are editorial and change per
-  product, not per section. The same goes for `custom.tagline`, which falls back to
-  the start of the product's description.
+  product, not per section. The supporting line under a title is simply the start of
+  the product's description — it had a `custom.tagline` metafield for a while, which
+  earned nothing: the fallback was already the description, so the field only existed
+  for the rare product whose description opens badly.
 
   Where the products come from is a setting, not a second section. `chosen` is the
   list the merchant picks; `related` is Shopify's recommendations for the product
@@ -177,10 +179,10 @@
           {%- endcomment -%}
           {%- for card_product in row limit: card_limit -%}
             {%- liquid
-              assign tagline = card_product.metafields.custom.tagline
-              if tagline == blank
-                assign tagline = card_product.description | strip_html | truncatewords: 6
-              endif
+              # The supporting line is the product's own description, cut to a length the
+              # card can hold. The empty second argument drops truncatewords' ellipsis,
+              # because the card clamps the line in CSS and adds its own.
+              assign tagline = card_product.description | strip_html | truncatewords: 15, ''
 
               # A named argument takes no filter, so `price: card_product.price | money`
               # hands the card the raw cents and says nothing about it. Format first.
@@ -540,7 +542,7 @@
     },
     {
       "type": "paragraph",
-      "content": "A badge comes from the product's tags, matched against the list in Theme settings \u2192 Product badges. The tagline still comes from the custom.tagline metafield."
+      "content": "A badge comes from the product's tags, matched against the list in Theme settings \u2192 Product badges. The line under the title is the start of the product's description."
     },
     {
       "type": "header",

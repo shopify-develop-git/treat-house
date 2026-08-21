@@ -1,0 +1,54 @@
+{%- doc -%}
+  Resolves an icon to the asset that draws it.
+
+  The kit's components take `icon` as an asset name — `wheat-slash`, `info-circle`
+  — which is what a theme-editor `select` stores while showing the merchant
+  "Gluten free". A merchant filling a metaobject in the admin has no select doing
+  that for them: Shopify's choice list shows the very string it saves, so there
+  the option has to be the readable name and the asset has to be found from it.
+
+  Hence one resolver, taking either, and handing back the filename with the
+  `icon-ui-` prefix and the `.svg` extension in place. It also absorbs the
+  prefix-and-extension dance that ui-tag, ui-icon-label and ui-panel each used to
+  carry a copy of.
+
+  A readable name resolves by lowercasing and hyphenating — `Birthday cake` gives
+  `birthday-cake` — and the table below carries only the ones where that lands on
+  no file. **Every alias key is a name no asset has**, which is the rule that
+  keeps this safe: `star` is not in the table and never can be, because
+  `icon-ui-star.svg` exists and aliasing it would quietly hand a caller a
+  different glyph than the one it named. That is why the option for `rating-star`
+  reads "Rating star" and not "Star".
+
+  @param {string} [name] - An asset name or a readable one. Blank and `none` give nothing.
+
+  @example
+  {%- capture icon_asset -%}{% render 'ui-icon-name', name: block.settings.icon %}{%- endcapture -%}
+{%- enddoc -%}
+
+{%- liquid
+  assign asset = ''
+  assign key = name | strip | downcase
+
+  unless key == blank or key == 'none'
+    assign asset = key | replace: ' ', '-'
+
+    assign alias_names = 'gluten-free,hand-and-heart,shipping,information,birthday-cake,baby,heart' | split: ','
+    assign alias_assets = 'wheat-slash,hand-holding-heart,shipping-fast,info-circle,cake-birthday,smiling-baby,wishlist' | split: ','
+
+    for alias in alias_names
+      if alias == asset
+        assign asset = alias_assets[forloop.index0]
+        break
+      endif
+    endfor
+
+    unless asset contains 'icon-ui-'
+      assign asset = 'icon-ui-' | append: asset
+    endunless
+    unless asset contains '.svg'
+      assign asset = asset | append: '.svg'
+    endunless
+  endunless
+-%}
+{{- asset -}}

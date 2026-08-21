@@ -335,14 +335,15 @@ gutter ladder is in `CLAUDE.md`.
 | `_ui-product-price` | show the was-price, size, mobile size | `product-main` |
 | `_ui-product-chips` | per-product metafield, gap; hosts tag blocks | `product-main` |
 | `_ui-product-chip` | label, icon | `_ui-product-chips` |
-| `_ui-product-assurances` | per-product metafield, gap, mobile gap, narrowest item; hosts item blocks | `product-main` |
+| `_ui-product-assurances` | gap, mobile gap, narrowest item; hosts item blocks | `product-main` |
 | `_ui-product-assurance` | label, icon | `_ui-product-assurances` |
 | `_ui-product-variants` | the wording above the control | `product-main` |
 | `_ui-product-prompt` | a line of copy and the link at the far end | `product-main` |
 | `_ui-product-gift-message` | title, copy, button label, order line name, placeholder, limit | `product-main` |
 | `_ui-product-buy` | button wording, price on the button, quantity, Buy now, wallet buttons | `product-main` |
-| `_ui-product-panel` | title, icon, opens or not, padding, the two pieces of copy and their metafields; hosts detail lines | `product-main` |
-| `_ui-product-detail-row` | label, value, per-product metafield | `_ui-product-panel` |
+| `_ui-product-panels` | per-product metafield, gap; hosts panel blocks | `product-main` |
+| `_ui-product-panel` | title, icon, opens or not, padding, summary and body, the metafield its rows come from; hosts detail lines | `product-main`, `_ui-product-panels` |
+| `_ui-product-detail-row` | label, value | `_ui-product-panel` |
 
 ## Some things belong to the shop, not to a section
 
@@ -453,19 +454,36 @@ own wording standing:
 | Metafield (`custom.*`) | Type | What reads it |
 | --- | --- | --- |
 | `title_accent` | text | `_ui-heading`, on `source: product_title` |
-| — | — | Badges no longer read a metafield: they come from the product's tags, matched against the five slots in Theme settings → Product badges |
-| `product_chips` | list of text, each `icon:Label` | `_ui-product-chips` |
-| `product_assurances` | list of text, each `icon:Label` | `_ui-product-assurances` |
-| `gift_message_note` | text | `_ui-product-gift-message` |
-| `ships_from`, `estimated_delivery`, `shipping_method` | text | `_ui-product-detail-row` |
-| `ingredients_summary`, `ingredients_full` | text / richtext | `_ui-product-panel` |
-| `storage_summary`, `storage_full` | text / richtext | `_ui-product-panel` |
+| `product_chips` | list of `icon_label` | `_ui-product-chips` |
+| `shipping_rows` | list of `detail_row` | `_ui-product-panel` |
+| `detail_panels` | list of `detail_panel` | `_ui-product-panels` |
 | `hero_image`, `hero_image_mobile` | file (image) | `collection-hero`, on a collection |
 
-The two lists are lists for the reason §0 gives: a shop that wants a fourth claim on
-one product adds a line, rather than waiting for a fourth setting. The metafield key
-is itself a setting on the row, so the name is the merchant's to choose and this file
-is not the only place it is written down.
+Four fields, not fourteen. Everything a product can say for itself is a **list of
+metaobject entries**, which is what turned the count down:
+
+| Metaobject | Fields | Written as |
+| --- | --- | --- |
+| `icon_label` | `label`, `icon` | one claim tag |
+| `detail_row` | `label`, `value` | one line in the shipping card |
+| `detail_panel` | `title`, `icon`, `summary`, `body` (rich text) | one detail card |
+
+Lists, for the reason §0 gives: a shop that wants a fourth claim, a fourth shipping
+line or a third card adds an entry rather than waiting for a fourth setting. Entries
+are shared, which is the other half of it — "Gluten-Free" is one entry every product
+points at, and a Storage card that reads the same on every treat is written once.
+
+The metafield key is itself a setting on the block, so the name is the merchant's to
+choose and this file is not the only place it is written down.
+
+Badges are not on this list. They come from the product's tags, matched against the
+five slots in Theme settings → Product badges.
+
+**A rich text field needs `metafield_tag`.** On a metaobject entry, neither
+`entry.body` nor `entry.body.value` gives back markup — both print the parsed tree,
+which lands a page of JSON on the card. `{{ entry.body | metafield_tag }}` renders
+it, wrapped in a div of its own, which is why `ui-detail-card` styles its copy with
+a descendant selector rather than a child one.
 
 `_ui-heading` and `_ui-text` carry the section's decisions as inherited custom
 properties rather than settings: `--ui-heading-color`, `--ui-text-color`,

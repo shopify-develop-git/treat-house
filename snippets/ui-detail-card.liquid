@@ -1,0 +1,106 @@
+{%- doc -%}
+  A detail card on the product page (Figma: Standart Product Page → Estimated
+  Shipping, Ingredients & Allergens, Storage).
+
+  [ui-panel] draws the plate, the glyph and the disclosure; this composes what goes
+  inside one — the line that stays visible, the rule that appears on opening, the
+  copy under it, and the lines when the card carries lines instead of prose.
+
+  It lives in the kit because two callers draw the same card: [_ui-product-panel],
+  which is what a merchant arranges in the theme editor, and [_ui-product-panels],
+  which draws one per `detail_panel` metaobject entry when a product carries its
+  own. One composition, so the two cannot drift.
+
+  @param {string} title - The card's heading.
+  @param {string} [icon] - Icon asset name. `none` is treated as no icon.
+  @param {string} [summary] - The line that stays visible when the card is shut.
+  @param {string} [body] - The copy opening the card reveals.
+  @param {string} [rows] - Captured `ui-detail-line` markup, for a card of lines.
+  @param {boolean} [collapsible] - Lets the card open. Ignored when there is no body.
+  @param {string} [padding] - `default` or `tight`, passed to ui-panel.
+  @param {string} [attributes] - Extra HTML attributes for the card's root.
+
+  @example
+  {% render 'ui-detail-card', title: 'Storage', icon: 'thermometer', summary: lede, body: full, collapsible: true %}
+{%- enddoc -%}
+
+{%- liquid
+  assign card_icon = icon
+  if card_icon == 'none'
+    assign card_icon = ''
+  endif
+
+  # A card with nothing behind the caret does not get one: a disclosure that opens
+  # onto an empty box is a control that visibly does nothing.
+  assign is_collapsible = false
+  if collapsible and body != blank
+    assign is_collapsible = true
+  endif
+-%}
+
+{%- capture card_intro -%}
+  {%- if summary != blank -%}
+    <p class="ui-detail-card__intro">{{ summary }}</p>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture card_body -%}
+  {%- if is_collapsible -%}
+    <div class="ui-detail-card__rule" role="separator"></div>
+  {%- endif -%}
+  {%- if body != blank -%}
+    <div class="ui-detail-card__body">{{ body }}</div>
+  {%- endif -%}
+  {%- if rows != blank -%}
+    <div class="ui-detail-card__rows">{{ rows }}</div>
+  {%- endif -%}
+{%- endcapture -%}
+
+{% render 'ui-panel',
+  title: title,
+  icon: card_icon,
+  intro: card_intro,
+  body: card_body,
+  collapsible: is_collapsible,
+  animated: true,
+  padding: padding,
+  class: 'ui-detail-card',
+  attributes: attributes
+%}
+
+{% stylesheet %}
+  .ui-detail-card__intro,
+  .ui-detail-card__body {
+    margin: 0;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  /*
+   * Descendant, not child: the two callers hand over slightly different markup.
+   * A theme-editor card gives bare paragraphs, while a metaobject card arrives
+   * wrapped in the div `metafield_tag` draws around it, which would put the
+   * paragraphs a level out of reach of a child selector.
+   */
+  .ui-detail-card__body :where(p, ul, ol, h2, h3, h4, blockquote) {
+    margin: 0;
+  }
+
+  .ui-detail-card__body :where(p, ul, ol, h2, h3, h4, blockquote) + * {
+    margin-block-start: 1em;
+  }
+
+  .ui-detail-card__rule {
+    height: 1px;
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .ui-detail-card__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+{% endstylesheet %}

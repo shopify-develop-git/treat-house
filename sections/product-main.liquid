@@ -215,7 +215,7 @@
       "type": "checkbox",
       "id": "show_badge",
       "label": "Show the badge",
-      "info": "Set by the product's tags, against the list in Theme settings \u2192 Product badges.",
+      "info": "Set by the product's tags, against the list in Theme settings → Product badges.",
       "default": true
     },
     {
@@ -295,19 +295,48 @@
     }
   ],
   "blocks": [
-    { "type": "_ui-heading" },
-    { "type": "_ui-review-line" },
-    { "type": "_ui-product-price" },
-    { "type": "_ui-text" },
-    { "type": "_ui-product-chips" },
-    { "type": "_ui-rule" },
-    { "type": "_ui-product-variants" },
-    { "type": "_ui-product-prompt" },
-    { "type": "_ui-product-gift-message" },
-    { "type": "_ui-product-buy" },
-    { "type": "_ui-product-assurances" },
-    { "type": "_ui-product-panel" },
-    { "type": "_ui-link" }
+    {
+      "type": "_ui-heading"
+    },
+    {
+      "type": "_ui-review-line"
+    },
+    {
+      "type": "_ui-product-price"
+    },
+    {
+      "type": "_ui-text"
+    },
+    {
+      "type": "_ui-product-chips"
+    },
+    {
+      "type": "_ui-rule"
+    },
+    {
+      "type": "_ui-product-variants"
+    },
+    {
+      "type": "_ui-product-prompt"
+    },
+    {
+      "type": "_ui-product-gift-message"
+    },
+    {
+      "type": "_ui-product-buy"
+    },
+    {
+      "type": "_ui-product-assurances"
+    },
+    {
+      "type": "_ui-product-panel"
+    },
+    {
+      "type": "_ui-link"
+    },
+    {
+      "type": "_ui-product-panels"
+    }
   ],
   "presets": [
     {
@@ -347,14 +376,23 @@
           "blocks": {
             "gluten_free": {
               "type": "_ui-product-chip",
-              "settings": { "icon": "wheat-slash", "label": "Gluten-Free" }
+              "settings": {
+                "icon": "wheat-slash",
+                "label": "Gluten-Free"
+              }
             },
             "gift_ready": {
               "type": "_ui-product-chip",
-              "settings": { "icon": "gift", "label": "Arrives gift-ready" }
+              "settings": {
+                "icon": "gift",
+                "label": "Arrives gift-ready"
+              }
             }
           },
-          "block_order": ["gluten_free", "gift_ready"]
+          "block_order": [
+            "gluten_free",
+            "gift_ready"
+          ]
         },
         "rule_variants": {
           "type": "_ui-rule"
@@ -379,22 +417,39 @@
           "blocks": {
             "packaging": {
               "type": "_ui-product-assurance",
-              "settings": { "icon": "gift", "label": "Gift-Ready Packaging" }
+              "settings": {
+                "icon": "gift",
+                "label": "Gift-Ready Packaging"
+              }
             },
             "gluten_free": {
               "type": "_ui-product-assurance",
-              "settings": { "icon": "wheat-slash", "label": "Gluten-Free" }
+              "settings": {
+                "icon": "wheat-slash",
+                "label": "Gluten-Free"
+              }
             },
             "handcrafted": {
               "type": "_ui-product-assurance",
-              "settings": { "icon": "cookie", "label": "Handcrafted Treats" }
+              "settings": {
+                "icon": "cookie",
+                "label": "Handcrafted Treats"
+              }
             },
             "share_love": {
               "type": "_ui-product-assurance",
-              "settings": { "icon": "hand-holding-heart", "label": "Made to Share Love" }
+              "settings": {
+                "icon": "hand-holding-heart",
+                "label": "Made to Share Love"
+              }
             }
           },
-          "block_order": ["packaging", "gluten_free", "handcrafted", "share_love"]
+          "block_order": [
+            "packaging",
+            "gluten_free",
+            "handcrafted",
+            "share_love"
+          ]
         },
         "rule_details": {
           "type": "_ui-rule"
@@ -405,63 +460,67 @@
             "title": "Estimated shipping",
             "icon": "shipping-fast",
             "collapsible": false,
-            "padding": "tight",
-            "intro": "",
-            "intro_metafield": "",
-            "body": "",
-            "body_metafield": ""
+            "padding": "tight"
           },
           "blocks": {
             "ships_from": {
               "type": "_ui-product-detail-row",
               "settings": {
                 "label": "Ships from",
-                "value": "Made fresh, ships within 24 hrs",
-                "metafield": "ships_from"
+                "value": "Made fresh, ships within 24 hrs"
               }
             },
             "delivery": {
               "type": "_ui-product-detail-row",
               "settings": {
                 "label": "Estimated delivery",
-                "value": "3 to 5 business days",
-                "metafield": "estimated_delivery"
+                "value": "3 to 5 business days"
               }
             },
             "method": {
               "type": "_ui-product-detail-row",
               "settings": {
                 "label": "Shipping method",
-                "value": "Insulated box, ice pack included",
-                "metafield": "shipping_method"
+                "value": "Insulated box, ice pack included"
               }
             }
           },
-          "block_order": ["ships_from", "delivery", "method"]
+          "block_order": [
+            "ships_from",
+            "delivery",
+            "method"
+          ]
         },
-        "ingredients": {
-          "type": "_ui-product-panel",
-          "settings": {
-            "title": "Ingredients & allergens",
-            "icon": "info-circle",
-            "collapsible": true,
-            "intro": "Cocoa, cream, hazelnut, sea salt. Tap to view the full list.",
-            "intro_metafield": "ingredients_summary",
-            "body": "<p>Full ingredients: cocoa mass, cocoa butter, cream, sugar, hazelnut praline (12%), unsalted butter, sea salt, natural vanilla. Contains: milk, tree nuts (hazelnut). May contain traces of: peanut, soy, gluten. Not suitable for: vegan diets.</p>",
-            "body_metafield": "ingredients_full"
-          }
-        },
-        "storage": {
-          "type": "_ui-product-panel",
-          "settings": {
-            "title": "Storage",
-            "icon": "thermometer",
-            "collapsible": true,
-            "intro": "Keep refrigerated below 18°C. Best enjoyed within 14 days of arrival.",
-            "intro_metafield": "storage_summary",
-            "body": "<p>Store in the original packaging or an airtight container to maintain freshness. Avoid direct sunlight and heat. For the best flavor and texture, allow treats to sit at room temperature for 10\u201315 minutes before serving. Do not refreeze after thawing.</p>",
-            "body_metafield": "storage_full"
-          }
+        "panels": {
+          "type": "_ui-product-panels",
+          "blocks": {
+            "ingredients": {
+              "type": "_ui-product-panel",
+              "settings": {
+                "title": "Ingredients & allergens",
+                "icon": "info-circle",
+                "collapsible": true,
+                "intro": "Cocoa, cream, hazelnut, sea salt. Tap to view the full list.",
+                "body": "<p>Full ingredients: cocoa mass, cocoa butter, cream, sugar, hazelnut praline (12%), unsalted butter, sea salt, natural vanilla. Contains: milk, tree nuts (hazelnut). May contain traces of: peanut, soy, gluten. Not suitable for: vegan diets.</p>",
+                "padding": "default"
+              }
+            },
+            "storage": {
+              "type": "_ui-product-panel",
+              "settings": {
+                "title": "Storage",
+                "icon": "thermometer",
+                "collapsible": true,
+                "intro": "Keep refrigerated below 18°C. Best enjoyed within 14 days of arrival.",
+                "body": "<p>Store in the original packaging or an airtight container to maintain freshness. Avoid direct sunlight and heat. For the best flavor and texture, allow treats to sit at room temperature for 10–15 minutes before serving. Do not refreeze after thawing.</p>",
+                "padding": "default"
+              }
+            }
+          },
+          "block_order": [
+            "ingredients",
+            "storage"
+          ]
         }
       },
       "block_order": [
@@ -479,8 +538,7 @@
         "assurances",
         "rule_details",
         "shipping",
-        "ingredients",
-        "storage"
+        "panels"
       ]
     }
   ]

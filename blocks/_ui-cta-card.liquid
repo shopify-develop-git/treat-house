@@ -1,0 +1,65 @@
+{%- doc -%}
+  One card in the row of three the corporate page offers its routes from
+  (Figma: 535:22465 — Collection Card 5).
+
+  It renders [ui-collection-card] in its `cta` cut and adds nothing to it, so the
+  card here and the cards on a collection page cannot drift apart.
+
+  A block rather than three sets of settings on the section: the file draws three
+  and a page that wants a fourth route should be able to add one without a
+  developer. Which is also why the media is an image_picker rather than a
+  collection — two of the three point at collections and the third at a form, and
+  a card that could only be a collection would rule that out.
+{%- enddoc -%}
+
+{% render 'ui-collection-card',
+  variant: 'cta',
+  title: block.settings.title,
+  description: block.settings.description,
+  image: block.settings.image,
+  link: block.settings.link,
+  button_label: block.settings.button_label,
+  attributes: block.shopify_attributes
+%}
+
+{% schema %}
+{
+  "name": "Card",
+  "tag": null,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:settings.heading",
+      "default": "Logo Treats"
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "Description",
+      "default": "For branded orders and events."
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:settings.link"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button",
+      "default": "Shop now"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Card"
+    }
+  ]
+}
+{% endschema %}

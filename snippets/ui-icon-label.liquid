@@ -10,27 +10,17 @@
   reader that reads both is being told everything twice.
 
   @param {string} label - The wording.
-  @param {string} [icon] - Icon asset name, with or without the `icon-ui-` prefix and extension.
+  @param {string} [icon] - The glyph, as an asset name or a readable one. Resolved by [ui-icon-name].
   @param {string} [class] - Additional CSS classes.
 
   @example
   {% render 'ui-icon-label', icon: 'gift', label: 'Gift-Ready Packaging' %}
 {%- enddoc -%}
 
-{%- liquid
-  assign label_icon = icon
-  if label_icon != blank
-    unless label_icon contains 'icon-ui-'
-      assign label_icon = 'icon-ui-' | append: label_icon
-    endunless
-    unless label_icon contains '.svg'
-      assign label_icon = label_icon | append: '.svg'
-    endunless
-  endif
--%}
+{%- capture label_icon -%}{% render 'ui-icon-name', name: icon %}{%- endcapture -%}
 
 <span class="ui-icon-label{% if class != blank %} {{ class }}{% endif %}">
-  {%- if icon != blank -%}
+  {%- if label_icon != blank -%}
     <span class="ui-icon-label__glyph" aria-hidden="true">{{- label_icon | inline_asset_content -}}</span>
   {%- endif -%}
   <span class="ui-icon-label__text">{{ label }}</span>

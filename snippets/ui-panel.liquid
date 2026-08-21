@@ -44,7 +44,7 @@
 
   @param {string} title - The card's heading.
   @param {string} [variant] - `card` for the bordered white card, `bar` for the filled FAQ row. Defaults to `card`.
-  @param {string} [icon] - Icon asset name, with or without the `icon-ui-` prefix and extension.
+  @param {string} [icon] - The glyph, as an asset name or a readable one. Resolved by [ui-icon-name].
   @param {string} [intro] - Markup shown whether the card is open or closed.
   @param {string} [body] - Markup shown below `intro`; hidden until opened when `collapsible`.
   @param {boolean} [collapsible] - Renders the card as a `<details>` disclosure.
@@ -62,17 +62,9 @@
   {% render 'ui-panel', variant: 'bar', title: 'Can I customize my order?', collapsible: true, animated: true, body: answer %}
 {%- enddoc -%}
 
-{%- liquid
-  assign panel_icon = icon
-  if panel_icon != blank
-    unless panel_icon contains 'icon-ui-'
-      assign panel_icon = 'icon-ui-' | append: panel_icon
-    endunless
-    unless panel_icon contains '.svg'
-      assign panel_icon = panel_icon | append: '.svg'
-    endunless
-  endif
+{%- capture panel_icon -%}{% render 'ui-icon-name', name: icon %}{%- endcapture -%}
 
+{%- liquid
   assign show_chevron = chevron
   if chevron == nil
     assign show_chevron = collapsible

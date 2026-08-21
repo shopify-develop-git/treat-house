@@ -1,0 +1,255 @@
+{%- doc -%}
+  The month calendar a delivery date is booked in (Figma: 537:22771).
+
+  Empty on the server. A month grid depends on which month you are looking at,
+  and nobody has looked yet when the drawer renders — so `cart-delivery-date.js`
+  builds the cells. What this file owns is the frame the cells sit in: the month
+  row, the weekday header, the grid's geometry and the button under it. That way
+  the shape is the kit's rather than the script's, and the script only fills it.
+
+  The grid is seven equal columns rather than the 54px the file draws, because
+  the drawer is the full width of a phone and 54 × 7 does not fit one. At the
+  510 the file draws, seven equal columns come out at exactly 54.
+
+  @param {string} [class] - Extra classes on the root.
+  @param {string} [id] - Id for the root, so a trigger can point `aria-controls` at it.
+  @param {string} [confirm_label] - The button under the grid.
+  @param {string} [previous_label] - Accessible name for the back arrow.
+  @param {string} [next_label] - Accessible name for the forward arrow.
+  @param {string} [attributes] - Extra attributes on the root.
+
+  @example
+  {% render 'ui-date-picker', id: 'cart-delivery-picker', confirm_label: 'Confirm delivery date' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign picker_confirm = confirm_label | default: 'Confirm delivery date'
+  assign picker_previous = previous_label | default: 'Previous month'
+  assign picker_next = next_label | default: 'Next month'
+-%}
+
+<div
+  class="ui-date-picker{% if class != blank %} {{ class }}{% endif %}"
+  {% if id != blank %}id="{{ id }}"{% endif %}
+  {{ attributes }}
+>
+  <div class="ui-date-picker__top">
+    <button
+      type="button"
+      class="ui-date-picker__nav ui-date-picker__nav--prev"
+      data-date-nav="-1"
+      aria-label="{{ picker_previous | escape }}"
+    >
+      {{- 'icon-ui-chevron.svg' | inline_asset_content -}}
+    </button>
+
+    <span class="ui-date-picker__month" data-date-month role="status"></span>
+
+    <button
+      type="button"
+      class="ui-date-picker__nav ui-date-picker__nav--next"
+      data-date-nav="1"
+      aria-label="{{ picker_next | escape }}"
+    >
+      {{- 'icon-ui-chevron.svg' | inline_asset_content -}}
+    </button>
+  </div>
+
+  <div class="ui-date-picker__weekdays" data-date-weekdays aria-hidden="true"></div>
+
+  <div class="ui-date-picker__grid" data-date-grid role="grid"></div>
+
+  <button type="button" class="ui-date-picker__confirm" data-date-confirm disabled>
+    {{- picker_confirm -}}
+  </button>
+</div>
+
+{% stylesheet %}
+  /*
+   * 12 all round, and the seven gaps between the four rows are all 14 — which is
+   * why the whole thing is a grid with one gap rather than four margins:
+   * 12 + 20 + 14 + 16 + 14 + 200 + 14 + 44 + 12 = 346, the height the file draws.
+   */
+  .ui-date-picker {
+    display: grid;
+    box-sizing: border-box;
+    gap: 14px;
+    padding: 12px;
+    border: 1px solid var(--ui-color-border-gray);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
+  }
+
+  .ui-date-picker[hidden] {
+    display: none;
+  }
+
+  /* ---------- Month row ---------- */
+
+  .ui-date-picker__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 20px;
+  }
+
+  .ui-date-picker__month {
+    flex: 1 1 auto;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 20px;
+    text-align: center;
+  }
+
+  /*
+   * The kit carries one chevron and it points down, so the two arrows are the
+   * same file turned a quarter each way rather than two more SVGs — which also
+   * keeps them out of the way of the dev server's habit of missing assets
+   * created while it runs.
+   */
+  .ui-date-picker__nav {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--ui-color-border-gray);
+    cursor: pointer;
+  }
+
+  .ui-date-picker__nav > svg {
+    display: block;
+    width: 12px;
+    height: 6px;
+  }
+
+  .ui-date-picker__nav--prev > svg {
+    transform: rotate(90deg);
+  }
+
+  .ui-date-picker__nav--next > svg {
+    transform: rotate(-90deg);
+  }
+
+  .ui-date-picker__nav:not(:disabled):hover {
+    color: var(--ui-color-primary);
+  }
+
+  .ui-date-picker__nav:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  /* ---------- Grid ---------- */
+
+  /*
+   * The weekday row and the day rows share a template so a label always sits
+   * over its own column. The file insets the labels by 18 and centres each one
+   * in its cell; centring them in the same seven columns puts them in the same
+   * place without a second set of numbers to keep in step.
+   */
+  .ui-date-picker__weekdays,
+  .ui-date-picker__grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    column-gap: 10px;
+  }
+
+  .ui-date-picker__grid {
+    row-gap: 10px;
+  }
+
+  .ui-date-picker__weekday {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: 16px;
+    text-align: center;
+  }
+
+  /*
+   * The ring on the first bookable day is a border, and every other day carries
+   * the same border in transparent — otherwise the ringed cell would be two
+   * pixels taller than its neighbours and pull its row out of line.
+   */
+  .ui-date-picker__day {
+    box-sizing: border-box;
+    height: 32px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: var(--ui-radius-sm);
+    background: none;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .ui-date-picker__day--empty {
+    cursor: default;
+  }
+
+  .ui-date-picker__day--first {
+    border-color: var(--ui-color-border-gray);
+  }
+
+  .ui-date-picker__day:not(:disabled):hover {
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .ui-date-picker__day[aria-selected='true'] {
+    border-color: var(--ui-color-primary);
+    background-color: var(--ui-color-primary);
+    color: var(--ui-color-white);
+  }
+
+  .ui-date-picker__day:disabled {
+    color: var(--ui-color-border-gray);
+    cursor: default;
+  }
+
+  /* ---------- Confirm ---------- */
+
+  /*
+   * The kit's primary at the width of the grid. Disabled, the file draws the
+   * same purple at three tenths over white rather than a grey of its own, so it
+   * is mixed from the token instead of being written out as #d3bfd3.
+   */
+  .ui-date-picker__confirm {
+    box-sizing: border-box;
+    width: 100%;
+    height: 44px;
+    padding: 14px var(--ui-button-padding-inline, 32px);
+    border: none;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-primary);
+    color: var(--ui-color-white);
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: var(--ui-line-height);
+    text-align: center;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .ui-date-picker__confirm:not(:disabled):hover {
+    background-color: var(--ui-color-sky-blue);
+    color: var(--ui-color-primary);
+  }
+
+  .ui-date-picker__confirm:disabled {
+    background-color: color-mix(in srgb, var(--ui-color-primary) 30%, var(--ui-color-white));
+    cursor: default;
+  }
+{% endstylesheet %}
