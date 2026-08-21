@@ -176,10 +176,25 @@
   }
 
   @media screen and (min-width: 990px) {
-    /* Beside the card, the photograph takes whatever height the card ends up,
-       rather than the card and the photograph disagreeing by whatever the copy
-       runs to. */
+    /*
+     * Beside the card, the photograph takes whatever height the card ends up,
+     * rather than the card and the photograph disagreeing by whatever the copy
+     * runs to. The file draws them equal in every cut — 362 where the card ends at
+     * the paragraph, 548 where it carries a row of tiles.
+     *
+     * Taken out of the flow to do it. `block-size: 100%` alone is a percentage of a
+     * height the row has not decided yet, so the picture falls back to its own 525
+     * and sets the row from underneath: on the cuts whose card is shorter than that
+     * the card was being stretched, with 150px of white under the paragraph.
+     */
+    .why-choose-us__media {
+      position: relative;
+    }
+
     .why-choose-us__image {
+      position: absolute;
+      inset: 0;
+      inline-size: 100%;
       block-size: 100%;
       aspect-ratio: auto;
     }
