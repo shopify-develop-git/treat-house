@@ -175,6 +175,21 @@
     background-color: var(--ui-color-light-blue);
   }
 
+  /*
+   * Square corners on the photograph. Horizon rounds every image on the site
+   * from a bare type selector — `img { border-radius: var(--border-radius) }` in
+   * base.css — so a card picked the radius up without this file ever asking for
+   * one, and no amount of reading this component explained where it came from.
+   *
+   * The file draws the picture with square corners and lets the card's own 2px
+   * edge be the only rounded thing on it. Turned off on the wrapper as well, or
+   * its `overflow: hidden` would clip the corners back off anyway.
+   */
+  .ui-collection-card__media,
+  .ui-collection-card__image {
+    border-radius: 0;
+  }
+
   .ui-collection-card__image {
     width: 100%;
     height: 100%;

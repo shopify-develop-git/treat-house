@@ -1,8 +1,16 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "hero": {
       "type": "home-hero",
-      "name": "Corporate hero",
       "blocks": {
         "heading": {
           "type": "_ui-heading",
@@ -18,6 +26,7 @@
         },
         "buttons": {
           "type": "_ui-link-row",
+          "settings": {},
           "blocks": {
             "primary": {
               "type": "_ui-link",
@@ -44,11 +53,12 @@
         "copy",
         "buttons"
       ],
+      "name": "Corporate hero",
       "settings": {
+        "image": "shopify://shop_images/corporate-hero-image.webp",
         "show_badge": false,
         "show_reviews": true,
-        "show_marquee": true,
-        "image": "shopify://shop_images/corporate-hero-image.webp"
+        "show_marquee": true
       }
     },
     "banner": {
@@ -59,38 +69,37 @@
     },
     "reassurance": {
       "type": "why-choose-us",
-      "name": "Why corporate teams choose us",
       "blocks": {
         "one": {
           "type": "_ui-feature-card",
           "settings": {
+            "icon": "shipping-fast",
             "title": "Nationwide Drop-Ship",
-            "body": "<p>We ship directly to every recipient - no repacking on your end.</p>",
-            "icon": "shipping-fast"
+            "body": "<p>We ship directly to every recipient - no repacking on your end.</p>"
           }
         },
         "two": {
           "type": "_ui-feature-card",
           "settings": {
+            "icon": "sparkles",
             "title": "Quick Turnaround",
-            "body": "<p>Standard orders ready in 3–5 business days. Rush available.</p>",
-            "icon": "sparkles"
+            "body": "<p>Standard orders ready in 3–5 business days. Rush available.</p>"
           }
         },
         "three": {
           "type": "_ui-feature-card",
           "settings": {
+            "icon": "gift",
             "title": "Flexible Pack Sizes",
-            "body": "<p>1 packs, 2 packs, 4 packs, 6 packs, and 12 packs</p>",
-            "icon": "gift"
+            "body": "<p>1 packs, 2 packs, 4 packs, 6 packs, and 12 packs</p>"
           }
         },
         "four": {
           "type": "_ui-feature-card",
           "settings": {
+            "icon": "hand-holding-heart",
             "title": "Dedicated Support",
-            "body": "<p>A real person manages your order from quote to delivery.</p>",
-            "icon": "hand-holding-heart"
+            "body": "<p>A real person manages your order from quote to delivery.</p>"
           }
         },
         "heading": {
@@ -114,13 +123,14 @@
         "three",
         "four"
       ],
+      "name": "Why corporate teams choose us",
       "settings": {
         "show_lead": false,
         "columns": 4,
         "columns_md": 2,
         "columns_sm": "1",
-        "background": "none",
-        "card_background": "light-blue"
+        "card_background": "light-blue",
+        "background": "none"
       }
     },
     "testimonials": {
@@ -201,31 +211,31 @@
         "logo-treats": {
           "type": "_ui-cta-card",
           "settings": {
+            "image": "shopify://shop_images/corporate-gifts-top-right.webp",
             "title": "Logo Treats",
             "description": "For branded orders and events.",
-            "button_label": "Shop now",
-            "image": "shopify://shop_images/corporate-gifts-top-right.webp",
-            "link": "/collections/custom-treats"
+            "link": "/collections/custom-treats",
+            "button_label": "Shop now"
           }
         },
         "gift-boxes": {
           "type": "_ui-cta-card",
           "settings": {
+            "image": "shopify://shop_images/corporate-gift-holiday-6-pack.webp",
             "title": "Deluxe Gift Boxes",
             "description": "For clients and employee gifting.",
-            "button_label": "Shop now",
-            "image": "shopify://shop_images/corporate-gift-holiday-6-pack.webp",
-            "link": "/collections/deluxe-gift-box"
+            "link": "/collections/deluxe-gift-box",
+            "button_label": "Shop now"
           }
         },
         "bulk": {
           "type": "_ui-cta-card",
           "settings": {
+            "image": "shopify://shop_images/corporate-gifts-top-left.webp",
             "title": "Bulk Custom Orders",
             "description": "50+ treats · Custom quantities · Personalization",
-            "button_label": "Get a quote",
-            "image": "shopify://shop_images/corporate-gifts-top-left.webp",
-            "link": "/pages/corporate-gifting#quote"
+            "link": "/pages/corporate-gifting#quote",
+            "button_label": "Get a quote"
           }
         }
       },
@@ -245,7 +255,6 @@
     },
     "catalog": {
       "type": "corporate-gifts",
-      "name": "Corporate catalog",
       "blocks": {
         "heading": {
           "type": "_ui-heading",
@@ -269,6 +278,9 @@
         "stat-row": {
           "type": "_ui-stat-row",
           "static": true,
+          "settings": {
+            "caption": "Trusted by:"
+          },
           "blocks": {
             "one": {
               "type": "_ui-stat",
@@ -296,10 +308,7 @@
             "one",
             "two",
             "three"
-          ],
-          "settings": {
-            "caption": "Trusted by:"
-          }
+          ]
         }
       },
       "block_order": [
@@ -307,13 +316,14 @@
         "copy",
         "button"
       ],
+      "name": "Corporate catalog",
       "settings": {
-        "media_position": "left",
-        "show_star": true,
         "image_top_left": "shopify://shop_images/corporate-gifts-top-left.webp",
         "image_top_right": "shopify://shop_images/corporate-gifts-top-right.webp",
         "image_bottom_left": "shopify://shop_images/corporate-gifts-bottom-left.webp",
-        "image_bottom_right": "shopify://shop_images/corporate-gifts-bottom-right.webp"
+        "image_bottom_right": "shopify://shop_images/corporate-gifts-bottom-right.webp",
+        "media_position": "left",
+        "show_star": true
       }
     },
     "quote": {
@@ -344,31 +354,31 @@
         "success-buttons": {
           "type": "_ui-link-row",
           "static": true,
+          "settings": {
+            "gap": 20
+          },
           "blocks": {
             "primary": {
               "type": "_ui-link",
               "settings": {
                 "label": "Shop gift cards",
-                "variant": "primary",
-                "link": "shopify://collections/all"
+                "link": "shopify://collections/all",
+                "variant": "primary"
               }
             },
             "secondary": {
               "type": "_ui-link",
               "settings": {
                 "label": "Return home",
-                "variant": "secondary",
-                "link": "/"
+                "link": "/",
+                "variant": "secondary"
               }
             }
           },
           "block_order": [
             "primary",
             "secondary"
-          ],
-          "settings": {
-            "gap": 20
-          }
+          ]
         }
       },
       "block_order": [

@@ -136,13 +136,40 @@ with 16px text, against the filter row's 38px and 14px.
 Horizon's variant picker reads, so the kit row can stand in for the theme's own
 without either side knowing about the other.
 
+### `ui-icon-name`
+
+Not a component — the lookup every component with an `icon` runs before it reaches
+for the file. It takes either the asset name (`wheat-slash`) or the readable one
+(`Gluten free`) and hands back `icon-ui-wheat-slash.svg`; blank and `none` give
+nothing.
+
+Two vocabularies because there are two editors. A theme-editor `select` shows the
+merchant "Gluten free" while storing `wheat-slash`, so blocks pass asset names. A
+metaobject in the admin has no such split — Shopify's choice list shows the string
+it saves — so there the option has to be the readable name.
+
+Readable names resolve by lowercasing and hyphenating; a short alias table covers
+the ones that lands on nothing. **Every alias key is a name no asset has.** `star`
+is not in it and cannot be, because `icon-ui-star.svg` exists and aliasing it would
+hand a caller a different glyph than it named — which is why the option for
+`rating-star` reads "Rating star", not "Star".
+
+`name`
+
+Called through a capture, since a snippet renders rather than returns:
+
+```liquid
+{%- capture icon_asset -%}{% render 'ui-icon-name', name: block.settings.icon %}{%- endcapture -%}
+```
+
 ### `ui-tag`
 
 The informational pill — the Gluten-Free and Arrives gift-ready pair on the product
 page. It wears the secondary button's clothes and is not a control: nothing happens
 when it is clicked and the file gives it no hover, so it renders a `<span>`.
 
-`label` · `icon` · `class` · `attributes`
+`label` · `icon` · `class` · `attributes` — `icon` through [ui-icon-name], so both
+vocabularies work.
 
 ### `ui-icon-label`
 
@@ -150,7 +177,7 @@ A glyph with its wording beneath, centred — the row of four under the buy butt
 Sized by custom properties rather than settings, so the same item runs at 24px under
 a buy row and smaller in a narrow card without growing a variant.
 
-`label` · `icon` · `class`
+`label` · `icon` · `class` — `icon` through [ui-icon-name].
 
 ### `ui-feature-card`
 
@@ -169,6 +196,30 @@ variant: `--ui-feature-card-padding-block`, `--ui-feature-card-padding-inline`,
 
 It fills the height of the cell it stands in, so a row lines up along the bottom
 without the caller measuring the longest card.
+
+### `ui-media-card`
+
+The thumbnail-and-copy row under "What's Inside" — a square of media on the left, a
+title in the heading face and a line of copy on the right, on the bordered white
+plate the product page's detail cards wear. Horizontal, which is what separates it
+from `ui-feature-card`; that one is centred, glyph over copy, 20px radius and no
+border.
+
+`title` · `body` · `image` · `link` · `tag` (default `h3`) · `class` · `attributes`
+
+Given a `link` the whole plate becomes one anchor — the card is a single thing, and
+a 77px thumbnail beside a heading is a bigger target than three words of it. The
+file draws no hover for this card, so the hairline turns purple the way
+`ui-variant-select`'s trigger does rather than a new gesture being invented for it.
+
+Sized by custom properties like the two above: `--ui-media-card-gap`,
+`--ui-media-card-text-gap`, `--ui-media-card-padding-block`,
+`--ui-media-card-padding-inline`, `--ui-media-card-media`,
+`--ui-media-card-title-size`, `--ui-media-card-body-size`.
+
+With no image it draws Shopify's own placeholder rather than collapsing, so a row
+keeps its rhythm while a merchant is still filling it in. It takes the height of its
+cell, so a row lines up along the bottom.
 
 ### `ui-panel`
 
@@ -602,6 +653,11 @@ this rare: it is another font file on the page.
 ---
 
 ## Conventions worth keeping
+
+**An icon is named once.** `ui-tag`, `ui-icon-label`, `ui-panel` and
+`ui-feature-card` each used to carry their own copy of the prefix-and-extension dance; all three now go through
+`ui-icon-name`, which also resolves the readable names a metaobject stores. A new
+component taking an `icon` should do the same rather than repeat it.
 
 **Borders are inset shadows, not borders.** `box-shadow: inset 0 0 0 <width>` does
 not affect layout, so a border that thickens on hover — as several do — cannot

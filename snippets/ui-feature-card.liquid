@@ -18,7 +18,7 @@
 
   @param {string} [title] - The card's title.
   @param {string} [body] - The copy beneath it. Markup is printed as given, so a richtext setting can be passed straight through.
-  @param {string} [icon] - Icon asset name, with or without the `icon-ui-` prefix and extension.
+  @param {string} [icon] - The glyph, as an asset name or a readable one. Resolved by [ui-icon-name].
   @param {string} [tag] - Element for the title. Defaults to `h3`.
   @param {string} [class] - Additional CSS classes.
   @param {string} [attributes] - Additional attributes on the root.
@@ -27,22 +27,14 @@
   {% render 'ui-feature-card', icon: 'gift', title: 'Ready to Delight', body: '<p>Beautifully packaged.</p>' %}
 {%- enddoc -%}
 
-{%- liquid
-  assign card_icon = icon
-  if card_icon != blank
-    unless card_icon contains 'icon-ui-'
-      assign card_icon = 'icon-ui-' | append: card_icon
-    endunless
-    unless card_icon contains '.svg'
-      assign card_icon = card_icon | append: '.svg'
-    endunless
-  endif
+{%- capture card_icon -%}{% render 'ui-icon-name', name: icon %}{%- endcapture -%}
 
+{%- liquid
   assign title_tag = tag | default: 'h3'
 -%}
 
 <div class="ui-feature-card{% if class != blank %} {{ class }}{% endif %}" {{ attributes }}>
-  {%- if icon != blank -%}
+  {%- if card_icon != blank -%}
     <span class="ui-feature-card__glyph" aria-hidden="true">{{- card_icon | inline_asset_content -}}</span>
   {%- endif -%}
 

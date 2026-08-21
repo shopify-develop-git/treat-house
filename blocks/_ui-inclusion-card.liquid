@@ -1,0 +1,56 @@
+{%- doc -%}
+  One hand-written card in [_ui-inclusion-cards] — the entry that is not a product.
+  "Gift-Ready Packaging" is the one the file draws: it belongs in the list of what
+  arrives in the box, but there is nothing in the catalogue to point at for it.
+
+  Renders [ui-media-card] and adds nothing to it, so a change to the card reaches
+  every row that has one rather than this file and whichever others grew a copy.
+{%- enddoc -%}
+
+{%- if block.settings.title != blank or block.settings.body != blank -%}
+  {% render 'ui-media-card',
+    image: block.settings.image,
+    title: block.settings.title,
+    body: block.settings.body,
+    link: block.settings.link,
+    attributes: block.shopify_attributes
+  %}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Card",
+  "tag": null,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:settings.image",
+      "info": "The square beside the copy. Left empty, Shopify's placeholder stands in."
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "t:settings.title",
+      "default": "Gift-Ready Packaging"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:settings.link",
+      "info": "Left empty, the card is not a link. A product card always leads to its product."
+    },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "t:settings.text",
+      "default": "<p>Beautifully arranged in a premium gift box, ready to deliver a heartfelt message without any extra wrapping.</p>"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Card"
+    }
+  ]
+}
+{% endschema %}

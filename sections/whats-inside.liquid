@@ -1,0 +1,179 @@
+{% comment %}
+  What's Inside — a titled list of what arrives in the box (Figma: What's Inside).
+
+  The section owns the column and the space in it; the title and the grid are
+  blocks, so a second page can open the same section with a different line. See
+  `docs/section-settings.md`.
+
+  The cards themselves live in [_ui-inclusion-cards], which is where the products
+  and the hand-written entries are put end to end.
+{% endcomment %}
+
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="whats-inside-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div
+    class="whats-inside whats-inside--{{ section.settings.heading_alignment }}"
+    style="--whats-inside-gap: {{ section.settings.gap }}px;"
+  >
+    {% content_for 'blocks' %}
+  </div>
+</div>
+
+{% stylesheet %}
+  .whats-inside {
+    display: flex;
+    flex-direction: column;
+
+    /* Stretch, not centre: the title centres itself through `text-align`, while the
+       grid has to keep the full width of the column to divide into cards. */
+    align-items: stretch;
+    gap: var(--whats-inside-gap, 32px);
+  }
+
+  .whats-inside--center {
+    text-align: center;
+  }
+
+  .whats-inside--start {
+    text-align: start;
+  }
+
+  /* The alignment above is the title's. Left to inherit it would centre the copy
+     inside every card too, which the file draws left in all of them. */
+  .whats-inside .ui-inclusion-cards {
+    text-align: start;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "What's Inside",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "select",
+      "id": "heading_alignment",
+      "label": "Content alignment",
+      "options": [
+        {
+          "value": "center",
+          "label": "Centred"
+        },
+        {
+          "value": "start",
+          "label": "Left"
+        }
+      ],
+      "default": "center",
+      "info": "Where the title sits above the cards."
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Space under the title",
+      "min": 0,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "_ui-heading"
+    },
+    {
+      "type": "_ui-text"
+    },
+    {
+      "type": "_ui-inclusion-cards"
+    }
+  ],
+  "presets": [
+    {
+      "name": "What's Inside",
+      "category": "t:categories.product",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>What's <em>Inside</em></h2>"
+          }
+        },
+        "cards": {
+          "type": "_ui-inclusion-cards",
+          "blocks": {
+            "packaging": {
+              "type": "_ui-inclusion-card",
+              "settings": {
+                "title": "Gift-Ready Packaging",
+                "body": "<p>Beautifully arranged in a premium gift box, ready to deliver a heartfelt message without any extra wrapping.</p>"
+              }
+            }
+          },
+          "block_order": ["packaging"]
+        }
+      },
+      "block_order": ["heading", "cards"]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,165 @@
+{%- doc -%}
+  A thumbnail with its wording beside it (Figma: What's Inside → Cards).
+
+  A square of media on the left, a title in the heading face and a line of copy on
+  the right, on the same bordered white plate the product page's detail cards wear.
+  Horizontal, which is what separates it from [ui-feature-card] — that one is the
+  centred glyph-over-copy card with a 20px radius and no border, and the two share
+  nothing but the word "card".
+
+  Sized by custom properties rather than settings, the way [ui-feature-card] and
+  [ui-icon-label] are, so a caller runs it at the drawn 20px title two across and
+  smaller in a narrower column without this snippet growing a variant:
+  `--ui-media-card-gap`, `--ui-media-card-text-gap`, `--ui-media-card-padding-block`,
+  `--ui-media-card-padding-inline`, `--ui-media-card-media`,
+  `--ui-media-card-title-size` and `--ui-media-card-body-size`.
+
+  The plate takes the height of the cell it stands in, so a row lines up along the
+  bottom without the caller measuring the longest card.
+
+  With a `link` the whole plate becomes one anchor rather than the title alone: the
+  card is a single thing, and a 77px thumbnail beside a heading is a bigger and more
+  obvious target than three words of it. The file draws no hover for this card, so
+  the hairline turns purple the way [ui-variant-select]'s trigger does — the kit's
+  own way of saying a bordered thing is in use, rather than a new gesture invented
+  for one card.
+
+  @param {string} [title] - The card's title.
+  @param {string} [body] - The copy beside it. Markup is printed as given, so a richtext setting can be passed straight through.
+  @param {object} [image] - A Shopify image object for the media square. Falls back to Shopify's placeholder.
+  @param {string} [link] - Where the card leads. Given one, the whole plate becomes the link.
+  @param {string} [tag] - Element for the title. Defaults to `h3`.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Additional attributes on the root.
+
+  @example
+  {% render 'ui-media-card', image: product.featured_image, title: product.title, body: copy %}
+{%- enddoc -%}
+
+{%- liquid
+  assign title_tag = tag | default: 'h3'
+-%}
+
+{%- capture card_inner -%}
+  <div class="ui-media-card__media">
+    {%- if image != blank -%}
+      {% render 'image', image: image, class: 'ui-media-card__image' %}
+    {%- else -%}
+      {{ 'product-1' | placeholder_svg_tag: 'ui-media-card__image ui-media-card__image--placeholder' }}
+    {%- endif -%}
+  </div>
+
+  {%- if title != blank or body != blank -%}
+    <div class="ui-media-card__text">
+      {%- if title != blank -%}
+        <{{ title_tag }} class="ui-media-card__title">{{ title }}</{{ title_tag }}>
+      {%- endif -%}
+      {%- if body != blank -%}
+        <div class="ui-media-card__body">{{ body }}</div>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture card_class -%}ui-media-card{% if link != blank %} ui-media-card--link{% endif %}{% if class != blank %} {{ class }}{% endif %}{%- endcapture -%}
+
+{%- if link != blank -%}
+  <a class="{{ card_class }}" href="{{ link }}" {{ attributes }}>{{ card_inner }}</a>
+{%- else -%}
+  <div class="{{ card_class }}" {{ attributes }}>{{ card_inner }}</div>
+{%- endif -%}
+
+{% stylesheet %}
+  .ui-media-card {
+    display: flex;
+    align-items: center;
+    gap: var(--ui-media-card-gap, 16px);
+    box-sizing: border-box;
+
+    /* The plate takes the cell, so a row lines up along the bottom. */
+    block-size: 100%;
+    padding-block: var(--ui-media-card-padding-block, 16px);
+    padding-inline: var(--ui-media-card-padding-inline, 10px);
+    border-radius: var(--ui-radius-sm);
+
+    /* Inset rather than a border, so the hairline costs the layout nothing and the
+       card stands exactly as tall as its contents. See docs/ui-kit.md. */
+    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-border-gray);
+    background-color: var(--ui-color-white);
+  }
+
+  /*
+   * Named element and all: `a { color: … }` in base.css is only (0,0,1), but the
+   * theme also underlines links inside a paragraph and tints them on hover, and
+   * naming the element here keeps the card out of both regardless of where it is
+   * dropped. The parts set their own colours, so nothing inherits from the anchor.
+   */
+  a.ui-media-card {
+    color: inherit;
+    text-decoration: none;
+    transition: box-shadow var(--animation-values);
+  }
+
+  a.ui-media-card:hover {
+    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-primary);
+  }
+
+  .ui-media-card__media {
+    display: block;
+    flex: 0 0 auto;
+    inline-size: var(--ui-media-card-media, 77px);
+    block-size: var(--ui-media-card-media, 77px);
+    border-radius: var(--ui-radius-sm);
+    overflow: hidden;
+  }
+
+  .ui-media-card__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ui-media-card__image--placeholder {
+    /* The placeholder is a flat drawing; cropping it would look like a bug. */
+    object-fit: contain;
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .ui-media-card__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ui-media-card-text-gap, 8px);
+
+    /* min-inline-size: 0 so a long unbroken word wraps inside the column rather
+       than pushing the media out of the plate. */
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  .ui-media-card__title {
+    margin: 0;
+    color: var(--ui-media-card-title-color, var(--ui-color-black));
+    font-family: var(--font-heading--family);
+    font-size: var(--ui-media-card-title-size, 20px);
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .ui-media-card__body {
+    color: var(--ui-media-card-body-color, var(--ui-color-gray));
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-media-card-body-size, 14px);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  .ui-media-card__body > * {
+    margin: 0;
+  }
+
+  .ui-media-card__body > * + * {
+    margin-block-start: 0.5em;
+  }
+{% endstylesheet %}

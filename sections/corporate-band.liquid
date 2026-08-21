@@ -21,26 +21,37 @@
 
 {%- if band_label != blank -%}
   <div
-    class="corporate-band"
+    class="section section--page-width spacing-style"
     style="{% render 'spacing-style', settings: section.settings %}"
     data-testid="corporate-band-{{ section.id }}"
     {{ section.shopify_attributes }}
   >
-    {%- if band_link != blank -%}
-      <a class="corporate-band__link" href="{{ band_link }}">{{ band_label }}</a>
-    {%- else -%}
-      <span class="corporate-band__link">{{ band_label }}</span>
-    {%- endif -%}
+    <div class="corporate-band">
+      {%- if band_link != blank -%}
+        <a class="corporate-band__link" href="{{ band_link }}">{{ band_label }}</a>
+      {%- else -%}
+        <span class="corporate-band__link">{{ band_label }}</span>
+      {%- endif -%}
+    </div>
   </div>
 {%- endif -%}
 
 {% stylesheet %}
+  /*
+   * Page width with a radius, not a full-bleed strip. The file draws the purple
+   * starting at the same 80 the rest of the page starts at (535:22504 is the
+   * 1280 inside the 1440 frame) and rounds it like the panels above and below
+   * it — so the section sits in the `.section` grid and lets that place it,
+   * rather than reaching the window edges and padding itself.
+   */
   .corporate-band {
     display: flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    padding-inline: var(--page-margin);
+    min-height: 90px;
+    padding: 16px 24px;
+    border-radius: 20px;
     background-color: var(--ui-color-primary);
     text-align: center;
   }
@@ -98,7 +109,7 @@
       "max": 120,
       "step": 4,
       "unit": "px",
-      "default": 32
+      "default": 0
     },
     {
       "type": "range",
@@ -108,7 +119,7 @@
       "max": 120,
       "step": 4,
       "unit": "px",
-      "default": 32
+      "default": 0
     }
   ],
   "presets": [

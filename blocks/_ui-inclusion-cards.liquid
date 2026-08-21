@@ -1,0 +1,139 @@
+{%- doc -%}
+  The grid of cards under "What's Inside" (Figma: What's Inside → Cards).
+
+  What arrives in the box is two lists laid end to end, because it is two kinds of
+  thing. The items are products — a shop that sells the Jumbo Krispie Hearts on
+  their own should not retype them here — and they come from the metafield named in
+  `metafield`, a list of product references, falling back to the products picked in
+  the theme editor. Then the cards below, for the entries with nothing in the
+  catalogue to point at: the file's fourth card is Gift-Ready Packaging, which is
+  part of what you get and is not for sale.
+
+  So both render, one after the other. That is the difference between this and
+  [_ui-product-chips] or [_ui-product-panels], where a filled metafield *replaces*
+  the blocks — there the metafield says the same kind of thing the blocks do, and
+  here it does not.
+
+  A product card takes the product's own featured image, title and description, so
+  the copy is written once where the product is — and leads to it, since there is
+  somewhere to go. A hand-written card leads wherever its block says, or nowhere.
+{%- enddoc -%}
+
+{%- liquid
+  assign key = block.settings.metafield
+  assign items = block.settings.products
+
+  if key != blank
+    assign field = closest.product.metafields.custom[key]
+    if field.type == 'list.product_reference' and field.value.size > 0
+      assign items = field.value
+    endif
+  endif
+-%}
+
+<div
+  class="ui-inclusion-cards"
+  style="--ui-inclusion-cards-gap: {{ block.settings.gap }}px; --ui-inclusion-cards-columns: {{ block.settings.columns }};"
+  {{ block.shopify_attributes }}
+>
+  {%- for item in items -%}
+    {%- liquid
+      # The description doubles as the card's copy, cut to the couple of lines the
+      # card can hold. The empty second argument drops truncatewords' ellipsis,
+      # which the file does not draw.
+      assign card_copy = item.description | strip_html | truncatewords: 20, ''
+    -%}
+    {% render 'ui-media-card',
+      image: item.featured_image,
+      title: item.title,
+      body: card_copy,
+      link: item.url
+    %}
+  {%- endfor -%}
+
+  {% content_for 'blocks' %}
+</div>
+
+{% stylesheet %}
+  .ui-inclusion-cards {
+    display: grid;
+
+    /* minmax(0, 1fr) rather than 1fr: a long product title would otherwise set a
+       column's minimum width and pull the track wider than its share. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ui-inclusion-cards-gap, 20px);
+  }
+
+  /*
+   * One column until 1200px, not 750px. The card is drawn 630px wide, and two of
+   * them only reach that at 1440 where the content column is 1280. At 750px two
+   * columns leave 325px each — the media and the padding take 113 of it, so a
+   * three-word title starts wrapping to three lines while a single column there is
+   * 670px and almost exactly the drawn width. The middle of the range is better
+   * served by one wide card than by two cramped ones.
+   */
+  @media screen and (min-width: 1200px) {
+    .ui-inclusion-cards {
+      grid-template-columns: repeat(var(--ui-inclusion-cards-columns, 2), minmax(0, 1fr));
+    }
+  }
+
+  /* The region has to be in the markup for the editor even when nothing fills it,
+     and an empty grid would still take its share of the column. */
+  .ui-inclusion-cards:not(:has(*)) {
+    display: none;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Inclusion cards",
+  "tag": null,
+  "blocks": [
+    {
+      "type": "_ui-inclusion-card"
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "metafield",
+      "label": "Per-product list",
+      "info": "A custom.* list of products. Filled in on a product, it replaces the products picked below for that product.",
+      "default": "whats_inside"
+    },
+    {
+      "type": "product_list",
+      "id": "products",
+      "label": "Products",
+      "info": "Shown on every product that has not filled in its own list.",
+      "limit": 8
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Columns on desktop",
+      "info": "From 1200px wide. Narrower than that the cards run one to a row.",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Inclusion cards"
+    }
+  ]
+}
+{% endschema %}

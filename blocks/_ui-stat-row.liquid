@@ -28,16 +28,34 @@
   tightens it everywhere and a merchant who leaves it alone gets the file.
 {%- enddoc -%}
 
+{%- comment -%}
+  The caption is optional and draws nothing when empty, which is how the home
+  page's row of figures keeps the look it has. The corporate page needs it: it
+  runs client names through this row rather than numbers, and a row of names
+  with no line saying what they are is just three words on a panel.
+{%- endcomment -%}
 <div
-  class="ui-stat-row"
+  class="ui-stat-row{% if block.settings.caption != blank %} ui-stat-row--captioned{% endif %}"
   style="--ui-stat-row-gap-set: {{ block.settings.gap }}px;"
   {{ block.shopify_attributes }}
 >
-  {% content_for 'blocks' %}
+  {%- if block.settings.caption != blank -%}
+    <p class="ui-stat-row__caption">{{ block.settings.caption }}</p>
+  {%- endif -%}
+
+  <div class="ui-stat-row__items">
+    {% content_for 'blocks' %}
+  </div>
 </div>
 
 {% stylesheet %}
-  .ui-stat-row {
+  /*
+   * The row's layout moved onto an inner element when the caption was added, so
+   * a caption can stand above the figures rather than becoming one of them. With
+   * no caption the wrapper is a plain block around the same flex row, so the
+   * pages that had this before draw exactly what they drew.
+   */
+  .ui-stat-row__items {
     /* The set figure is the row's widest; the narrower tiers cap it. */
     --ui-stat-row-gap: min(var(--ui-stat-row-gap-set, 32px), 25px);
 
@@ -48,19 +66,49 @@
   }
 
   /* Free to shrink, or `nowrap` would push the row out of the panel instead. */
-  .ui-stat-row > * {
+  .ui-stat-row__items > * {
     min-inline-size: 0;
   }
 
   /* Gap on one side, padding on the other, with the rule between them — so the
      spacing either side of a rule matches, and the first figure carries none. */
-  .ui-stat-row > :not(:first-child) {
+  .ui-stat-row__items > :not(:first-child) {
     padding-inline-start: var(--ui-stat-row-gap);
     border-inline-start: 1px solid var(--ui-color-border-gray);
   }
 
+  /*
+   * Names, not numbers: the corporate page runs client names through this row
+   * under a "Trusted by:" line (Figma 508:12291), and the file sets them at the
+   * body size in a plain row — not as the 30px figures a statistic is drawn at,
+   * and with no rules between them. The caption is what marks that cut, so it
+   * carries the whole change and the pages running actual figures are untouched.
+   */
+  .ui-stat-row--captioned .ui-stat-row__items > :not(:first-child) {
+    border-inline-start: none;
+  }
+
+  .ui-stat-row--captioned .ui-stat__value {
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: 21px;
+  }
+
+  .ui-stat-row__caption {
+    margin: 0 0 8px;
+    color: var(--ui-color-primary);
+    font-family: var(--font-heading--family);
+    font-size: 20px;
+    font-style: italic;
+    font-weight: 400;
+    line-height: 26px;
+    text-align: center;
+  }
+
   @media screen and (min-width: 750px) {
-    .ui-stat-row {
+    .ui-stat-row__items {
       --ui-stat-row-gap: var(--ui-stat-row-gap-set, 32px);
     }
   }
@@ -72,7 +120,7 @@
    * spacing in the file at its narrowest moment.
    */
   @container (max-width: 480px) {
-    .ui-stat-row {
+    .ui-stat-row__items {
       --ui-stat-row-gap: min(var(--ui-stat-row-gap-set, 32px), 14px);
     }
   }
@@ -88,6 +136,12 @@
     }
   ],
   "settings": [
+    {
+      "type": "text",
+      "id": "caption",
+      "label": "Caption above the row",
+      "info": "Left empty, the row draws none and keeps the rules between its figures."
+    },
     {
       "type": "range",
       "id": "gap",

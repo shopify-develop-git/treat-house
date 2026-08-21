@@ -345,6 +345,8 @@ gutter ladder is in `CLAUDE.md`.
 | `_ui-product-panels` | per-product metafield, gap; hosts panel blocks | `product-main` |
 | `_ui-product-panel` | title, icon, opens or not, padding, summary and body, the metafield its rows come from; hosts detail lines | `product-main`, `_ui-product-panels` |
 | `_ui-product-detail-row` | label, value | `_ui-product-panel` |
+| `_ui-inclusion-cards` | per-product metafield, columns, gap; hosts card blocks | `whats-inside` |
+| `_ui-inclusion-card` | image, title, richtext copy | `_ui-inclusion-cards` |
 
 ## Some things belong to the shop, not to a section
 
@@ -458,6 +460,7 @@ own wording standing:
 | `product_chips` | list of `icon_label` | `_ui-product-chips` |
 | `shipping_rows` | list of `detail_row` | `_ui-product-panel` |
 | `detail_panels` | list of `detail_panel` | `_ui-product-panels` |
+| `whats_inside` | list of products | `_ui-inclusion-cards` |
 | `hero_image`, `hero_image_mobile` | file (image) | `collection-hero`, on a collection |
 
 Four fields, not fourteen. Everything a product can say for itself is a **list of
@@ -465,9 +468,15 @@ metaobject entries**, which is what turned the count down:
 
 | Metaobject | Fields | Written as |
 | --- | --- | --- |
-| `icon_label` | `label`, `icon` | one claim tag |
+| `icon_label` | `label`, `icon`, `custom_icon` | one claim tag |
 | `detail_row` | `label`, `value` | one line in the shipping card |
-| `detail_panel` | `title`, `icon`, `summary`, `body` (rich text) | one detail card |
+| `detail_panel` | `title`, `icon`, `summary`, `body` (rich text), `custom_icon` | one detail card |
+
+**`icon` is a choice list, `custom_icon` is the escape hatch.** The merchant picks a
+readable name — "Gluten free", "Birthday cake" — and `ui-icon-name` finds the asset;
+`custom_icon` takes an asset name for the glyphs the list does not carry, and being
+the more specific of the two it wins when it is filled. The list mirrors the same
+names the theme editor's `select` shows, so the two editors read alike.
 
 Lists, for the reason §0 gives: a shop that wants a fourth claim, a fourth shipping
 line or a third card adds an entry rather than waiting for a fourth setting. Entries
@@ -476,6 +485,13 @@ points at, and a Storage card that reads the same on every treat is written once
 
 The metafield key is itself a setting on the block, so the name is the merchant's to
 choose and this file is not the only place it is written down.
+
+`whats_inside` is the one that adds rather than replaces. The others say the same
+kind of thing the blocks beneath them do, so a filled metafield stands in for them;
+what arrives in a box is two kinds of thing at once — the products, which the
+catalogue already describes, and the entries with nothing to point at, like the
+Gift-Ready Packaging card. So [_ui-inclusion-cards] draws the products first and
+then its own card blocks.
 
 Badges are not on this list. They come from the product's tags, matched against the
 five slots in Theme settings → Product badges.
