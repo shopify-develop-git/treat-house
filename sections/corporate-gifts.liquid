@@ -106,6 +106,15 @@
   }
 
   .corporate-gifts__panel {
+    /*
+     * A query container, so the row of figures inside can answer to the panel's
+     * width and not the viewport's. The two part company here: the panel is half a
+     * grid above 990px and the whole page below it, so a viewport breakpoint tells
+     * that row almost nothing about the room it has. `sections/product-main.liquid`
+     * leans on this for the same reason.
+     */
+    container-type: inline-size;
+
     order: 1;
     display: flex;
     flex-direction: column;
@@ -178,9 +187,26 @@
       padding-block: var(--corporate-gifts-block-padding-desktop, 80px);
     }
 
-    /* Taller photographs, which is what keeps the grid the height of the panel. */
+    /*
+     * The photographs share the column's height rather than keeping a ratio.
+     *
+     * A fixed 305/302 is only right at the one width the file draws. Everywhere
+     * else the panel beside it is a different height — its heading wraps to three
+     * lines at 990 and to one at 1440 — and the grid, being a stretched item with
+     * automatic rows, put the difference into the row gap: 124px between the rows
+     * against 20px between the columns at 990, which reads as two grids that have
+     * come apart rather than one.
+     *
+     * As two `1fr` rows the tiles take whatever the panel is tall and the gap stays
+     * the gap. The photograph is already `object-fit: cover`, so it crops to the
+     * cell instead of dictating it.
+     */
+    .corporate-gifts__media {
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+    }
+
     .corporate-gifts__tile {
-      aspect-ratio: 305 / 302;
+      aspect-ratio: auto;
     }
 
     .corporate-gifts--media-right .corporate-gifts__media {
