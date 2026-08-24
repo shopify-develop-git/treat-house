@@ -67,6 +67,17 @@
     cursor: pointer;
   }
 
+  /* Horizon dresses every label that wraps a radio or a checkbox — the
+     `label:has(input[type='radio'])` block in base.css — and that selector is
+     (0,1,2), which beats a single class. Only the gap actually loses: `display`
+     and `align-items` survive because this is a flex item and gets blockified
+     regardless. Naming the input it already contains takes the rule to (0,2,0)
+     and wins the gap back. */
+
+  .ui-choice-tile:has(> .ui-choice-tile__input) {
+    gap: 8px;
+  }
+
   /*
    * Off the screen rather than `display: none`, which would take the radio out
    * of the tab order and out of the group a screen reader announces.

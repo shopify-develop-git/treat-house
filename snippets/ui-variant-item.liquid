@@ -79,6 +79,17 @@
     transition: background-color var(--animation-values), color var(--animation-values);
   }
 
+  /* Horizon dresses every label that wraps a radio or a checkbox — the
+     `label:has(input[type='radio'])` block in base.css — and that selector is
+     (0,1,2), which beats a single class. Only the gap actually loses: `display`
+     and `align-items` survive because this is a flex item and gets blockified
+     regardless. Naming the input it already contains takes the rule to (0,2,0)
+     and wins the gap back. */
+
+  .ui-variant-item:has(> .ui-variant-item__input) {
+    gap: var(--ui-variant-item-gap);
+  }
+
   .ui-variant-item--no-image {
     padding-inline: 12px;
   }

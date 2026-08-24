@@ -675,11 +675,23 @@ shift anything. A real border made secondary buttons 1px taller than primary one
 states redeclare the properties rather than repeating the rules. Follow this when
 adding one.
 
-**The theme styles focus and hover globally.** `base.css` carries
-`summary:hover { color: … }` and `*:focus-visible { outline: … }`. A pseudo-class
-counts as a class, so a single class does not outrank them — name the element too
-(`summary.ui-x:hover`) or move the ring to the wrapper with `:has()`. Both traps
-have already bitten this kit once.
+**The theme styles focus, hover and labels globally.** `base.css` carries
+`summary:hover { color: … }`, `*:focus-visible { outline: … }` and — the one that
+catches the most components — `label:has(input[type='radio']), label:has(input[type='checkbox'])`,
+which sets `display`, `align-items`, `gap` and `cursor` on **every** kit control
+built as a label around a real input. A pseudo-class counts as a class, and `:has()`
+counts as its most specific argument, so that selector is (0,1,2) and a single class
+does not outrank it. `ui-option-row`, `ui-choice-tile`, `ui-choice-item` and
+`ui-variant-item` each lost their gap to it and silently sat at the theme's 4px.
+
+Each now names the input it already contains — `.ui-option-row:has(> .ui-option-row__input)`
+— which is (0,2,0) and wins. A new label-around-input component needs the same line.
+Note what did *not* break: `display: flex` and `align-items: center` survived, because
+these are flex items and get blockified regardless, so the symptom was one property
+out of four and nothing looked obviously wrong.
+
+For the other two: name the element too (`summary.ui-x:hover`) or move the ring to the
+wrapper with `:has()`.
 
 **An overlay needs its own fill, even when the file gives it none.** A component
 drawn on Figma's white canvas can leave gaps between its parts and still look
