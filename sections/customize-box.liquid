@@ -712,32 +712,65 @@
     line-height: 1.1;
   }
 
+  /* Two to a row across the 482 the summary has inside its padding, which is
+     what makes each 236 wide. */
   .customize-box__summary-chips {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    gap: 10px;
   }
 
+  /*
+   * The picture is a block of the chip, not something sitting inside it: 46px
+   * square against the left edge with a single pixel of the chip showing round
+   * it, and the words carrying their own padding. That is why the chip's own
+   * padding is 1px and the text block's is 6 and 10 — the two are different
+   * boxes, and giving the chip the text's padding would push the picture off
+   * the edge it belongs to.
+   */
   .customize-box__chip {
     display: flex;
     align-items: center;
-    gap: 8px;
     box-sizing: border-box;
-    padding: 6px 8px;
+    min-block-size: 48px;
+
+    /* No padding of its own. The file insets the picture by 1px from the frame
+       edge and draws the stroke inside that same pixel, so in CSS the border is
+       the inset — adding a padding on top of it makes the chip 50. */
+    padding: 0;
     border: 1px solid rgb(var(--ui-color-border-gray-rgb) / 0.5);
     border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
     font-family: var(--ui-font-body);
     font-size: 12px;
-    line-height: 1.2;
-    color: var(--color-foreground-heading);
+    line-height: 1.1;
+    color: var(--ui-color-black);
   }
 
-  .customize-box__chip img {
+  /* Both sides written out. An image is a replaced element: given a width and
+     left to work its height out, it takes the photograph's proportions and
+     `align-self: stretch` never gets a say — which made the chip as tall as
+     whatever was photographed rather than the 48 it is drawn at. */
+  .customize-box__chip-image {
     display: block;
     flex: 0 0 auto;
-    inline-size: 28px;
-    block-size: 28px;
-    object-fit: contain;
+    inline-size: 46px;
+    block-size: 46px;
+    border-radius: 1px;
+    object-fit: cover;
+  }
+
+  .customize-box__chip-body {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 8px;
+    min-inline-size: 0;
+    padding: 6px 10px;
+  }
+
+  .customize-box__chip-name {
+    min-inline-size: 0;
   }
 
   .customize-box__chip-count {

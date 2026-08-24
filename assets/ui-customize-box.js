@@ -189,18 +189,32 @@ class CustomizeBox extends HTMLElement {
         ...chosen.map((flavour) => {
           const chip = document.createElement('span');
           chip.className = 'customize-box__chip';
+
           if (flavour.image) {
             const img = document.createElement('img');
+            img.className = 'customize-box__chip-image';
             img.src = flavour.image;
             img.alt = '';
             img.loading = 'lazy';
             chip.append(img);
           }
-          chip.append(document.createTextNode(flavour.title));
+
+          // The words sit in their own padded block beside the picture, which
+          // is flush to the chip's edge.
+          const body = document.createElement('span');
+          body.className = 'customize-box__chip-body';
+
+          const name = document.createElement('span');
+          name.className = 'customize-box__chip-name';
+          name.textContent = flavour.title;
+          body.append(name);
+
           const count = document.createElement('span');
           count.className = 'customize-box__chip-count';
           count.textContent = `×${flavour.count}`;
-          chip.append(count);
+          body.append(count);
+
+          chip.append(body);
           return chip;
         })
       );
