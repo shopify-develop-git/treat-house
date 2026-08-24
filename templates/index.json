@@ -195,6 +195,7 @@
     },
     "custom_treats_preview": {
       "type": "best-sellers",
+      "disabled": true,
       "blocks": {
         "heading": {
           "type": "_ui-heading",
