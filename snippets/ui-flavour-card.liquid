@@ -67,6 +67,7 @@
         min: 0,
         max: flavour_max,
         label: title,
+        full_width: true,
         class: 'ui-flavour-card__count'
       %}
     </div>
@@ -165,53 +166,4 @@
     display: block;
   }
 
-  /*
-   * Lying down for a narrow screen. Standing up, the card is a picture with a
-   * caption and the height is fixed so a grid of them holds its rows; given the
-   * whole width of a phone that shape becomes a tall box of mostly white, so the
-   * picture moves beside the words instead and the height follows the content.
-   *
-   * The footer keeps the wrap it has standing up, and for the same reason: a
-   * stepper is 132px of touch targets that will not shrink, so on a 313px card
-   * putting it beside the name leaves the name 60 and "Chocolate Peanut Butter"
-   * breaks over three lines. Under the name it has the whole width, and the
-   * picture beside them is taller than both together, so the card stays 96.
-   */
-  @media screen and (max-width: 749px) {
-    .ui-flavour-card {
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-      block-size: auto;
-      min-block-size: 96px;
-      padding: 8px;
-    }
-
-    .ui-flavour-card__media {
-      flex: 0 0 80px;
-      block-size: 80px;
-    }
-
-    .ui-flavour-card__footer {
-      flex: 1 1 auto;
-      min-inline-size: 0;
-      padding-inline: 0;
-    }
-
-    /* The name asks for 140px and takes what is left. Beside a stepper that
-       will not go under 132, that means the two share a line on a wide row and
-       the stepper drops under the name on a narrow one — without a second
-       breakpoint guessing where the line is. */
-    .ui-flavour-card[data-chosen] .ui-flavour-card__title {
-      flex: 1 1 140px;
-    }
-
-    /* And the stepper keeps its own size rather than taking the slack. Standing
-       up it spans the card because that is the only thing on its line; lying
-       down beside a name it would stretch to 273px of mostly gap. */
-    .ui-flavour-card__stepper {
-      flex: 0 0 auto;
-    }
-
-  }
 {% endstylesheet %}
