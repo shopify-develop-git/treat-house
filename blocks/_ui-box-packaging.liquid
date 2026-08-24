@@ -88,6 +88,25 @@
   endif
 -%}
 
+{%- liquid
+  # A choice may stand for a product the shop already sells — the gift box is
+  # one — and then the row takes its picture and its name from there rather than
+  # asking for both again. What it does not take is a price: the surcharge is
+  # already an option on the pack, so charging the product on top would charge
+  # the box twice.
+  assign row_product = block.settings.product
+
+  assign row_image = block.settings.image
+  if row_image == blank
+    assign row_image = row_product.featured_image
+  endif
+
+  assign row_title = block.settings.title
+  if row_title == blank
+    assign row_title = row_product.title
+  endif
+-%}
+
 {%- if packaging_map != '{}' -%}
   {% capture packaging_attributes %}
     data-packaging="{{ block.id }}"
@@ -97,10 +116,10 @@
   {% render 'ui-option-row',
     name: 'customize-packaging',
     value: block.id,
-    title: block.settings.title,
+    title: row_title,
     description: block.settings.description,
     price_note: first_note,
-    image: block.settings.image,
+    image: row_image,
     attributes: packaging_attributes,
     class: 'customize-box__packaging-row'
   %}
@@ -112,10 +131,16 @@
   "tag": null,
   "settings": [
     {
+      "type": "product",
+      "id": "product",
+      "label": "Product",
+      "info": "Optional. Lends its picture and, when the title below is empty, its name. It is not added to the cart and not charged — the surcharge is already an option on the pack."
+    },
+    {
       "type": "text",
       "id": "title",
       "label": "t:settings.title",
-      "default": "Clear Tray"
+      "info": "Left empty, the product's own name is used."
     },
     {
       "type": "text",
@@ -126,7 +151,8 @@
     {
       "type": "image_picker",
       "id": "image",
-      "label": "t:settings.image"
+      "label": "t:settings.image",
+      "info": "Left empty, the product's featured image is used."
     },
     {
       "type": "header",
@@ -149,6 +175,10 @@
       "default": false
     }
   ],
-  "presets": [{ "name": "Packaging choice" }]
+  "presets": [
+    {
+      "name": "Packaging choice"
+    }
+  ]
 }
 {% endschema %}
