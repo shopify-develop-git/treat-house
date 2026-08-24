@@ -179,7 +179,17 @@
                         aria-label="{{ 'accessibility.nested_product' | t: product_title: item.product.title, parent_title: item.parent_relationship.parent.title | escape }}"
                       {% endif %}
                     >
-                      {{- item.product.title -}}
+                      {%- comment -%}
+                        The same accent the product page draws on the title: the words
+                        named in the product's `custom.title_accent` come out in the
+                        brand purple. Through [ui-title-accent] so the rule has one
+                        home — a name cannot read one way in the drawer and another on
+                        the page it was added from.
+                      {%- endcomment -%}
+                      {%- render 'ui-title-accent',
+                        title: item.product.title,
+                        accent: item.product.metafields.custom.title_accent
+                      -%}
                     </a>
                   </p>
                   {% if item.product.vendor and block_settings.vendor %}
@@ -494,6 +504,12 @@
     font-size: var(--font-size--md);
     color: var(--color-foreground);
     text-transform: var(--product-title-case);
+  }
+
+  /* The accent is a colour, not an italic — same as the kit's headings. */
+  .cart-items__title em {
+    font-style: normal;
+    color: var(--ui-color-primary);
   }
 
   .cart-items__variant {

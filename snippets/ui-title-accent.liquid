@@ -1,0 +1,48 @@
+{%- doc -%}
+  A title with its accent words marked, ready to print inside whatever element the
+  caller wants.
+
+  Treat House draws part of a name in purple. Where a merchant is typing the words
+  they mark them with `<em>` in the editor's own toolbar; where the words come from
+  a product or a collection there is no toolbar, so the accent is a metafield
+  instead — `custom.title_accent`, holding the words to colour, spelled as they
+  appear in the title.
+
+  This is the second half of that bargain, and it lives here because the rule is now
+  read in more than one place: the [_ui-heading] block on a product or collection
+  page, and the line items in the cart. One copy, so a title cannot come out purple
+  in the drawer and black on the page.
+
+  The title is escaped before the accent is marked, so the `<em>` is the only markup
+  in the string and a product called "Cookies & Cream" still prints as one.
+
+  The match is literal and case-sensitive. A merchant writes the accent by copying
+  it out of the title, so a loose match would only ever surprise them — "Bar"
+  colouring the "Bar" inside "Barrington" is not a thing anyone asked for. Every
+  occurrence is marked, which is what a title that says the word twice wants.
+
+  Nothing to mark and it prints the escaped title, which is what a product without
+  the metafield should look like.
+
+  @param {string} title - The title to print.
+  @param {string} accent - The words within it to mark. Usually a metafield.
+
+  @example
+  <h1>{% render 'ui-title-accent', title: product.title, accent: product.metafields.custom.title_accent %}</h1>
+{%- enddoc -%}
+
+{%- liquid
+  # A metafield object is not a string. `.value` is what a single-line text field
+  # hands back; passing the object itself and asking it to escape renders nothing.
+  assign accent_value = accent.value | default: accent
+
+  assign title_text = title | escape
+  assign accent_text = accent_value | escape
+
+  if accent_text != blank and title_text contains accent_text
+    assign marked = '<em>' | append: accent_text | append: '</em>'
+    assign title_text = title_text | replace: accent_text, marked
+  endif
+
+  echo title_text
+-%}

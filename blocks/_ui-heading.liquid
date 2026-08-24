@@ -20,7 +20,8 @@
   no toolbar to pick it in when the merchant is not the one typing. The accent then
   comes from the `custom.title_accent` metafield — the words to draw in purple,
   written out as they appear in the title — which is the same bargain the richtext
-  `<em>` strikes, moved to where a per-product value can live.
+  `<em>` strikes, moved to where a per-product value can live. The marking itself is
+  [ui-title-accent], shared with the cart's line items.
 
   A collection reads the same way. `collection_title` takes `collection.title` and
   its accent from the collection's own `custom.title_accent`, which is what lets one
@@ -43,20 +44,12 @@
   if source_resource != nil
     assign heading_tag = block.settings.heading_tag | default: 'h1'
 
-    assign accent = source_resource.metafields.custom.title_accent.value
-    if accent == blank
-      assign accent = source_resource.metafields.custom.title_accent
-    endif
-
-    # Escaped before the accent is marked, so the `<em>` this adds is the only
-    # markup in the string and a title containing an ampersand still prints as one.
-    assign title_text = source_resource.title | escape
-    assign accent_text = accent | escape
-
-    if accent_text != blank and title_text contains accent_text
-      assign marked = '<em>' | append: accent_text | append: '</em>'
-      assign title_text = title_text | replace: accent_text, marked
-    endif
+    # The marking is [ui-title-accent]'s, because the cart reads the same rule and a
+    # title must not come out purple in one place and black in the other.
+    assign title_accent = source_resource.metafields.custom.title_accent
+    capture title_text
+      render 'ui-title-accent', title: source_resource.title, accent: title_accent
+    endcapture
 
     capture heading_html
       echo '<'
