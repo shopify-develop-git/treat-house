@@ -47,7 +47,17 @@
     gap: var(--logo-row-gap, 48px);
   }
 
+  /*
+   * The file sets this line in Title/xl and not the display cut every other section
+   * heading wears: the Bold face rather than ExtraBold, a leading of 1 rather than
+   * 1.1, and no tracking. It is a line of type over a row of marks, not a heading
+   * that opens a section, and at 30px the display cut reads as a shout.
+   */
   .logo-row__title {
+    --ui-heading-weight: 700;
+    --ui-heading-line-height: 1;
+    --ui-heading-tracking: 0;
+
     text-align: center;
   }
 
