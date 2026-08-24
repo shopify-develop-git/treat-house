@@ -43,10 +43,12 @@
     {%- endif -%}
   </span>
 
-  <span class="ui-choice-tile__title">{{ title }}</span>
-  {%- if note != blank -%}
-    <span class="ui-choice-tile__note">{{ note }}</span>
-  {%- endif -%}
+  <span class="ui-choice-tile__text">
+    <span class="ui-choice-tile__title">{{ title }}</span>
+    {%- if note != blank -%}
+      <span class="ui-choice-tile__note">{{ note }}</span>
+    {%- endif -%}
+  </span>
 </label>
 
 {% stylesheet %}
@@ -107,6 +109,13 @@
     object-fit: cover;
   }
 
+  .ui-choice-tile__text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-inline-size: 0;
+  }
+
   .ui-choice-tile__title {
     font-family: var(--ui-font-body);
     font-size: 16px;
@@ -122,5 +131,35 @@
     line-height: 1.1;
     text-align: center;
     color: var(--ui-color-gray);
+  }
+
+  /*
+   * Lying down for a narrow screen, like [ui-flavour-card] beside it. Three of
+   * these standing up on a phone is three columns of about 90px, which is a
+   * tall photograph over two short lines and nothing else; laid on their sides
+   * they read at a glance and the row is a third of the height.
+   */
+  @media screen and (max-width: 749px) {
+    .ui-choice-tile {
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      padding: 8px;
+    }
+
+    .ui-choice-tile__media {
+      flex: 0 0 96px;
+      block-size: 72px;
+    }
+
+    .ui-choice-tile__text {
+      flex: 1 1 auto;
+      gap: 4px;
+    }
+
+    .ui-choice-tile__title,
+    .ui-choice-tile__note {
+      text-align: start;
+    }
   }
 {% endstylesheet %}

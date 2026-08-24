@@ -549,6 +549,17 @@
     block-size: 203px;
   }
 
+  @media screen and (max-width: 749px) {
+    .customize-box__packs {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .customize-box__packs > .ui-choice-tile {
+      block-size: auto;
+    }
+  }
+
   /*
    * Counted from the column, not the window. How wide this grid is depends on
    * whether the summary is beside it, so the same viewport gives it 662px on a
@@ -566,6 +577,15 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(max(140px, calc((100% - 36px) / 4)), 1fr));
     gap: 12px;
+  }
+
+  /* A phone gets one to a row, full width. Two columns there is two narrow
+     boxes of mostly white — the photograph is the only thing that wants the
+     space, and it does not need it. [ui-flavour-card] lies down to match. */
+  @media screen and (max-width: 749px) {
+    .customize-box__flavours {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   .customize-box__tally {
