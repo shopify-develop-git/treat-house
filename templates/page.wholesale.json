@@ -335,8 +335,8 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Need to <em>Contact Our Team</em></h2>",
-            "max_width": 600
+            "heading": "<h2>Need to Contact Our Team</h2>",
+            "max_width": 610
           }
         },
         "body": {
@@ -351,7 +351,7 @@
           "type": "_ui-link",
           "static": true,
           "settings": {
-            "label": "Contact us",
+            "label": "Contact Sales",
             "link": "/pages/contact",
             "variant": "secondary"
           }
@@ -374,7 +374,7 @@
       ],
       "settings": {
         "action": "button",
-        "background": "light-blue",
+        "background": "purple",
         "vertical_padding": 80,
         "vertical_padding_mobile": 64
       }

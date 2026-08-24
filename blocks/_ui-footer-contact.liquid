@@ -118,7 +118,8 @@
     flex: 0 0 auto;
     width: 16px;
     height: 16px;
-    color: var(--ui-color-primary);
+    /* A hook, so the row can stand on a dark band without a second block. */
+    color: var(--ui-footer-contact-icon-color, var(--ui-color-primary));
   }
 
   .ui-footer-contact__icon > svg {
@@ -128,7 +129,7 @@
   }
 
   .ui-footer-contact__text {
-    color: var(--ui-color-black);
+    color: var(--ui-footer-contact-color, var(--ui-color-black));
     font-family: var(--ui-font-body);
     font-size: 14px;
     font-weight: var(--ui-font-body-weight);
@@ -141,7 +142,7 @@
   }
 
   .ui-footer-contact__link:hover {
-    color: var(--ui-color-primary);
+    color: var(--ui-footer-contact-hover-color, var(--ui-color-primary));
   }
 {% endstylesheet %}
 
