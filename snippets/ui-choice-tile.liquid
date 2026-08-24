@@ -102,11 +102,13 @@
     min-block-size: 0;
   }
 
+  /* Contain, not cover: a pack shot is a product on a background, and cropping
+     to fill the box takes the ends off the box being sold. */
   .ui-choice-tile__image {
     display: block;
     inline-size: 100%;
     block-size: 100%;
-    object-fit: cover;
+    object-fit: contain;
   }
 
   .ui-choice-tile__text {
