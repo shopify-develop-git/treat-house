@@ -208,6 +208,14 @@
         {{ cart_icon }}
       </button>
 
+      {%- comment -%}
+        The class below is only true of the cart as this page was rendered.
+        Emptying the drawer afterwards re-renders what is inside it and leaves
+        the dialog alone, so the kit's empty panel never turns on and Horizon's
+        own arrangement shows through. This keeps the class in step.
+      {%- endcomment -%}
+      <script src="{{ 'ui-cart-drawer-empty.js' | asset_url }}" type="module" fetchpriority="low"></script>
+
       <dialog
         ref="dialog"
         class="cart-drawer__dialog dialog-modal dialog-drawer color-{{ settings.drawer_color_scheme }}{% if cart.empty? %} cart-drawer--empty{%endif%}"
