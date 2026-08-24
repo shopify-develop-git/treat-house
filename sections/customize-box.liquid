@@ -502,6 +502,14 @@
     flex-direction: column;
     gap: 10px;
   }
+  /* A phone cannot spare 24 a side. Dropping to 16 gives the grid inside 32px
+     back, which is the difference between two treats to a row and one. */
+  @media screen and (max-width: 749px) {
+    .customize-box__card {
+      padding: 16px;
+    }
+  }
+
 
   .customize-box__card-title {
     margin: 0;
@@ -542,26 +550,22 @@
   }
 
   /*
-   * Three counts, not two. The file draws four columns at 1440 and nothing in
-   * between; run four from 750 and each card is barely 110px, which is narrower
-   * than the two-line names the grid is full of.
+   * Counted from the column, not the window. How wide this grid is depends on
+   * whether the summary is beside it, so the same viewport gives it 662px on a
+   * phone-shaped single column and 567 at 1203 where the summary has taken its
+   * share — and a media query, which can only see the window, gave four columns
+   * to both. At 567 that is a 120px card holding a name that wraps three times
+   * and a stepper with 22px to spare.
+   *
+   * `max()` inside the track does the counting: the floor is a quarter of the
+   * column, so a wide one lands on exactly the four the file draws and never
+   * five, and 150px, so a narrow one drops to three and then two rather than
+   * squeezing. 662 gives 4, 567 gives 3, a phone gives 2.
    */
   .customize-box__flavours {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(max(140px, calc((100% - 36px) / 4)), 1fr));
     gap: 12px;
-  }
-
-  @media screen and (min-width: 750px) {
-    .customize-box__flavours {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-
-  @media screen and (min-width: 1200px) {
-    .customize-box__flavours {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
   }
 
   .customize-box__tally {
@@ -713,10 +717,12 @@
   }
 
   /* Two to a row across the 482 the summary has inside its padding, which is
-     what makes each 236 wide. */
+     what makes each 236 wide — and one to a row once that column is narrow
+     enough that two would leave no room beside a 46px picture. Counted the same
+     way as the treats above, and for the same reason. */
   .customize-box__summary-chips {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(max(160px, calc((100% - 10px) / 2)), 1fr));
     gap: 10px;
   }
 
