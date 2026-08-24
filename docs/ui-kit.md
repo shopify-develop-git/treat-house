@@ -448,9 +448,15 @@ script, `assets/ui-quantity-stepper.js`, which does nothing but move the value
 within its min/max and fire `input` and `change`. It is deliberately **not** Horizon's
 `quantity-selector-component`, which is bound to the cart and product form.
 
-`value` · `min` · `max` · `name` · `label` · `disabled` · `class`
+`value` · `min` · `max` · `name` · `label` · `disabled` · `full_width` · `class`
 
 A button that cannot move the value any further disables itself.
+
+`full_width` lets the three cells share the width they are given instead of
+holding 44px each. Standing on its own that 132px is the touch target; inside a
+card in a grid it is either an overflow or a floor on how narrow the grid may
+get. The height does not move either way — that is the part of the target a
+thumb cannot do without.
 
 ### `ui-collection-card`
 
