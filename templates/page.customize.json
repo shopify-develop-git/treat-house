@@ -36,6 +36,7 @@
         },
         "individual": {
           "type": "_ui-box-packaging",
+          "disabled": true,
           "settings": {
             "title": "Individually Wrapped",
             "description": "Great for sharing or favors",
