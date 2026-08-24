@@ -21,6 +21,12 @@
   # reads these, so no price is ever worked out in JavaScript.
   assign entries = ''
 
+  # A choice that stands for a product takes that product's price and name. The
+  # same product is the same money whichever pack it goes in, so this is worked
+  # out once and every pack in the map below carries it.
+  assign linked_product = block.settings.product
+  assign capacity = block.settings.capacity
+
   for pack in packs
     assign option_one = pack.options_with_values[0]
     assign option_two = pack.options_with_values[1]
@@ -50,11 +56,38 @@
       continue
     endif
 
-    assign extra = chosen.price | minus: base.price
-    if extra > 0
-      assign note = extra | money | prepend: '+ '
+    ##
+    # How many of this packaging the pack needs. A box that holds twelve is one
+    # box for a twelve and two for a twenty-four, so the figure the row shows is
+    # the product's price times that — and it is worked out per pack, which is
+    # why it lives in the loop rather than above it.
+    #
+    # Liquid divides integers by truncating, so the ceiling is taken by adding
+    # one less than the divisor first.
+    assign pack_size = pack.metafields.custom.pack_size.value | default: pack.metafields.custom.pack_size
+    if pack_size == blank
+      assign pack_size = pack.title | split: ' ' | first | times: 1
+    endif
+
+    assign units = 1
+    if capacity > 0 and pack_size > capacity
+      assign units = pack_size | plus: capacity | minus: 1 | divided_by: capacity
+    endif
+
+    if linked_product != blank
+      assign line_price = linked_product.price | times: units
+      if line_price > 0
+        assign note = line_price | money | prepend: '+ '
+      else
+        assign note = 'content.included' | t
+      endif
     else
-      assign note = 'content.included' | t
+      assign extra = chosen.price | minus: base.price
+      if extra > 0
+        assign note = extra | money | prepend: '+ '
+      else
+        assign note = 'content.included' | t
+      endif
     endif
 
     # Money is formatted into its own variable first. A `money` in the middle of
@@ -67,7 +100,20 @@
     assign entry = entry | append: ',"available":' | append: chosen.available
     assign entry = entry | append: ',"price":' | append: chosen.price
     assign entry = entry | append: ',"priceText":"' | append: price_text | append: '"'
-    assign entry = entry | append: ',"note":"' | append: note | append: '"}'
+    assign entry = entry | append: ',"note":"' | append: note | append: '"'
+    assign entry = entry | append: ',"units":' | append: units
+    # Resolved first, not appended through a filter. `default` at the end of an
+    # append chain applies to the whole string, which is never blank — so a
+    # product with no available variant would have written `"unitId":}` and left
+    # the map unparseable.
+    assign unit_id = linked_product.first_available_variant.id
+    if unit_id == blank
+      assign unit_id = linked_product.variants.first.id
+    endif
+    if unit_id != blank
+      assign entry = entry | append: ',"unitId":' | append: unit_id
+    endif
+    assign entry = entry | append: '}'
 
     if entries == ''
       assign entries = entry
@@ -101,8 +147,10 @@
     assign row_image = row_product.featured_image
   endif
 
+  # The product's own name, when there is one. The typed title is what a choice
+  # with no product behind it is called.
   assign row_title = block.settings.title
-  if row_title == blank
+  if row_product != blank
     assign row_title = row_product.title
   endif
 -%}
@@ -134,13 +182,19 @@
       "type": "product",
       "id": "product",
       "label": "Product",
-      "info": "Optional. Lends its picture and, when the title below is empty, its name. It is not added to the cart and not charged — the surcharge is already an option on the pack."
+      "info": "Its name, its picture and its price become the row. Leave it empty and the fields below are used instead, with the surcharge read from the pack's own options."
+    },
+    {
+      "type": "number",
+      "id": "capacity",
+      "label": "Treats it holds",
+      "info": "How many treats fit in one. A box that holds 12 counts as two for a 24 pack, and the price shown follows. Leave empty for packaging that scales with the box rather than being counted."
     },
     {
       "type": "text",
       "id": "title",
       "label": "t:settings.title",
-      "info": "Left empty, the product's own name is used."
+      "info": "Used only when no product is chosen above."
     },
     {
       "type": "text",
@@ -152,7 +206,7 @@
       "type": "image_picker",
       "id": "image",
       "label": "t:settings.image",
-      "info": "Left empty, the product's featured image is used."
+      "info": "Used only when no product is chosen above."
     },
     {
       "type": "header",

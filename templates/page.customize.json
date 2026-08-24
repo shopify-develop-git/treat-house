@@ -29,7 +29,8 @@
             "description": "Signature box, ready to give",
             "gift_box": true,
             "individual_packs": false,
-            "product": "12-pack-gift-box-rd"
+            "product": "12-pack-gift-box-rd",
+            "capacity": 12
           },
           "blocks": {}
         },
