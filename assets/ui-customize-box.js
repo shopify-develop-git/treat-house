@@ -102,6 +102,10 @@ class CustomizeBox extends HTMLElement {
       const input = card.querySelector('input[type="number"]');
       input.value = '1';
       card.setAttribute('data-chosen', '');
+      // `input` then `change`, the pair a typed edit produces. The stepper
+      // re-reads its buttons on `input` alone, so sending only `change` left a
+      // freshly added flavour with its minus disabled from the zero it just left.
+      input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new Event('change', { bubbles: true }));
       return;
     }
@@ -132,13 +136,15 @@ class CustomizeBox extends HTMLElement {
     const total = this.#flavourTotal;
     const entry = this.#entry;
 
-    // A stepper can never take the box past the pack it is going into.
-    for (const card of this.querySelectorAll('[data-flavour]')) {
-      const input = card.querySelector('input[type="number"]');
-      if (!input) continue;
-      const own = Number(input.value) || 0;
-      input.max = String(size ? Math.max(own, size - (total - own)) : 36);
-    }
+    // Nothing here narrows a stepper any more. Rewriting `max` from out here was
+    // a lie the steppers could not see: each one decides which of its buttons to
+    // disable when its own value changes, and never again — so a `max` moved
+    // behind its back left the buttons showing the previous answer. A flavour
+    // added while the box was full arrived with `max` already down at its value,
+    // its minus still disabled from sitting at zero, and no way to take it off.
+    //
+    // The box being over its size is now said rather than prevented: the tally
+    // reads "14 of 12 chosen" and Continue stays disabled until it does not.
 
     this.#renderHeading();
     this.#renderTally(size, total);
