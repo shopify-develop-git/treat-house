@@ -140,11 +140,34 @@ class CustomizeBox extends HTMLElement {
       input.max = String(size ? Math.max(own, size - (total - own)) : 36);
     }
 
+    this.#renderHeading();
     this.#renderTally(size, total);
     this.#renderPackagingNotes();
     this.#renderSummary(entry, size, total);
     this.#renderReview(entry);
     this.#renderGates(size, total, entry);
+  }
+
+  /**
+   * The hero title past step one. Liquid carries both wordings on the spans, so
+   * nothing here knows what the page says — only which of the two to show.
+   *
+   * The heading is the one thing this element writes that sits outside it: the
+   * hero is drawn above the form, and has to stay there, because a shop with no
+   * pack collection picked shows the hero and a setup note and never renders the
+   * form at all. So the search runs from the section, not from `this` — which is
+   * why the title silently refused to change the first time.
+   *
+   * A merchant who leaves the later wording empty keeps the first one, rather
+   * than watching the title empty itself on step two.
+   */
+  #renderHeading() {
+    const section = this.closest('.customize-box');
+    if (!section) return;
+    for (const part of section.querySelectorAll('[data-heading-part]')) {
+      const after = part.dataset.after;
+      part.textContent = this.#screen > 1 && after ? after : part.dataset.first;
+    }
   }
 
   #renderTally(size, total) {

@@ -66,11 +66,27 @@
       </p>
     {%- endif -%}
 
+    {%- comment -%}
+      Past the first step the file swaps the title — "Choose Your Own Flavors"
+      becomes "Customize Your Box" (508:9503 against 508:9631). Both wordings ride
+      on the spans as attributes rather than living in the script, so the merchant
+      still owns the copy and a translation still travels with it.
+
+      Both spans always render, even when a wording is blank: the script fills
+      them, and a span that was never drawn cannot be filled later.
+    {%- endcomment -%}
     <h1 class="customize-box__heading">
-      {{ section.settings.heading }}
-      {%- if section.settings.heading_accent != blank -%}
-        <span class="customize-box__heading-accent">{{ section.settings.heading_accent }}</span>
-      {%- endif -%}
+      <span
+        data-heading-part
+        data-first="{{ section.settings.heading | escape }}"
+        data-after="{{ section.settings.heading_after | escape }}"
+      >{{ section.settings.heading }}</span>
+      <span
+        class="customize-box__heading-accent"
+        data-heading-part
+        data-first="{{ section.settings.heading_accent | escape }}"
+        data-after="{{ section.settings.heading_accent_after | escape }}"
+      >{{ section.settings.heading_accent }}</span>
     </h1>
 
     {%- if section.settings.subheading != blank -%}
@@ -895,6 +911,19 @@
       "id": "heading_accent",
       "label": "Heading in purple",
       "default": "Your Own Flavors"
+    },
+    {
+      "type": "text",
+      "id": "heading_after",
+      "label": "Heading after step one",
+      "default": "Customize",
+      "info": "The title changes once the reader is past the first step. Leave either field empty to keep the wording above for the whole builder."
+    },
+    {
+      "type": "text",
+      "id": "heading_accent_after",
+      "label": "Heading in purple after step one",
+      "default": "Your Box"
     },
     {
       "type": "textarea",
