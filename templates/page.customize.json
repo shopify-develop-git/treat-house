@@ -17,6 +17,7 @@
           "settings": {
             "title": "Clear Tray",
             "description": "Simple, everyday packaging",
+            "image": "shopify://shop_images/chatgpt_image_17_2026_17_56_21_1.webp",
             "gift_box": false,
             "individual_packs": false
           },
