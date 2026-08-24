@@ -385,6 +385,15 @@ class CustomizeBox extends HTMLElement {
       if (!input) continue;
       input.value = String(count);
       card.toggleAttribute('data-chosen', count > 0);
+
+      // Setting `.value` fires nothing, and the stepper works out which of its
+      // buttons to disable only when it hears from its own input. Restore in
+      // silence and every flavour comes back with its minus disabled — frozen
+      // from the zero the server rendered — so a box reopened full could not be
+      // changed at all. This is the event that would have accompanied a real
+      // edit; it deliberately does not bubble, so the host does not re-render
+      // and re-save once per restored flavour on load.
+      input.dispatchEvent(new Event('input'));
     }
 
     const message = this.querySelector('.ui-message__control');

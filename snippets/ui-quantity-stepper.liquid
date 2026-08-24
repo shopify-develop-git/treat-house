@@ -13,6 +13,12 @@
   A button that cannot move the value any further disables itself, so the limits
   are visible rather than only enforced on click.
 
+  That state is worked out when the input tells it something, so **anything that
+  writes the value from outside must fire an `input` event afterwards.** Assigning
+  `.value` fires nothing, and a stepper left unsynced keeps the buttons from
+  whatever the value used to be — usually a disabled minus at what is no longer
+  zero. Changing `max` from outside has the same problem.
+
   @param {number} [value] - The starting quantity. Defaults to 1.
   @param {number} [min] - The lowest allowed quantity. Defaults to 0.
   @param {number} [max] - The highest allowed quantity.
