@@ -68,7 +68,7 @@
 
       <div class="home-hero__media">
         {%- if section.settings.image != blank -%}
-          {% render 'image', image: section.settings.image, height: 600, class: 'home-hero__image' %}
+          {% render 'image', image: section.settings.image, height: 600, class: 'home-hero__image', loading: 'eager' %}
         {%- else -%}
           {%- comment -%} Photography is not in yet; hold the frame so the layout reads true. {%- endcomment -%}
           <span class="home-hero__image-placeholder" aria-hidden="true"></span>

@@ -216,6 +216,7 @@
           style="
             {% render 'menu-font-styles', settings: block_settings %}
             --th-caret: url({{ 'icon-ui-caret-down.svg' | asset_url }});
+            --mega-menu-parent-display: {% if block.settings.show_column_headings %}inline-flex{% else %}none{% endif %};
           "
         >
           {% assign class = 'overflow-menu' | append: color_scheme_classes %}
@@ -1041,20 +1042,36 @@
       gap: 24px;
     }
 
+    /*
+     * The heading row is off unless the merchant asks for it. None of the four
+     * mega-menu frames draws one — a panel is plain columns of links — so `none`
+     * is the default, and hiding it also takes the label out of the tab order,
+     * which is the other half of the complaint: it was a link that read as a
+     * caption.
+     *
+     * The grouping itself stays in the navigation whichever way the switch is
+     * set, because that level is what splits the panel into columns. Take it out
+     * of the menu and the links run together in one list. It is the label that
+     * goes, not the structure.
+     *
+     * Switched through a custom property rather than a class, because this
+     * stylesheet is bundled once for the whole theme and cannot see a block's
+     * settings — the block writes the value on the nav and it inherits down to
+     * the panels. `inline-flex` is what [mega-menu-list] gives every link,
+     * so shown, the heading stands exactly as it did.
+     *
+     * One colour, and it is the purple. This used to paint every second column's
+     * heading orange to part one group from the next; two colours on headings of
+     * the same rank read as a fault rather than a hierarchy, and that orange came
+     * to 3.08:1 on white where body text wants 4.5:1.
+     */
     #header-component[data-menu-style='menu'] .mega-menu__link--parent {
+      display: var(--mega-menu-parent-display, none);
       font-family: var(--font-heading--family);
       font-size: 14px;
       font-weight: 700;
       line-height: 1.1;
       color: var(--ui-color-primary);
-    }
-
-    /* Every second heading takes the orange, which is how the file separates one
-       column from the next without a rule between them. */
-    #header-component[data-menu-style='menu']
-      .mega-menu__column:nth-child(even)
-      .mega-menu__link--parent {
-      color: var(--ui-color-orange);
     }
 
     #header-component[data-menu-style='menu'] .mega-menu__link:not(.mega-menu__link--parent) {
@@ -1363,6 +1380,13 @@
         }
       ],
       "default": "collection_images"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_column_headings",
+      "label": "Show column headings",
+      "info": "The name of each group above its column — \"By Format\", \"Gifting & More\". The design draws the panel as plain link columns, so this is off. The grouping still decides the columns either way.",
+      "default": false
     },
     {
       "type": "select",

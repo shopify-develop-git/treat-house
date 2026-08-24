@@ -1,9 +1,28 @@
 {%- doc -%}
   Renders the <img> element using provided image object
 
+  Deferred by default. Nothing here used to say when to fetch, so every caller
+  inherited the HTML default — eager — and a collection page pulled all thirty of
+  its cards at once, the twenty-odd below the fold included. `lazy` is the right
+  answer for almost everything this renders, so it is the default and the few
+  images that are on screen at first paint say so.
+
+  **Pass `height`.** Left out, the source is the image's own height — a 1720px
+  original for a 215px box — and the 2x and 3x entries ask for more than the file
+  has, so all three collapse onto the same original. It is not a fallback anyone
+  wants; it is what happens when the argument is forgotten.
+
+  For an image whose box is a share of the viewport rather than a fixed height,
+  this snippet is the wrong tool: a 1x/2x/3x srcset describes one rendered size,
+  and a card in a responsive grid has several. Those emit `image_tag` with `widths`
+  and `sizes` themselves — see [ui-product-card] and [ui-product-gallery].
+
   @param {object} image - image object
-  @param {number} [height] - custom image height
+  @param {number} [height] - the height the image is drawn at, in CSS pixels
   @param {string} [class] - additional classes
+  @param {string} [loading] - `lazy` (the default) or `eager`. Eager for anything
+    above the fold: a lazy hero is slower than no attribute at all, because the
+    browser stops treating it as urgent.
   @param {string} [text_fallback] - text to display if image is blank
   @param {boolean} [unset_image_tag] - if true, ignores the image focal point
   @param {string} [style] - additional styles
@@ -15,6 +34,7 @@
   {% assign image_height = height | default: image.height %}
   {% assign image_height_2x = height | default: image_height | times: 2 %}
   {% assign image_height_3x = height | default: image_height | times: 3 %}
+  {% assign image_loading = loading | default: 'lazy' %}
 
   {% capture image_srcset -%}
     {{ image | image_url: height: image_height }} 1x, {{ image | image_url: height: image_height_2x }} 2x, {{ image | image_url: height: image_height_3x }} 3x
@@ -26,7 +46,11 @@
     {% assign style_value = style_value | append: 'object-position: inherit;' %}
   {% endif %}
 
-  {{ image | image_url: height: image_height | image_tag: class: class, srcset: image_srcset, style: style_value }}
+  {{
+    image
+    | image_url: height: image_height
+    | image_tag: class: class, srcset: image_srcset, style: style_value, loading: image_loading
+  }}
 {% elsif text_fallback %}
   {{ text_fallback }}
 {% endif %}

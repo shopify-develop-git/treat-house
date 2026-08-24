@@ -42,33 +42,49 @@
    * starting at the same 80 the rest of the page starts at (535:22504 is the
    * 1280 inside the 1440 frame) and rounds it like the panels above and below
    * it — so the section sits in the `.section` grid and lets that place it,
-   * rather than reaching the window edges and padding itself.
+   * rather than reaching the window edges and padding itself. The round is the
+   * kit's small one, 2px, which is what 535:22504 carries — not the 20 the pale
+   * panels elsewhere on the page take.
    */
   .corporate-band {
     display: flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    min-height: 90px;
-    padding: 16px 24px;
-    border-radius: 20px;
+
+    /*
+     * 32 above and below, and the gutter's own step across. The file draws 80
+     * either side at 1440, which is the page margin at that width — so the band
+     * takes `--ui-page-margin` and steps with the page instead of holding 80 down
+     * to a phone, where it would leave a centred line almost no room.
+     *
+     * No min-height: the padding and the line make the drawn 90 on their own
+     * (32 + 24 x 1.1 + 32), and a second source for one measurement is how the
+     * two drift apart the first time either moves.
+     */
+    padding: 32px var(--ui-page-margin);
+    border-radius: var(--ui-radius-sm);
     background-color: var(--ui-color-primary);
     text-align: center;
   }
 
   /*
-   * The heading face, not the body one — the file sets this line in the same
-   * italic the page's headings take, at the size a subheading would be. It is an
-   * invitation, and it is meant to read like the rest of the page's voice rather
-   * than like a footer link.
+   * The heading face, not the body one — the file sets this line in the page's
+   * own heading type at the size a subheading takes. It is an invitation, and it
+   * reads in the rest of the page's voice rather than like a footer link.
+   *
+   * Upright, and bold. It used to be `font-style: italic` at weight 400, which
+   * was reading the face rather than the file: the heading font is a script and
+   * already leans, so the italic was a second slant synthesised on top of it, and
+   * 400 was a weight the theme does not load — the browser faked that too. The
+   * file says Bold, 24, and nothing about a slant.
    */
   .corporate-band__link {
     color: var(--ui-color-white);
     font-family: var(--font-heading--family);
-    font-size: 20px;
-    font-style: italic;
-    font-weight: 400;
-    line-height: 26px;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.1;
     text-decoration: underline solid;
     text-decoration-thickness: from-font;
     text-underline-position: from-font;

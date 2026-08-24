@@ -221,6 +221,16 @@
               assign tagline = product.description | strip_html | truncatewords: 15, ''
 
               assign price = product.price | money
+
+              # The grid runs four across at its widest, so the first four are the
+              # row a visitor already has on screen. Deferring those would trade one
+              # fault for another: a lazy image is not merely delayed, it is dropped
+              # out of the browser's urgent queue, and the largest of them is
+              # usually what the page is measured on.
+              assign card_loading = 'lazy'
+              if forloop.index <= 4
+                assign card_loading = 'eager'
+              endif
             -%}
             {%- capture grid_badge -%}{% render 'ui-product-badge', product: product %}{%- endcapture -%}
             {%- assign grid_badge_parts = grid_badge | strip | split: '|' -%}
@@ -237,7 +247,8 @@
                 link: product.url,
                 badge: grid_badge_parts[0],
                 badge_color: grid_badge_parts[1],
-                add_content: add_control
+                add_content: add_control,
+                loading: card_loading
               %}
             </li>
           {%- endfor -%}

@@ -64,7 +64,8 @@
         class: 'header-logo__image',
         height: settings.logo_height,
         text_fallback: shop.name,
-        style: logo_style
+        style: logo_style,
+        loading: 'eager'
       %}
     {%- else -%}
       <img
@@ -88,7 +89,8 @@
         class: 'header-logo__image',
         height: settings.logo_height,
         text_fallback: shop.name,
-        style: inverse_logo_style
+        style: inverse_logo_style,
+        loading: 'eager'
       %}
     </span>
   {% endif %}

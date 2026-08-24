@@ -16,9 +16,9 @@
   instead and a long label takes two rows of its own.
 
   What is left is the spacing, and that answers to the panel holding the row rather
-  than to the viewport, through a container query. At the width the file draws, 32px
-  either side of a rule is a quarter of the row; in a 440px column it is more than
-  half of it.
+  than to the viewport, through a container query. At the width the file draws, 24px
+  either side of a rule is a fifth of the row; in a 440px column it is nearly half
+  of it.
 
   The merchant's figure arrives as `--ui-stat-row-gap-set` and not as the gap
   itself, because an inline style outranks every rule in a stylesheet — written
@@ -57,7 +57,7 @@
    */
   .ui-stat-row__items {
     /* The set figure is the row's widest; the narrower tiers cap it. */
-    --ui-stat-row-gap: min(var(--ui-stat-row-gap-set, 32px), 25px);
+    --ui-stat-row-gap: min(var(--ui-stat-row-gap-set, 24px), 25px);
 
     display: flex;
     align-items: stretch;
@@ -85,6 +85,13 @@
    * carries the whole change and the pages running actual figures are untouched.
    */
   .ui-stat-row--captioned .ui-stat-row__items > :not(:first-child) {
+    /*
+     * The padding goes with the rule it was balancing. Above, the gap sits one
+     * side of the rule and this padding the other, so the two match; with no rule
+     * drawn there is nothing to balance and the pair simply doubled the space —
+     * 48px between names where 508:12294 sets the row at a plain 24px gap.
+     */
+    padding-inline-start: 0;
     border-inline-start: none;
   }
 
@@ -97,7 +104,10 @@
   }
 
   .ui-stat-row__caption {
-    margin: 0 0 8px;
+    /* 16 between the caption and the row, as 508:12291 stacks them. The wrapper is
+       a plain block, so this margin is the whole of that space — there is no gap
+       above it to add to. */
+    margin: 0 0 16px;
     color: var(--ui-color-primary);
     font-family: var(--font-heading--family);
     font-size: 20px;
@@ -109,7 +119,7 @@
 
   @media screen and (min-width: 750px) {
     .ui-stat-row__items {
-      --ui-stat-row-gap: var(--ui-stat-row-gap-set, 32px);
+      --ui-stat-row-gap: var(--ui-stat-row-gap-set, 24px);
     }
   }
 
@@ -121,7 +131,7 @@
    */
   @container (max-width: 480px) {
     .ui-stat-row__items {
-      --ui-stat-row-gap: min(var(--ui-stat-row-gap-set, 32px), 14px);
+      --ui-stat-row-gap: min(var(--ui-stat-row-gap-set, 24px), 14px);
     }
   }
 {% endstylesheet %}
@@ -150,7 +160,7 @@
       "max": 48,
       "step": 1,
       "unit": "px",
-      "default": 32,
+      "default": 24,
       "info": "The row's widest spacing. A phone caps it at 25 and a narrow panel at 14, so tightening this tightens every width."
     }
   ],

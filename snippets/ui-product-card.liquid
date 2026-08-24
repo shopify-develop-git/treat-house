@@ -24,6 +24,9 @@
   @param {string} [subtitle] - The supporting line under it.
   @param {string} [price] - Formatted price. Pass it already formatted, so the card stays out of money filters.
   @param {object} [image] - A Shopify image object for the media box.
+  @param {string} [loading] - `lazy` (the default) or `eager`. A grid of these is
+    mostly below the fold, but the first row is not — the caller that knows how
+    many fit across says so for those.
   @param {string} [link] - The product URL. Without it the card is not clickable.
   @param {string} [badge] - Badge text, shown over the top-left of the media.
   @param {string} [badge_color] - Background colour for the badge, any CSS colour. Defaults to the kit purple. The text colour follows from it.
@@ -59,6 +62,8 @@
     assign basket_label = 'actions.add_to_cart' | t
   endif
 
+  assign card_loading = loading | default: 'lazy'
+
   assign card_classes = 'ui-product-card'
   if class != blank
     assign card_classes = card_classes | append: ' ' | append: class
@@ -68,7 +73,26 @@
 <article class="{{ card_classes }}"{% if attributes != blank %} {{ attributes }}{% endif %}>
   <div class="ui-product-card__media">
     {%- if image != blank -%}
-      {% render 'image', image: image, class: 'ui-product-card__image' %}
+      {%- comment -%}
+        Width descriptors and `sizes`, not the 1x/2x/3x that [image] hands out. That
+        srcset describes one drawn size, and this box has several: it is a share of
+        a grid that runs two, three and four across. Asked for a height instead, the
+        snippet fell back to the file's own — a 1720px original behind a 215px box.
+
+        The `sizes` errs high on purpose. Too small is a blurry card; too large is a
+        few kilobytes. The floor is the carousel's fixed 240px card, which a plain
+        50vw would under-serve on a phone.
+      {%- endcomment -%}
+      {{
+        image
+        | image_url: width: 960
+        | image_tag:
+          widths: '200, 260, 320, 400, 480, 600, 760, 960',
+          sizes: '(min-width: 1200px) 320px, (min-width: 750px) 33vw, max(50vw, 240px)',
+          class: 'ui-product-card__image',
+          loading: card_loading,
+          alt: image.alt
+      }}
     {%- else -%}
       {{ 'product-1' | placeholder_svg_tag: 'ui-product-card__image ui-product-card__image--placeholder' }}
     {%- endif -%}
@@ -164,31 +188,46 @@
   }
 
   /*
-   * The file keeps every card in a row to one height and lets the media take the
-   * difference — a title that runs to two lines shrinks the image rather than
-   * stretching the card. The ratio is the media's natural size; flex lets a
-   * stretched row grow it and a taller neighbour shrink it.
+   * The ratio is kept, not merely started from. The media used to be `flex: 1 1
+   * auto` so a stretched row could take its slack out of the photograph, which
+   * held every card in the row to one height — but it also meant a two-line title
+   * shortened its own image, so the pictures in a row came out different heights
+   * and the titles under them started at different places. A grid of photographs
+   * that do not line up reads as a mistake before anyone notices why.
+   *
+   * So the media is the fixed part now and the copy takes the slack: same width
+   * and same ratio gives every card in a row the same picture and the same first
+   * baseline, and the card still fills its cell because the body grows instead.
    */
   .ui-product-card__media {
     display: block;
-    flex: 1 1 auto;
-    min-height: 0;
+    flex: 0 0 auto;
     aspect-ratio: var(--ui-product-card-media-ratio);
     overflow: hidden;
   }
 
+  /*
+   * Contained, not cropped. Now that the box holds its ratio rather than bending
+   * to the copy, a photograph whose own proportion differs from 240/215 has to
+   * give something up — and `cover` takes it off the edges, which on a treat shot
+   * square-on is the treat. Letterboxing on the card's own white is the quieter
+   * loss: the product arrives whole, and a catalogue photographed against white
+   * shows no seam where the picture stops.
+   */
   .ui-product-card__image {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
   }
 
+  /* Grows into whatever a stretched row leaves over, so the price row stays on the
+     card's bottom edge and the copy stays at the top of its own box. */
   .ui-product-card__body {
     display: flex;
     flex-direction: column;
     gap: var(--ui-product-card-body-gap);
-    flex: 0 0 auto;
+    flex: 1 1 auto;
     padding: var(--ui-product-card-body-padding);
   }
 

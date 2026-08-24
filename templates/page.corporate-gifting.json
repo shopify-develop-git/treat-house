@@ -81,7 +81,7 @@
         "two": {
           "type": "_ui-feature-card",
           "settings": {
-            "icon": "sparkles",
+            "icon": "bolt",
             "title": "Quick Turnaround",
             "body": "<p>Standard orders ready in 3–5 business days. Rush available.</p>"
           }
@@ -89,7 +89,7 @@
         "three": {
           "type": "_ui-feature-card",
           "settings": {
-            "icon": "gift",
+            "icon": "box-add",
             "title": "Flexible Pack Sizes",
             "body": "<p>1 packs, 2 packs, 4 packs, 6 packs, and 12 packs</p>"
           }
@@ -97,7 +97,7 @@
         "four": {
           "type": "_ui-feature-card",
           "settings": {
-            "icon": "hand-holding-heart",
+            "icon": "headset",
             "title": "Dedicated Support",
             "body": "<p>A real person manages your order from quote to delivery.</p>"
           }

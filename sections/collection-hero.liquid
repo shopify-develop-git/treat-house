@@ -121,7 +121,7 @@
                 "
               >
             {%- endif -%}
-            {% render 'image', image: hero_image, height: 760, class: 'collection-hero__image' %}
+            {% render 'image', image: hero_image, height: 760, class: 'collection-hero__image', loading: 'eager' %}
           </picture>
         {%- else -%}
           {%- comment -%} Photography is not in yet; hold the frame so the band reads true. {%- endcomment -%}

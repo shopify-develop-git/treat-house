@@ -43,7 +43,7 @@
 {%- capture card_inner -%}
   <div class="ui-media-card__media">
     {%- if image != blank -%}
-      {% render 'image', image: image, class: 'ui-media-card__image' %}
+      {% render 'image', image: image, height: 77, class: 'ui-media-card__image' %}
     {%- else -%}
       {{ 'product-1' | placeholder_svg_tag: 'ui-media-card__image ui-media-card__image--placeholder' }}
     {%- endif -%}

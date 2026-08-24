@@ -38,7 +38,7 @@
     <div class="ui-testimonial__author">
       <span class="ui-testimonial__avatar">
         {%- if block.settings.image != blank -%}
-          {% render 'image', image: block.settings.image, class: 'ui-testimonial__avatar-image' %}
+          {% render 'image', image: block.settings.image, height: 36, class: 'ui-testimonial__avatar-image' %}
         {%- else -%}
           <span class="ui-testimonial__initial" aria-hidden="true">{{ initial }}</span>
         {%- endif -%}

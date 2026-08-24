@@ -136,7 +136,8 @@
       ],
       "name": "Home hero",
       "settings": {
-        "image": "shopify://shop_images/home-hero-image.webp"
+        "image": "shopify://shop_images/home-hero-image.webp",
+        "marquee_text": "nationwide shipping"
       }
     },
     "our_story_Vt6Rw1": {
