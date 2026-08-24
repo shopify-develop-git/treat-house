@@ -2,10 +2,13 @@
   Renders the message box from the UI kit (Figma: INPUT → Input Message).
 
   Despite sitting in the INPUT section this is not one of the Field/* family: it
-  carries no label of its own, sits on the kit's light blue rather than white, sets
-  its text two sizes smaller, and counts characters. It reads as a gift-message box
-  rather than a form field, so it gets its own snippet instead of a flag on
-  ui-input.
+  carries no label of its own, sets its text two sizes smaller, and counts
+  characters. It reads as a gift-message box rather than a form field, so it gets
+  its own snippet instead of a flag on ui-input.
+
+  It sits on white, like the rest of the kit's fields. `--ui-message-background`
+  moves it, the same escape hatch ui-input carries, for a caller that needs the box
+  to read against a white panel.
 
   The counter is rendered server-side and then kept in step by
   ui-character-count.js, so a blocked script leaves the count correct but frozen
@@ -90,7 +93,7 @@
     height: var(--ui-message-height);
     border: var(--ui-hairline-width) solid var(--ui-color-border-gray);
     border-radius: var(--ui-radius-sm);
-    background-color: var(--ui-color-light-blue);
+    background-color: var(--ui-message-background, var(--ui-color-white));
     transition: border-color var(--animation-speed) ease;
   }
 
