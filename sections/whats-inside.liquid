@@ -9,19 +9,35 @@
   and the hand-written entries are put end to end.
 {% endcomment %}
 
-<div
-  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
-  style="{% render 'spacing-style', settings: section.settings %}"
-  data-testid="whats-inside-{{ section.id }}"
-  {{ section.shopify_attributes }}
->
+{%- comment -%}
+  A product that has not said what is in its box has no What's Inside, so the whole
+  section stands down — heading, padding and all — rather than opening on a title
+  over one card about gift boxes that is true of everything in the shop.
+
+  The test is what the blocks actually drew, because the list can arrive from three
+  places — the product's metafield, the products picked in the editor, and the
+  hand-written cards — and only [_ui-inclusion-cards] knows which of them landed. It
+  marks the grid when the first two did, and the hand-written cards ride along with
+  that list rather than standing in for it, which is how the file draws them: the
+  fourth card of four.
+{%- endcomment -%}
+{%- capture whats_inside_blocks -%}{% content_for 'blocks' %}{%- endcapture -%}
+
+{%- if whats_inside_blocks contains 'ui-inclusion-cards--from-product' -%}
   <div
-    class="whats-inside whats-inside--{{ section.settings.heading_alignment }}"
-    style="--whats-inside-gap: {{ section.settings.gap }}px;"
+    class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+    style="{% render 'spacing-style', settings: section.settings %}"
+    data-testid="whats-inside-{{ section.id }}"
+    {{ section.shopify_attributes }}
   >
-    {% content_for 'blocks' %}
+    <div
+      class="whats-inside whats-inside--{{ section.settings.heading_alignment }}"
+      style="--whats-inside-gap: {{ section.settings.gap }}px;"
+    >
+      {{ whats_inside_blocks }}
+    </div>
   </div>
-</div>
+{%- endif -%}
 
 {% stylesheet %}
   .whats-inside {

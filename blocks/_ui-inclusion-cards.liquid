@@ -31,8 +31,13 @@
   endif
 -%}
 
+{%- comment -%}
+  The modifier says the product really did name what is in its box, as opposed to
+  the grid holding only the hand-written extras. `whats-inside` reads it to decide
+  whether there is a section at all — see the note there.
+{%- endcomment -%}
 <div
-  class="ui-inclusion-cards"
+  class="ui-inclusion-cards{% if items.size > 0 %} ui-inclusion-cards--from-product{% endif %}"
   style="--ui-inclusion-cards-gap: {{ block.settings.gap }}px; --ui-inclusion-cards-columns: {{ block.settings.columns }};"
   {{ block.shopify_attributes }}
 >
