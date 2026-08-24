@@ -147,10 +147,15 @@
                             assign per_treat = per_unit | money | append: ' / ' | append: section.settings.unit_noun
                           endif
 
+                          # Escaped into their own variables first. A filter in the
+                          # middle of an append chain applies to everything
+                          # accumulated so far, not to the value beside it.
                           assign safe_title = short_title | escape
+                          assign safe_note = per_treat | escape
                           assign tile_attributes = 'data-pack="' | append: pack.handle
                           assign tile_attributes = tile_attributes | append: '" data-pack-size="' | append: pack_size
-                          assign tile_attributes = tile_attributes | append: '" data-pack-title="' | append: safe_title | append: '"'
+                          assign tile_attributes = tile_attributes | append: '" data-pack-title="' | append: safe_title
+                          assign tile_attributes = tile_attributes | append: '" data-pack-note="' | append: safe_note | append: '"'
                         -%}
                         {% render 'ui-choice-tile',
                           name: 'customize-pack',
@@ -328,9 +333,16 @@
 
                 <div class="customize-box__summary-chips" data-summary-chips hidden></div>
 
+                {%- comment -%}
+                  The name and the surcharge are two spans rather than one string
+                  because the file sets them differently — the choice in bold at
+                  16, the "(+ $6.00)" beside it regular at 14. The two carry no
+                  whitespace between them in the source; the space belongs to the
+                  surcharge, so a choice that adds nothing leaves no gap behind.
+                {%- endcomment -%}
                 <div class="customize-box__summary-row" data-summary-packaging-row hidden>
                   <span>{{ section.settings.label_packaging }}</span>
-                  <strong data-summary-packaging></strong>
+                  <strong data-summary-packaging><span data-summary-packaging-name></span><span class="customize-box__summary-extra" data-summary-packaging-extra></span></strong>
                 </div>
 
                 <div class="customize-box__summary-row" data-summary-message-row hidden>
@@ -712,7 +724,16 @@
   }
 
   .customize-box__summary-row > span {
+    font-size: 14px;
+    line-height: 1.3;
     color: var(--ui-color-gray);
+  }
+
+  /* Regular where the choice beside it is bold, and a size down. */
+  .customize-box__summary-extra {
+    font-weight: var(--ui-font-body-weight);
+    font-size: 14px;
+    line-height: 1.3;
   }
 
   .customize-box__summary-total > span {

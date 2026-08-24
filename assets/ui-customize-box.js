@@ -224,7 +224,14 @@ class CustomizeBox extends HTMLElement {
     const packagingName = this.#packagingTitle();
     if (packagingRow) {
       packagingRow.hidden = !packagingName;
-      this.#setText('[data-summary-packaging]', packagingName);
+      this.#setText('[data-summary-packaging-name]', packagingName);
+
+      // Only a surcharge is worth repeating beside the name. The note is also
+      // "Included", or empty for a choice with no product behind it, and neither
+      // says anything the row does not already say. Liquid writes a money note by
+      // prepending "+ ", in every locale, so the sign is what separates the two.
+      const note = entry?.note ?? '';
+      this.#setText('[data-summary-packaging-extra]', note.startsWith('+') ? ` (${note})` : '');
     }
 
     const messageRow = this.querySelector('[data-summary-message-row]');
@@ -238,7 +245,12 @@ class CustomizeBox extends HTMLElement {
       .map((flavour) => `${flavour.title} ×${flavour.count}`)
       .join(', ');
     this.#setReview('.customize-box__review-flavours', flavours);
-    this.#setReview('.customize-box__review-pack', this.#packInput?.dataset.packTitle ?? '');
+    // The file writes this line as "12 Pack ($3.75 / treat)" — the same per-treat
+    // figure the tile carries, which the tile hands over rather than it being
+    // worked out twice.
+    const packTitle = this.#packInput?.dataset.packTitle ?? '';
+    const packNote = this.#packInput?.dataset.packNote ?? '';
+    this.#setReview('.customize-box__review-pack', packTitle && packNote ? `${packTitle} (${packNote})` : packTitle);
     this.#setReview('.customize-box__review-packaging', this.#packagingTitle());
     this.#setReview('.customize-box__review-message', this.#message());
 

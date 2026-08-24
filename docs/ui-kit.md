@@ -606,9 +606,10 @@ box.
 
 ### `ui-review-row`
 
-What was chosen, under a tinted label strip, with the way back to change it. The
-control is a `<button>` and not a link: it moves within a form the reader is
-already inside, and a link would put a history entry in front of the back button.
+A white box: the label and what was chosen stacked on the left, Edit against the
+top right. The control is a `<button>` and not a link — it moves within a form the
+reader is already inside, and a link would put a history entry in front of the
+back button.
 
 `label` · `value` · `edit_label` · `edit_step` · `class`
 
