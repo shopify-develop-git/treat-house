@@ -8,9 +8,10 @@
   and the section finds the variant that gives them for whichever pack is
   currently chosen.
 
-  That is also why the price is not a setting: what this adds is the difference
-  between two variants of the same product, which Shopify already knows and which
-  changes with the pack size.
+  The price is not a setting either. A choice that stands for a product takes that
+  product's price, multiplied by how many of it the pack needs. A choice with no
+  product behind it quotes nothing at all — a row that is still a placeholder has
+  no business naming a figure, even one the variants could supply.
 {%- enddoc -%}
 
 {%- liquid
@@ -82,9 +83,16 @@
         assign note = 'content.included' | t
       endif
     else
+      ##
+      # Nothing is quoted for a choice with no product behind it. The pack's own
+      # variants would give a figure — a real one, which the total already
+      # reflects — but a row that is still waiting for its product should not be
+      # the thing that names a price. "Included" is the one exception, because it
+      # is not a price: it says the pack costs the same either way, which is what
+      # the two variants being equal means.
       assign extra = chosen.price | minus: base.price
       if extra > 0
-        assign note = extra | money | prepend: '+ '
+        assign note = ''
       else
         assign note = 'content.included' | t
       endif
@@ -125,21 +133,27 @@
   assign packaging_map = entries | prepend: '{' | append: '}'
 
   # The row shows the first pack's figures until the reader picks another.
+  #
+  # The note wanted is the first one after this pack's marker, which is index 1 of
+  # the split — the part before it is the rest of that pack's entry. Reaching for
+  # `last` instead lands on the final pack in the map, which is how the gift box
+  # opened quoting the thirty-six's price under the twelve.
   assign first_handle = packs.first.handle
   assign first_note = ''
   if first_handle != blank
     assign marker = '"' | append: first_handle | append: '":'
-    assign after = packaging_map | split: marker | last | split: '"note":"' | last
-    assign first_note = after | split: '"' | first
+    assign after = packaging_map | split: marker | last
+    assign note_parts = after | split: '"note":"'
+    if note_parts.size > 1
+      assign first_note = note_parts[1] | split: '"' | first
+    endif
   endif
 -%}
 
 {%- liquid
   # A choice may stand for a product the shop already sells — the gift box is
-  # one — and then the row takes its picture and its name from there rather than
-  # asking for both again. What it does not take is a price: the surcharge is
-  # already an option on the pack, so charging the product on top would charge
-  # the box twice.
+  # one — and then the row takes its picture, its name and its price from there
+  # rather than asking for all three again.
   assign row_product = block.settings.product
 
   assign row_image = block.settings.image
@@ -182,7 +196,7 @@
       "type": "product",
       "id": "product",
       "label": "Product",
-      "info": "Its name, its picture and its price become the row. Leave it empty and the fields below are used instead, with the surcharge read from the pack's own options."
+      "info": "Its name, its picture and its price become the row. Leave it empty and the fields below are used instead — the row then shows no price, since there is nothing behind it to charge."
     },
     {
       "type": "number",
