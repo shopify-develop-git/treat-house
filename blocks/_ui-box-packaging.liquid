@@ -119,7 +119,12 @@
       assign unit_id = linked_product.variants.first.id
     endif
     if unit_id != blank
+      assign unit_available = false
+      if linked_product.first_available_variant != blank
+        assign unit_available = true
+      endif
       assign entry = entry | append: ',"unitId":' | append: unit_id
+      assign entry = entry | append: ',"unitAvailable":' | append: unit_available
     endif
     assign entry = entry | append: '}'
 

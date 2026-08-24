@@ -14,12 +14,16 @@
  * textarea. There is one description of the box on the page, not two that can
  * drift.
  */
+import { CartAddEvent } from '@theme/events';
+
 const STORAGE_PREFIX = 'treat-house:customize-box:';
 
 class CustomizeBox extends HTMLElement {
   #screen = 1;
   #screens = [];
   #saveKey = '';
+  #sellable = false;
+  #adding = false;
 
   connectedCallback() {
     if (this.dataset.ready) return;
@@ -31,9 +35,6 @@ class CustomizeBox extends HTMLElement {
     this.addEventListener('change', this.#onChange);
     this.addEventListener('input', this.#onChange);
     this.addEventListener('click', this.#onClick);
-
-    const form = this.querySelector('form');
-    form?.addEventListener('submit', () => this.#writeProperties());
 
     this.#restore();
     this.#selectFirstIfNoneChosen();
@@ -65,6 +66,8 @@ class CustomizeBox extends HTMLElement {
         handle: card.dataset.flavour,
         title: card.dataset.flavourTitle,
         count: Number(card.querySelector('input[type="number"]')?.value ?? 0),
+        variantId: card.dataset.flavourVariant ?? '',
+        available: card.dataset.flavourAvailable === 'true',
         image: card.querySelector('img')?.getAttribute('src') ?? '',
       }))
       .filter((flavour) => flavour.count > 0);
@@ -107,6 +110,11 @@ class CustomizeBox extends HTMLElement {
       // freshly added flavour with its minus disabled from the zero it just left.
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new Event('change', { bubbles: true }));
+      return;
+    }
+
+    if (event.target.closest?.('[data-add-button]')) {
+      this.#addToCart(event.target.closest('[data-add-button]'));
       return;
     }
 
@@ -289,8 +297,8 @@ class CustomizeBox extends HTMLElement {
     const add = this.querySelector('[data-add-wrapper]');
     if (add) {
       add.hidden = this.#screen !== this.#screens.length;
-      const button = add.querySelector('button');
-      if (button) button.disabled = !entry?.available;
+      // Whether it can be pressed is decided in #renderGates, which runs after
+      // this and owns the answer.
     }
   }
 
@@ -303,19 +311,111 @@ class CustomizeBox extends HTMLElement {
       next.disabled = number === 1 ? !complete : !entry;
     }
 
-    const variantInput = this.querySelector('[data-variant-input]');
-    if (variantInput) variantInput.value = entry ? String(entry.id) : '';
+    // The pack product is not bought any more, so its variant no longer decides
+    // anything. What has to be sellable is what actually goes in the cart: every
+    // chosen flavour, and the packaging when it stands for a product.
+    const flavours = this.#chosenFlavours;
+    const packagingSellable = !entry?.unitId || entry.unitAvailable !== false;
+    this.#sellable =
+      complete && flavours.length > 0 && flavours.every((f) => f.variantId && f.available) && packagingSellable;
+
+    const button = this.querySelector('[data-add-button]');
+    if (button) button.disabled = !this.#sellable || this.#adding;
   }
 
   /* -------------------------------------------------------------- assembly */
 
-  #writeProperties() {
-    const flavours = this.#chosenFlavours
-      .map((flavour) => `${flavour.title} ×${flavour.count}`)
-      .join(', ');
-    this.#setValue('[data-property-flavours]', flavours);
-    this.#setValue('[data-property-packaging]', this.#packagingTitle());
-    this.#setValue('[data-property-message]', this.#message());
+  /**
+   * The box as cart lines: one per flavour, plus one for the packaging when the
+   * choice stands for a product. The pack product is not among them — its price
+   * is the sum of the flavours, so sending it too would charge the box twice.
+   *
+   * The packaging carries the gift message as a line item property as well as
+   * the order attribute below. The attribute is what was asked for, but Shopify
+   * keeps one per cart, so a second box would overwrite the first; the copy on
+   * the line is what keeps two boxes legible.
+   */
+  #cartItems() {
+    const message = this.#message();
+    const items = this.#chosenFlavours.map((flavour) => ({
+      id: Number(flavour.variantId),
+      quantity: flavour.count,
+    }));
+
+    const entry = this.#entry;
+    if (entry?.unitId) {
+      const packaging = { id: Number(entry.unitId), quantity: entry.units || 1 };
+      if (message) packaging.properties = { 'Gift message': message };
+      items.push(packaging);
+    }
+    return items;
+  }
+
+  async #addToCart(button) {
+    if (this.#adding || !this.#sellable) return;
+    const items = this.#cartItems();
+    if (!items.length) return;
+
+    this.#adding = true;
+    button.disabled = true;
+    this.#setAddError('');
+
+    try {
+      const response = await fetch(Theme?.routes?.cart_add_url ?? '/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ items }),
+      });
+      const body = await response.json();
+
+      if (!response.ok) {
+        // Shopify answers a refused line with a description worth reading —
+        // usually that something ran out — so it is shown rather than swallowed.
+        this.#setAddError(body.description || body.message || '');
+        return;
+      }
+
+      // Attributes are not part of /cart/add, so the note is a second request.
+      // It follows the add: a note left on a cart that never received the box
+      // would outlive the attempt.
+      const message = this.#message();
+      if (message) {
+        await fetch('/cart/update.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ attributes: { 'Gift message': message } }),
+        });
+      }
+
+      this.#announce(Theme?.translations?.added ?? '');
+      // The same event Horizon's own add-to-cart raises. It bubbles to document,
+      // where the cart icon and the cart items are listening, so the drawer and
+      // the count refresh without this file knowing anything about either.
+      this.dispatchEvent(
+        new CartAddEvent({}, this.id || 'customize-box', {
+          source: 'customize-box',
+          itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+        })
+      );
+    } catch (error) {
+      console.error(error);
+      this.#setAddError(String(error?.message ?? error));
+    } finally {
+      this.#adding = false;
+      button.disabled = !this.#sellable;
+    }
+  }
+
+  #setAddError(text) {
+    const node = this.querySelector('[data-add-error]');
+    if (!node) return;
+    node.textContent = text;
+    node.hidden = !text;
+  }
+
+  #announce(text) {
+    const region = this.querySelector('[data-live-region]');
+    if (region) region.textContent = text;
   }
 
   #packagingTitle() {
@@ -329,11 +429,6 @@ class CustomizeBox extends HTMLElement {
   #setText(selector, value) {
     const node = this.querySelector(selector);
     if (node) node.textContent = value;
-  }
-
-  #setValue(selector, value) {
-    const node = this.querySelector(selector);
-    if (node) node.value = value;
   }
 
   #setReview(selector, value) {

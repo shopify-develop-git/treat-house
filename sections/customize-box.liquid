@@ -28,7 +28,6 @@
     assign flavours = section.settings.flavour_collection.products
   endif
   assign first_pack = packs.first
-  assign form_id = 'customize-box-' | append: section.id
 
   assign scheme_class = 'color-' | append: section.settings.color_scheme
 
@@ -103,25 +102,22 @@
       class="customize-box__builder"
       data-total-steps="4"
     >
-      <product-form-component
-        data-section-id="{{ section.id }}"
-        data-product-id="{{ first_pack.id }}"
-        data-product-url="{{ first_pack.url }}"
-        on:submit="/handleSubmit"
-      >
+      {%- comment -%}
+        No product form here, and no pack variant. A box is a set of lines now —
+        one per flavour, one for the packaging — which `{% form 'product' %}` and
+        Horizon's product-form-component cannot express: both are built around a
+        single `id`. The script posts the set to /cart/add.js itself and then
+        announces it with the theme's own CartAddEvent, so the drawer and the
+        count still refresh the way they do everywhere else.
+      {%- endcomment -%}
+      <div class="customize-box__form">
         <div
           class="visually-hidden"
           aria-live="assertive"
           role="status"
           aria-atomic="true"
-          ref="liveRegion"
+          data-live-region
         ></div>
-
-        {%- form 'product', first_pack, id: form_id, data-type: 'add-to-cart-form' -%}
-          <input type="hidden" name="id" ref="variantId" value="" data-variant-input>
-          <input type="hidden" name="properties[Flavors]" value="" data-property-flavours>
-          <input type="hidden" name="properties[Packaging]" value="" data-property-packaging>
-          <input type="hidden" name="properties[Gift message]" value="" data-property-message>
 
           <div class="customize-box__layout">
             <div class="customize-box__main">
@@ -203,10 +199,16 @@
                     {%- if flavours.size > 0 -%}
                       <div class="customize-box__flavours">
                         {%- for flavour in flavours -%}
+                          {%- liquid
+                            assign flavour_variant = flavour.first_available_variant | default: flavour.variants.first
+                            assign flavour_attributes = 'data-flavour-variant="' | append: flavour_variant.id
+                            assign flavour_attributes = flavour_attributes | append: '" data-flavour-available="' | append: flavour_variant.available | append: '"'
+                          -%}
                           {% render 'ui-flavour-card',
                             handle: flavour.handle,
                             title: flavour.title,
-                            image: flavour.featured_image
+                            image: flavour.featured_image,
+                            attributes: flavour_attributes
                           %}
                         {%- endfor -%}
                       </div>
@@ -373,26 +375,28 @@
                   <strong data-summary-total>{{ 0 | money }}</strong>
                 </div>
 
-                <add-to-cart-component
-                  class="customize-box__add"
-                  ref="addToCartButtonContainer"
-                  data-add-to-cart-animation="{{ settings.add_to_cart_animation }}"
-                  hidden
-                  data-add-wrapper
-                >
+                {%- comment -%}
+                  Horizon's add-to-cart-component is bound to a product form and a
+                  single variant, neither of which exists here, so this is a plain
+                  button the builder's own script drives. What is lost with it is
+                  the flying-image animation; what is kept is every other part of
+                  the cart, because the script raises the same event the component
+                  would have raised.
+                {%- endcomment -%}
+                <div class="customize-box__add" hidden data-add-wrapper>
                   {% render 'ui-button',
                     variant: 'primary',
                     label: add_to_cart_label,
-                    type: 'submit',
+                    type: 'button',
                     full_width: true,
-                    attributes: 'name="add" ref="addToCartButton" on:click="/handleClick"'
+                    attributes: 'data-add-button'
                   %}
-                </add-to-cart-component>
+                  <p class="customize-box__add-error" hidden data-add-error></p>
+                </div>
               </div>
             </aside>
           </div>
-        {%- endform -%}
-      </product-form-component>
+      </div>
     </customize-box>
   {%- endif -%}
 </div>
@@ -737,6 +741,14 @@
     font-size: 16px;
     line-height: 1.1;
     color: var(--color-foreground-heading);
+  }
+
+  .customize-box__add-error {
+    margin-block-start: 8px;
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    line-height: 1.3;
+    color: var(--ui-color-error);
   }
 
   .customize-box__summary-row > span {

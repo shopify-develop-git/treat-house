@@ -19,6 +19,9 @@
   @param {number} [count] - How many are in the box. 0, the default, is untouched.
   @param {number} [max] - The most that may be chosen. Defaults to 36.
   @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes for the card. The builder
+    hands the variant and its availability down this way, since a flavour goes to
+    the cart as its own line.
 
   @example
   {% render 'ui-flavour-card', handle: product.handle, title: product.title, image: product.featured_image %}
@@ -37,6 +40,7 @@
   class="ui-flavour-card {{ class }}"
   data-flavour="{{ handle }}"
   data-flavour-title="{{ title | escape }}"
+  {{ attributes }}
   {% if is_chosen %}data-chosen{% endif %}
 >
   <div class="ui-flavour-card__media">
