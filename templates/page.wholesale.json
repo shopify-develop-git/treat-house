@@ -98,17 +98,26 @@
             "title": "Seasonal Flavors",
             "body": "<p>New flavors each season, ready to rotate onto your shelf.</p>"
           }
+        },
+        "shipping": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "shipping-fast",
+            "title": "Nationwide Shipping",
+            "body": "<p>Orders ship to retailers anywhere in the country.</p>"
+          }
         }
       },
       "block_order": [
         "gluten",
         "minimums",
-        "seasonal"
+        "seasonal",
+        "shipping"
       ],
       "settings": {
         "show_connector": false,
         "heading_gap": 64,
-        "columns": 3,
+        "columns": 4,
         "columns_md": 2,
         "columns_sm": "1",
         "card_background": "light-blue",
