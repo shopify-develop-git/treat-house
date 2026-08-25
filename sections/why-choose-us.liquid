@@ -55,15 +55,23 @@
       {%- endif -%}
     "
   >
-    <div class="why-choose-us__title">
+    {%- comment -%}
+      The title and the line under it. Both are blank on the cuts that do not draw
+      them — the product page's band opens straight on the card — which is what the
+      blocks do with an empty field, so no switch is needed for a thing whose absence
+      is just an empty box.
+
+      Captured rather than written out in place, because an empty row is still a row:
+      it would keep its place in the grid and the band would pay the heading gap above
+      a card standing where the title used to.
+    {%- endcomment -%}
+    {%- capture why_choose_us_title -%}
       {% content_for 'block', type: '_ui-heading', id: 'heading' %}
-      {%- comment -%}
-        The line under the title. Blank on the cuts that do not draw one, which is
-        what the block does with an empty field — no switch needed for a thing whose
-        absence is just an empty box.
-      {%- endcomment -%}
       {% content_for 'block', type: '_ui-text', id: 'intro' %}
-    </div>
+    {%- endcapture -%}
+    {%- if why_choose_us_title != blank -%}
+      <div class="why-choose-us__title">{{ why_choose_us_title }}</div>
+    {%- endif -%}
 
     <div class="why-choose-us__content">
       {%- if section.settings.show_lead -%}
@@ -105,6 +113,8 @@
     /* The 20px between the two columns, and between the cards, is drawn geometry:
        630 + 20 + 630 is the 1280 the page column already caps at. */
     --why-choose-us-tile-gap: 20px;
+    /* The other half of that geometry: the file draws the photograph 630 by 525. */
+    --why-choose-us-media-height: 525px;
     --why-choose-us-radius: 20px;
 
     display: grid;
@@ -186,9 +196,16 @@
      * height the row has not decided yet, so the picture falls back to its own 525
      * and sets the row from underneath: on the cuts whose card is shorter than that
      * the card was being stretched, with 150px of white under the paragraph.
+     *
+     * The 525 comes back as a floor rather than a size. The file draws the pair at
+     * that height on the product page, where the card holds a headline, a paragraph
+     * and a cut-out and would otherwise close at whatever those run to — 325px, well
+     * short of the picture beside it. A minimum sets the row without capping it, so
+     * a card that genuinely runs longer still takes the photograph up with it.
      */
     .why-choose-us__media {
       position: relative;
+      min-block-size: var(--why-choose-us-media-height, 525px);
     }
 
     .why-choose-us__image {

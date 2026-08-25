@@ -239,7 +239,7 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2>Why Choose Us</h2>",
+            "heading": "",
             "heading_size": 48,
             "heading_size_mobile": 32
           }
@@ -255,14 +255,14 @@
           "type": "_ui-feature-panel",
           "static": true,
           "settings": {
-            "show_logo": true,
+            "show_logo": false,
             "image": "shopify://shop_images/birthday-krispie-treat-candle.webp"
           },
           "blocks": {
             "panel_heading": {
               "type": "_ui-heading",
               "settings": {
-                "heading": "<h3>Sweet moments, <em>handcrafted with care</em></h3>",
+                "heading": "<h3>Handcrafted <em>with care</em></h3>",
                 "heading_size": 40,
                 "heading_size_mobile": 28
               }

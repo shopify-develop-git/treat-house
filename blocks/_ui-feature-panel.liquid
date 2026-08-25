@@ -116,6 +116,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    /* Takes the height the card has over its content, so the cut-out below can. */
+    flex: 1 1 auto;
     gap: var(--ui-feature-panel-body-gap, 32px);
     inline-size: 100%;
   }
@@ -142,19 +145,31 @@
     max-inline-size: 100%;
   }
 
+  /*
+   * The cut-out takes what the card has left under the copy rather than a height of
+   * its own. The file draws this card at two heights — 402 where it closes on the
+   * paragraph, and 525 where it stands beside the 630 by 525 photograph — and draws
+   * the cut-out at 147 in the first and around 260 in the second. That is one rule,
+   * "fill what is left", not two numbers; held at the first of them the taller card
+   * ends in 170px of white with the treat stranded in the middle of it.
+   *
+   * 147 stays as the floor, which is what a card sized by its own content has to
+   * give it.
+   */
   .ui-feature-panel__media {
     display: flex;
-    flex: 0 0 auto;
+    flex: 1 1 auto;
     justify-content: center;
     inline-size: 100%;
+    min-block-size: var(--ui-feature-panel-image-height, 147px);
   }
 
   .ui-feature-panel__image {
     display: block;
     inline-size: auto;
     max-inline-size: 100%;
-    /* The cut-out is drawn 146 by 147 and is not a crop — it keeps its own shape. */
-    block-size: var(--ui-feature-panel-image-height, 147px);
+    /* Drawn 146 by 147 and not a crop: contained, it keeps that shape at any height. */
+    block-size: 100%;
     object-fit: contain;
   }
 {% endstylesheet %}
