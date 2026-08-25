@@ -361,7 +361,7 @@
             "primary": {
               "type": "_ui-link",
               "settings": {
-                "label": "Shop gift cards",
+                "label": "Shop treats",
                 "link": "shopify://collections/all",
                 "variant": "primary"
               }
