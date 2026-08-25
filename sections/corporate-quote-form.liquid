@@ -24,7 +24,7 @@
 {%- liquid
   assign gift_types = section.settings.gift_types
   assign quantity_hint = section.settings.quantity_hint
-  assign submit_label = section.settings.submit_label | default: 'Submit request'
+  assign submit_label = section.settings.submit_label | default: 'Submit inquiry'
 -%}
 
 <div
@@ -297,7 +297,7 @@
       "type": "text",
       "id": "submit_label",
       "label": "Submit button",
-      "default": "Submit request"
+      "default": "Submit inquiry"
     },
     {
       "type": "header",
@@ -341,7 +341,7 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Request a<br><em>Corporate Gifting Quote</em></h2>"
+            "heading": "<h2>Send a<br><em>Corporate Gifting Inquiry</em></h2>"
           }
         },
         "success-heading": {
@@ -355,7 +355,7 @@
           "type": "_ui-text",
           "static": true,
           "settings": {
-            "text": "<p>The Treat House team will review your order details and follow up with next steps. If your order has a firm event date, please include that in your request.</p>"
+            "text": "<p>The Treat House team will review your order details and follow up with next steps. If your order has a firm event date, please include that in your inquiry.</p>"
           }
         },
         "success-buttons": {

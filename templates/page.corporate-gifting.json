@@ -31,7 +31,7 @@
             "primary": {
               "type": "_ui-link",
               "settings": {
-                "label": "Request a quote",
+                "label": "Send an inquiry",
                 "variant": "primary"
               }
             }
@@ -332,7 +332,7 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Request a<br><em>Corporate Gifting Quote</em></h2>"
+            "heading": "<h2>Send a<br><em>Corporate Gifting Inquiry</em></h2>"
           }
         },
         "success-heading": {
@@ -348,7 +348,7 @@
           "type": "_ui-text",
           "static": true,
           "settings": {
-            "text": "<p>The Treat House team will review your order details and follow up with next steps. If your order has a firm event date, please include that in your request.</p>"
+            "text": "<p>The Treat House team will review your order details and follow up with next steps. If your order has a firm event date, please include that in your inquiry.</p>"
           }
         },
         "success-buttons": {
