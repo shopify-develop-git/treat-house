@@ -491,7 +491,11 @@ clickable, so the basket beside the price can stay a control of its own rather
 than a button nested inside a link.
 
 `title` · `subtitle` · `price` · `image` · `link` · `badge` · `badge_color` ·
-`show_add` · `add_label` · `add_attributes` · `add_content` · `class` · `attributes`
+`badge_text_color` · `show_add` · `add_label` · `add_attributes` · `add_content` ·
+`class` · `attributes`
+
+The badge is white on whatever `badge_color` it is given. That holds however light
+the colour is, so a pale badge needs `badge_text_color` set rather than left alone.
 
 Pass `price` already run through `money`. A named `render` argument takes no
 filter, and gets no complaint when you give it one — `price: product.price | money`

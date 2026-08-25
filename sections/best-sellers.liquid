@@ -341,6 +341,21 @@
     padding: 0;
     list-style: none;
     overflow-x: auto;
+
+    /*
+     * Sideways only, and stated on both axes. Setting `overflow-x` alone leaves the
+     * other axis computing to `auto`, which makes the row a vertical scroller as
+     * well: a trackpad gesture over it is then caught by the row instead of moving
+     * the page, and anything a card overhangs by scrolls inside the strip.
+     */
+    overflow-y: hidden;
+
+    /*
+     * And the sideways scrolling it does keep stops at its own ends rather than
+     * carrying on into whatever is behind it — on a trackpad that hand-off is the
+     * browser's back gesture.
+     */
+    overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
 
@@ -359,6 +374,9 @@
   }
 
   .best-sellers__arrow {
+    /* How far inside the row's own edge the arrows stand, at every width. */
+    --best-sellers-arrow-inset: 10px;
+
     position: absolute;
     inset-block-start: 50%;
     transform: translateY(-50%);
@@ -366,11 +384,11 @@
   }
 
   .best-sellers__arrow--prev {
-    inset-inline-start: var(--page-margin);
+    inset-inline-start: var(--best-sellers-arrow-inset);
   }
 
   .best-sellers__arrow--next {
-    inset-inline-end: var(--page-margin);
+    inset-inline-end: var(--best-sellers-arrow-inset);
   }
 
   /* Named with the component class so this does not depend on which stylesheet is
@@ -446,14 +464,11 @@
       scroll-snap-align: start;
     }
 
-    /* The row sits inside the page column now, so the arrows sit on its own edges. */
-    .best-sellers__arrow--prev {
-      inset-inline-start: 0;
-    }
-
-    .best-sellers__arrow--next {
-      inset-inline-end: 0;
-    }
+    /*
+     * The arrows need nothing here. They are positioned against the viewport, which
+     * runs to the window edge below this breakpoint and to the page column's above
+     * it, so the one 10px inset follows the row from the one edge to the other.
+     */
 
     .best-sellers > .ui-link .ui-button {
       width: auto;

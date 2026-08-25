@@ -312,8 +312,11 @@
     height: var(--ui-button-basket-size);
   }
 
+  /* The primary's hover, which this is the icon-only cut of: sky blue under a purple
+     glyph. White on that blue reads 1.7:1, so the glyph turns over with the fill. */
   .ui-button--basket:not(:disabled, [aria-disabled='true']):is(:hover, .ui-button--force-hover) {
-    --ui-button-background: var(--ui-color-black);
+    --ui-button-background: var(--ui-color-sky-blue);
+    --ui-button-color: var(--ui-color-primary);
   }
 
   .ui-button--basket .ui-button__icon {

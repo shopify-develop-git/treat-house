@@ -14,11 +14,12 @@
   The basket is `ui-button`'s `basket` variant — the file uses the very same
   component here as in the BUTTONS section.
 
-  The badge takes whatever colour it is given and works out its own text colour,
-  black or white, by measuring both against the background. A colour picked in
-  the theme settings can be anything, so this cannot be decided once in the
-  stylesheet: white reads 1.53:1 on the kit's sky blue and 9.83:1 on its purple,
-  and 12px text wants 4.5:1.
+  The badge takes whatever colour it is given and writes white on it. That is the
+  house rule rather than a measured one: the badge is read as a brand mark and is
+  drawn white in the file at every colour it appears in. Contrast is therefore the
+  caller's to keep — white reads 9.83:1 on the kit's purple but 1.53:1 on its sky
+  blue, and 12px text wants 4.5:1 — so a light badge colour wants
+  `badge_text_color` set to something darker rather than being left to the default.
 
   @param {string} title - The product name.
   @param {string} [subtitle] - The supporting line under it.
@@ -29,7 +30,8 @@
     many fit across says so for those.
   @param {string} [link] - The product URL. Without it the card is not clickable.
   @param {string} [badge] - Badge text, shown over the top-left of the media.
-  @param {string} [badge_color] - Background colour for the badge, any CSS colour. Defaults to the kit purple. The text colour follows from it.
+  @param {string} [badge_color] - Background colour for the badge, any CSS colour. Defaults to the kit purple.
+  @param {string} [badge_text_color] - Text colour for the badge, any CSS colour. Defaults to white.
   @param {boolean} [show_add] - Renders the basket button. Defaults to true.
   @param {string} [add_label] - Accessible label for the basket. Defaults to the theme's add-to-cart string.
   @param {string} [add_attributes] - Extra HTML attributes for the basket button, for wiring it to a form.
@@ -51,12 +53,7 @@
 
 {%- liquid
   assign badge_background = badge_color | default: '#6c276a'
-  assign badge_on_white = badge_background | color_contrast: '#ffffff'
-  assign badge_on_black = badge_background | color_contrast: '#000000'
-  assign badge_foreground = '#000000'
-  if badge_on_white > badge_on_black
-    assign badge_foreground = '#ffffff'
-  endif
+  assign badge_foreground = badge_text_color | default: '#ffffff'
   assign basket_label = add_label
   if basket_label == blank
     assign basket_label = 'actions.add_to_cart' | t
