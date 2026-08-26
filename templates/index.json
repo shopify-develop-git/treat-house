@@ -69,20 +69,21 @@
                 "variant": "secondary",
                 "link": "/pages/faqs?view=customize"
               }
+            },
+            "gifting": {
+              "type": "_ui-link",
+              "settings": {
+                "label": "Corporate gifting",
+                "variant": "secondary",
+                "link": "/pages/corporate-gifting?view=corporate-gifting"
+              }
             }
           },
           "block_order": [
             "primary",
-            "secondary"
+            "secondary",
+            "gifting"
           ]
-        },
-        "gifting": {
-          "type": "_ui-link",
-          "settings": {
-            "label": "Corporate gifting",
-            "variant": "underline",
-            "link": "/pages/corporate-gifting?view=corporate-gifting"
-          }
         },
         "review-line": {
           "type": "_ui-review-line",
@@ -134,8 +135,7 @@
       "block_order": [
         "heading",
         "copy",
-        "buttons",
-        "gifting"
+        "buttons"
       ],
       "name": "Home hero",
       "settings": {

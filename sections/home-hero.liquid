@@ -286,6 +286,16 @@
   .home-hero__body .ui-link-row {
     width: 310px;
     max-width: 100%;
+
+    /*
+     * Centred, which shows only once the row wraps. The file draws the three
+     * buttons side by side at 1440, where the panel is the 630 it is drawn at;
+     * between 990 and about 1390 the two columns leave the panel narrower than
+     * the row's 542, so the third drops to a line of its own. It belongs under
+     * the middle of the panel, with everything else in here, rather than
+     * orphaned against its left edge.
+     */
+    justify-content: center;
   }
 
   @media screen and (min-width: 750px) {
@@ -305,6 +315,32 @@
 
   .home-hero__body .ui-link-row .ui-button--secondary {
     padding-inline: var(--ui-button-padding-inline-tight);
+  }
+
+  /*
+   * The third call to action is a button beside the other two on a desktop and a
+   * plain underlined link under them on a phone — the file draws both. One block
+   * cannot carry two variants, so the phone is written here: the row's last item
+   * drops the button's skin and takes [ui-button]'s underline look, which is a
+   * transparent fill, no ring and a rule under the words.
+   */
+  @media screen and (max-width: 749px) {
+    /*
+     * The row's last item, not the last button: every button is an only child of
+     * its own [_ui-link] wrapper, so `.ui-button:last-child` is true of all three
+     * and strips the skin off the whole stack.
+     */
+    .home-hero__body .ui-link-row > :last-child .ui-button {
+      --ui-button-background: transparent;
+      --ui-button-border-width: 0;
+
+      align-self: center;
+      width: auto;
+      min-height: 0;
+      padding: 0 2px 2px;
+      border-block-end: 1px solid var(--ui-color-primary);
+      border-radius: 0;
+    }
   }
 
   /* ---------- Media ---------- */
