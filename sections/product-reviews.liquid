@@ -1,0 +1,812 @@
+{% comment %}
+  Product reviews (Figma: Reviews, 508:10348).
+
+  The heading, and under it the shop's Judge.me review widget wearing the kit's
+  clothes. The section owns the heading and the arrangement; everything with a
+  review in it is Judge.me's app block, dropped into `{% content_for 'blocks' %}`
+  by the merchant.
+
+  ## Why the widget is a block and not markup here
+
+  Judge.me renders the score, the rating breakdown, the review list, the sort
+  control, the filter panel and the write-a-review form. None of it can be rebuilt
+  in Liquid — the reviews are not in the theme — so the honest arrangement is the
+  app block inside our layout, restyled. `"blocks": [{ "type": "@app" }]` is what
+  lets it land here; the merchant adds "Review widget" inside this section rather
+  than beside it.
+
+  ## Half of this design is a setting, not a stylesheet
+
+  Two choices in Judge.me's own dashboard do more for the file than any amount of
+  CSS could, and both are set on this shop:
+
+  - **Widget header → Theme: Standard.** This is what draws the 5→1 rating
+    breakdown. The Minimal header has no breakdown at all — no element, and no
+    per-rating count anywhere on the page or in the `judgeme.*` metafields — so on
+    Minimal the file's bar chart is not styling that is missing, it is data that
+    does not exist.
+  - **Reviews section → Theme: Align.** This is what puts the reviewer in a column
+    to the left of the review text, which is how the file draws a row. Before it,
+    that column was a grid built with `display: contents` over three of Judge.me's
+    wrappers, and it was the most fragile thing in this file.
+
+  So if a row ever loses its left column, or the breakdown disappears, look at
+  those two settings before looking here.
+
+  ## The trap: Judge.me writes its palette inline
+
+  Every `--jm-*` value is an inline style on `.jm-review-widget`, so a stylesheet
+  rule for one loses no matter how specific it is. The colours are all set in the
+  dashboard now and need no rule; what is left is the corner radius and the bar's
+  thickness, whose settings the dashboard keeps behind its paid tier, and the width
+  the app block writes onto itself. Those four are the only `!important` in this
+  file, and inline styles are why.
+
+  ## The other trap: their rules are a class plus a scope attribute
+
+  Judge.me's own selectors are `.jm-thing[data-v-…]`, which is (0,2,0), and their
+  stylesheet is a `<link>` the app injects after the theme's bundle. A rule of ours
+  at (0,2,0) ties and then loses on order, so every rule below carries
+  `.jm-review-widget` for weight rather than for scope.
+
+  ## What is not styled here, and why
+
+  The file draws a star row under the score. Judge.me's summary prints the number
+  and the review count and has no stars element, and the score is not exposed on
+  any attribute a rule could read, so there is nothing to style and nothing to
+  build it from. The number is stated, and the breakdown beside it carries a star
+  on every row.
+
+  The file also draws "Was this helpful?" with a thumb either side. That is
+  Judge.me's "Show review thumbs up and down", which their dashboard keeps behind
+  the paid tier — a switch, not a stylesheet, so it is not worked around here.
+{% endcomment %}
+
+<div
+  class="section section--page-width spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="product-reviews-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div
+    class="product-reviews"
+    style="
+      --product-reviews-gap: {{ section.settings.gap_mobile }}px;
+      --product-reviews-gap-desktop: {{ section.settings.gap }}px;
+      {%- comment -%}
+        The check glyph for the Verified tag. It is handed over as a custom
+        property because a `{% stylesheet %}` block is static CSS — Liquid is not
+        run inside one, so `asset_url` cannot be written where the rule needs it.
+      {%- endcomment -%}
+      --product-reviews-verified-icon: url('{{ 'icon-ui-badge-check.svg' | asset_url }}');
+    "
+  >
+    {% content_for 'block', type: '_ui-heading', id: 'heading' %}
+
+    <div class="product-reviews__widget">
+      {% content_for 'blocks' %}
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .product-reviews {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--product-reviews-gap, 32px);
+  }
+
+  .product-reviews > * {
+    inline-size: 100%;
+  }
+
+  /* The file centres the heading and holds it to 510 so "Sweet words from" breaks
+     before "Happy Customers" without a hard line break in the field. */
+  .product-reviews .ui-heading {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  /* ----------------------------------------------------------- the widget */
+
+  /*
+   * Corner radius and bar thickness are inline on `.jm-review-widget` and their
+   * settings sit behind Judge.me's paid tier, so these three need `!important` to
+   * land. Every colour comes from the dashboard and needs no rule at all.
+   */
+  .product-reviews .jm-review-widget {
+    --jm-widget-border-radius: var(--ui-radius-sm) !important;
+    --jm-widget-border-radius-simplified: var(--ui-radius-sm) !important;
+    --jm-review-widget-bar-chart-height: 4px !important;
+
+    font-family: var(--ui-font-body);
+  }
+
+  /*
+   * The app block caps itself at its own max-width setting and pads 40 either
+   * side, both written inline. The file draws the reviews in the page column with
+   * the heading, so the cap comes off — otherwise the heading centres on 1280 and
+   * the rows sit in 1200 of it, and nothing on the page lines up with anything
+   * else.
+   */
+  .product-reviews .jdgm-review-widget {
+    max-inline-size: none !important;
+    margin-inline: 0 !important;
+  }
+
+  /* The section owns the space around the widget; theirs is a second helping of
+     it and puts 96px between the heading and the score. */
+  .product-reviews .jdgm-review-widget .jm-review-widget {
+    padding-block: 0;
+  }
+
+  /* "Customer Reviews" is this section's heading, drawn twice otherwise. */
+  .product-reviews .jm-review-widget .jm-review-widget-header__title {
+    display: none;
+  }
+
+  /* ----------------------------------------- the summary and the breakdown */
+
+  /* The score, which the file sets at 48 in the display face, over the count. */
+  .product-reviews .jm-review-widget .jm-average-rating-display .jm-cluster {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .product-reviews .jm-review-widget .jm-average-rating-display .jm-cluster > :first-child {
+    font-family: var(--font-heading--family);
+    font-weight: 800;
+    font-size: 48px;
+    /* -1.92px on the 48px cut, written as the ratio so it holds at any size. */
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    color: var(--ui-color-black);
+  }
+
+  .product-reviews .jm-review-widget .jm-average-rating-display .jm-cluster > :last-child {
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 16px;
+    line-height: 1.3;
+    color: var(--ui-color-gray);
+  }
+
+  /* A breakdown row is `5 ★ ▬▬▬ 64`, which is what the file draws. */
+  .product-reviews .jm-review-widget .jm-histogram .jm-stack {
+    gap: 32px;
+  }
+
+  .product-reviews .jm-review-widget .jm-histogram-row__rating,
+  .product-reviews .jm-review-widget .jm-histogram-row__frequency {
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    line-height: 1.3;
+  }
+
+  .product-reviews .jm-review-widget .jm-histogram-row__rating {
+    font-size: 16px;
+    color: var(--ui-color-black);
+  }
+
+  .product-reviews .jm-review-widget .jm-histogram-row__frequency {
+    font-size: 12px;
+    color: var(--ui-color-gray);
+  }
+
+  /* The track is the file's grey at 30%; the fill takes the widget's own colour. */
+  .product-reviews .jm-review-widget .jm-progress-bar {
+    border-radius: var(--ui-radius-sm);
+    background-color: rgb(var(--ui-color-gray-rgb) / 0.3);
+  }
+
+  .product-reviews .jm-review-widget .jm-progress-bar__fill {
+    border-radius: var(--ui-radius-sm);
+  }
+
+  /* --------------------------------------------------- the controls row */
+
+  /* Buttons: the kit's primary and secondary, which the file draws at 12px Outfit
+     Medium in caps with a 2px corner. */
+  .product-reviews .jm-review-widget .jm-button,
+  .product-reviews .jm-review-widget .jm-action-buttons .jm-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* Theirs fills the column it is in; the file draws it to its words plus 32
+       either side. */
+    inline-size: fit-content;
+    border-radius: var(--ui-radius-sm);
+    font-family: var(--ui-font-accent);
+    font-weight: var(--font-accent--weight, 500);
+    font-size: 12px;
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0;
+  }
+
+  .product-reviews .jm-review-widget .jm-button--primary {
+    padding: 14px 32px;
+    border: 0;
+  }
+
+  .product-reviews .jm-review-widget .jm-button--primary:hover {
+    background-color: var(--ui-color-sky-blue);
+    color: var(--ui-color-black);
+  }
+
+  .product-reviews .jm-review-widget .jm-button--secondary {
+    padding: 14px 32px;
+    border: var(--ui-hairline-width) solid var(--ui-color-primary);
+    background-color: var(--ui-color-white);
+    color: var(--ui-color-primary);
+  }
+
+  .product-reviews .jm-review-widget .jm-button--secondary:hover {
+    background-color: var(--ui-color-primary);
+    color: var(--ui-color-white);
+  }
+
+  /*
+   * Their button sits in a column inside the right-hand cluster, and that column
+   * stretches, so ending the cluster is not enough. The column is a `.jm-stack`,
+   * which is sometimes a block that spaces its children with margins and
+   * sometimes a flex row — it differs between the header's themes — so all three
+   * of the ways to end a line are set rather than guessing which one is live.
+   *
+   * Named down to the header's own row on purpose. The same cluster carries the
+   * button in the empty state, where Judge.me centres it under "Be the first to
+   * write a review" and the file has no opinion — ending the line there drags it
+   * off the middle of the page.
+   */
+  .product-reviews .jm-review-widget .jm-review-widget-header__main-content .jm-action-buttons .jm-stack {
+    justify-content: flex-end;
+    align-items: flex-end;
+    text-align: end;
+  }
+
+  /*
+   * The Filters trigger and the star tags in its panel are the file's tab: 36
+   * high, 16 in, outlined, filled when they are the one in force.
+   */
+  .product-reviews .jm-review-widget .jm-custom-answer-filter,
+  .product-reviews .jm-review-widget .jm-rating-filter__tag {
+    block-size: 36px;
+    padding: 0 16px;
+    border: 1px solid var(--ui-color-primary);
+    border-radius: var(--ui-radius-sm);
+    background-color: transparent;
+    font-family: var(--ui-font-accent);
+    font-weight: var(--font-accent--weight, 500);
+    font-size: 12px;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: var(--ui-color-primary);
+  }
+
+  .product-reviews .jm-review-widget .jm-custom-answer-filter--active,
+  .product-reviews .jm-review-widget .jm-rating-filter__tag--selected {
+    background-color: var(--ui-color-primary);
+    color: var(--ui-color-white);
+  }
+
+  /* Their compact cut hides the trigger's label and leaves a bare icon square,
+     which reads as nothing at all in a row of words. */
+  .product-reviews .jm-review-widget .jm-custom-answer-filter .jm-custom-answer-filter__text {
+    display: inline;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    color: inherit;
+  }
+
+  .product-reviews .jm-review-widget .jm-custom-answer-filter__icon svg {
+    display: none;
+  }
+
+  .product-reviews .jm-review-widget .jm-rating-filter__star {
+    color: inherit;
+  }
+
+  /* Judge.me counts up from one star; the file counts down from five. */
+  .product-reviews .jm-review-widget .jm-filter-panel .jm-cluster:has(.jm-rating-filter__tag) {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
+
+  /* Clearing the rating is the file's "All reviews" tab, so it is drawn as one.
+     Judge.me hides it until something is applied, which is right — a tab that
+     undoes nothing is noise. */
+  .product-reviews .jm-review-widget .jm-filter-panel__clear-btn {
+    block-size: 36px;
+    padding: 0 16px;
+    border: 1px solid var(--ui-color-primary);
+    border-radius: var(--ui-radius-sm);
+    background-color: transparent;
+    font-family: var(--ui-font-accent);
+    font-weight: var(--font-accent--weight, 500);
+    font-size: 12px;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: var(--ui-color-primary);
+  }
+
+  /*
+   * The panel the Filters tab opens. The file has no panel to draw, so it is built
+   * from [ui-filter-panel]'s own recipe instead of invented: white, a hairline
+   * drawn inset so the rows can run its full width, a 2px corner and 12 all round.
+   * Their own bottom border goes — it is a rule across the page under a box that
+   * has an outline of its own.
+   */
+  .product-reviews .jm-review-widget .jm-filter-panel {
+    box-sizing: border-box;
+    padding: 12px;
+    border: 0;
+    border-radius: var(--ui-radius-sm);
+    box-shadow: inset 0 0 0 1px var(--ui-color-border-gray);
+    background-color: var(--ui-color-white);
+  }
+
+  /* "Filters" and "Rating", in the kit panel's own heading style. */
+  .product-reviews .jm-review-widget .jm-filter-panel > .jm-cluster > .jm-text,
+  .product-reviews .jm-review-widget .jm-filter-panel .jm-stack > .jm-text {
+    font-family: var(--ui-font-accent);
+    font-weight: var(--font-accent--weight-semibold, 600);
+    font-size: 10px;
+    line-height: 1.1;
+    text-transform: uppercase;
+    color: var(--ui-color-gray);
+  }
+
+  /* Sort reads as the file's "Sort by: Most Relevant" — body type, no box. */
+  .product-reviews .jm-review-widget .jm-sort-filter {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    block-size: 36px;
+  }
+
+  /*
+   * "Sort by:" is drawn in the file and the control carries only its own value.
+   * The widget has the words already — as a visually hidden `<label>` — so this is
+   * showing a name that is there rather than inventing one.
+   */
+  .product-reviews .jm-review-widget .jm-sort-filter::before {
+    content: 'Sort by:';
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--ui-color-black);
+  }
+
+  /*
+   * The select is sized to its own value rather than to their fixed box, and the
+   * chevron is theirs — absolutely placed over the select, which is what keeps a
+   * click on the arrow opening the sort. So the room for it has to be paid for in
+   * the select's own padding: 12 for the glyph and the 10 the file leaves before
+   * it. Take that padding away and the value runs underneath the arrow.
+   */
+  .product-reviews .jm-review-widget .jm-sort-filter .jm-sort-filter__select {
+    /*
+     * A select left to size itself takes the width of its widest option — here
+     * "Highest rating" — so a shorter value like "Most recent" leaves a hole
+     * before the arrow. `field-sizing` is what makes it hug the value instead.
+     * Where it is not supported the select keeps the widest-option width, which
+     * is the old behaviour and holds its place as the sort changes, so there is
+     * nothing to fall back to.
+     */
+    field-sizing: content;
+    inline-size: auto;
+    padding-inline: 0 22px;
+    border: 0;
+    background: none;
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--ui-color-black);
+    cursor: pointer;
+  }
+
+  /* Their leading glyph is a second arrow beside the chevron; the file draws one. */
+  .product-reviews .jm-review-widget .jm-sort-filter__icon--sort {
+    display: none;
+  }
+
+  /* Theirs is inset 12 from the end, which leaves a hole after the arrow; the file
+     ends the control on it. */
+  .product-reviews .jm-review-widget .jm-sort-filter .jm-sort-filter__icon--chevron {
+    display: inline-flex;
+    inset-inline-end: 0;
+    color: var(--ui-color-black);
+  }
+
+  /* ------------------------------------------------------- a review row */
+
+  /* The file butts the rows together and rules a hairline between them, so the
+     list's own 1.5em gap comes off and the row carries the 32px itself. */
+  .product-reviews .jm-review-widget .jdgm-review-list {
+    gap: 0;
+  }
+
+  .product-reviews .jm-review-widget .jm-review-item {
+    position: relative;
+    padding-block: 32px;
+    border-block-start: 1px solid var(--ui-color-border-gray);
+    border-block-end: 0;
+  }
+
+  /* The list draws a closing rule under the last row as well. */
+  .product-reviews .jm-review-widget .jdgm-review-list > :last-child .jm-review-item {
+    border-block-end: 1px solid var(--ui-color-border-gray);
+  }
+
+  /*
+   * Their star is a glyph in a font of their own, and each one is set inline to
+   * 1.5em — so the row is sized from the parent rather than from the glyph, which
+   * cannot be reached without `!important`. 9px here puts five of them at 77
+   * against the file's 74. Scoped to a review: the breakdown's rows carry a single
+   * star each and the file draws those at full size.
+   */
+  .product-reviews .jm-review-widget .jm-align-review-item .jm-star-rating {
+    /* Inline-level, so it sits on a text baseline and carries a descender's worth
+       of space under it — which lands on top of the 24 below and reads as 28. */
+    display: block;
+    font-size: 9px;
+    line-height: 1;
+  }
+
+  /*
+   * The row's own spacings, which their stacks set from a scale and the file sets
+   * by hand: 14 between the face and the name, 24 under the stars, 10 between the
+   * title and the copy. A `.jm-stack` spaces with a top margin on each child after
+   * the first rather than with `gap`, so that is what gets set — `gap` on it does
+   * nothing.
+   */
+  .product-reviews .jm-review-widget .jm-align-review-item .jm-reviewer-info {
+    gap: 14px;
+  }
+
+  .product-reviews .jm-review-widget .jm-align-review-item__content > * + * {
+    margin-block-start: 24px;
+  }
+
+  .product-reviews .jm-review-widget .jm-review-content > * + * {
+    margin-block-start: 10px;
+  }
+
+  .product-reviews .jm-review-widget .jm-reviewer-avatar {
+    inline-size: 36px;
+    block-size: 36px;
+    min-inline-size: 36px;
+    border-radius: 50%;
+    background-color: var(--ui-color-primary);
+  }
+
+  .product-reviews .jm-review-widget .jm-reviewer-avatar__initial,
+  .product-reviews .jm-review-widget .jm-reviewer-avatar__initial .jm-text {
+    font-family: var(--ui-font-accent);
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1.1;
+    text-transform: uppercase;
+    color: var(--ui-color-white);
+  }
+
+  .product-reviews .jm-review-widget .jm-reviewer-info__name {
+    font-family: var(--ui-font-body);
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.1;
+    color: var(--ui-color-primary);
+  }
+
+  /*
+   * The file has no Verified pill — it draws "I recommend this product" in that
+   * corner instead, which is an answer this shop's review form does not ask for.
+   * The badge is the nearest thing that is true, so it stays, and it is built to
+   * [ui-tag]'s recipe: white, a purple hairline drawn inset, a 2px corner, Outfit
+   * in caps and a glyph 6 to the left of the words. The kit sizes that component
+   * from custom properties rather than settings, which is the licence to run it
+   * small here — beside a 16px name the tag's own 12/24 would shout.
+   */
+  .product-reviews .jm-review-widget .jm-verified-buyer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border: 0;
+    border-radius: var(--ui-radius-sm);
+    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-primary);
+    background-color: var(--ui-color-white);
+    color: var(--ui-color-primary);
+  }
+
+  /*
+   * Their badge is words only, and there is no way to put an element inside it, so
+   * the glyph is a mask on a box the colour of the text — which is what keeps it in
+   * step with the tag rather than needing a second colour of its own.
+   */
+  .product-reviews .jm-review-widget .jm-verified-buyer-badge::before {
+    content: '';
+    flex: 0 0 auto;
+    inline-size: 12px;
+    block-size: 12px;
+    background-color: currentcolor;
+    mask: var(--product-reviews-verified-icon) center / contain no-repeat;
+  }
+
+  /* Their words come in a pill of their own — a black hairline with its own
+     padding — which inside the tag reads as a box drawn twice. */
+  .product-reviews .jm-review-widget .jm-verified-buyer-badge__text {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    font-family: var(--ui-font-accent);
+    font-weight: var(--font-accent--weight, 500);
+    font-size: 10px;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: inherit;
+  }
+
+  .product-reviews .jm-review-widget .jm-review-content__title {
+    font-family: var(--font-heading--family);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.1;
+    color: var(--ui-color-black);
+  }
+
+  .product-reviews .jm-review-widget .jm-review-content__body {
+    max-inline-size: 709px;
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 16px;
+    line-height: 1.3;
+    color: var(--ui-color-gray);
+  }
+
+  .product-reviews .jm-review-widget .jm-pagination-controls {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* The two lines the widget writes on a product nobody has reviewed yet: the
+     invitation, and the heading over the other products' reviews it offers
+     instead. The file draws neither, so they are set in the kit's own type rather
+     than left in Judge.me's. */
+  .product-reviews .jm-review-widget .jm-no-reviews-state__text {
+    font-family: var(--ui-font-body);
+    font-weight: var(--ui-font-body-weight);
+    font-size: 16px;
+    line-height: 1.3;
+    color: var(--ui-color-gray);
+  }
+
+  .product-reviews .jm-review-widget .jm-other-products-reviews-text {
+    font-family: var(--ui-font-body);
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.1;
+    color: var(--ui-color-black);
+  }
+
+  /* ------------------------------------------------------------ desktop */
+
+  @media screen and (min-width: 750px) {
+    .product-reviews {
+      gap: var(--product-reviews-gap-desktop, 48px);
+    }
+
+    /*
+     * The header's four parts, which Judge.me stacks and the file lays out in two
+     * rows: the score beside the breakdown, centred as a pair; then the filters at
+     * one edge of the page and Write a review at the other.
+     *
+     * The two `1fr` columns are what centres the pair — they take the slack
+     * evenly — while row two spans across them and so reaches the page edges.
+     * `display: contents` on their `__main-content` is what lets the breakdown and
+     * the button land in different rows; it is one wrapper and it holds only those
+     * two.
+     *
+     * Guarded on `:has(.jm-histogram)`: a product nobody has reviewed yet gets a
+     * header with no breakdown and no filters, and that is better left in
+     * Judge.me's own stack than fitted into a grid built for parts it has not got.
+     */
+    .product-reviews .jm-review-widget .jm-review-widget-header:has(.jm-histogram) {
+      display: grid;
+      grid-template-columns: 1fr max-content max-content 1fr;
+      column-gap: 64px;
+      row-gap: 48px;
+      align-items: center;
+    }
+
+    .product-reviews .jm-review-widget .jm-review-widget-header__summary-section {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .product-reviews .jm-review-widget .jm-review-widget-header__main-content {
+      display: contents;
+    }
+
+    .product-reviews .jm-review-widget .jm-review-widget-header__star-rating-histogram {
+      grid-column: 3;
+      grid-row: 1;
+      /* The file draws the group 381 wide, of which the bars take 308. */
+      inline-size: 381px;
+      max-inline-size: 100%;
+    }
+
+    .product-reviews .jm-review-widget .jm-review-widget-header:has(.jm-histogram) .jm-action-buttons {
+      grid-column: 3 / -1;
+      grid-row: 2;
+      justify-self: end;
+    }
+
+    .product-reviews .jm-review-widget .jm-review-widget-header__filters-wrapper {
+      grid-column: 1 / 3;
+      grid-row: 2;
+      justify-self: start;
+    }
+
+    /* Their empty-state box, which on a product with reviews is an empty div that
+       would still take a row and both of its gaps. */
+    .product-reviews .jm-review-widget .jm-review-widget-header > .jm-center:empty {
+      display: none;
+    }
+
+    /*
+     * The filter panel arrives in a `div` with no class of its own, dropped
+     * straight into this grid — so with nothing placing it, it auto-fills the
+     * first free cell, which is up beside the score. It comes out of flow instead
+     * and hangs under the header, which is the row the Filters tab is in, left
+     * edge to left edge with it. That is [ui-filter-dropdown]'s own arrangement:
+     * the panel overlays what is under it rather than pushing the reviews down.
+     *
+     * Below 750 there is no grid and it is already the last thing in the header,
+     * so it falls under the tab on its own and this is left alone.
+     */
+    .product-reviews .jm-review-widget .jm-review-widget-header:has(.jm-histogram) {
+      position: relative;
+    }
+
+    .product-reviews .jm-review-widget .jm-review-widget-header > div:has(.jm-filter-panel) {
+      position: absolute;
+      inset-block-start: calc(100% + 8px);
+      inset-inline-start: 0;
+      z-index: 2;
+      /* The header is one of their stacks, which spaces its children with a top
+         margin rather than a gap. Out of flow that margin still counts against
+         `inset-block-start`, and the panel opens 24px lower than it was told to. */
+      margin-block-start: 0;
+    }
+  }
+
+  /*
+   * The row's own two columns come from Judge.me's Align layout; what is left is
+   * the width the file draws and the rule down the middle. 990 rather than the
+   * theme's 750: the file gives the text 709px beside a 305px column, and at 750
+   * the two together leave the body about 330px, which puts the title on three
+   * lines and the name on two.
+   */
+  @media screen and (min-width: 990px) {
+    .product-reviews .jm-review-widget .jm-align-review-item__body {
+      gap: 20px;
+    }
+
+    .product-reviews .jm-review-widget .jm-align-review-item__sidebar {
+      flex: 0 0 305px;
+      align-self: stretch;
+      padding-inline-end: 20px;
+      border-inline-end: 1px solid var(--ui-color-border-gray);
+    }
+
+    /*
+     * The date is drawn against the top right, and the Align layout prints it at
+     * the foot of the reviewer's column. Taking it out of flow is the only way
+     * across, and it is safe here because the string is a date — it neither wraps
+     * nor grows. It is the one bare `span` among that column's children, which is
+     * what the selector leans on.
+     */
+    .product-reviews .jm-review-widget .jm-align-review-item__sidebar .jm-reviewer-info__details > span.jm-text {
+      position: absolute;
+      inset-block-start: 32px;
+      inset-inline-end: 0;
+      /* The stack's own top margin still counts against `inset-block-start` and
+         would drop it 4px below the stars it lines up with. */
+      margin-block-start: 0;
+      font-size: 14px;
+      line-height: 1.3;
+      color: var(--ui-color-gray);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Product reviews",
+  "tag": "section",
+  "blocks": [{ "type": "@app" }],
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 16,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "t:content.mobile_size",
+      "min": 16,
+      "max": 96,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product reviews",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>Sweet words from <em>Happy Customers</em></h2>",
+            "max_width": 510
+          }
+        }
+      }
+    }
+  ]
+}
+{% endschema %}

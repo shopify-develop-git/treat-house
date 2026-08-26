@@ -16,48 +16,79 @@
           "type": "_ui-heading",
           "settings": {
             "source": "product_title",
+            "heading": "<h2>Section heading</h2>",
             "heading_tag": "h1",
             "heading_size": 40,
-            "heading_size_mobile": 30
-          }
+            "heading_size_mobile": 30,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "rating": {
           "type": "_ui-review-line",
           "settings": {
             "source": "product",
-            "layout": "inline"
-          }
+            "rating_stars": 5,
+            "rating_text": "4.9 rating",
+            "reviews_text": "12,000+ reviews",
+            "layout": "inline",
+            "text_size": 14,
+            "text_size_mobile": 14,
+            "gap": 11,
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "price": {
           "type": "_ui-product-price",
-          "settings": {}
+          "settings": {
+            "show_compare_at": true,
+            "size": 24,
+            "size_mobile": 20
+          },
+          "blocks": {}
         },
         "description": {
           "type": "_ui-text",
           "settings": {
             "source": "product_description",
+            "text": "<p>Add the sentence that explains the section.</p>",
             "text_size": 14,
             "text_size_mobile": 14,
-            "max_width": 420
-          }
+            "max_width": 420,
+            "color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "chips": {
           "type": "_ui-product-chips",
-          "settings": {},
+          "settings": {
+            "metafield": "product_chips",
+            "gap": 12
+          },
           "blocks": {
             "gluten_free": {
               "type": "_ui-product-chip",
               "settings": {
                 "label": "Gluten-Free",
                 "icon": "wheat-slash"
-              }
+              },
+              "blocks": {}
             },
             "gift_ready": {
               "type": "_ui-product-chip",
               "settings": {
                 "label": "Arrives gift-ready",
                 "icon": "gift"
-              }
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -67,59 +98,101 @@
         },
         "rule_variants": {
           "type": "_ui-rule",
-          "settings": {}
+          "settings": {
+            "color": "light-blue",
+            "thickness": 1,
+            "space": 20
+          },
+          "blocks": {}
         },
         "variants": {
           "type": "_ui-product-variants",
-          "settings": {}
+          "settings": {
+            "label_prefix": "Choose your"
+          },
+          "blocks": {}
         },
         "prompt": {
           "type": "_ui-product-prompt",
-          "settings": {}
+          "settings": {
+            "text": "Want a different mix in every square?",
+            "link_label": "Customize your box",
+            "link": "/pages/faqs?view=customize"
+          },
+          "blocks": {}
         },
         "gift_message": {
           "type": "_ui-product-gift-message",
-          "settings": {}
+          "settings": {
+            "title": "Gift message",
+            "note": "Add a complimentary personalized note, printed on our signature card.",
+            "button_label": "Add gift message",
+            "property": "Gift message",
+            "placeholder": "Write your message here...",
+            "maxlength": 200
+          },
+          "blocks": {}
         },
         "rule_buy": {
           "type": "_ui-rule",
-          "settings": {}
+          "settings": {
+            "color": "light-blue",
+            "thickness": 1,
+            "space": 20
+          },
+          "blocks": {}
         },
         "buy": {
           "type": "_ui-product-buy",
-          "settings": {}
+          "settings": {
+            "label": "Add to cart",
+            "show_price": true,
+            "show_quantity": true,
+            "show_buy_now": true,
+            "buy_now_label": "Buy now",
+            "show_accelerated_checkout": false
+          },
+          "blocks": {}
         },
         "assurances": {
           "type": "_ui-product-assurances",
-          "settings": {},
+          "settings": {
+            "gap": 20,
+            "gap_mobile": 12,
+            "min_width": 120
+          },
           "blocks": {
             "packaging": {
               "type": "_ui-product-assurance",
               "settings": {
                 "label": "Gift-Ready Packaging",
                 "icon": "gift"
-              }
+              },
+              "blocks": {}
             },
             "gluten_free": {
               "type": "_ui-product-assurance",
               "settings": {
                 "label": "Gluten-Free",
                 "icon": "wheat-slash"
-              }
+              },
+              "blocks": {}
             },
             "handcrafted": {
               "type": "_ui-product-assurance",
               "settings": {
                 "label": "Handcrafted Treats",
                 "icon": "cookie"
-              }
+              },
+              "blocks": {}
             },
             "share_love": {
               "type": "_ui-product-assurance",
               "settings": {
                 "label": "Made to Share Love",
                 "icon": "hand-holding-heart"
-              }
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -131,7 +204,12 @@
         },
         "rule_details": {
           "type": "_ui-rule",
-          "settings": {}
+          "settings": {
+            "color": "light-blue",
+            "thickness": 1,
+            "space": 20
+          },
+          "blocks": {}
         },
         "shipping": {
           "type": "_ui-product-panel",
@@ -139,7 +217,10 @@
             "title": "Estimated shipping",
             "icon": "shipping-fast",
             "collapsible": false,
-            "padding": "tight"
+            "padding": "tight",
+            "intro": "",
+            "body": "",
+            "rows_metafield": "shipping_rows"
           },
           "blocks": {
             "ships_from": {
@@ -147,21 +228,24 @@
               "settings": {
                 "label": "Ships from",
                 "value": "Made fresh, ships within 24 hrs"
-              }
+              },
+              "blocks": {}
             },
             "delivery": {
               "type": "_ui-product-detail-row",
               "settings": {
                 "label": "Estimated delivery",
                 "value": "3 to 5 business days"
-              }
+              },
+              "blocks": {}
             },
             "method": {
               "type": "_ui-product-detail-row",
               "settings": {
                 "label": "Shipping method",
                 "value": "Insulated box, ice pack included"
-              }
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -172,7 +256,10 @@
         },
         "panels": {
           "type": "_ui-product-panels",
-          "settings": {},
+          "settings": {
+            "metafield": "detail_panels",
+            "gap": 12
+          },
           "blocks": {
             "ingredients": {
               "type": "_ui-product-panel",
@@ -182,8 +269,10 @@
                 "collapsible": true,
                 "padding": "default",
                 "intro": "Cocoa, cream, hazelnut, sea salt. Tap to view the full list.",
-                "body": "<p>Full ingredients: cocoa mass, cocoa butter, cream, sugar, hazelnut praline (12%), unsalted butter, sea salt, natural vanilla. Contains: milk, tree nuts (hazelnut). May contain traces of: peanut, soy, gluten. Not suitable for: vegan diets.</p>"
-              }
+                "body": "<p>Full ingredients: cocoa mass, cocoa butter, cream, sugar, hazelnut praline (12%), unsalted butter, sea salt, natural vanilla. Contains: milk, tree nuts (hazelnut). May contain traces of: peanut, soy, gluten. Not suitable for: vegan diets.</p>",
+                "rows_metafield": "shipping_rows"
+              },
+              "blocks": {}
             },
             "storage": {
               "type": "_ui-product-panel",
@@ -193,8 +282,10 @@
                 "collapsible": true,
                 "padding": "default",
                 "intro": "Keep refrigerated below 18°C. Best enjoyed within 14 days of arrival.",
-                "body": "<p>Store in the original packaging or an airtight container to maintain freshness. Avoid direct sunlight and heat. For the best flavor and texture, allow treats to sit at room temperature for 10–15 minutes before serving. Do not refreeze after thawing.</p>"
-              }
+                "body": "<p>Store in the original packaging or an airtight container to maintain freshness. Avoid direct sunlight and heat. For the best flavor and texture, allow treats to sit at room temperature for 10–15 minutes before serving. Do not refreeze after thawing.</p>",
+                "rows_metafield": "shipping_rows"
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -232,24 +323,126 @@
         "padding-block-end": 64
       }
     },
+    "whats_inside": {
+      "type": "whats-inside",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "source": "custom",
+            "heading": "<h2>What's <em>Inside</em></h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
+        },
+        "cards": {
+          "type": "_ui-inclusion-cards",
+          "settings": {
+            "metafield": "whats_inside",
+            "products": [],
+            "columns": 2,
+            "gap": 20
+          },
+          "blocks": {
+            "packaging": {
+              "type": "_ui-inclusion-card",
+              "settings": {
+                "title": "Gift-Ready Packaging",
+                "link": "",
+                "body": "<p>Beautifully arranged in a premium gift box, ready to deliver a heartfelt message without any extra wrapping.</p>"
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "packaging"
+          ]
+        }
+      },
+      "block_order": [
+        "heading",
+        "cards"
+      ],
+      "settings": {
+        "heading_alignment": "center",
+        "gap": 32,
+        "section_width": "page-width",
+        "color_scheme": "",
+        "padding-block-start": 80,
+        "padding-block-end": 80
+      }
+    },
     "why_choose_us": {
       "type": "why-choose-us",
       "blocks": {
+        "made_fresh": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "gift",
+            "badge": "",
+            "title": "Made Fresh Every Day",
+            "body": "<p>Every Krispie treat is handcrafted in small batches using premium ingredients to deliver the perfect taste, texture, and freshness in every bite.</p>"
+          },
+          "blocks": {}
+        },
+        "ready_to_delight": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "cookie",
+            "badge": "",
+            "title": "Ready to Delight",
+            "body": "<p>Beautifully packaged and thoughtfully presented, every gift box arrives ready to surprise someone special—no extra wrapping required.</p>"
+          },
+          "blocks": {}
+        },
+        "celebrate": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "hand-holding-heart",
+            "badge": "",
+            "title": "Celebrate Every Moment",
+            "body": "<p>Whether you're sending love, celebrating a birthday, saying thank you, or simply making someone smile, our gift boxes are designed for life's sweetest moments.</p>"
+          },
+          "blocks": {}
+        },
         "heading": {
           "type": "_ui-heading",
           "static": true,
           "settings": {
+            "source": "custom",
             "heading": "",
+            "heading_tag": "h1",
             "heading_size": 48,
-            "heading_size_mobile": 32
-          }
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "intro": {
           "type": "_ui-text",
           "static": true,
           "settings": {
-            "text": ""
-          }
+            "source": "custom",
+            "text": "",
+            "text_size": 16,
+            "text_size_mobile": 16,
+            "max_width": 0,
+            "color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "panel": {
           "type": "_ui-feature-panel",
@@ -262,46 +455,38 @@
             "panel_heading": {
               "type": "_ui-heading",
               "settings": {
+                "source": "custom",
                 "heading": "<h3>Handcrafted <em>with care</em></h3>",
+                "heading_tag": "h1",
                 "heading_size": 40,
-                "heading_size_mobile": 28
-              }
+                "heading_size_mobile": 28,
+                "max_width": 0,
+                "color": "",
+                "accent_color": "",
+                "padding_block_start": 0,
+                "padding_block_end": 0
+              },
+              "blocks": {}
             },
             "panel_text": {
               "type": "_ui-text",
               "settings": {
-                "text": "<p>For over 20 years, we've been creating handcrafted Krispie treats that turn everyday moments into unforgettable celebrations. Every treat is made with care, premium ingredients, and a passion for bringing people together</p>"
-              }
+                "source": "custom",
+                "text": "<p>For over 20 years, we've been creating handcrafted Krispie treats that turn everyday moments into unforgettable celebrations. Every treat is made with care, premium ingredients, and a passion for bringing people together</p>",
+                "text_size": 16,
+                "text_size_mobile": 16,
+                "max_width": 0,
+                "color": "",
+                "padding_block_start": 0,
+                "padding_block_end": 0
+              },
+              "blocks": {}
             }
           },
           "block_order": [
             "panel_heading",
             "panel_text"
           ]
-        },
-        "made_fresh": {
-          "type": "_ui-feature-card",
-          "settings": {
-            "icon": "gift",
-            "title": "Made Fresh Every Day",
-            "body": "<p>Every Krispie treat is handcrafted in small batches using premium ingredients to deliver the perfect taste, texture, and freshness in every bite.</p>"
-          }
-        },
-        "ready_to_delight": {
-          "type": "_ui-feature-card",
-          "settings": {
-            "icon": "cookie",
-            "title": "Ready to Delight",
-            "body": "<p>Beautifully packaged and thoughtfully presented, every gift box arrives ready to surprise someone special—no extra wrapping required.</p>"
-          }
-        },
-        "celebrate": {
-          "type": "_ui-feature-card",
-          "settings": {
-            "icon": "hand-holding-heart",
-            "title": "Celebrate Every Moment",
-            "body": "<p>Whether you're sending love, celebrating a birthday, saying thank you, or simply making someone smile, our gift boxes are designed for life's sweetest moments.</p>"
-          }
         }
       },
       "block_order": [
@@ -314,13 +499,56 @@
         "image": "shopify://shop_images/image_28.webp",
         "media_position": "end",
         "heading_gap": 48,
+        "card_title_size": 24,
         "card_gap": 20,
         "card_radius": 20,
         "columns": 3,
         "columns_md": 3,
         "columns_sm": "1",
         "section_width": "page-width",
+        "card_background": "white",
         "background": "purple",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 80,
+        "padding-block-end": 80
+      }
+    },
+    "1787728711a4fa833f": {
+      "type": "product-reviews",
+      "blocks": {
+        "judge_me_reviews_review_widget_7wfqVA": {
+          "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+          "settings": {
+            "review_data": "real_data",
+            "max_width": 1200,
+            "show_shop_reviews": false,
+            "empty_state": "empty_widget"
+          }
+        },
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "source": "custom",
+            "heading": "<h2>Sweet words from <em>Happy Customers</em></h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 510,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "judge_me_reviews_review_widget_7wfqVA"
+      ],
+      "settings": {
+        "gap": 48,
+        "gap_mobile": 32,
         "color_scheme": "scheme-1",
         "padding-block-start": 80,
         "padding-block-end": 80
@@ -333,8 +561,18 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2>Related Products</h2>"
-          }
+            "source": "custom",
+            "heading": "<h2>Related Products</h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "cta": {
           "type": "_ui-link",
@@ -342,12 +580,19 @@
           "settings": {
             "label": "View all products",
             "link": "shopify://collections/all",
-            "variant": "primary"
-          }
+            "variant": "primary",
+            "full_width": false,
+            "open_in_new_tab": false,
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         }
       },
       "settings": {
         "source": "related",
+        "products": [],
+        "collection": "",
         "max_products": 5,
         "heading_alignment": "start",
         "cta_position": "heading",
@@ -369,19 +614,38 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2><em>Recently</em> Viewed</h2>"
-          }
+            "source": "custom",
+            "heading": "<h2><em>Recently</em> Viewed</h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "cta": {
           "type": "_ui-link",
           "static": true,
           "settings": {
-            "label": ""
-          }
+            "label": "",
+            "link": "",
+            "variant": "primary",
+            "full_width": false,
+            "open_in_new_tab": false,
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         }
       },
       "settings": {
         "source": "recently_viewed",
+        "products": [],
+        "collection": "",
         "max_products": 5,
         "heading_alignment": "center",
         "cta_position": "below",
@@ -399,49 +663,67 @@
     "faq": {
       "type": "faq",
       "blocks": {
-        "heading": {
-          "type": "_ui-heading",
-          "static": true,
-          "settings": {
-            "heading": "<h2>How can <em>we help?</em></h2>",
-            "heading_size": 48,
-            "heading_size_mobile": 32
-          }
-        },
         "kinds": {
           "type": "_ui-faq-item",
           "settings": {
             "question": "What types of treats do you offer?",
-            "answer": "<p>Handcrafted Krispie treats in twelve-packs, gift boxes and party bars, plus custom photo treats and gluten-free options. Every box is made to order in small batches.</p>"
-          }
+            "answer": "<p>Handcrafted Krispie treats in twelve-packs, gift boxes and party bars, plus custom photo treats and gluten-free options. Every box is made to order in small batches.</p>",
+            "open": false
+          },
+          "blocks": {}
         },
         "customize": {
           "type": "_ui-faq-item",
           "settings": {
             "question": "Can I customize my order?",
-            "answer": "<p>Yes. Choose your own mix of flavors, add a printed photo, and include a gift message at checkout. Corporate orders can carry your branding.</p>"
-          }
+            "answer": "<p>Yes. Choose your own mix of flavors, add a printed photo, and include a gift message at checkout. Corporate orders can carry your branding.</p>",
+            "open": false
+          },
+          "blocks": {}
         },
         "allergies": {
           "type": "_ui-faq-item",
           "settings": {
             "question": "Do you accommodate food allergies or dietary restrictions?",
-            "answer": "<p>We make gluten-free treats, and every product page lists its full ingredients and allergens. Our kitchen handles milk, tree nuts, peanut, soy and gluten, so we cannot promise a trace-free box.</p>"
-          }
+            "answer": "<p>We make gluten-free treats, and every product page lists its full ingredients and allergens. Our kitchen handles milk, tree nuts, peanut, soy and gluten, so we cannot promise a trace-free box.</p>",
+            "open": false
+          },
+          "blocks": {}
         },
         "lead_time": {
           "type": "_ui-faq-item",
           "settings": {
             "question": "How far in advance should I place my order?",
-            "answer": "<p>Most orders are made fresh and ship within 24 hours. For a dated delivery or a large corporate order, three to five business days ahead is safest.</p>"
-          }
+            "answer": "<p>Most orders are made fresh and ship within 24 hours. For a dated delivery or a large corporate order, three to five business days ahead is safest.</p>",
+            "open": false
+          },
+          "blocks": {}
         },
         "storage": {
           "type": "_ui-faq-item",
           "settings": {
             "question": "How do I store my treats after receiving them?",
-            "answer": "<p>Keep them refrigerated below 18°C in their original packaging and enjoy them within 14 days. Let a treat sit at room temperature for 10 to 15 minutes before serving.</p>"
-          }
+            "answer": "<p>Keep them refrigerated below 18°C in their original packaging and enjoy them within 14 days. Let a treat sit at room temperature for 10 to 15 minutes before serving.</p>",
+            "open": false
+          },
+          "blocks": {}
+        },
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "source": "custom",
+            "heading": "<h2>How can <em>we help?</em></h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -466,66 +748,75 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Newsletter</h2>"
-          }
+            "source": "custom",
+            "heading": "<h2>Newsletter</h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "body": {
           "type": "_ui-text",
           "settings": {
+            "source": "custom",
             "text": "<p>Subscribe to our newsletter and be the first to hear about new arrivals, exclusive offers, seasonal collections, and special promotions.</p>",
             "text_size": 16,
-            "text_size_mobile": 14
-          }
+            "text_size_mobile": 14,
+            "max_width": 0,
+            "color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
+        },
+        "cta": {
+          "type": "_ui-link",
+          "static": true,
+          "settings": {
+            "label": "Shop treats",
+            "link": "/collections/all",
+            "variant": "primary",
+            "full_width": false,
+            "open_in_new_tab": false,
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "signup": {
           "type": "_ui-newsletter-form",
           "static": true,
-          "settings": {}
+          "settings": {
+            "placeholder": "Your email",
+            "button_label": "Subscribe",
+            "field_label": ""
+          },
+          "blocks": {}
         }
       },
       "block_order": [
         "heading",
         "body"
       ],
-      "settings": {}
-    },
-    "whats_inside": {
-      "type": "whats-inside",
-      "blocks": {
-        "heading": {
-          "type": "_ui-heading",
-          "settings": {
-            "heading": "<h2>What's <em>Inside</em></h2>"
-          }
-        },
-        "cards": {
-          "type": "_ui-inclusion-cards",
-          "settings": {},
-          "blocks": {
-            "packaging": {
-              "type": "_ui-inclusion-card",
-              "settings": {
-                "title": "Gift-Ready Packaging",
-                "body": "<p>Beautifully arranged in a premium gift box, ready to deliver a heartfelt message without any extra wrapping.</p>"
-              }
-            }
-          },
-          "block_order": [
-            "packaging"
-          ]
-        }
-      },
-      "block_order": [
-        "heading",
-        "cards"
-      ],
-      "settings": {}
+      "settings": {
+        "action": "form",
+        "background": "purple",
+        "vertical_padding": 80,
+        "vertical_padding_mobile": 64
+      }
     }
   },
   "order": [
     "main",
     "whats_inside",
     "why_choose_us",
+    "1787728711a4fa833f",
     "related_products",
     "recently_viewed",
     "faq",
