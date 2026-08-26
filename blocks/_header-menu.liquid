@@ -1310,6 +1310,24 @@
     margin-inline: auto 16px;
   }
 
+  /*
+   * A panel's button row starts at the drawer's very top, and the close button is
+   * centred in it — so it lands 2px down, against the 16 the top-level one is
+   * given above. Opening a group therefore jumped the button 14px up, which reads
+   * as the whole top bar twitching.
+   *
+   * The row is dropped by that same 16 and its items aligned to the start rather
+   * than centred, so the close button's box begins exactly where the top-level
+   * one's does and stays put between the two panels. `flex-start` is what removes
+   * the 2px the centring added; without it the row would have to be offset by a
+   * derived 14, which is the sort of number that drifts the first time the row's
+   * height changes.
+   */
+  #header-component .menu-drawer__nav-buttons {
+    align-items: flex-start;
+    margin-block-start: 16px;
+  }
+
   /* The glyph is drawn at a viewBox of 14 with its cross across 10 of it, so a
      21px box puts the cross at 15 and the stroke divided back to the 1.5px every
      other icon in the header is drawn with. Left at the box's own scale it comes
