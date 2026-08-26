@@ -32,7 +32,8 @@
               "type": "_ui-link",
               "settings": {
                 "label": "Send an inquiry",
-                "variant": "primary"
+                "variant": "primary",
+                "link": "/pages/corporate-gifting?view=corporate-gifting"
               }
             }
           },
@@ -234,7 +235,7 @@
             "image": "shopify://shop_images/corporate-gifts-top-left.webp",
             "title": "Bulk Custom Orders",
             "description": "50+ treats · Custom quantities · Personalization",
-            "link": "/pages/corporate-gifting#quote",
+            "link": "/pages/corporate-gifting?view=corporate-gifting",
             "button_label": "Get a quote"
           }
         }

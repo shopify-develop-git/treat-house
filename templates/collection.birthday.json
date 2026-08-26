@@ -91,7 +91,7 @@
           "static": true,
           "settings": {
             "label": "Customize your birthday box",
-            "link": "shopify://pages/customize",
+            "link": "/pages/faqs?view=customize",
             "variant": "primary"
           }
         }

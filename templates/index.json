@@ -29,6 +29,7 @@
           "baby-shower",
           "deluxe-gift-box",
           "pride",
+          "valentines-day",
           "halloween",
           "christmas-treats"
         ]
@@ -57,14 +58,16 @@
               "type": "_ui-link",
               "settings": {
                 "label": "Shop treats",
-                "variant": "primary"
+                "variant": "primary",
+                "link": "/collections/all"
               }
             },
             "secondary": {
               "type": "_ui-link",
               "settings": {
                 "label": "Customize treats",
-                "variant": "secondary"
+                "variant": "secondary",
+                "link": "/pages/faqs?view=customize"
               }
             }
           },
@@ -77,7 +80,8 @@
           "type": "_ui-link",
           "settings": {
             "label": "Corporate gifting",
-            "variant": "underline"
+            "variant": "underline",
+            "link": "/pages/corporate-gifting?view=corporate-gifting"
           }
         },
         "review-line": {
@@ -179,17 +183,18 @@
           "static": true,
           "settings": {
             "label": "View all products",
-            "variant": "primary"
+            "variant": "primary",
+            "link": "/collections/all"
           }
         }
       },
       "settings": {
         "products": [
-          "12-pack-of-custom-treats",
-          "12-pack-choose-your-own",
           "birthday-12-pack",
-          "assorted-12-pack",
-          "gluten-free-12-pack"
+          "birthday-bash-box",
+          "birthday-party-bar",
+          "12-pack-of-custom-birthday-treats",
+          "12-pack-of-custom-corporate-treats"
         ]
       }
     },
@@ -209,7 +214,8 @@
           "static": true,
           "settings": {
             "label": "View all products",
-            "variant": "primary"
+            "variant": "primary",
+            "link": "/collections/all"
           }
         }
       },
@@ -245,7 +251,8 @@
         "button": {
           "type": "_ui-link",
           "settings": {
-            "label": "Explore corporate gifting"
+            "label": "Explore corporate gifting",
+            "link": "/pages/corporate-gifting?view=corporate-gifting"
           }
         },
         "stat-row": {
@@ -436,7 +443,7 @@
           "type": "_ui-link",
           "settings": {
             "label": "Create your custom treat",
-            "link": "shopify://pages/customize",
+            "link": "/pages/faqs?view=customize",
             "variant": "primary"
           }
         }
