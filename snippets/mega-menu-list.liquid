@@ -135,6 +135,22 @@
           {{- link.title -}}
         </span>
       </a>
+      {%- comment -%}
+        The panel carries one call to action — "Shop All Treats", "All Occasions",
+        "All Seasonal" — and in the navigation it is the last item of the first
+        group. The file draws it as the kit's underline button rather than as a
+        seventh link, so it is picked out here and rendered as one.
+
+        Position, not the wording, is what marks it: a rule keyed on a title would
+        be a rule in one language. A group of a single link keeps that link a link,
+        because there is nothing there for a "view all" to be the end of.
+      {%- endcomment -%}
+      {% liquid
+        assign view_all_column = forloop.first
+        if link.links.size < 2
+          assign view_all_column = false
+        endif
+      %}
       {% if link.links != blank %}
         <ul
           class="list-unstyled"
@@ -143,18 +159,29 @@
           {% endif %}
         >
           {% for childLink in link.links %}
-            {% assign break_after_modulo = forloop.index | modulo: links_before_wrap %}
+            {% liquid
+              assign break_after_modulo = forloop.index | modulo: links_before_wrap
+              assign is_view_all = false
+              if view_all_column and forloop.last
+                assign is_view_all = true
+              endif
+            %}
             <li
+              {% if is_view_all %}class="mega-menu__view-all"{% endif %}
               {% if break_after_modulo == 0 and should_break_columns %}
                 style="break-after: column;"
               {% endif %}
             >
-              <a
-                href="{{ childLink.url }}"
-                class="mega-menu__link"
-              >
-                <span class="wrap-text">{{- childLink.title -}}</span>
-              </a>
+              {% if is_view_all %}
+                {% render 'ui-button', variant: 'underline', label: childLink.title, link: childLink.url %}
+              {% else %}
+                <a
+                  href="{{ childLink.url }}"
+                  class="mega-menu__link"
+                >
+                  <span class="wrap-text">{{- childLink.title -}}</span>
+                </a>
+              {% endif %}
             </li>
           {% endfor %}
         </ul>

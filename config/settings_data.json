@@ -9,6 +9,15 @@
  */
 {
   "current": {
+    "logo": "shopify://shop_images/treat-house-logo.webp",
+    "logo_height": 47,
+    "logo_height_mobile": 62,
+    "contact_phone": "212-799-7779",
+    "contact_email": "info@treathouse.com",
+    "social_facebook_url": "https://www.facebook.com/",
+    "social_instagram_url": "https://www.instagram.com/",
+    "social_x_url": "https://x.com/",
+    "social_pinterest_url": "https://www.pinterest.com/",
     "type_body_font": "nunito_n4",
     "type_subheading_font": "nunito_n6",
     "type_heading_font": "nunito_n7",
@@ -53,8 +62,8 @@
     "secondary_button_border_width": 1,
     "button_border_radius_secondary": 14,
     "cart_type": "drawer",
-    "auto_open_cart_drawer": true,
     "cart_price_font": "secondary",
+    "auto_open_cart_drawer": true,
     "show_cart_note": false,
     "show_add_discount_code": false,
     "show_accelerated_checkout_buttons": false,
@@ -77,6 +86,28 @@
     "variant_button_border_width": 1,
     "variant_button_radius": 14,
     "variant_button_width": "equal-width-buttons",
+    "content_for_index": [],
+    "blocks": {
+      "13047258039897440615": {
+        "type": "shopify://apps/judge-me-reviews/blocks/cart_drawer_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+        "disabled": false,
+        "settings": {
+          "widget_type": "review-widget"
+        }
+      },
+      "14060646107696862457": {
+        "type": "shopify://apps/judge-me-reviews/blocks/judgeme_core/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+        "disabled": false,
+        "settings": {}
+      },
+      "2400098815675207992": {
+        "type": "shopify://apps/clay-b2b-wholesale/blocks/clay-wholesale-price/e89e496b-328b-4767-a3bb-2ff0d4065819",
+        "disabled": false,
+        "settings": {
+          "useCustomCode": true
+        }
+      }
+    },
     "color_schemes": {
       "scheme-1": {
         "settings": {
@@ -351,16 +382,7 @@
           "selected_variant_hover_border_color": "#505050"
         }
       }
-    },
-    "logo_height": 47,
-    "logo_height_mobile": 62,
-    "logo": "shopify://shop_images/treat-house-logo.webp",
-    "contact_phone": "212-799-7779",
-    "contact_email": "info@treathouse.com",
-    "social_facebook_url": "https://www.facebook.com/",
-    "social_instagram_url": "https://www.instagram.com/",
-    "social_x_url": "https://x.com/",
-    "social_pinterest_url": "https://www.pinterest.com/"
+    }
   },
   "presets": {
     "Horizon": {

@@ -143,8 +143,15 @@
                   {%- endcomment -%}
                   <p class="mega-menu__title" aria-hidden="true">{{ link.title }}</p>
 
+                  {%- comment -%}
+                    One column of links hangs straight off the navigation item that
+                    opened the panel; two are pushed a column-gap further in. The
+                    count is the number of groups in the navigation, so the panel
+                    knows it here and says so in a class — the stylesheet is bundled
+                    once for the whole theme and cannot count links.
+                  {%- endcomment -%}
                   <div
-                    class="mega-menu__grid"
+                    class="mega-menu__grid{% if link.links.size > 1 %} mega-menu__grid--multi{% endif %}"
                     data-menu-grid-id="{{ list_id }}"
                   >
                     {% render 'mega-menu-list',
@@ -975,14 +982,20 @@
       align-items: flex-start;
       gap: 24px;
       box-sizing: border-box;
-      padding: 24px var(--ui-page-margin);
+      /*
+       * Not one padding. The file hangs 24px over the top of the panel and 48
+       * under it — 24 + the 312 card + 48 is the 384 it draws — so the card sits
+       * high in the white rather than centred in it, and the extra air below is
+       * what the last row of links drops onto.
+       */
+      padding: 24px var(--ui-page-margin) 48px;
     }
 
     /*
-     * The title is taken out of the flow so it cannot push the columns along.
-     * It belongs to the page margin — the same left edge the header's logo sits
-     * on — while the columns belong to the navigation item overhead, and those
-     * are two different measurements that a row of flex items cannot both obey.
+     * Out of the flow, so it cannot push the columns along. It belongs to the page
+     * margin — the same left edge the header's logo sits on — while the columns
+     * belong to the navigation item overhead, and those are two different
+     * measurements that a row of flex items cannot both obey.
      */
     #header-component[data-menu-style='menu'] .mega-menu__title {
       position: absolute;
@@ -999,28 +1012,46 @@
     }
 
     /*
-     * `--th-mega-start` is written by `ui-mega-menu-align.js`: the distance from
-     * this panel's content box to the left edge of the label that opened it. The
-     * file draws every panel that way and the three it draws agree to within
-     * 1.5px, so it is the rule rather than a coincidence of one layout.
+     * A block that hugs its columns, not the theme's `width: 100%` grid. Left at
+     * full width it eats the whole row and pins the card to the columns rather
+     * than to the page margin.
      *
-     * The floor keeps the columns clear of the absolutely-positioned title —
-     * 175px of it plus the 24px gap — for a navigation item far enough left that
-     * the two would otherwise collide.
+     * `--th-mega-start` is written by `ui-mega-menu-align.js`: the distance from
+     * this panel's content box to the left edge of the label that opened it. One
+     * column of links hangs straight off that label — Occasions' column under
+     * "Occasions", Seasonal's under "Seasonal & Specialty", which is what the file
+     * draws to within 1.5px.
+     *
+     * The floor keeps the columns clear of the absolutely-positioned title: the
+     * longest of the three is 248px of Merienda, and 24 of air after it.
+     *
+     * The 9px of padding puts the first row of links on the title's baseline
+     * rather than on its cap height.
      */
     #header-component[data-menu-style='menu'] .mega-menu__grid {
+      display: block;
       flex: 0 1 auto;
+      inline-size: auto;
       min-width: 0;
-      margin-inline-start: max(var(--th-mega-start, 199px), 199px);
+      margin-inline-start: max(var(--th-mega-start, 272px), 272px);
       padding-block-start: 9px;
+    }
+
+    /*
+     * Two columns cannot both hang off the label — the pair is twice as wide as
+     * the item that opened it and would run at the card. Hung from the same point
+     * and pushed one column-gap further in, which puts the label between the two
+     * of them rather than over the first.
+     */
+    #header-component[data-menu-style='menu'] .mega-menu__grid--multi {
+      margin-inline-start: max(calc(var(--th-mega-start, 272px) + 120px), 272px);
     }
 
     /*
      * The card holds the 255px it was drawn at and takes the panel's height, so
      * the picture inside it absorbs the difference between a panel with one
      * column of links and a panel with two. `margin-inline-start: auto` is what
-     * puts it against the page margin when the links do not fill the row —
-     * `justify-content` cannot, because the title has to stay at the far left.
+     * puts it against the page margin when the links do not fill the row.
      */
     #header-component[data-menu-style='menu'] .mega-menu__promo {
       flex: 0 0 auto;
@@ -1074,7 +1105,14 @@
       color: var(--ui-color-primary);
     }
 
+    /*
+     * No vertical padding. The theme pads each link so the rows have something to
+     * point at, but the column is already a 16px gap and the two together put the
+     * rows 42px apart against the 34 the file draws — 18px of text and the gap.
+     * The air is the gap's to give.
+     */
     #header-component[data-menu-style='menu'] .mega-menu__link:not(.mega-menu__link--parent) {
+      padding-block: 0;
       font-family: var(--ui-font-body);
       font-size: 14px;
       font-weight: var(--ui-font-body-weight);
@@ -1082,13 +1120,62 @@
       color: var(--ui-color-black);
     }
 
-    #header-component[data-menu-style='menu'] .mega-menu__column > ul {
+    /*
+     * The purple, which is what the kit answers a hover with wherever the file
+     * draws no state of its own — the colour `ui-menu-item` gives a chosen row and
+     * `ui-variant-select` gives a hovered trigger. Left alone, the theme fades
+     * these links from black to a mid grey, so pointing at a link made it recede
+     * instead of come forward.
+     *
+     * `:focus-visible` rides along: the panel opens on hover but is reachable by
+     * tab, and a keyboard reader needs the same mark the pointer gets.
+     *
+     * Colour only, no underline. These are eight rows of navigation in a column,
+     * and a rule appearing under one of them moves the text off its own baseline;
+     * the underline is spent already on the panel's one call to action.
+     */
+    #header-component[data-menu-style='menu']
+      .mega-menu__link:not(.mega-menu__link--parent):is(:hover, :focus-visible) {
+      color: var(--ui-color-primary);
+    }
+
+    /*
+     * Descendant, not child. [mega-menu-list] wraps each heading and its list in
+     * a `<div>`, so `.mega-menu__column > ul` matched nothing and the links kept
+     * the theme's own 26px pitch against the 34 the file draws — 18px of text
+     * and 16 of air.
+     */
+    #header-component[data-menu-style='menu'] .mega-menu__column ul {
       display: flex;
       flex-direction: column;
       gap: 16px;
       margin: 0;
       padding: 0;
       list-style: none;
+    }
+
+    /*
+     * The row is a flex container so that it has no line box of its own. Left as a
+     * block it draws one at the list's line height — 22.4px around an 18.2px link —
+     * and those 4px land between every pair of rows, which is the 38px pitch this
+     * had against the 34 the file draws.
+     */
+    #header-component[data-menu-style='menu'] .mega-menu__column ul > li {
+      display: flex;
+    }
+
+    /*
+     * The panel's one call to action — "Shop All Treats", "All Occasions" — is the
+     * last item of the first column in the navigation, and the file draws it as
+     * the kit's underline button rather than as another link: Outfit, uppercase,
+     * purple, on a purple rule.
+     *
+     * 8px on top of the list's own 16 makes the 24 the file leaves above it. The
+     * gap belongs here rather than on `.mega-menu__column`'s 24px, because that
+     * gap separates the div wrapping the whole column, not the rows inside it.
+     */
+    #header-component[data-menu-style='menu'] .mega-menu__view-all {
+      margin-block-start: 8px;
     }
   }
 

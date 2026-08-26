@@ -15,28 +15,53 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
+            "source": "custom",
             "heading": "<h1><em>Bring Treat House</em><br>to your shelves</h1>",
+            "heading_tag": "h1",
             "heading_size": 44,
-            "heading_size_mobile": 32
-          }
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "copy": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Partner with us to stock handcrafted Krispie treats in your store, café, or venue. Submit an inquiry and our wholesale team will follow up with pricing and minimums.</p>"
-          }
+            "source": "custom",
+            "text": "<p>Partner with us to stock handcrafted Krispie treats in your store, café, or venue. Submit an inquiry and our wholesale team will follow up with pricing and minimums.</p>",
+            "text_size": 16,
+            "text_size_mobile": 16,
+            "max_width": 0,
+            "color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "buttons": {
           "type": "_ui-link-row",
-          "settings": {},
+          "settings": {
+            "gap": 16,
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
           "blocks": {
             "primary": {
               "type": "_ui-link",
               "settings": {
                 "label": "Apply for wholesale",
+                "link": "/pages/wholesale?view=wholesale",
                 "variant": "primary",
-                "link": "/pages/wholesale#apply"
-              }
+                "full_width": false,
+                "open_in_new_tab": false,
+                "padding_block_start": 0,
+                "padding_block_end": 0
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -47,8 +72,19 @@
           "type": "_ui-review-line",
           "static": true,
           "settings": {
-            "image": "shopify://shop_images/review-line-composite.webp"
-          }
+            "source": "manual",
+            "image": "shopify://shop_images/review-line-composite.webp",
+            "rating_stars": 5,
+            "rating_text": "4.9 rating",
+            "reviews_text": "12,000+ reviews",
+            "layout": "stacked",
+            "text_size": 14,
+            "text_size_mobile": 14,
+            "gap": 11,
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -57,55 +93,77 @@
         "buttons"
       ],
       "settings": {
+        "color_scheme": "",
         "image": "shopify://shop_images/image_28_a1d5c213-d8c6-448f-8572-ca78d2dcf19d.webp",
         "show_badge": false,
+        "badge_figure": "100%",
+        "badge_text": "Gluten-Free",
         "show_reviews": true,
         "show_marquee": true,
         "marquee_text": "nationwide shipping",
-        "marquee_repeat": 8
+        "marquee_repeat": 8,
+        "marquee_direction": "normal"
       }
     },
     "claims": {
       "type": "step-cards",
       "blocks": {
-        "heading": {
-          "type": "_ui-heading",
-          "static": true,
-          "settings": {
-            "heading": ""
-          }
-        },
         "gluten": {
           "type": "_ui-feature-card",
           "settings": {
             "icon": "wheat-slash",
+            "badge": "",
             "title": "Certified Gluten Free",
             "body": "<p>Consistent quality at wholesale volume.</p>"
-          }
+          },
+          "blocks": {}
         },
         "minimums": {
           "type": "_ui-feature-card",
           "settings": {
             "icon": "box-add",
+            "badge": "",
             "title": "Low Minimums",
             "body": "<p>Case packs sized for retail and café shelves.</p>"
-          }
+          },
+          "blocks": {}
         },
         "seasonal": {
           "type": "_ui-feature-card",
           "settings": {
             "icon": "sparkles",
+            "badge": "",
             "title": "Seasonal Flavors",
             "body": "<p>New flavors each season, ready to rotate onto your shelf.</p>"
-          }
+          },
+          "blocks": {}
         },
         "shipping": {
           "type": "_ui-feature-card",
           "settings": {
             "icon": "shipping-fast",
+            "badge": "",
             "title": "Nationwide Shipping",
             "body": "<p>Orders ship to retailers anywhere in the country.</p>"
-          }
+          },
+          "blocks": {}
+        },
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "source": "custom",
+            "heading": "",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -116,84 +174,110 @@
       ],
       "settings": {
         "show_connector": false,
+        "card_height": 0,
         "heading_gap": 64,
         "columns": 4,
         "columns_md": 2,
         "columns_sm": "1",
+        "section_width": "page-width",
         "card_background": "light-blue",
         "background": "white",
+        "color_scheme": "",
         "padding-block-start": 80,
-        "padding-block-end": 80,
-        "card_height": 0
+        "padding-block-end": 80
       }
     },
     "trusted": {
       "type": "logo-row",
       "blocks": {
-        "heading": {
-          "type": "_ui-heading",
-          "static": true,
-          "settings": {
-            "heading": "<h2><em>Trusted by</em> retailers, cafés &amp; corporate teams</h2>",
-            "heading_size": 30,
-            "heading_size_mobile": 24
-          }
-        },
         "logo1": {
           "type": "_ui-logo",
           "settings": {
             "image": "shopify://shop_images/trusted-by-whole-foods-market.webp",
-            "name": "Whole Foods Market"
-          }
+            "name": "Whole Foods Market",
+            "link": ""
+          },
+          "blocks": {}
         },
         "logo2": {
           "type": "_ui-logo",
           "settings": {
             "image": "shopify://shop_images/trusted-by-equator-coffees.webp",
-            "name": "Equator Coffees & Teas"
-          }
+            "name": "Equator Coffees & Teas",
+            "link": ""
+          },
+          "blocks": {}
         },
         "logo3": {
           "type": "_ui-logo",
           "settings": {
             "image": "shopify://shop_images/trusted-by-four-seasons.webp",
-            "name": "Four Seasons Hotels and Resorts"
-          }
+            "name": "Four Seasons Hotels and Resorts",
+            "link": ""
+          },
+          "blocks": {}
         },
         "logo4": {
           "type": "_ui-logo",
           "settings": {
             "image": "shopify://shop_images/trusted-by-jenis-ice-creams.webp",
-            "name": "Jeni's Ice Creams"
-          }
+            "name": "Jeni's Ice Creams",
+            "link": ""
+          },
+          "blocks": {}
         },
         "logo5": {
           "type": "_ui-logo",
           "settings": {
             "image": "shopify://shop_images/trusted-by-west-bourne-market.webp",
-            "name": "West~Bourne Market"
-          }
+            "name": "West~Bourne Market",
+            "link": ""
+          },
+          "blocks": {}
         },
         "logo6": {
           "type": "_ui-logo",
           "settings": {
             "image": "shopify://shop_images/trusted-by-tatte-bakery.webp",
-            "name": "Tatte Bakery & Café"
-          }
+            "name": "Tatte Bakery & Café",
+            "link": ""
+          },
+          "blocks": {}
         },
         "logo7": {
           "type": "_ui-logo",
           "settings": {
             "image": "shopify://shop_images/trusted-by-barrington-coffee.webp",
-            "name": "Barrington Coffee"
-          }
+            "name": "Barrington Coffee",
+            "link": ""
+          },
+          "blocks": {}
         },
         "logo8": {
           "type": "_ui-logo",
           "settings": {
             "image": "shopify://shop_images/trusted-by-blue-plate-catering.webp",
-            "name": "Blue Plate Catering"
-          }
+            "name": "Blue Plate Catering",
+            "link": ""
+          },
+          "blocks": {}
+        },
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "source": "custom",
+            "heading": "<h2><em>Trusted by</em> retailers, cafés &amp; corporate teams</h2>",
+            "heading_tag": "h1",
+            "heading_size": 30,
+            "heading_size_mobile": 24,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -212,6 +296,8 @@
         "columns": 8,
         "columns_md": 4,
         "columns_sm": "2",
+        "section_width": "page-width",
+        "color_scheme": "",
         "padding-block-start": 80,
         "padding-block-end": 80
       }
@@ -219,41 +305,52 @@
     "steps": {
       "type": "step-cards",
       "blocks": {
-        "heading": {
-          "type": "_ui-heading",
-          "static": true,
-          "settings": {
-            "heading": "<h2>How wholesale <em>works</em></h2>",
-            "heading_size": 48,
-            "heading_size_mobile": 32
-          }
-        },
         "apply": {
           "type": "_ui-feature-card",
           "settings": {
-            "badge": "Step 1",
             "icon": "document",
+            "badge": "Step 1",
             "title": "Submit Your Application",
             "body": "<p>Complete the wholesale inquiry form and tell us about your business.</p>"
-          }
+          },
+          "blocks": {}
         },
         "review": {
           "type": "_ui-feature-card",
           "settings": {
-            "badge": "Step 2",
             "icon": "audit",
+            "badge": "Step 2",
             "title": "Application Review",
             "body": "<p>Our team reviews your business information and contacts you if additional details are needed.</p>"
-          }
+          },
+          "blocks": {}
         },
         "approved": {
           "type": "_ui-feature-card",
           "settings": {
-            "badge": "Step 3",
             "icon": "badge-check",
+            "badge": "Step 3",
             "title": "Get Approved",
             "body": "<p>Once approved, you will be given access to our wholesale page.</p>"
-          }
+          },
+          "blocks": {}
+        },
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "source": "custom",
+            "heading": "<h2>How wholesale <em>works</em></h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -263,15 +360,17 @@
       ],
       "settings": {
         "show_connector": true,
+        "card_height": 230,
         "heading_gap": 64,
         "columns": 3,
         "columns_md": 2,
         "columns_sm": "1",
+        "section_width": "page-width",
         "card_background": "light-blue",
         "background": "white",
+        "color_scheme": "",
         "padding-block-start": 80,
-        "padding-block-end": 80,
-        "card_height": 230
+        "padding-block-end": 80
       }
     },
     "apply": {
@@ -280,62 +379,49 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
+            "source": "custom",
             "heading": "<h2>Apply for a <em>wholesale account</em></h2>",
+            "heading_tag": "h1",
             "heading_size": 48,
-            "heading_size_mobile": 32
-          }
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "intro": {
           "type": "_ui-text",
           "settings": {
+            "source": "custom",
             "text": "<p>Complete the form below and we'll review your application within 1–2 business days.</p>",
             "text_size": 16,
-            "text_size_mobile": 14
-          }
-        },
-        "sent-heading": {
-          "type": "_ui-heading",
-          "static": true,
-          "settings": {
-            "heading": "<h2><em>Thanks.</em><br>We have your inquiry.</h2>",
-            "heading_size": 40,
-            "heading_size_mobile": 28
-          }
-        },
-        "sent-copy": {
-          "type": "_ui-text",
-          "static": true,
-          "settings": {
-            "text": "<p>Your wholesale application has been received. Our team will review your information and get back to you within 1–2 business days. If we need additional details, we'll contact you using the information you provided.</p>"
-          }
-        },
-        "sent-buttons": {
-          "type": "_ui-link-row",
-          "static": true,
-          "settings": {
-            "gap": 20
+            "text_size_mobile": 14,
+            "max_width": 0,
+            "color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
           },
-          "blocks": {
-            "home": {
-              "type": "_ui-link",
-              "settings": {
-                "label": "Return home",
-                "variant": "primary",
-                "link": "/"
-              }
-            }
-          },
-          "block_order": [
-            "home"
-          ]
+          "blocks": {}
+        },
+        "form": {
+          "type": "shopify://apps/clay-b2b-wholesale/blocks/clay-registration-form/e89e496b-328b-4767-a3bb-2ff0d4065819",
+          "settings": {
+            "registration_form_id": "57a614f4-3ee7-48fe-b7e0-3a910d4ee93d"
+          }
         }
       },
       "block_order": [
         "heading",
-        "intro"
+        "intro",
+        "form"
       ],
       "settings": {
-        "submit_label": "Submit request"
+        "color_scheme": "",
+        "padding-block-start": 80,
+        "padding-block-end": 80
       }
     },
     "contact": {
@@ -344,26 +430,32 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
+            "source": "custom",
             "heading": "<h2>Need to Contact Our Team</h2>",
-            "max_width": 610
-          }
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 610,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "body": {
           "type": "_ui-text",
           "settings": {
+            "source": "custom",
             "text": "<p>Have questions before applying? We'd love to help.</p>",
             "text_size": 16,
-            "text_size_mobile": 14
-          }
-        },
-        "cta": {
-          "type": "_ui-link",
-          "static": true,
-          "settings": {
-            "label": "",
-            "link": "/pages/contact",
-            "variant": "secondary"
-          }
+            "text_size_mobile": 14,
+            "max_width": 0,
+            "color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "contacts": {
           "type": "_ui-footer-contact",
@@ -373,7 +465,32 @@
             "location": "",
             "phone": "212-799-7779",
             "email": "info@treathouse.com"
-          }
+          },
+          "blocks": {}
+        },
+        "cta": {
+          "type": "_ui-link",
+          "static": true,
+          "settings": {
+            "label": "",
+            "link": "/pages/contact",
+            "variant": "secondary",
+            "full_width": false,
+            "open_in_new_tab": false,
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
+        },
+        "signup": {
+          "type": "_ui-newsletter-form",
+          "static": true,
+          "settings": {
+            "placeholder": "Your email",
+            "button_label": "Subscribe",
+            "field_label": ""
+          },
+          "blocks": {}
         }
       },
       "block_order": [

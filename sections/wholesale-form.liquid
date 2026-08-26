@@ -1,36 +1,28 @@
 {% comment %}
-  Apply for a wholesale account (Figma: 508:13439, and 508:12824 for the state after
-  it is sent).
+  Apply for a wholesale account (Figma: 508:13439).
 
-  The same shape as `corporate-quote-form` and for the same reasons: two states of
-  one thing rather than two sections a merchant has to swap by hand. Shopify decides
-  which — `{% form 'contact' %}` posts to the shop, redirects back with
-  `?contact_posted=true`, and `form.posted_successfully?` is true on that render. So
-  the confirmation survives a reload, works with JavaScript off, and cannot be
-  reached by anyone who has not sent anything.
+  The form is not this section's own. It is the Clay B2B Wholesale app's
+  registration block, added as an `@app` block — so which fields there are, their
+  order, what is required and what happens on submit all belong to the app's
+  admin. That is what buys the two things Shopify's contact form could not give:
+  the certificate is a real upload, and a submission creates a tagged customer
+  rather than an email in a mailbox.
 
-  Where the quote form is one run of fields, this one is grouped: Contact info,
-  Business info, Billing address, Shipping address. Those are `<fieldset>`s with the
-  legend the file draws — purple caps over a hairline — because that is what the
-  markup is for, and a screen reader then says which address it is reading.
+  What stays here is the page. The column, the heading and the copy above it, and
+  the skin below, which puts the app's markup in the kit's clothes. Clay's own
+  rules are single-class, so two classes here outweigh them and nothing needs
+  `!important`; its fields are in the light DOM, so they can be reached at all.
 
-  The fifteen fields are a fixed composition, not a merchant's list. What a merchant
-  changes is exposed: the note under the company field, the dialling codes, every
-  word around the certificate panel, and all of the confirmation, which is blocks.
+  Clay also owns the state after sending — it swaps the form for its own message
+  in place, with no redirect, which is why the `form.posted_successfully?` branch
+  this section used to carry has gone with the form. It announces the send on
+  `document` as `clay:form:submitted`, carrying the new customer, so a
+  confirmation of ours can be hung off that when we want one.
 
-  The certificate panel is a link and not a file input, and that is the platform
-  rather than a shortcut. Shopify's contact form posts no attachment — a file field
-  on it takes the document and drops it without a word. So the panel is drawn as the
-  file draws it and points at an address instead. Put a form app behind this and the
-  panel becomes a real input by passing `name` in place of `link`; see
-  [ui-upload-field].
+  The hand-built version this replaces — fifteen fields on `{% form 'contact' %}`,
+  with the certificate as a mailto panel because that form carries no attachment —
+  is in git immediately before this commit.
 {% endcomment %}
-
-{%- liquid
-  assign submit_label = section.settings.submit_label | default: 'Submit request'
-  assign quantity_hint = section.settings.quantity_hint
-  assign dialling_codes = section.settings.dialling_codes | default: '+1'
--%}
 
 <div
   class="section section--page-width spacing-style color-{{ section.settings.color_scheme }}"
@@ -38,117 +30,12 @@
   data-testid="wholesale-form-{{ section.id }}"
   {{ section.shopify_attributes }}
 >
-  {%- form 'contact', class: 'wholesale-form' -%}
-    {%- if form.posted_successfully? -%}
-      {%- capture wholesale_sent -%}
-        {% content_for 'block', type: '_ui-heading', id: 'sent-heading' %}
-        {% content_for 'block', type: '_ui-text', id: 'sent-copy' %}
-        {% content_for 'block', type: '_ui-link-row', id: 'sent-buttons' %}
-      {%- endcapture -%}
-
-      {% render 'ui-confirmation-panel', content: wholesale_sent %}
-    {%- else -%}
-      <div class="wholesale-form__intro">
-        {% content_for 'blocks' %}
-      </div>
-
-      {%- comment -%}
-        Shopify validates the email and nothing else, so its message is put on that
-        field — the error lands where the fix is rather than in a banner above a
-        form the applicant then has to search.
-      {%- endcomment -%}
-      {%- liquid
-        assign email_error = blank
-        if form.errors
-          assign email_error = form.errors.messages.email | default: form.errors.messages.form
-        endif
-      -%}
-
-      <fieldset class="wholesale-form__group">
-        <legend class="wholesale-form__legend">{{ section.settings.contact_legend }}</legend>
-
-        <div class="wholesale-form__row">
-          {% render 'ui-input',
-            label: 'Customer name',
-            name: 'contact[name]',
-            value: form.name
-          %}
-
-          {% render 'ui-phone-field',
-            label: 'Customer phone',
-            name: 'contact[Phone]',
-            code_name: 'contact[Dialling code]',
-            codes: dialling_codes
-          %}
-        </div>
-
-        <div class="wholesale-form__row">
-          {% render 'ui-input',
-            label: 'Customer email',
-            type: 'email',
-            name: 'contact[email]',
-            value: form.email,
-            error: email_error,
-            required: true
-          %}
-
-          {% render 'ui-input',
-            label: 'Company name',
-            name: 'contact[Company]',
-            hint: quantity_hint
-          %}
-        </div>
-      </fieldset>
-
-      <fieldset class="wholesale-form__group">
-        <legend class="wholesale-form__legend">{{ section.settings.business_legend }}</legend>
-
-        {% render 'ui-input',
-          label: 'Company website',
-          type: 'url',
-          name: 'contact[Company website]'
-        %}
-      </fieldset>
-
-      <fieldset class="wholesale-form__group">
-        <legend class="wholesale-form__legend">{{ section.settings.billing_legend }}</legend>
-
-        <div class="wholesale-form__row wholesale-form__row--pairs">
-          {% render 'ui-input', label: 'Billing address', name: 'contact[Billing address]' %}
-          {% render 'ui-input', label: 'Billing city', name: 'contact[Billing city]' %}
-          {% render 'ui-input', label: 'Billing state', name: 'contact[Billing state]' %}
-          {% render 'ui-input', label: 'Billing zip', name: 'contact[Billing zip]' %}
-        </div>
-      </fieldset>
-
-      <fieldset class="wholesale-form__group">
-        <legend class="wholesale-form__legend">{{ section.settings.shipping_legend }}</legend>
-
-        <div class="wholesale-form__row wholesale-form__row--pairs">
-          {% render 'ui-input', label: 'Shipping address', name: 'contact[Shipping address]' %}
-          {% render 'ui-input', label: 'Shipping city', name: 'contact[Shipping city]' %}
-          {% render 'ui-input', label: 'Shipping state', name: 'contact[Shipping state]' %}
-          {% render 'ui-input', label: 'Shipping zip', name: 'contact[Shipping zip]' %}
-        </div>
-      </fieldset>
-
-      {% render 'ui-upload-field',
-        label: section.settings.certificate_label,
-        prompt: section.settings.certificate_prompt,
-        hint: section.settings.certificate_hint,
-        link: section.settings.certificate_link,
-        class: 'wholesale-form__certificate'
-      %}
-
-      {% render 'ui-button',
-        variant: 'primary',
-        label: submit_label,
-        type: 'submit',
-        full_width: true,
-        class: 'wholesale-form__submit'
-      %}
-    {%- endif -%}
-  {%- endform -%}
+  <div
+    class="wholesale-form"
+    style="--th-caret: url({{ 'icon-ui-caret-down.svg' | asset_url }});"
+  >
+    {% content_for 'blocks' %}
+  </div>
 </div>
 
 {% stylesheet %}
@@ -158,6 +45,10 @@
    * padding itself — see the page geometry note in CLAUDE.md.
    */
   .wholesale-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
     box-sizing: border-box;
     inline-size: 100%;
     max-inline-size: 630px;
@@ -166,111 +57,371 @@
 
   /*
    * The heading and its line are drawn wider than the form — 716 against 630 — and
-   * centred on it. Given the full page column and capped, so the pair is centred on
-   * the page rather than on the form's left edge.
+   * centred on it. They are blocks now rather than a wrapper of their own, because
+   * the app's form is a block too and one `content_for` renders the lot; so the
+   * width is given to the two that want it instead of to a box around them.
    */
-  .wholesale-form__intro {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    box-sizing: border-box;
-    inline-size: 100vw;
+  .wholesale-form > :is(.ui-heading, .ui-text) {
+    inline-size: 100%;
     max-inline-size: 716px;
-    margin-block-end: 48px;
-    margin-inline: calc(50% - 50vw);
+    margin: 0;
     text-align: center;
   }
 
-  @media screen and (min-width: 750px) {
-    .wholesale-form__intro {
-      /* Past 716 the intro is wider than the form, so the negative margin can go
-         and the block simply centres over it. */
-      inline-size: 716px;
-      margin-inline: calc((630px - 716px) / 2);
-    }
-  }
-
-  .wholesale-form__intro > :is(.ui-heading, h1, h2, h3) {
-    margin: 0;
-  }
-
-  .wholesale-form__intro > :is(.ui-text, p) {
-    margin: 0;
-  }
-
-  /* A fieldset carries a border and padding of its own in every browser. */
-  .wholesale-form__group {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  /* The app's block, and the 48 the file leaves between the copy and the first
+     field — 32 of it here, 16 from the column's gap. */
+  .wholesale-form > .shopify-block {
     inline-size: 100%;
-    min-inline-size: 0;
-    margin: 0 0 24px;
+    margin-block-start: 32px;
+  }
+
+  /* ------------------------------------------------------------------
+     The skin.
+
+     Everything below dresses markup this theme does not write. Each rule is
+     weighed at two classes so it clears the app's own single-class stylesheet,
+     which is injected into the head at runtime and would otherwise win on order.
+
+     Reached through `.wholesale-form` rather than through the app's own mount
+     class, so the skin travels with the section and cannot leak into any other
+     place a merchant drops the block.
+     ------------------------------------------------------------------ */
+
+  /* The app draws its form as a grey card. The file draws no card — the fields sit
+     on the page — so the box is taken off rather than restyled. */
+  /* The app writes the card's background, width and height inline as well, hence
+     the flags here — same reason as the fields below. The shadow is what draws the
+     card once its background is gone. */
+  .wholesale-form .elements-preview-container,
+  .wholesale-form .elements-preview-container.boxed {
+    inline-size: 100% !important;
+    block-size: auto !important;
     padding: 0;
     border: none;
+    border-radius: 0;
+    background: none !important;
+    box-shadow: none;
   }
 
   /*
-   * The legend, and the hairline the file draws under it. As a border on the legend
-   * rather than an element of its own: a legend is `display: block` inside a flex
-   * fieldset in every engine, so it already spans the group.
+   * The app's own title and strapline. The section already carries a heading and a
+   * line of copy as blocks above, so this is the same thing said twice — hidden
+   * rather than restyled. The rules under it stay: the app puts that header back
+   * the moment the form is edited in its admin, and a merchant who wants it can
+   * drop this one rule.
    */
-  .wholesale-form__legend {
-    box-sizing: border-box;
-    inline-size: 100%;
-    /*
-     * The 16 under the rule is the legend's own margin and not the group's gap. A
-     * `<legend>` is laid out by the fieldset rather than by the flex container it
-     * sits in, so the gap never reached it and every group opened 16 short — which
-     * the whole form then carried down, 64 by the time it reached the button.
-     */
-    margin-block-end: 16px;
-    padding: 0 0 6px;
-    border-block-end: 1px solid var(--ui-color-border-gray);
-    color: var(--ui-color-primary);
+  .wholesale-form .elements-preview-container-header {
+    display: none;
+  }
+
+  .wholesale-form .elements-preview-container-header h2 {
+    margin: 0 0 6px;
+    font-family: var(--font-heading--family) !important;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--ui-color-primary) !important;
+  }
+
+  .wholesale-form .elements-preview-container-header p {
+    margin: 0;
+    font-family: var(--ui-font-body) !important;
+    font-size: 15px;
+    line-height: 1.3;
+    color: var(--ui-color-gray) !important;
+  }
+
+  /*
+   * Two columns of 305 with 20 between, which is the 630 the form is, and 16 down
+   * — the same figures the hand-built version used. The app lays its body out with
+   * flex-wrap and its own half-width class, so the pair of numbers goes on the gap
+   * and the half is recomputed against it.
+   */
+  .wholesale-form .elements-preview-container-body {
+    gap: 16px 20px;
+  }
+
+  .wholesale-form .clay-half-width {
+    flex: 0 0 calc(50% - 10px);
+    max-inline-size: calc(50% - 10px);
+  }
+
+  .wholesale-form .clay-full-width {
+    flex: 0 0 100%;
+    max-inline-size: 100%;
+  }
+
+  @media screen and (max-width: 749px) {
+    /* One column below 750, where the page has nothing like 630 to give it. */
+    .wholesale-form .clay-half-width {
+      flex-basis: 100%;
+      max-inline-size: 100%;
+    }
+  }
+
+  /* Label over field, 7px apart — [ui-input]'s own arrangement. */
+  .wholesale-form .elements-preview-container-text-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-inline-size: 0;
+  }
+
+  .wholesale-form .elements-preview-container-text-input-label {
+    margin: 0;
     font-family: var(--ui-font-accent);
     font-weight: var(--font-accent--weight-semibold, 600);
     font-size: 12px;
     line-height: 1.35;
     text-transform: uppercase;
+    color: var(--ui-color-black);
   }
 
   /*
-   * Two columns of 305 with 20 between, which is the 630 the form is. One column
-   * below 750, where the page has nothing like 630 to give it.
+   * The field itself, declared through the same custom properties [ui-input] uses
+   * rather than through its figures, so the app's fields move when the kit does.
    */
-  .wholesale-form__row {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 20px;
+  /*
+   * Three of these carry `!important`, and only these three. The app writes its
+   * font and its background onto every field as an inline style, and its height
+   * with an `!important` of its own — none of which a selector can outrank, however
+   * it is weighed. Everything else here wins on specificity alone and is left
+   * plain, so the flag stays a signal that something on the other side is fighting
+   * rather than a habit.
+   *
+   * The values come from the same custom properties [ui-input] uses rather than
+   * from its figures, so the app's fields move when the kit does.
+   */
+  .wholesale-form :is(
+    .elements-preview-container-text-input,
+    .phone-input-container input
+  ) {
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: var(--ui-input-height) !important;
+    padding: var(--ui-input-padding);
+    border: 1px solid var(--ui-color-border-gray);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white) !important;
+    font-family: var(--ui-font-body) !important;
+    font-weight: var(--ui-font-body-weight);
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--ui-color-primary);
+    transition: border-color var(--animation-speed) ease;
   }
 
-  @media screen and (min-width: 750px) {
-    .wholesale-form__row {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .wholesale-form .elements-preview-container-text-input::placeholder,
+  .wholesale-form .phone-input-container input::placeholder {
+    color: var(--ui-color-gray);
+  }
+
+  /* The border stays engaged once the field holds a value, not only while focused —
+     the same rule [ui-input] carries, and the design's focus indicator. */
+  .wholesale-form :is(.elements-preview-container-text-input, .phone-input-container input):is(
+    :hover,
+    :focus,
+    :not(:placeholder-shown)
+  ) {
+    border-color: var(--ui-color-primary);
   }
 
   /*
-   * The address groups run four fields as two rows of two. `align-items: start`
-   * because a field carrying a hint is taller than one that is not, and stretched
-   * they would drag their neighbour's box down with them.
+   * The border turning purple is the design's focus indicator, and [ui-input] drops
+   * the theme's generic ring for exactly that reason: it measures 6.4:1 between the
+   * idle and the focused state, above the 3:1 WCAG 2.4.11 asks for, and a second
+   * ring 3px outside it only doubles the mark. Kept as a transparent outline rather
+   * than `none`, because forced-colours modes ignore borders and would otherwise
+   * show nothing at all.
    */
-  .wholesale-form__row--pairs {
-    align-items: start;
-  }
-
-  .wholesale-form .wholesale-form__certificate {
-    margin-block-start: 0;
+  .wholesale-form :is(
+    .elements-preview-container-text-input,
+    .phone-input-container input
+  ):is(:focus, :focus-visible) {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
   }
 
   /*
-   * Weighed one class heavier than `.ui-button`, whose `margin: 0` is declared in
-   * the snippet's own stylesheet and wins on order against a lone class here.
+   * The dialling code, as [ui-phone-field] draws it (Figma 508:13455): a filled
+   * purple square with the code in white and a caret beside it, not a white field
+   * like the number next to it. The app renders a bare `<select>`, so the block is
+   * the select itself — its chrome comes off and the fill goes on.
+   *
+   * The caret is a pseudo-element on the grid that holds the pair, because a
+   * `<select>` can carry none of its own. It is the kit's own glyph, painted
+   * through a mask so it takes a colour rather than carrying one; the URL arrives
+   * as `--th-caret` on the section, since a `{% stylesheet %}` block is plain CSS
+   * and cannot ask Liquid for an asset.
    */
-  .wholesale-form .wholesale-form__submit {
-    margin-block-start: 48px;
+  /*
+   * The columns are named rather than left to the app, which sizes the first one to
+   * whatever width the `<select>` came out at. Narrowing the select to the kit's 44
+   * square did not narrow that column with it, so 15px of empty column sat between
+   * the code and the number on top of the 7px gap.
+   */
+  .wholesale-form .phone-input-fields {
+    position: relative;
+    grid-template-columns: var(--ui-input-height, 44px) minmax(0, 1fr);
+    gap: 7px;
+  }
+
+  .wholesale-form .country-code-select {
+    box-sizing: border-box;
+    inline-size: var(--ui-input-height, 44px) !important;
+    block-size: var(--ui-input-height, 44px) !important;
+    padding: 0 10px 0 0 !important;
+    font-family: var(--ui-font-body) !important;
+    font-size: 15px;
+    line-height: 1.35;
+    border: none !important;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-primary) !important;
+    /* The app draws its own caret as a data-URI background on the select, dark and
+       sized 16px at the right edge — exactly where ours goes. Off, so the masked
+       one below is the only one there. */
+    background-image: none !important;
+    color: var(--ui-color-white) !important;
+    text-align: center;
+    text-align-last: center;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  /* A dropped-open select paints its list with the page's colours, not the block's. */
+  .wholesale-form .country-code-select > option {
+    color: var(--ui-color-black);
+  }
+
+  /* White on the purple, and inside the block — the ring the kit gives this one. */
+  .wholesale-form .country-code-select:focus-visible {
+    outline: 2px solid var(--ui-color-white);
+    outline-offset: -3px;
+  }
+
+  .wholesale-form .phone-input-fields::after {
+    content: '';
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: calc(var(--ui-input-height, 44px) - 16px);
+    inline-size: 8px;
+    block-size: 10px;
+    background-color: var(--ui-color-white);
+    transform: translateY(-50%);
+    mask-image: var(--th-caret);
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    pointer-events: none;
+  }
+
+  /*
+   * The certificate panel. The app already draws it dashed and 119 tall against the
+   * 121 the file gives [ui-upload-field], so this only changes the corner and the
+   * colour it is drawn in.
+   */
+  .wholesale-form .file-upload-container {
+    border: 2px dashed var(--ui-color-border-gray);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
+  }
+
+  /*
+   * The control inside the panel. It is a `<label>` over the file input rather than
+   * a button, and the app paints it black inline; this is the kit's secondary
+   * button, which is what a control on a white panel wears.
+   */
+  .wholesale-form .browse-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    block-size: 40px;
+    padding: 0 24px;
+    border-radius: var(--ui-radius-sm);
+    box-shadow: inset 0 0 0 1px var(--ui-color-primary);
+    background-color: var(--ui-color-white) !important;
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-accent) !important;
+    font-size: 12px !important;
+    font-weight: 500;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color var(--animation-values), color var(--animation-values);
+  }
+
+  .wholesale-form .browse-button:hover {
+    background-color: var(--ui-color-primary) !important;
+    color: var(--ui-color-white);
+  }
+
+  /* The line inside the panel is a bare `<p>` the app paints inline, hence the
+     flags — same reason as everywhere else in this skin. */
+  .wholesale-form .file-upload-placeholder,
+  .wholesale-form .file-upload-placeholder p {
+    font-family: var(--ui-font-body) !important;
+    font-size: 14px !important;
+    line-height: 1.3;
+    color: var(--ui-color-gray) !important;
+  }
+
+  /*
+   * The submit, in the primary button's clothes. Written out rather than rendered
+   * through [ui-button] because the app draws its own element — and it arrives
+   * carrying `.button.primary`, which Horizon's untouched `.button` also answers
+   * to, so this has to outweigh that as well as the app's own rule.
+   */
+  /* The submit sits in a flex item that otherwise shrinks to the button. */
+  .wholesale-form .submit-button-container {
+    flex: 0 0 100%;
+    inline-size: 100%;
+  }
+
+  .wholesale-form button.button.primary {
+    box-sizing: border-box;
+    inline-size: 100%;
+    block-size: 44px;
+    margin-block-start: 32px;
+    padding: 0 32px;
+    border: none;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-primary) !important;
+    color: var(--ui-color-white);
+    font-family: var(--ui-font-accent) !important;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color var(--animation-values), color var(--animation-values);
+  }
+
+  /*
+   * Only while it can be pressed. The app disables the submit until the required
+   * fields are filled and fades it to 0.7 inline; left unqualified, the hover
+   * still fired and the button turned sky blue under the pointer — which is the
+   * kit's "this is live" state on a control that is not.
+   */
+  .wholesale-form button.button.primary:not(:disabled):hover {
+    background-color: var(--ui-color-sky-blue) !important;
+    color: var(--ui-color-primary);
+  }
+
+  .wholesale-form button.button.primary:disabled {
+    cursor: not-allowed !important;
+  }
+
+  /*
+   * The app hangs a tooltip off the disabled submit — "Please fill out the
+   * following required fields:" — from a zero-sized wrapper at the button's left
+   * edge, so it opened outside the form and was cut off by the page. Hidden rather
+   * than repositioned, by request.
+   *
+   * What it was carrying is not lost: the fields it names are the ones already
+   * marked with a red asterisk, and the submit stays visibly disabled until they
+   * are filled.
+   */
+  .wholesale-form .submit-button-container .tooltip {
+    display: none;
   }
 {% endstylesheet %}
 
@@ -278,90 +429,11 @@
 {
   "name": "Wholesale application",
   "tag": "section",
-  "blocks": [{ "type": "_ui-heading" }, { "type": "_ui-text" }, { "type": "_ui-link-row" }],
+  "blocks": [{ "type": "_ui-heading" }, { "type": "_ui-text" }, { "type": "@app" }],
   "settings": [
     {
-      "type": "header",
-      "content": "Groups"
-    },
-    {
-      "type": "text",
-      "id": "contact_legend",
-      "label": "First group",
-      "default": "Contact info"
-    },
-    {
-      "type": "text",
-      "id": "business_legend",
-      "label": "Second group",
-      "default": "Business info"
-    },
-    {
-      "type": "text",
-      "id": "billing_legend",
-      "label": "Third group",
-      "default": "Billing address"
-    },
-    {
-      "type": "text",
-      "id": "shipping_legend",
-      "label": "Fourth group",
-      "default": "Shipping address"
-    },
-    {
-      "type": "header",
-      "content": "Fields"
-    },
-    {
-      "type": "text",
-      "id": "quantity_hint",
-      "label": "Note under the company field",
-      "default": "Minimum order setup: 25 boxes"
-    },
-    {
-      "type": "text",
-      "id": "dialling_codes",
-      "label": "Dialling codes",
-      "info": "Comma separated. One code and the block is not a menu.",
-      "default": "+1"
-    },
-    {
-      "type": "text",
-      "id": "submit_label",
-      "label": "Submit button",
-      "default": "Submit request"
-    },
-    {
-      "type": "header",
-      "content": "Certificate"
-    },
-    {
       "type": "paragraph",
-      "content": "Shopify's contact form carries no attachment, so this panel points at an address rather than taking a file. Behind a form app that does take one, it becomes a real upload."
-    },
-    {
-      "type": "text",
-      "id": "certificate_label",
-      "label": "Label",
-      "default": "Required: upload certificate of authority or tax exempt form"
-    },
-    {
-      "type": "text",
-      "id": "certificate_prompt",
-      "label": "Line inside the panel",
-      "default": "Email your certificate to info@treathouse.com"
-    },
-    {
-      "type": "text",
-      "id": "certificate_hint",
-      "label": "Line under it",
-      "default": "JPG, PNG, WEBP or PDF, up to 10MB"
-    },
-    {
-      "type": "text",
-      "id": "certificate_link",
-      "label": "Where the panel goes",
-      "default": "mailto:info@treathouse.com?subject=Wholesale%20certificate"
+      "content": "The form is the Clay B2B Wholesale app's registration block. Add it below, then pick which of the app's forms it shows. Fields, order and what is required are set in the app, not here."
     },
     {
       "type": "header",
@@ -414,40 +486,6 @@
           "settings": {
             "text": "<p>Complete the form below and we'll review your application within 1–2 business days.</p>"
           }
-        },
-        "sent-heading": {
-          "type": "_ui-heading",
-          "static": true,
-          "settings": {
-            "heading": "<h2><em>Thanks.</em><br>We have your inquiry.</h2>",
-            "heading_size": 40,
-            "heading_size_mobile": 28
-          }
-        },
-        "sent-copy": {
-          "type": "_ui-text",
-          "static": true,
-          "settings": {
-            "text": "<p>Your wholesale application has been received. Our team will review your information and get back to you within 1–2 business days. If we need additional details, we'll contact you using the information you provided.</p>"
-          }
-        },
-        "sent-buttons": {
-          "type": "_ui-link-row",
-          "static": true,
-          "settings": {
-            "gap": 20
-          },
-          "blocks": {
-            "home": {
-              "type": "_ui-link",
-              "settings": {
-                "label": "Return home",
-                "variant": "primary",
-                "link": "/"
-              }
-            }
-          },
-          "block_order": ["home"]
         }
       },
       "block_order": ["heading", "intro"]
