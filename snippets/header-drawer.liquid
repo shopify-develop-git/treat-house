@@ -426,17 +426,17 @@
                                   </accordion-custom>
                                 {% else %}
                                   {%- comment -%}
-                                    Flat menus for links with children, in menus with 3 levels of links
+                                    Flat menus for links with children, in menus with 3 levels of links.
+
+                                    The group's own link is not drawn. In the flat
+                                    arrangement its children are already listed
+                                    directly underneath, so the heading was a second
+                                    row that went somewhere else than the rows under
+                                    it — "By Format" over the four formats it names.
+                                    The accordion arrangement above still draws it,
+                                    because there it is the control that opens the
+                                    group.
                                   {%- endcomment -%}
-                                  <a
-                                    id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
-                                    href="{{ childlink.url }}"
-                                    class="menu-drawer__menu-item menu-drawer__menu-item--parent focus-inset{% if childlink.current %} menu-drawer__menu-item--active{% endif %}"
-                                  >
-                                    <span class="menu-drawer__menu-item-text wrap-text">
-                                      {{- childlink.title | escape -}}
-                                    </span>
-                                  </a>
                                   {% liquid
                                     assign render_link_image = false
                                     if block_settings.menu_style == 'collection_images'
@@ -1167,7 +1167,6 @@
   }
 
   .menu-drawer__menu-item-text {
-    overflow: hidden;
     text-overflow: ellipsis;
   }
 
