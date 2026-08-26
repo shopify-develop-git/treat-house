@@ -33,7 +33,7 @@
               "settings": {
                 "label": "Send an inquiry",
                 "variant": "primary",
-                "link": "/pages/corporate-gifting?view=corporate-gifting"
+                "link": "#contact_form"
               }
             }
           },

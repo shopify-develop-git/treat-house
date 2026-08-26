@@ -144,6 +144,15 @@
     width: 100%;
     max-width: 630px;
     margin-inline: auto;
+
+    /*
+     * The hero's "Send an inquiry" points at this form's own id, which Shopify
+     * writes as `contact_form`. The header stays on the screen as the page
+     * scrolls, so the landing has to start below it — its height plus enough air
+     * for the heading to read as a heading rather than as a line jammed under the
+     * navigation.
+     */
+    scroll-margin-block-start: calc(var(--header-height, 60px) + 40px);
   }
 
   /* The file leaves 48 between the heading and the first row of fields. */

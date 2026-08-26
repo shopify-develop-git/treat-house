@@ -329,8 +329,22 @@
      * The row's last item, not the last button: every button is an only child of
      * its own [_ui-link] wrapper, so `.ui-button:last-child` is true of all three
      * and strips the skin off the whole stack.
+     *
+     * And only where there is a third to be tertiary. The same hero opens the
+     * wholesale and corporate pages on a row of one — "Apply for wholesale",
+     * "Send an inquiry" — and a lone primary button is the page's whole call to
+     * action, not an afterthought under two others. `:nth-child(n+3)` is that
+     * test: last, and at least the third.
+     *
+     * The wrapper is the flex item, so `align-self` on the button inside it
+     * centres nothing — the row is already stretching the wrapper to its full
+     * 310. Centring has to happen inside the wrapper.
      */
-    .home-hero__body .ui-link-row > :last-child .ui-button {
+    .home-hero__body .ui-link-row > :nth-child(n + 3):last-child {
+      justify-content: center;
+    }
+
+    .home-hero__body .ui-link-row > :nth-child(n + 3):last-child .ui-button {
       --ui-button-background: transparent;
       --ui-button-border-width: 0;
 
