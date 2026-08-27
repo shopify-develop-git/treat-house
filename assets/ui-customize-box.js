@@ -330,10 +330,16 @@ class CustomizeBox extends HTMLElement {
    * choice stands for a product. The pack product is not among them — its price
    * is the sum of the flavours, so sending it too would charge the box twice.
    *
-   * The packaging carries the gift message as a line item property as well as
-   * the order attribute below. The attribute is what was asked for, but Shopify
-   * keeps one per cart, so a second box would overwrite the first; the copy on
-   * the line is what keeps two boxes legible.
+   * The gift message rides a line as well as the order attribute below. The
+   * attribute is what was asked for, but Shopify keeps one per cart, so a second
+   * box would overwrite the first; the copy on the line is what keeps two boxes
+   * legible.
+   *
+   * The packaging line is the one that should carry it, since the card goes in
+   * the box. A packaging choice with no product behind it has no line, though,
+   * and step 4 is offered whatever is chosen — so the message falls back to the
+   * first flavour rather than existing only in the attribute Shopify is about to
+   * overwrite.
    */
   #cartItems() {
     const message = this.#message();
@@ -345,9 +351,12 @@ class CustomizeBox extends HTMLElement {
     const entry = this.#entry;
     if (entry?.unitId) {
       const packaging = { id: Number(entry.unitId), quantity: entry.units || 1 };
-      if (message) packaging.properties = { 'Gift message': message };
       items.push(packaging);
     }
+
+    const carrier = entry?.unitId ? items.at(-1) : items[0];
+    if (message && carrier) carrier.properties = { 'Gift message': message };
+
     return items;
   }
 
