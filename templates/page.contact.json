@@ -77,71 +77,54 @@
       }
     },
     "form": {
-      "type": "section",
+      "type": "contact-form",
       "blocks": {
-        "contact_form_UwiCkQ": {
-          "type": "contact-form",
+        "success-heading": {
+          "type": "_ui-heading",
+          "static": true,
           "settings": {
-            "width": "custom",
-            "custom_width": 50,
-            "width_mobile": "custom",
-            "custom_width_mobile": 100,
-            "inherit_color_scheme": true,
-            "color_scheme": "",
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
+            "heading": "<h2><em>Thanks.</em><br>We have your message.</h2>"
+          }
+        },
+        "success-copy": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": "<p>The Treat House team will get back to you shortly.</p>"
+          }
+        },
+        "success-buttons": {
+          "type": "_ui-link-row",
+          "static": true,
+          "settings": {
+            "gap": 20
           },
           "blocks": {
-            "submit-button": {
-              "type": "contact-form-submit-button",
-              "static": true,
+            "primary": {
+              "type": "_ui-link",
               "settings": {
-                "label": "Submit",
-                "style_class": "button",
-                "width": "fit-content",
-                "custom_width": 100,
-                "width_mobile": "fit-content",
-                "custom_width_mobile": 100
-              },
-              "blocks": {}
+                "label": "Shop treats",
+                "link": "shopify://collections/all",
+                "variant": "primary"
+              }
+            },
+            "secondary": {
+              "type": "_ui-link",
+              "settings": {
+                "label": "Return home",
+                "link": "/",
+                "variant": "secondary"
+              }
             }
           },
-          "block_order": []
+          "block_order": [
+            "primary",
+            "secondary"
+          ]
         }
       },
-      "block_order": [
-        "contact_form_UwiCkQ"
-      ],
-      "name": "t:names.contact_form",
-      "settings": {
-        "content_direction": "column",
-        "vertical_on_mobile": true,
-        "horizontal_alignment": "flex-start",
-        "vertical_alignment": "center",
-        "align_baseline": false,
-        "horizontal_alignment_flex_direction_column": "center",
-        "vertical_alignment_flex_direction_column": "center",
-        "gap": 32,
-        "section_width": "page-width",
-        "section_height": "",
-        "section_height_custom": 50,
-        "color_scheme": "scheme-1",
-        "background_media": "none",
-        "video_position": "cover",
-        "background_image_position": "cover",
-        "border": "none",
-        "border_width": 1,
-        "border_opacity": 100,
-        "border_radius": 0,
-        "toggle_overlay": false,
-        "overlay_color": "#00000026",
-        "overlay_style": "solid",
-        "gradient_direction": "to top",
-        "padding-block-start": 32,
-        "padding-block-end": 84
-      }
+      "block_order": [],
+      "settings": {}
     }
   },
   "order": [

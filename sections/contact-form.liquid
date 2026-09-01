@@ -1,0 +1,305 @@
+{% comment %}
+  The contact page's form, on the kit.
+
+  It replaces Horizon's stock `contact-form` block, which was the last thing on the
+  storefront still wearing Horizon's own `.button` — a red submit and four grey
+  boxes on a page where every other field and button is the kit's. Nothing about
+  the form itself changed: the same four fields, the same `{% form 'contact' %}`,
+  the same destination. Only the controls are the kit's now.
+
+  The sent state is Shopify's, exactly as the corporate quote form does it —
+  `{% form 'contact' %}` posts to the shop, redirects back with
+  `?contact_posted=true`, and `form.posted_successfully?` is true on that render.
+  So the confirmation survives a reload, works with JavaScript off, and cannot be
+  reached by anyone who has not actually sent anything.
+
+  Four fields, fixed: a contact form needs a name, a way to answer, and the
+  message. They are the section's rather than a merchant's list. What is a block
+  is every word of the confirmation.
+{% endcomment %}
+
+{%- liquid
+  assign submit_label = section.settings.submit_label | default: 'Submit'
+-%}
+
+<div
+  class="section section--page-width spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="contact-form-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  {%- form 'contact', class: 'contact-form' -%}
+    {%- if form.posted_successfully? -%}
+      <div class="contact-form__confirmation">
+        <span class="contact-form__sparkle" aria-hidden="true">
+          {{- 'icon-ui-sparkle.svg' | inline_asset_content -}}
+        </span>
+
+        <div class="contact-form__confirmation-content">
+          {% content_for 'block', type: '_ui-heading', id: 'success-heading' %}
+          {% content_for 'block', type: '_ui-text', id: 'success-copy' %}
+          {% content_for 'block', type: '_ui-link-row', id: 'success-buttons' %}
+        </div>
+      </div>
+    {%- else -%}
+      {% content_for 'blocks' %}
+
+      {%- comment -%}
+        Shopify validates the email and nothing else, so its message goes on that
+        field — where the fix is — rather than into a banner above a form the
+        visitor then has to search.
+      {%- endcomment -%}
+      {%- liquid
+        assign email_error = blank
+        if form.errors
+          assign email_error = form.errors.messages.email | default: form.errors.messages.form
+        endif
+      -%}
+
+      <div class="contact-form__grid">
+        {% render 'ui-input',
+          label: 'Name',
+          name: 'contact[name]',
+          value: form.name
+        %}
+
+        {% render 'ui-input',
+          label: 'Email',
+          type: 'email',
+          name: 'contact[email]',
+          value: form.email,
+          error: email_error,
+          required: true
+        %}
+
+        <div class="contact-form__wide">
+          {% render 'ui-input',
+            label: 'Phone',
+            type: 'tel',
+            name: 'contact[Phone]'
+          %}
+        </div>
+
+        <div class="contact-form__wide">
+          {% render 'ui-input',
+            label: 'Comment',
+            textarea: true,
+            rows: '5',
+            name: 'contact[body]',
+            placeholder: section.settings.comment_placeholder
+          %}
+        </div>
+      </div>
+
+      {% render 'ui-button',
+        variant: 'primary',
+        label: submit_label,
+        type: 'submit',
+        full_width: true,
+        class: 'contact-form__submit'
+      %}
+    {%- endif -%}
+  {%- endform -%}
+</div>
+
+{% stylesheet %}
+  /*
+   * 630 centred, the same column the corporate quote form stands in, so the shop's
+   * two forms are one width rather than two. The section sits in the `.section`
+   * grid, which already places it in the central column, so this only narrows that
+   * column and adds no padding of its own — see the page geometry note in CLAUDE.md.
+   */
+  .contact-form {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 630px;
+    margin-inline: auto;
+  }
+
+  .contact-form > :is(.ui-heading, h1, h2, h3) {
+    margin-block: 0 48px;
+    text-align: center;
+  }
+
+  /*
+   * Two columns of 305 with a 20 gutter is exactly 630, written as fractions and a
+   * gap so the pair of numbers stays true when the container moves. Name and Email
+   * take the first row; Phone and Comment span both columns.
+   */
+  .contact-form__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    column-gap: 20px;
+    row-gap: 16px;
+  }
+
+  .contact-form__wide {
+    grid-column: 1 / -1;
+  }
+
+  /* One column on a phone: two 305px fields do not fit a 390px screen. The 630
+     column itself needs no middle tier — from 750px up the content column is at
+     least 670 wide, so the form is already at the width it is drawn at. */
+  @media screen and (max-width: 749px) {
+    .contact-form__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /*
+   * Weighed one class heavier than `.ui-button`, whose `margin: 0` is declared in
+   * the snippet's own stylesheet and wins on order against a lone class here. The
+   * width is the snippet's `full_width` rather than a figure of ours.
+   */
+  .contact-form .contact-form__submit {
+    margin-block-start: 48px;
+  }
+
+  /* ---------- Sent ---------- */
+
+  .contact-form__confirmation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 32px 24px 48px;
+    border-radius: 20px;
+    background-color: var(--ui-color-light-blue);
+    text-align: center;
+  }
+
+  .contact-form__sparkle {
+    display: block;
+    width: 32px;
+    height: 32px;
+    color: var(--ui-color-primary);
+  }
+
+  .contact-form__sparkle > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .contact-form__confirmation-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin-block-start: 48px;
+    width: 100%;
+  }
+
+  .contact-form__confirmation-content > :is(.ui-heading, h1, h2, h3) {
+    margin: 0;
+  }
+
+  .contact-form__confirmation-content > :is(.ui-text, p) {
+    margin: 0;
+    max-width: 445px;
+  }
+
+  .contact-form__confirmation-content > .ui-link-row {
+    margin-block-start: 32px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .contact-form__confirmation {
+      padding-inline: 16px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Contact form",
+  "tag": "section",
+  "blocks": [{ "type": "_ui-heading" }, { "type": "_ui-text" }, { "type": "_ui-link-row" }],
+  "settings": [
+    {
+      "type": "text",
+      "id": "comment_placeholder",
+      "label": "Comment field placeholder",
+      "default": "How can we help?"
+    },
+    {
+      "type": "text",
+      "id": "submit_label",
+      "label": "Submit button",
+      "default": "Submit"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "default": 84
+    }
+  ],
+  "presets": [
+    {
+      "name": "Contact form",
+      "blocks": {
+        "success-heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2><em>Thanks.</em><br>We have your message.</h2>"
+          }
+        },
+        "success-copy": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": "<p>The Treat House team will get back to you shortly.</p>"
+          }
+        },
+        "success-buttons": {
+          "type": "_ui-link-row",
+          "static": true,
+          "blocks": {
+            "primary": {
+              "type": "_ui-link",
+              "settings": { "label": "Shop treats", "variant": "primary" }
+            },
+            "secondary": {
+              "type": "_ui-link",
+              "settings": { "label": "Return home", "variant": "secondary" }
+            }
+          },
+          "block_order": ["primary", "secondary"]
+        }
+      },
+      "block_order": []
+    }
+  ]
+}
+{% endschema %}
