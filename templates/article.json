@@ -6,92 +6,73 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
-    "section": {
-      "type": "main-blog-post",
+    "hero": {
+      "type": "article-hero",
+      "settings": {
+        "alignment": "center",
+        "show_breadcrumb": true,
+        "show_date": true,
+        "show_author": false,
+        "show_read_time": true,
+        "read_time_label": "min read",
+        "show_tags": true,
+        "show_excerpt": true,
+        "show_image": true,
+        "image_ratio": "landscape",
+        "content_width": 800,
+        "section_width": "page-width",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 24,
+        "padding-block-end": 40
+      }
+    },
+    "body": {
+      "type": "article-body",
+      "settings": {
+        "content_width": 720,
+        "show_share": true,
+        "share_label": "Share this post",
+        "show_comments": true,
+        "comments_per_page": 10,
+        "section_width": "page-width",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 0,
+        "padding-block-end": 64
+      }
+    },
+    "related": {
+      "type": "article-related",
       "blocks": {
-        "blog-post-title": {
-          "type": "text",
-          "name": "Title",
-          "static": true,
+        "heading": {
+          "type": "_ui-heading",
           "settings": {
-            "text": "<h1>{{ article.title }}</h1>",
-            "width": "100%",
-            "max_width": "normal",
-            "alignment": "center",
-            "type_preset": "h2",
-            "font": "var(--font-primary--family)",
-            "font_size": "",
-            "line_height": "normal",
-            "letter_spacing": "normal",
-            "case": "none",
-            "wrap": "pretty",
-            "color": "",
-            "background": false,
-            "background_color": "#00000026",
-            "corner_radius": 0,
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {}
-        },
-        "blog-post-details": {
-          "type": "_blog-post-info-text",
-          "name": "Details",
-          "static": true,
-          "settings": {
-            "show_date": true,
-            "show_author": false,
-            "type_preset": "",
-            "alignment": "center",
-            "show_alignment": true,
-            "padding-block-start": 24,
-            "padding-block-end": 0
-          },
-          "blocks": {}
-        },
-        "blog-post-image": {
-          "type": "image",
-          "name": "Featured image",
-          "static": true,
-          "settings": {
-            "image_ratio": "landscape",
-            "width": "fill",
-            "custom_width": 100,
-            "width_mobile": "fill",
-            "custom_width_mobile": 100,
-            "height": "fit",
-            "border": "none",
-            "border_width": 1,
-            "border_opacity": 100,
-            "border_radius": 0,
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {}
-        },
-        "blog-post-content": {
-          "type": "_blog-post-content",
-          "static": true,
-          "settings": {},
-          "blocks": {}
+            "source": "custom",
+            "heading": "<h2>More from <em>the blog<\/em><\/h2>",
+            "heading_size": 32,
+            "heading_size_mobile": 24
+          }
         }
       },
+      "block_order": [
+        "heading"
+      ],
       "settings": {
-        "content_direction": "column",
-        "gap": 32,
-        "color_scheme": "",
-        "padding-block-start": 40,
-        "padding-block-end": 80
+        "post_count": 3,
+        "show_excerpt": true,
+        "excerpt_words": 20,
+        "section_width": "page-width",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 32,
+        "padding-block-end": 64
       }
     }
   },
   "order": [
-    "section"
+    "hero",
+    "body",
+    "related"
   ]
 }

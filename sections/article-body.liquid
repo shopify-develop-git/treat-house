@@ -1,0 +1,567 @@
+{% comment %}
+  The body of a blog post: the writing itself, the share row, the comments, and
+  the structured data Google reads.
+
+  The writing goes through [ui-prose], which is the kit's answer to markup nobody
+  here wrote — a wrapper and a stylesheet of element selectors, because an article
+  arrives with headings, lists, quotes, figures and embeds and not one class to
+  hang a rule on. Horizon's own `_blog-post-content` block is left alone; it still
+  drives anything standing on it.
+
+  **No new JavaScript, and none of the comment machinery is rebuilt.** The form is
+  Shopify's `{% form 'new_comment' %}` with the kit's fields inside it: the inputs
+  carry the names Shopify expects, the submit is a real submit, and the errors come
+  back on `form.errors` the way they always have. That is the same trick the
+  product page plays with `<product-form-component>` — kit markup inside the
+  theme's own element — moved to a form the platform owns outright.
+
+  The share links are plain anchors at each network's own share endpoint. A share
+  button that copies to the clipboard or opens a native sheet needs script and a
+  permission; four links need neither, and they work on the first paint.
+
+  The tags are not here. They are drawn once, in `sections/article-hero.liquid`,
+  because a switch in two places for one row of pills is a page that eventually
+  shows them twice.
+{% endcomment %}
+
+{%- liquid
+  assign post = article
+
+  assign comments_enabled = false
+  if section.settings.show_comments and blog.comments_enabled?
+    assign comments_enabled = true
+  endif
+
+  # The absolute URL, the way `snippets/meta-tags.liquid` builds it. A share
+  # endpoint is handed to another site, so a path on its own is nothing.
+  assign share_target = canonical_url
+  if share_target == blank
+    assign share_target = request.origin | append: post.url
+  endif
+  assign share_url = share_target | url_encode
+  assign share_title = post.title | url_encode
+
+  assign facebook_link = 'https://www.facebook.com/sharer/sharer.php?u=' | append: share_url
+  assign x_link = 'https://x.com/intent/post?url=' | append: share_url | append: '&text=' | append: share_title
+  # A mailto is not a query string a server parses, so `url_encode`'s `+` for a
+  # space arrives in the subject line as a plus. `url_escape` writes `%20`, which
+  # every mail client turns back into a space.
+  assign share_title_mail = post.title | url_escape
+  assign share_url_mail = share_target | url_escape
+  assign email_link = 'mailto:?subject=' | append: share_title_mail | append: '&body=' | append: share_url_mail
+
+  # Pinterest wants the picture as well as the page, and `image_url` hands back a
+  # protocol-relative URL — the scheme has to be put back on before another site
+  # is asked to fetch it, which is what `snippets/meta-tags.liquid` does too.
+  assign pinterest_link = 'https://www.pinterest.com/pin/create/button/?url=' | append: share_url | append: '&description=' | append: share_title
+  if post.image != blank
+    assign share_image = post.image | image_url: width: 1200 | prepend: 'https:' | url_encode
+    assign pinterest_link = pinterest_link | append: '&media=' | append: share_image
+  endif
+
+  assign form_prefix = 'comment-' | append: section.id
+  assign author_id = form_prefix | append: '-author'
+  assign email_id = form_prefix | append: '-email'
+  assign body_id = form_prefix | append: '-body'
+
+  assign name_label = 'blogs.comment_form.name' | t
+  assign email_label = 'blogs.comment_form.email' | t
+  assign message_label = 'blogs.comment_form.message' | t
+  assign post_label = 'blogs.comment_form.post' | t
+-%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="article-body-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div
+    class="article-body"
+    style="--article-body-measure: {{ section.settings.content_width }}px;"
+  >
+    {% render 'ui-prose', content: post.content, class: 'article-body__content' %}
+
+    {%- if section.settings.show_share -%}
+      <div class="article-body__share">
+        <span class="article-body__share-label">{{ section.settings.share_label }}</span>
+        <div class="article-body__share-links">
+          {% render 'ui-button',
+            variant: 'social',
+            icon: 'facebook',
+            label: 'Facebook',
+            link: facebook_link,
+            open_in_new_tab: true
+          %}
+          {% render 'ui-button',
+            variant: 'social',
+            icon: 'x',
+            label: 'X',
+            link: x_link,
+            open_in_new_tab: true
+          %}
+          {% render 'ui-button',
+            variant: 'social',
+            icon: 'pinterest',
+            label: 'Pinterest',
+            link: pinterest_link,
+            open_in_new_tab: true
+          %}
+          {% render 'ui-button',
+            variant: 'social',
+            icon: 'email',
+            label: 'Email',
+            link: email_link
+          %}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} Anything an app adds sits under the post and above the comments. {%- endcomment -%}
+    {% content_for 'blocks' %}
+
+    {%- if comments_enabled -%}
+      <section class="article-body__comments" id="comments">
+        <h2 class="article-body__comments-title">
+          {{- 'blogs.article.comments_heading' | t: count: post.comments_count -}}
+        </h2>
+
+        {% paginate post.comments by section.settings.comments_per_page %}
+          {%- if post.comments_count > 0 -%}
+            <ol class="article-body__comment-list" role="list">
+              {%- for comment in post.comments -%}
+                <li class="article-body__comment" id="comment-{{ comment.id }}">
+                  <div class="article-body__comment-text">{{ comment.content }}</div>
+                  <p class="article-body__comment-meta">
+                    <span class="article-body__comment-author">{{ comment.author }}</span>
+                    <span class="article-body__comment-date">
+                      {{- comment.created_at | time_tag: format: 'date' -}}
+                    </span>
+                  </p>
+                </li>
+              {%- endfor -%}
+            </ol>
+
+            {%- if paginate.pages > 1 -%}
+              <nav class="article-body__pagination" aria-label="Pagination">
+                {% render 'ui-pagination-arrow',
+                  direction: 'left',
+                  link: paginate.previous.url,
+                  disabled: paginate.previous.is_link == false
+                %}
+                {%- for part in paginate.parts -%}
+                  {%- if part.is_link -%}
+                    {% render 'ui-pagination-item', label: part.title, link: part.url %}
+                  {%- elsif part.title == '&hellip;' -%}
+                    <span class="article-body__ellipsis" aria-hidden="true">…</span>
+                  {%- else -%}
+                    {% render 'ui-pagination-item', label: part.title, current: true %}
+                  {%- endif -%}
+                {%- endfor -%}
+                {% render 'ui-pagination-arrow',
+                  direction: 'right',
+                  link: paginate.next.url,
+                  disabled: paginate.next.is_link == false
+                %}
+              </nav>
+            {%- endif -%}
+          {%- endif -%}
+        {% endpaginate %}
+
+        {%- form 'new_comment', post, class: 'article-body__form' -%}
+          {%- liquid
+            assign author_error = form.errors.messages.author
+            assign email_error = form.errors.messages.email
+            assign body_error = form.errors.messages.body
+
+            assign posted_message = 'blogs.comment_form.success'
+            if blog.moderated? and comment.status == 'unapproved'
+              assign posted_message = 'blogs.comment_form.success_moderated'
+            endif
+          -%}
+
+          <h3 class="article-body__form-title">{{ 'blogs.comment_form.heading' | t }}</h3>
+
+          {%- if form.errors -%}
+            <p class="article-body__alert article-body__alert--error" role="alert">
+              {{- 'blogs.comment_form.error' | t -}}
+            </p>
+          {%- elsif form.posted_successfully? -%}
+            <p class="article-body__alert" role="status">{{ posted_message | t }}</p>
+          {%- endif -%}
+
+          <div class="article-body__form-row">
+            {% render 'ui-input',
+              label: name_label,
+              id: author_id,
+              name: 'comment[author]',
+              value: form.author,
+              required: true,
+              error: author_error,
+              attributes: 'autocomplete="name"'
+            %}
+            {% render 'ui-input',
+              label: email_label,
+              type: 'email',
+              id: email_id,
+              name: 'comment[email]',
+              value: form.email,
+              required: true,
+              error: email_error,
+              attributes: 'autocomplete="email" autocorrect="off" autocapitalize="off"'
+            %}
+          </div>
+
+          {% render 'ui-input',
+            label: message_label,
+            textarea: true,
+            rows: '6',
+            id: body_id,
+            name: 'comment[body]',
+            value: form.body,
+            required: true,
+            error: body_error
+          %}
+
+          {%- if blog.moderated? -%}
+            <p class="article-body__form-note">{{ 'blogs.comment_form.moderated' | t }}</p>
+          {%- endif -%}
+
+          <div class="article-body__form-actions">
+            {% render 'ui-button',
+              variant: 'primary',
+              label: post_label,
+              type: 'submit'
+            %}
+          </div>
+        {%- endform -%}
+      </section>
+    {%- endif -%}
+  </div>
+</div>
+
+<script type="application/ld+json">
+  {{ article | structured_data }}
+</script>
+
+{% stylesheet %}
+  /*
+   * The article column. Everything on this section shares one measure, so the
+   * share row and the comment plates line up with the paragraph above them
+   * rather than each finding their own edge.
+   */
+  .article-body {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    max-inline-size: var(--article-body-measure, 720px);
+    margin-inline: auto;
+  }
+
+  .article-body__share {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    padding-block-start: 32px;
+    border-block-start: 1px solid var(--ui-color-border-gray);
+  }
+
+  .article-body__share-label {
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: var(--ui-line-height);
+    text-transform: uppercase;
+  }
+
+  .article-body__share-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .article-body__comments {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding-block-start: 32px;
+    border-block-start: 1px solid var(--ui-color-border-gray);
+  }
+
+  .article-body__comments-title {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: 24px;
+    font-weight: var(--font-heading--weight);
+    line-height: 1.1;
+    color: var(--ui-color-black);
+  }
+
+  .article-body__comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* The kit's plate: white, the hairline, the 2px corner. No hover — a comment
+     is not a control and leads nowhere. */
+  .article-body__comment {
+    padding: 16px;
+    border-radius: var(--ui-radius-sm);
+    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-border-gray);
+    background-color: var(--ui-color-white);
+  }
+
+  .article-body__comment-text {
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: 1.5;
+  }
+
+  .article-body__comment-text > * {
+    margin: 0;
+  }
+
+  .article-body__comment-text > * + * {
+    margin-block-start: 0.75em;
+  }
+
+  .article-body__comment-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 8px;
+    margin: 12px 0 0;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    line-height: var(--ui-line-height);
+  }
+
+  .article-body__comment-author {
+    font-family: var(--ui-font-emphasis);
+    font-weight: var(--ui-font-emphasis-weight);
+    color: var(--ui-color-black);
+  }
+
+  /* Same generated separator as the hero's detail line. */
+  .article-body__comment-date::before {
+    content: '•';
+    margin-inline-end: 8px;
+    color: var(--ui-color-border-gray);
+  }
+
+  .article-body__pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .article-body__ellipsis {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+  }
+
+  .article-body__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 0;
+  }
+
+  .article-body__form-title {
+    margin: 0;
+    font-family: var(--ui-font-emphasis);
+    font-size: 18px;
+    font-weight: var(--ui-font-emphasis-weight);
+    line-height: var(--ui-line-height);
+    color: var(--ui-color-black);
+  }
+
+  /*
+   * The success note takes the FAQ bar's light blue and the failure takes the
+   * kit's error red on white — the two colours the kit already spends on "this
+   * worked" and "this did not".
+   */
+  .article-body__alert {
+    margin: 0;
+    padding: 12px 16px;
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-light-blue);
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    line-height: var(--ui-line-height);
+  }
+
+  .article-body__alert--error {
+    background-color: var(--ui-color-white);
+    box-shadow: inset 0 0 0 var(--ui-hairline-width) var(--ui-color-error);
+    color: var(--ui-color-error);
+  }
+
+  .article-body__form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .article-body__form-note {
+    margin: 0;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    line-height: var(--ui-line-height);
+  }
+
+  .article-body__form-actions {
+    display: flex;
+  }
+
+  @media screen and (min-width: 750px) {
+    .article-body {
+      gap: 48px;
+    }
+
+    .article-body__comments-title {
+      font-size: 32px;
+    }
+
+    .article-body__comment {
+      padding: 20px 24px;
+    }
+
+    /* Name and email share a row from the point two 44px fields fit side by side. */
+    .article-body__form-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Article body",
+  "tag": "section",
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "settings": [
+    {
+      "type": "range",
+      "id": "content_width",
+      "label": "t:settings.content_width",
+      "info": "The measure the writing is set to. Around 720px is roughly 70 characters a line, which is what a long read wants.",
+      "min": 480,
+      "max": 1280,
+      "step": 20,
+      "unit": "px",
+      "default": 720
+    },
+    {
+      "type": "header",
+      "content": "Sharing"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_share",
+      "label": "Show the share row",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "share_label",
+      "label": "Share row wording",
+      "default": "Share this post",
+      "visible_if": "{{ section.settings.show_share }}"
+    },
+    {
+      "type": "header",
+      "content": "Comments"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_comments",
+      "label": "Show comments",
+      "info": "Comments also have to be turned on for this blog, under Content → Blog posts → Manage blogs.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "comments_per_page",
+      "label": "Comments a page",
+      "min": 5,
+      "max": 50,
+      "step": 5,
+      "default": 10,
+      "visible_if": "{{ section.settings.show_comments }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "presets": []
+}
+{% endschema %}

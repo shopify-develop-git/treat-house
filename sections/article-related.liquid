@@ -1,0 +1,254 @@
+{% comment %}
+  The row of other posts under a blog post.
+
+  The cards are [ui-article-card] — the same component `sections/blog-posts.liquid`
+  fills the blog index with, so a post's card cannot come out one shape on the
+  index and another at the foot of a post.
+
+  The words above the row are a block, because those are the merchant's: "More
+  from the blog", "Keep reading", whatever the shop calls it. The posts under them
+  are not, and there is no picker for them — this is whatever the blog published
+  most recently, minus the post already open.
+
+  One setting drives all three column counts. `CLAUDE.md` asks for three tiers and
+  not two, and here they fall out of the count the merchant asked for: the count
+  itself at 1200, two between 750 and 1200, one below. A row of three held at three
+  from 750px up puts a 210px card on the page, which is narrower than the picture
+  it carries is drawn.
+{% endcomment %}
+
+{%- liquid
+  assign max_items = section.settings.post_count
+  assign excerpt_words = section.settings.excerpt_words
+
+  # One more than asked for, because the post being read is in this list and will
+  # be skipped: without the spare, a row of three under the newest post is a row
+  # of two.
+  assign fetch_limit = max_items | plus: 1
+-%}
+
+{%- capture related_cards -%}
+  {%- assign rendered = 0 -%}
+  {%- for related in blog.articles limit: fetch_limit -%}
+    {%- if related.id == article.id -%}{% continue %}{%- endif -%}
+    {%- if rendered >= max_items -%}{% break %}{%- endif -%}
+
+    {%- liquid
+      # The author's own summary when there is one, the body when there is not —
+      # the same fallback the blog index takes, so a card reads alike in both
+      # places. The empty second argument drops truncatewords' own ellipsis; the
+      # card clamps to three lines and draws one itself.
+      assign lead = blank
+      if section.settings.show_excerpt
+        assign lead = related.excerpt | strip_html | strip
+        if lead == blank
+          assign lead = related.content | strip_html | strip
+        endif
+        assign lead = lead | truncatewords: excerpt_words, ''
+      endif
+
+      assign published = related.published_at | date: '%B %-d, %Y'
+    -%}
+
+    <li class="article-related__item">
+      {% render 'ui-article-card',
+        title: related.title,
+        excerpt: lead,
+        image: related.image,
+        link: related.url,
+        date: published,
+        tag: 'h3'
+      %}
+    </li>
+
+    {%- assign rendered = rendered | plus: 1 -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- if related_cards != blank -%}
+  <div class="section-background color-{{ section.settings.color_scheme }}"></div>
+  <div
+    class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+    style="{% render 'spacing-style', settings: section.settings %}"
+    data-testid="article-related-{{ section.id }}"
+    {{ section.shopify_attributes }}
+  >
+    <div
+      class="article-related"
+      style="--article-related-columns: {{ max_items }};"
+    >
+      <div class="article-related__head">
+        {% content_for 'blocks' %}
+      </div>
+
+      <ul class="article-related__grid" role="list">
+        {{ related_cards }}
+      </ul>
+    </div>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  /* Related posts. Mobile first; the merchant's column count arrives at 1200px. */
+  .article-related {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .article-related__head {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .article-related__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .article-related__item {
+    display: flex;
+    min-inline-size: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    .article-related {
+      gap: 32px;
+    }
+
+    .article-related__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    .article-related__grid {
+      grid-template-columns: repeat(var(--article-related-columns, 3), minmax(0, 1fr));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Related posts",
+  "tag": "section",
+  "blocks": [
+    {
+      "type": "_ui-heading"
+    },
+    {
+      "type": "_ui-text"
+    },
+    {
+      "type": "_ui-link"
+    }
+  ],
+  "settings": [
+    {
+      "type": "range",
+      "id": "post_count",
+      "label": "Posts to show",
+      "info": "Also the number of columns from 1200px up. Below that the row is two, then one.",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "checkbox",
+      "id": "show_excerpt",
+      "label": "Show a lead under each title",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "excerpt_words",
+      "label": "Words in the lead",
+      "info": "The card clamps to three lines whatever this says; the count is what stops a long post sending three lines of markup to every card.",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "default": 20,
+      "visible_if": "{{ section.settings.show_excerpt }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "presets": [
+    {
+      "name": "Related posts",
+      "category": "t:categories.text",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>More from <em>the blog</em></h2>",
+            "heading_size": 32,
+            "heading_size_mobile": 24
+          }
+        }
+      },
+      "block_order": [
+        "heading"
+      ]
+    }
+  ]
+}
+{% endschema %}

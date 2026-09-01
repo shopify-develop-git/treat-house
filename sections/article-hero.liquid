@@ -1,0 +1,512 @@
+{% comment %}
+  The head of a blog post, on the kit.
+
+  Trail, title, the line of details under it, the tags and the cover photograph.
+  Everything on it is the article's own — nothing here is a setting a merchant
+  types words into, which is why the section carries no `{% content_for 'blocks' %}`
+  region beyond what an app might add further down the page.
+
+  That is the same call `sections/blog-posts.liquid` makes about the blog's name,
+  and for the same reason: a title a merchant can edit into something the post is
+  not called is a title that eventually disagrees with the page it stands on. The
+  one editorial decision left is which of the four details show, and those are
+  checkboxes.
+
+  The title takes its accent the way a product's and a collection's do — from
+  `custom.title_accent` on the article, through [ui-title-accent] — so the purple
+  half of a headline is written once, in the admin, next to the words it colours.
+
+  The tags are `ui-button`'s `secondary-alt` and not [ui-tag], which looks almost
+  the same and is the wrong component: a tag here goes somewhere. `ui-tag` is drawn
+  as a label with no hover and renders a `<span>` on purpose, and a link wearing it
+  would be a control the design never gave a pressed or hovered state to.
+
+  The cover sits under the words rather than behind them, which is where
+  `sections/collection-hero.liquid` puts its photograph. A collection banner is a
+  purpose-made picture with a pale middle for a heading to sit on; a post's
+  featured image is whatever the author uploaded, and a headline laid over it is
+  legible or not depending on the day.
+{% endcomment %}
+
+{%- liquid
+  assign hero_article = article
+  assign hero_blog = blog
+
+  assign alignment = section.settings.alignment
+
+  assign accent = hero_article.metafields.custom.title_accent
+
+  # Words to minutes at 200 a minute, which is the middle of every figure anyone
+  # publishes for adult reading on screen. Not a setting: a merchant moving it is
+  # not tuning the page, they are disagreeing with the arithmetic.
+  assign word_count = hero_article.content | strip_html | split: ' ' | size
+  assign read_minutes = word_count | divided_by: 200.0 | ceil
+  if read_minutes < 1
+    assign read_minutes = 1
+  endif
+
+  assign show_date = section.settings.show_date
+  assign show_author = section.settings.show_author
+  if hero_article.author == blank
+    assign show_author = false
+  endif
+  assign show_read_time = section.settings.show_read_time
+  if word_count == 0
+    assign show_read_time = false
+  endif
+  assign has_meta = false
+  if show_date or show_author or show_read_time
+    assign has_meta = true
+  endif
+
+  assign cover_alt = hero_article.image.alt | default: hero_article.title
+
+  assign excerpt = hero_article.excerpt
+  assign show_excerpt = section.settings.show_excerpt
+  if excerpt == blank
+    assign show_excerpt = false
+  endif
+
+  # `natural` leaves the box out of it and the photograph keeps the proportion it
+  # was uploaded at, which is the honest default for a picture this section did
+  # not commission.
+  assign ratio = section.settings.image_ratio
+  assign ratio_value = ''
+  case ratio
+    when 'wide'
+      assign ratio_value = '16 / 9'
+    when 'landscape'
+      assign ratio_value = '3 / 2'
+    when 'square'
+      assign ratio_value = '1 / 1'
+  endcase
+-%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="article-hero-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div
+    class="article-hero article-hero--{{ alignment }}"
+    style="--article-hero-measure: {{ section.settings.content_width }}px;"
+  >
+    {%- if section.settings.show_breadcrumb -%}
+      {%- comment -%}
+        The trail stays at the start of the line whatever the head does. A
+        breadcrumb centred over a page reads as a caption for the title rather
+        than as where you are.
+      {%- endcomment -%}
+      {% render 'ui-breadcrumb',
+        parent_title: hero_blog.title,
+        parent_url: hero_blog.url,
+        current: hero_article.title,
+        class: 'article-hero__breadcrumb'
+      %}
+    {%- endif -%}
+
+    <header class="article-hero__head">
+      {%- if section.settings.show_tags and hero_article.tags.size > 0 -%}
+        <div class="article-hero__tags">
+          {%- for tag in hero_article.tags -%}
+            {%- comment -%}
+              Built with `assign` rather than in the render argument: a filter
+              chain there would hand `handleize` the whole URL and flatten the
+              slashes out of it.
+            {%- endcomment -%}
+            {%- assign tag_url = tag | handleize | prepend: '/tagged/' | prepend: hero_blog.url -%}
+            {% render 'ui-button', variant: 'secondary-alt', label: tag, link: tag_url %}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+      <h1 class="article-hero__title">
+        {%- render 'ui-title-accent', title: hero_article.title, accent: accent -%}
+      </h1>
+
+      {%- if has_meta -%}
+        {%- comment -%}
+          The separators are drawn by CSS rather than written between the spans,
+          so a screen reader is not read a bullet between every pair and the line
+          can wrap on one. Same bargain [ui-breadcrumb] takes with its slash.
+        {%- endcomment -%}
+        <p class="article-hero__meta">
+          {%- if show_date -%}
+            <span class="article-hero__meta-item">
+              {{- hero_article.published_at | time_tag: format: 'date' -}}
+            </span>
+          {%- endif -%}
+          {%- if show_author -%}
+            <span class="article-hero__meta-item">{{ hero_article.author }}</span>
+          {%- endif -%}
+          {%- if show_read_time -%}
+            <span class="article-hero__meta-item">
+              {{- read_minutes }} {{ section.settings.read_time_label -}}
+            </span>
+          {%- endif -%}
+        </p>
+      {%- endif -%}
+
+      {%- if show_excerpt -%}
+        <div class="article-hero__excerpt">{{ excerpt }}</div>
+      {%- endif -%}
+    </header>
+
+    {%- if section.settings.show_image and hero_article.image != blank -%}
+      <div
+        class="article-hero__media{% if ratio_value != blank %} article-hero__media--fixed{% endif %}"
+        {% if ratio_value != blank %}style="--article-hero-ratio: {{ ratio_value }};"{% endif %}
+      >
+        {%- comment -%}
+          Width descriptors and a `sizes` cut from the gutter ladder in
+          `CLAUDE.md`, not the 1x/2x/3x [image] hands out — this box is the whole
+          page column, which is three different widths across the range. Eager,
+          and with `fetchpriority`: on an article page this is the largest thing
+          above the fold and what the page is measured on.
+        {%- endcomment -%}
+        {{
+          hero_article.image
+          | image_url: width: 2560
+          | image_tag:
+            widths: '480, 720, 960, 1280, 1600, 1920, 2560',
+            sizes: '(min-width: 1440px) 1280px, (min-width: 1200px) calc(100vw - 160px), (min-width: 750px) calc(100vw - 80px), calc(100vw - 32px)',
+            class: 'article-hero__image',
+            loading: 'eager',
+            fetchpriority: 'high',
+            alt: cover_alt
+        }}
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  /* Article hero. Mobile first; the drawn steps arrive at 750px. */
+  .article-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .article-hero__head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    /* A measure, not a width: a headline set across 1280px is a line nobody
+       finishes, and the details under it would be strung out with it. */
+    max-inline-size: var(--article-hero-measure, 800px);
+    text-align: start;
+  }
+
+  .article-hero--center .article-hero__head {
+    align-items: center;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .article-hero__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .article-hero--center .article-hero__tags {
+    justify-content: center;
+  }
+
+  .article-hero__title {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: 32px;
+    font-weight: var(--font-heading--weight);
+    /* The file draws the small size looser than the large one, as [_ui-heading]
+       does; the tracking is the display cut's, in the unit CSS accepts. */
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--ui-color-black);
+  }
+
+  /* Italic is the accent mark, not a slant — the rule [_ui-heading] carries. */
+  .article-hero__title em {
+    font-style: normal;
+    color: var(--ui-color-primary);
+  }
+
+  .article-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    /* Column gap only, so a line that wraps does not open a gap between its rows. */
+    column-gap: 8px;
+    margin: 0;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  .article-hero--center .article-hero__meta {
+    justify-content: center;
+  }
+
+  .article-hero__meta-item + .article-hero__meta-item::before {
+    content: '•';
+    margin-inline-end: 8px;
+    color: var(--ui-color-border-gray);
+  }
+
+  .article-hero__excerpt {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  .article-hero__excerpt > * {
+    margin: 0;
+  }
+
+  .article-hero__excerpt > * + * {
+    margin-block-start: calc(var(--ui-line-height, 1.3) * 1em);
+  }
+
+  /*
+   * The cover is the one thing on the page drawn at the card radius rather than
+   * the kit's 2px — it is a plate the width of the column, the same object the
+   * collection banner is, and it is cropped by its own box so `overflow` is what
+   * keeps the corners.
+   */
+  .article-hero__media {
+    overflow: hidden;
+    border-radius: var(--article-hero-media-radius, 20px);
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .article-hero__media--fixed {
+    aspect-ratio: var(--article-hero-ratio, 3 / 2);
+  }
+
+  .article-hero__image {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    /* Square corners on the photograph; the box it sits in is what is rounded. */
+    border-radius: 0;
+  }
+
+  .article-hero__media--fixed .article-hero__image {
+    object-fit: cover;
+  }
+
+  @media screen and (min-width: 750px) {
+    .article-hero {
+      gap: 32px;
+    }
+
+    .article-hero__head {
+      gap: 20px;
+    }
+
+    .article-hero__title {
+      font-size: 48px;
+      line-height: 1.1;
+    }
+
+    .article-hero__excerpt {
+      font-size: 18px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Article hero",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "t:settings.alignment",
+      "options": [
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "left",
+          "label": "t:options.left"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Breadcrumb"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumb",
+      "label": "Show the breadcrumb",
+      "info": "Home, then the blog this post is filed under, then the post.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:names.details"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "t:settings.show_date",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "t:settings.show_author",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_read_time",
+      "label": "Show the reading time",
+      "info": "Counted from the post at 200 words a minute, rounded up.",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "read_time_label",
+      "label": "Reading time wording",
+      "info": "Printed after the number.",
+      "default": "min read",
+      "visible_if": "{{ section.settings.show_read_time }}"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags",
+      "label": "Show the post's tags",
+      "info": "Each one links to the rest of the posts carrying it.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_excerpt",
+      "label": "t:names.excerpt",
+      "info": "The summary written on the post itself. A post without one shows nothing here.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:content.media"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "label": "Show the featured image",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "t:settings.image_ratio",
+      "info": "Anything but the original crops the picture to the shape.",
+      "options": [
+        {
+          "value": "natural",
+          "label": "t:options.auto"
+        },
+        {
+          "value": "wide",
+          "label": "t:options.wide"
+        },
+        {
+          "value": "landscape",
+          "label": "t:options.landscape"
+        },
+        {
+          "value": "square",
+          "label": "t:options.square"
+        }
+      ],
+      "default": "landscape",
+      "visible_if": "{{ section.settings.show_image }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "range",
+      "id": "content_width",
+      "label": "t:settings.content_width",
+      "info": "Where the title and the details wrap. The picture below them always fills the page column.",
+      "min": 480,
+      "max": 1280,
+      "step": 20,
+      "unit": "px",
+      "default": 800
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "Article hero",
+      "category": "t:categories.banners"
+    }
+  ]
+}
+{% endschema %}
