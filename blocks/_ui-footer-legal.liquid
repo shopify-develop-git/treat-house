@@ -75,11 +75,20 @@
   }
 
   @media screen and (min-width: 990px) {
-    /* The file spreads the three across 395px at the row's right end. */
+    /*
+     * The file draws three links spread across 395px, and that was written here
+     * as the width plus `space-between` — which is the same thing only while
+     * there are exactly three. The menu is the merchant's, and at two links the
+     * pair went to opposite ends of a 395px box with 300px of nothing between
+     * them.
+     *
+     * So the group is its content and the 32px gap, sat at the row's right end.
+     * Three links land where the file draws them; two read as a pair; one does
+     * not look like a mistake.
+     */
     .ui-footer-legal__links {
-      justify-content: space-between;
+      justify-content: flex-end;
       gap: 32px;
-      width: 395px;
       max-width: 100%;
     }
   }
