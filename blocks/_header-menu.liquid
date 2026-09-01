@@ -983,6 +983,21 @@
       gap: 24px;
       box-sizing: border-box;
       /*
+       * The panel carries `.section--page-width`, but this rule replaces the grid
+       * that class sets up with a flex row, so the cap that grid holds — content
+       * stops at `--page-content-width` and the page centres around it — went with
+       * it, and the row padded itself out to the window instead. Below 1440 that
+       * is the same measurement and nothing showed; above it the title cleared the
+       * header's own column by half the difference, 30.5px at 1512 and growing.
+       *
+       * `--page-width` is that cap plus its two margins, which is the width this
+       * border box wants, so it is taken from the theme rather than retyped. The
+       * padding below is then the panel's own margin again, and the content lands
+       * on the same left edge as the logo above it.
+       */
+      max-inline-size: var(--page-width);
+      margin-inline: auto;
+      /*
        * Not one padding. The file hangs 24px over the top of the panel and 48
        * under it — 24 + the 312 card + 48 is the 384 it draws — so the card sits
        * high in the white rather than centred in it, and the extra air below is
