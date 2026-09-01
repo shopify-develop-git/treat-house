@@ -1,0 +1,384 @@
+{%- doc -%}
+  Long-form rich text in the kit's voice — the body of a blog post, and anything
+  else a merchant writes in Shopify's own editor rather than into a theme setting.
+
+  Not [_ui-text]. That block is one voice at one size: a paragraph or three typed
+  into a setting, spaced by a line of their own copy. An article body is a
+  different job. It arrives as markup nobody here wrote, carrying headings, lists,
+  quotes, figures, embeds and the occasional pasted table, and every one of them
+  has to land on the kit's type with no class to hang a rule on. So this is one
+  wrapper and a stylesheet of element selectors, and the caller hands it a string.
+
+  **The leading is not the kit's.** `--ui-line-height` is 1.3, which is right for
+  a label, a card title and the three lines of copy under a heading. Held across a
+  720px measure it packs a paragraph into a block the eye loses its place in, so
+  running text here is set at 1.7. `--ui-prose-line-height` is the hook for a
+  caller that disagrees, and `--ui-prose-measure` caps the column for one that is
+  not already in a narrow one.
+
+  **A link in a paragraph is underlined, where the rest of the kit's are not.**
+  Everywhere else a link is a control in a place a control is expected — a row, a
+  card, a nav. Here it is a word among words, and colour on its own is not a
+  difference every reader can see. Horizon underlines them too, from a rule at
+  (0,1,2); the rules below match that weight and are collected after it, which is
+  what lets the colour be the kit's purple rather than the scheme's.
+
+  **The tables are Horizon's.** `<rte-formatter>` is the theme's own element and
+  its whole job is to wrap every `<table>` it finds in a scroller — which is what
+  `CLAUDE.md` asks of wide content, and what no rule can do to an element it
+  cannot wrap. It is already loaded on every page, so this costs no new script and
+  no new JavaScript is written for it.
+
+  @param {string} content - The markup to print: `article.content`, `page.content`,
+    or a rich text metafield through `metafield_tag`.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the wrapper.
+
+  @example
+  {% render 'ui-prose', content: article.content %}
+  {% render 'ui-prose', content: page.content, class: 'page-main__body' %}
+{%- enddoc -%}
+
+{%- if content != blank -%}
+  <div
+    class="ui-prose{% if class != blank %} {{ class }}{% endif %}"
+    {%- if attributes != blank %} {{ attributes }}{% endif -%}
+  >
+    <rte-formatter>{{ content }}</rte-formatter>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  :root {
+    /* Mobile first, stepping at the 750px the rest of the kit steps at. */
+    --ui-prose-size: 16px;
+    --ui-prose-h2-size: 24px;
+    --ui-prose-h3-size: 20px;
+    --ui-prose-h4-size: 18px;
+    --ui-prose-caption-size: 13px;
+    --ui-prose-media-radius: 20px;
+  }
+
+  @media screen and (min-width: 750px) {
+    :root {
+      --ui-prose-size: 18px;
+      --ui-prose-h2-size: 32px;
+      --ui-prose-h3-size: 24px;
+      --ui-prose-h4-size: 20px;
+      --ui-prose-caption-size: 14px;
+    }
+  }
+
+  :is(.ui-prose, .shopify-policy__body) {
+    max-inline-size: var(--ui-prose-measure, none);
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-prose-size);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-prose-line-height, 1.7);
+  }
+
+  /* An unknown element lays out inline, and everything inside it would inherit that. */
+  .ui-prose rte-formatter {
+    display: block;
+  }
+
+  /*
+   * The wrapper's own edges. The first and last things in an article should sit
+   * against whatever the section spaced around them, not against a margin this
+   * file invented.
+   */
+  :is(.ui-prose rte-formatter, .shopify-policy__body .rte) > :first-child {
+    margin-block-start: 0;
+  }
+
+  :is(.ui-prose rte-formatter, .shopify-policy__body .rte) > :last-child {
+    margin-block-end: 0;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) :is(h2, h3, h4, h5, h6) {
+    /*
+     * More above than below, so a heading belongs to what follows it rather than
+     * floating between two blocks. In em, so the gap grows with the type.
+     */
+    margin-block: 1.6em 0.5em;
+    color: var(--ui-color-black);
+    line-height: 1.15;
+  }
+
+  /*
+   * The display cut, as the page's own title is set. The file states its tracking
+   * as a percentage, which is a Figma unit — CSS takes a length, so it is written
+   * here as the same fraction of an em.
+   */
+  :is(.ui-prose, .shopify-policy__body) :is(h2, h3) {
+    font-family: var(--font-heading--family);
+    font-weight: var(--font-heading--weight);
+    letter-spacing: -0.02em;
+  }
+
+  /*
+   * Below h3 the display cut stops earning its keep: at 18px an ExtraBold line
+   * reads as a shout rather than a level, so the smaller headings take the
+   * emphasis face the kit uses for a card title.
+   */
+  :is(.ui-prose, .shopify-policy__body) :is(h4, h5, h6) {
+    font-family: var(--ui-font-emphasis);
+    font-weight: var(--ui-font-emphasis-weight);
+    letter-spacing: normal;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) h2 {
+    font-size: var(--ui-prose-h2-size);
+  }
+
+  :is(.ui-prose, .shopify-policy__body) h3 {
+    font-size: var(--ui-prose-h3-size);
+  }
+
+  :is(.ui-prose, .shopify-policy__body) :is(h4, h5, h6) {
+    font-size: var(--ui-prose-h4-size);
+  }
+
+  :is(.ui-prose, .shopify-policy__body) p {
+    margin-block: 0 1em;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) :is(ul, ol) {
+    margin-block: 0 1em;
+    padding-inline-start: 1.5em;
+  }
+
+  /* A nested list belongs to its parent item, not to the run of paragraphs. */
+  :is(.ui-prose, .shopify-policy__body) :is(ul, ol) :is(ul, ol) {
+    margin-block: 0.4em 0;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) li + li {
+    margin-block-start: 0.4em;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) li::marker {
+    color: var(--ui-color-primary);
+  }
+
+  :is(.ui-prose, .shopify-policy__body) :is(b, strong) {
+    /* The theme loads the body face at 400 and 700, so this is a real cut. */
+    font-weight: 700;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) a {
+    color: var(--ui-color-primary);
+  }
+
+  /*
+   * (0,1,2), which is what `p:not(…) a:where(…)` in base.css weighs. A tie, and
+   * this stylesheet is collected after that one, so the underline stays put and
+   * the colour is the kit's. Named for the three elements a link actually turns
+   * up in, rather than every anchor in the body — a figure's caption link included.
+   */
+  :is(.ui-prose, .shopify-policy__body) :is(p, li, blockquote, figcaption) a {
+    text-decoration: underline solid;
+    text-decoration-thickness: from-font;
+    text-decoration-color: currentcolor;
+    text-underline-offset: 0.15em;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) :is(p, li, blockquote, figcaption) a:hover {
+    color: var(--ui-color-orange);
+    text-decoration-color: currentcolor;
+  }
+
+  /*
+   * The pull quote wears the FAQ bar's clothes — the light blue plate at the
+   * 20px radius — rather than the rule-down-the-left every theme draws. The kit
+   * has a way of saying "this is set apart" already, and it is a filled panel.
+   *
+   * No italic. In this theme italic is the mark that colours a word purple, and a
+   * whole quote set in it would be a sentence the reader is invited to decode.
+   */
+  :is(.ui-prose, .shopify-policy__body) blockquote {
+    margin-block: 2em;
+    margin-inline: 0;
+    padding: 20px;
+    border-radius: var(--ui-prose-media-radius);
+    background-color: var(--ui-color-light-blue);
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-emphasis);
+    font-weight: var(--ui-font-emphasis-weight);
+    font-style: normal;
+    line-height: 1.5;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) blockquote > :last-child {
+    margin-block-end: 0;
+  }
+
+  @media screen and (min-width: 750px) {
+    :is(.ui-prose, .shopify-policy__body) blockquote {
+      padding: 24px 32px;
+    }
+  }
+
+  :is(.ui-prose, .shopify-policy__body) :is(img, video, iframe) {
+    border-radius: var(--ui-prose-media-radius);
+  }
+
+  :is(.ui-prose, .shopify-policy__body) :is(img, video) {
+    inline-size: 100%;
+    block-size: auto;
+  }
+
+  /*
+   * An embed arrives from the editor with the provider's own width and height
+   * attributes and no way to reach inside it, so the ratio is imposed from here.
+   * 16/9 covers YouTube and Vimeo, which is what a post embeds.
+   */
+  :is(.ui-prose, .shopify-policy__body) iframe {
+    display: block;
+    inline-size: 100%;
+    aspect-ratio: 16 / 9;
+    block-size: auto;
+    border: 0;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) figure {
+    margin-block: 2em;
+    margin-inline: 0;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) figcaption {
+    margin-block-start: 10px;
+    color: var(--ui-color-gray);
+    font-size: var(--ui-prose-caption-size);
+    line-height: var(--ui-line-height);
+    text-align: center;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) hr {
+    margin-block: 2.5em;
+    border: 0;
+    border-block-start: 1px solid var(--ui-color-border-gray);
+  }
+
+  /*
+   * Horizon's element puts this around every table it finds, the layout ones
+   * included — so the scroller is what CLAUDE.md asks of wide content, and the
+   * margin is only spent where the table is one. A wrapper holding the whole
+   * article is the first and last thing in the body and has its margins zeroed
+   * above, whichever of the two it is at the time.
+   */
+  :is(.ui-prose, .shopify-policy__body) .rte-table-wrapper {
+    overflow-x: auto;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) .rte-table-wrapper:has(th) {
+    margin-block: 2em;
+  }
+
+  /*
+   * Only a table with a header row is dressed as a table, and this is not
+   * fussiness. Shopify's editor has no table tool, so what turns up in a post is
+   * markup pasted from somewhere else — and more often than not that is a
+   * single-cell layout table wrapping the whole article. Given the rules below it
+   * would set the entire post at the caption size, draw a hairline under the last
+   * paragraph and pad everything by 16px, which reads as a fault nobody can find
+   * the source of.
+   *
+   * `:has(th)` is the difference between a table of data and a table used as a
+   * box. Horizon's own `base.css` already separates the two the same way, and the
+   * layout table simply keeps the browser's plain flow.
+   */
+  :is(.ui-prose, .shopify-policy__body) table:has(th) {
+    border-collapse: collapse;
+    /*
+     * Not a percentage width. The wrapper scrolls, so a table wider than the
+     * column keeps its columns and takes the scroller; squeezing it to 100% is
+     * what turns a six-column table into six words a letter wide.
+     */
+    font-size: var(--ui-prose-caption-size);
+    line-height: var(--ui-line-height);
+  }
+
+  :is(.ui-prose, .shopify-policy__body) table:has(th) :is(th, td) {
+    padding: 10px 16px;
+    border-block-end: 1px solid var(--ui-color-border-gray);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) table:has(th) th {
+    background-color: var(--ui-color-light-blue);
+    font-family: var(--ui-font-emphasis);
+    font-weight: var(--ui-font-emphasis-weight);
+  }
+
+  :is(.ui-prose, .shopify-policy__body) :is(code, kbd, samp) {
+    padding: 2px 6px;
+    border-radius: var(--ui-radius-sm);
+    background-color: rgb(var(--ui-color-border-gray-rgb) / 0.35);
+    font-size: 0.9em;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) pre {
+    margin-block: 1.5em;
+    padding: 16px;
+    border-radius: var(--ui-prose-media-radius);
+    background-color: rgb(var(--ui-color-border-gray-rgb) / 0.35);
+    overflow-x: auto;
+    font-size: 0.9em;
+    line-height: 1.5;
+  }
+
+  :is(.ui-prose, .shopify-policy__body) pre code {
+    padding: 0;
+    background: none;
+  }
+
+  /* ---------- Shopify's policy pages ---------- */
+
+  /*
+   * A policy is this same job — long-form text a merchant wrote in Shopify's own
+   * editor — but it is the one page the theme gets no template for. Shopify prints
+   * `shopify-policy__container / __title / __body` straight into the layout, so
+   * there is nothing to wrap and nothing to hand this snippet. The body is
+   * therefore named beside `.ui-prose` on every rule above rather than given a
+   * second set of its own that drifts from these the first time either moves.
+   *
+   * `:is()` takes the specificity of its most specific argument, and both are one
+   * class, so every one of those rules still weighs (0,1,0) and nothing in the
+   * cascade around them shifts.
+   *
+   * What the body cannot inherit is the wrapper. These are that: the page column
+   * a section would have placed, and the title a section would have set.
+   */
+  .shopify-policy__container {
+    /* Written once and read three times: the measure the text is set to, the box
+       that measure plus its gutters, and the cap the prose rules read. */
+    --ui-policy-measure: 720px;
+    --ui-prose-measure: var(--ui-policy-measure);
+
+    box-sizing: border-box;
+    max-inline-size: calc(var(--ui-policy-measure) + var(--page-margin) * 2);
+    /* The gutter is the theme's, not a number retyped here — see CLAUDE.md on a
+       full-bleed element that has to pad itself. */
+    padding-block: 40px 80px;
+    padding-inline: var(--page-margin);
+    margin-inline: auto;
+  }
+
+  .shopify-policy__title h1 {
+    margin: 0 0 32px;
+    color: var(--ui-color-primary);
+    font-family: var(--font-heading--family);
+    font-size: 32px;
+    font-weight: var(--font-heading--weight);
+    line-height: 1.1;
+  }
+
+  @media screen and (min-width: 750px) {
+    .shopify-policy__title h1 {
+      font-size: 48px;
+    }
+  }
+{% endstylesheet %}
