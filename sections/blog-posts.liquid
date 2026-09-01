@@ -1,0 +1,319 @@
+{% comment %}
+  The blog index, on the kit.
+
+  Built from `sections/collection-products.liquid`, which is the worked example
+  for a listing in this theme: `{% paginate %}` around a grid of kit cards, and
+  the kit's own arrows and numbers under it. Like that one it adds **no
+  JavaScript** — every page of the list is an anchor, so the list works with
+  scripts off and the back button does what it says.
+
+  Horizon's own `main-blog` and its `_blog-post-*` blocks are left alone. They
+  still drive anything else that stands on them; this section is what
+  `templates/blog.json` points at.
+
+  Two things the title and the trail are not: settings. Both are the blog's own
+  name, and a heading a merchant can edit into something the blog is not called
+  is a heading that eventually disagrees with the page it sits on — the same
+  argument the mega menu's panel title is built on.
+{% endcomment %}
+
+{%- liquid
+  assign posts_per_page = section.settings.posts_per_page | default: 12
+  assign excerpt_words = section.settings.excerpt_words | default: 20
+-%}
+
+<div class="section-background color-{{ section.settings.color_scheme }}"></div>
+<div
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  style="{% render 'spacing-style', settings: section.settings %}"
+  data-testid="blog-posts-{{ section.id }}"
+  {{ section.shopify_attributes }}
+>
+  <div
+    class="blog-posts"
+    style="
+      --blog-posts-columns: {{ section.settings.columns }};
+      --blog-posts-columns-md: {{ section.settings.columns_md }};
+      --blog-posts-columns-sm: {{ section.settings.columns_sm }};
+    "
+  >
+    <div class="blog-posts__head">
+      {% render 'ui-breadcrumb', current: blog.title %}
+      <h1 class="blog-posts__title">{{ blog.title }}</h1>
+    </div>
+
+    {% paginate blog.articles by posts_per_page %}
+      {%- if blog.articles.size > 0 -%}
+        <ul class="blog-posts__grid" role="list">
+          {%- for article in blog.articles -%}
+            {%- liquid
+              # The author's own summary when there is one. Shopify leaves
+              # `excerpt` empty unless the post carries a hand-written one, and a
+              # card with a gap where every neighbour has three lines reads as a
+              # fault, so the body stands in — stripped of its markup, cut to a
+              # word count, and clamped to three lines by the card itself. The
+              # empty second argument drops truncatewords' own ellipsis; the
+              # clamp draws one.
+              assign lead = blank
+              if section.settings.show_excerpt
+                assign lead = article.excerpt | strip_html | strip
+                if lead == blank
+                  assign lead = article.content | strip_html | strip
+                endif
+                assign lead = lead | truncatewords: excerpt_words, ''
+              endif
+
+              assign published = article.published_at | date: '%B %-d, %Y'
+
+              # The grid runs three across at its widest, so the first three are
+              # the row already on screen. A lazy image is not merely delayed —
+              # it leaves the browser's urgent queue — and the largest of these
+              # is usually what the page is measured on.
+              assign card_loading = 'lazy'
+              if forloop.index <= 3
+                assign card_loading = 'eager'
+              endif
+            -%}
+            <li class="blog-posts__item">
+              {% render 'ui-article-card',
+                title: article.title,
+                excerpt: lead,
+                image: article.image,
+                link: article.url,
+                date: published,
+                tag: 'h2',
+                loading: card_loading
+              %}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <p class="blog-posts__empty">{{ section.settings.empty_text }}</p>
+      {%- endif -%}
+
+      {%- if paginate.pages > 1 -%}
+        <nav class="blog-posts__pagination" aria-label="Pagination">
+          {% render 'ui-pagination-arrow',
+            direction: 'left',
+            link: paginate.previous.url,
+            disabled: paginate.previous.is_link == false
+          %}
+          {%- for part in paginate.parts -%}
+            {%- if part.is_link -%}
+              {% render 'ui-pagination-item', label: part.title, link: part.url %}
+            {%- elsif part.title == '&hellip;' -%}
+              <span class="blog-posts__ellipsis" aria-hidden="true">…</span>
+            {%- else -%}
+              {% render 'ui-pagination-item', label: part.title, current: true %}
+            {%- endif -%}
+          {%- endfor -%}
+          {% render 'ui-pagination-arrow',
+            direction: 'right',
+            link: paginate.next.url,
+            disabled: paginate.next.is_link == false
+          %}
+        </nav>
+      {%- endif -%}
+    {% endpaginate %}
+  </div>
+</div>
+
+{% stylesheet %}
+  /* Blog index. Mobile first; the three drawn columns arrive at 1200px. */
+  .blog-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .blog-posts__head {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .blog-posts__title {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: 32px;
+    font-weight: var(--font-heading--weight);
+    line-height: 1.1;
+    color: var(--ui-color-primary);
+  }
+
+  @media screen and (min-width: 750px) {
+    .blog-posts__title {
+      font-size: 48px;
+    }
+  }
+
+  .blog-posts__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--blog-posts-columns-sm, 1), minmax(0, 1fr));
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .blog-posts__item {
+    display: flex;
+    min-inline-size: 0;
+  }
+
+  .blog-posts__empty {
+    margin: 0;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    line-height: var(--ui-line-height);
+  }
+
+  .blog-posts__pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .blog-posts__ellipsis {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+  }
+
+  /*
+   * Three counts, not two. Held at the desktop three from 750px up, a card is
+   * 210px wide at that width against the 413 it holds at 1200 — CLAUDE.md's rule
+   * about the middle of the range, which the file draws neither end of.
+   */
+  @media screen and (min-width: 750px) {
+    .blog-posts__grid {
+      grid-template-columns: repeat(var(--blog-posts-columns-md, 2), minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (min-width: 1200px) {
+    .blog-posts__grid {
+      grid-template-columns: repeat(var(--blog-posts-columns, 3), minmax(0, 1fr));
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Blog posts",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "t:settings.columns",
+      "info": "From 1200px up.",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "columns_md",
+      "label": "Columns from 750px",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "select",
+      "id": "columns_sm",
+      "label": "Columns on mobile",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "range",
+      "id": "posts_per_page",
+      "label": "Posts per page",
+      "min": 3,
+      "max": 24,
+      "step": 3,
+      "default": 12
+    },
+    {
+      "type": "checkbox",
+      "id": "show_excerpt",
+      "label": "Show the lead under each title",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "excerpt_words",
+      "label": "Lead length, in words",
+      "info": "The card clamps the lead to three lines whatever this is set to.",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "type": "text",
+      "id": "empty_text",
+      "label": "Text when the blog has no posts",
+      "default": "There is nothing here yet. Check back soon."
+    },
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        { "value": "page-width", "label": "t:options.page" },
+        { "value": "full-width", "label": "t:options.full" }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "header",
+      "content": "t:content.colors"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:settings.color_scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "Blog posts"
+    }
+  ]
+}
+{% endschema %}

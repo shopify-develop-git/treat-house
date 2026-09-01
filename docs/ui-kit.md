@@ -466,6 +466,28 @@ inside a link is invalid markup — so there the button carries the link.
 `title` · `description` · `image` · `link` · `variant` · `button_label` ·
 `class` · `attributes`
 
+### `ui-article-card`
+
+The tile in the blog index. The kit draws no card for a post, so this is its own
+shapes — the hairline plate, the heading face, the grey body, the border that
+turns purple on hover — around what a post has and a collection does not: a date
+and a lead. One link end to end, like `ui-collection-card`'s `default`.
+
+`title` · `excerpt` · `image` · `link` · `date` · `tag` (default `h3`) ·
+`loading` · `class` · `attributes`
+
+Pass `date` already run through `date:` — a named `render` argument takes no
+filter and gets no complaint when you give it one.
+
+The lead is clamped to three lines by the card, so a caller's word count is a
+rough cut rather than the thing holding the plate's height. The picture covers
+its 3:2 box rather than fitting inside it: featured images arrive at whatever
+crop the author uploaded, and a row whose pictures are each a different height is
+not a row. Sized by custom properties like the cards above —
+`--ui-article-card-media-ratio`, `--ui-article-card-body-padding`,
+`--ui-article-card-body-gap`, `--ui-article-card-date-size`,
+`--ui-article-card-title-size`, `--ui-article-card-excerpt-size`.
+
 ### `ui-mega-promo`
 
 The card at the right of a mega menu panel. It keeps the 255px it was drawn at

@@ -1,0 +1,215 @@
+{%- doc -%}
+  Renders a blog post card from the UI kit.
+
+  The kit draws no card for an article, and the two it does draw are both wrong
+  for one: [ui-collection-card] carries no date, and [ui-media-card] is a
+  horizontal row built around a 77px thumbnail. So this is the kit's shapes —
+  the hairline plate, the heading face, the grey body copy, the border that
+  turns purple on hover — composed around what a post has and a collection does
+  not, which is a date and a lead.
+
+  The whole plate is one link, the way `ui-collection-card`'s `default` variant
+  is: a card that stands for one article has one destination, and a title of
+  four words is a smaller target than the picture above it.
+
+  The picture is a share of a grid that runs one, two and three across, so this
+  emits `image_tag` with `widths` and `sizes` itself rather than going through
+  [image] — that snippet's 1x/2x/3x srcset describes one drawn size, and this box
+  has three. Featured images arrive at whatever crop the author uploaded, so the
+  box holds its ratio and covers rather than fitting the artwork inside it; a
+  row of cards whose pictures are each a different height is not a row.
+
+  @param {string} title - The article title.
+  @param {string} [excerpt] - The supporting copy under the title.
+  @param {object} [image] - A Shopify image object for the media box.
+  @param {string} [link] - The article URL.
+  @param {string} [date] - The published date, already formatted by the caller.
+  @param {string} [tag] - The title's element. Defaults to `h3`.
+  @param {string} [loading] - `lazy` (the default) or `eager` for cards above the fold.
+  @param {string} [class] - Additional CSS classes.
+  @param {string} [attributes] - Extra HTML attributes to render on the card.
+
+  @example
+  {% render 'ui-article-card',
+    title: article.title,
+    excerpt: article.excerpt,
+    image: article.image,
+    link: article.url,
+    date: article.published_at | date: '%B %-d, %Y'
+  %}
+{%- enddoc -%}
+
+{%- liquid
+  assign title_tag = tag | default: 'h3'
+  assign card_loading = loading | default: 'lazy'
+
+  assign card_classes = 'ui-article-card'
+  if class != blank
+    assign card_classes = card_classes | append: ' ' | append: class
+  endif
+-%}
+
+{%- capture card_content -%}
+  <div class="ui-article-card__media">
+    {%- if image != blank -%}
+      {{
+        image
+        | image_url: width: 1200
+        | image_tag:
+          widths: '260, 320, 400, 480, 600, 760, 960, 1200',
+          sizes: '(min-width: 1200px) 413px, (min-width: 750px) 50vw, 100vw',
+          class: 'ui-article-card__image',
+          loading: card_loading,
+          alt: image.alt
+      }}
+    {%- else -%}
+      {{ 'image' | placeholder_svg_tag: 'ui-article-card__image ui-article-card__image--placeholder' }}
+    {%- endif -%}
+  </div>
+
+  <div class="ui-article-card__body">
+    {%- if date != blank -%}
+      <p class="ui-article-card__date">{{ date }}</p>
+    {%- endif -%}
+
+    <{{ title_tag }} class="ui-article-card__title">{{ title }}</{{ title_tag }}>
+
+    {%- if excerpt != blank -%}
+      <p class="ui-article-card__excerpt">{{ excerpt }}</p>
+    {%- endif -%}
+  </div>
+{%- endcapture -%}
+
+{%- if link != blank -%}
+  <a href="{{ link }}" class="{{ card_classes }}"{% if attributes != blank %} {{ attributes }}{% endif %}>
+    {{ card_content }}
+  </a>
+{%- else -%}
+  <div class="{{ card_classes }}"{% if attributes != blank %} {{ attributes }}{% endif %}>
+    {{ card_content }}
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  :root {
+    /* Mobile first, stepping at the same 750px the rest of the kit steps at. */
+    --ui-article-card-media-ratio: 3 / 2;
+    --ui-article-card-body-padding: 14px;
+    --ui-article-card-body-gap: 8px;
+    --ui-article-card-date-size: 12px;
+    --ui-article-card-title-size: 20px;
+    --ui-article-card-excerpt-size: 14px;
+  }
+
+  @media screen and (min-width: 750px) {
+    :root {
+      --ui-article-card-body-padding: 16px;
+      --ui-article-card-body-gap: 10px;
+      --ui-article-card-date-size: 12px;
+      --ui-article-card-title-size: 24px;
+      --ui-article-card-excerpt-size: 14px;
+    }
+  }
+
+  .ui-article-card {
+    --ui-article-card-border-color: var(--ui-color-border-gray);
+    --ui-article-card-border-width: var(--ui-hairline-width);
+
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    inline-size: 100%;
+    /* Takes the height of its cell, so a row of cards bottoms out level without
+       the caller measuring the longest lead. */
+    block-size: 100%;
+    border-radius: var(--ui-radius-sm);
+    /*
+     * Inset shadow rather than a border: the hairline thickens on hover, and a
+     * real border of two widths would shift the card's contents by half a pixel
+     * every time the pointer crossed it.
+     */
+    box-shadow: inset 0 0 0 var(--ui-article-card-border-width) var(--ui-article-card-border-color);
+    background-color: var(--ui-color-white);
+    color: var(--ui-color-black);
+    text-decoration: none;
+    overflow: hidden;
+    transition: box-shadow var(--animation-values);
+  }
+
+  .ui-article-card:is(:hover, .ui-article-card--force-hover) {
+    --ui-article-card-border-color: var(--ui-color-primary);
+    --ui-article-card-border-width: 1px;
+  }
+
+  .ui-article-card__media {
+    flex: 0 0 auto;
+    aspect-ratio: var(--ui-article-card-media-ratio);
+    overflow: hidden;
+  }
+
+  /*
+   * Square corners on the photograph. Horizon rounds every image on the site from
+   * a bare type selector in base.css, so a card picks the radius up without this
+   * file asking for one — the card's own edge is the only rounded thing on it.
+   */
+  .ui-article-card__media,
+  .ui-article-card__image {
+    border-radius: 0;
+  }
+
+  .ui-article-card__image {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+  }
+
+  .ui-article-card__image--placeholder {
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .ui-article-card__body {
+    display: flex;
+    flex-direction: column;
+    /* Grows into whatever height the row settles on, so the plate below the
+       picture is what absorbs a neighbour's longer lead. */
+    flex: 1 1 auto;
+    gap: var(--ui-article-card-body-gap);
+    padding: var(--ui-article-card-body-padding);
+  }
+
+  .ui-article-card__date {
+    margin: 0;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-article-card-date-size);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+
+  .ui-article-card__title {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: var(--ui-article-card-title-size);
+    font-weight: var(--font-heading--weight);
+    line-height: 1.1;
+  }
+
+  .ui-article-card__excerpt {
+    margin: 0;
+    /*
+     * Three lines, then an ellipsis the browser draws. The caller cuts the lead
+     * to a word count, which is the wrong unit for a box whose width changes
+     * three times across the range — this is what actually keeps the plate the
+     * height it was drawn at.
+     */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: var(--ui-article-card-excerpt-size);
+    font-weight: var(--ui-font-body-weight);
+    line-height: var(--ui-line-height);
+  }
+{% endstylesheet %}
