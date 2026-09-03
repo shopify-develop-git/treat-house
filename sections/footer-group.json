@@ -18,11 +18,11 @@
           "type": "_ui-footer-brand",
           "static": true,
           "settings": {
-            "tagline": "Handcrafted sweets made to celebrate life's sweetest moments.",
-            "facebook_url": "https://www.facebook.com/",
-            "instagram_url": "https://www.instagram.com/",
-            "x_url": "https://x.com/",
-            "pinterest_url": "https://www.pinterest.com/"
+            "tagline": "A modern take on the Krispie treat you grew up with. Handcrafted, made personal, and ready to give.",
+            "facebook_url": "",
+            "instagram_url": "",
+            "x_url": "",
+            "pinterest_url": ""
           }
         },
         "shop": {
@@ -42,14 +42,14 @@
         "care": {
           "type": "_ui-footer-column",
           "settings": {
-            "title": "Customer Care",
+            "title": "Customer care",
             "menu": "footer-customer-care"
           }
         },
         "contact": {
           "type": "_ui-footer-contact",
           "settings": {
-            "title": "Contact Us",
+            "title": "Get in touch",
             "location": "New York City",
             "phone": "212-799-7779",
             "email": "info@treathouse.com"

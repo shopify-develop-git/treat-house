@@ -29,7 +29,7 @@
   assign chosen = section.settings.collections
   assign card_limit = section.settings.max_collections
 
-  assign onboarding_titles = 'Birthday,Graduation,Baby Shower,Congratulations,Deluxe Gift Boxes,Pride,Patriotic,World Cup' | split: ','
+  assign onboarding_titles = "Birthday,Get Well,Congratulations,Baby Shower,Halloween,Thanksgiving,Christmas,Valentine's Day" | split: ','
 -%}
 
 <div class="section-background color-{{ section.settings.color_scheme }} shop-by-occasion-bg--{{ section.settings.background }}"></div>
@@ -186,7 +186,7 @@
       "id": "description",
       "label": "Card description",
       "info": "Shown under every card. Leave empty to use each collection's own description.",
-      "default": "Custom treats for the moment people actually remember."
+      "default": "Handcrafted treats, ready to give."
     },
     {
       "type": "header",
@@ -323,7 +323,7 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Shop by <em>Occasion</em></h2>"
+            "heading": "<h2>Shop by <em>moment</em></h2>"
           }
         }
       },

@@ -126,6 +126,8 @@
    */
   .home-hero {
     --home-hero-gap: 16px;
+    /* Air between the header and the panel; the marquee sits outside it. */
+    --home-hero-space-start: 20px;
     --home-hero-radius: 20px;
     --home-hero-panel-padding-block: 24px;
     /*
@@ -152,6 +154,7 @@
   @media screen and (min-width: 750px) {
     .home-hero {
       --home-hero-gap: 20px;
+      --home-hero-space-start: 32px;
       --home-hero-panel-padding-block: 32px;
       --home-hero-panel-padding-inline: 32px;
       --home-hero-panel-gap: 0px;
@@ -169,6 +172,7 @@
     max-width: var(--page-width, 90rem);
     margin-inline: auto;
     padding-inline: var(--ui-page-margin);
+    padding-block-start: var(--home-hero-space-start);
   }
 
   .home-hero__grid {
@@ -536,21 +540,22 @@
       "type": "checkbox",
       "id": "show_badge",
       "label": "Show the badge on the image",
-      "default": true
+      "info": "Off by default. Only switch it on with a claim the shop can stand behind.",
+      "default": false
     },
     {
       "type": "text",
       "id": "badge_figure",
       "label": "Badge figure",
-      "info": "The large line. The wheat mark is placed for \"100%\"; a much wider or narrower figure needs it nudged.",
-      "default": "100%",
+      "info": "The large line. The mark is placed for a short figure such as \"100%\"; a much wider or narrower figure needs it nudged.",
+      "default": "Certified",
       "visible_if": "{{ section.settings.show_badge }}"
     },
     {
       "type": "text",
       "id": "badge_text",
       "label": "Badge",
-      "default": "Gluten-Free",
+      "default": "gluten-free",
       "visible_if": "{{ section.settings.show_badge }}"
     },
     {
@@ -565,7 +570,8 @@
       "type": "checkbox",
       "id": "show_reviews",
       "label": "Show the review line",
-      "default": true
+      "info": "Off by default. The manual rating and review count are unverified; switch on only with real figures.",
+      "default": false
     },
     {
       "type": "header",
@@ -621,13 +627,13 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h1>Who doesn't love<br><em>a Krispie Treat?</em></h1>"
+            "heading": "<h1>Who doesn't love <br><em>a Krispie Treat?</em></h1>"
           }
         },
         "copy": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Discover handcrafted Krispie treats made with premium ingredients, designed to celebrate life's biggest moments\u2014from birthdays to corporate gifting.</p>"
+            "text": "<p>A modern take on the Krispie treat you grew up with. Handcrafted, certified gluten-free, and ready to give for birthdays, thank-yous, and just because.</p>"
           }
         },
         "buttons": {
@@ -643,7 +649,7 @@
             "secondary": {
               "type": "_ui-link",
               "settings": {
-                "label": "Customize treats",
+                "label": "Design your box",
                 "variant": "secondary"
               }
             }
@@ -656,7 +662,7 @@
         "gifting": {
           "type": "_ui-link",
           "settings": {
-            "label": "Corporate gifting",
+            "label": "Client and team gifts",
             "variant": "underline"
           }
         },

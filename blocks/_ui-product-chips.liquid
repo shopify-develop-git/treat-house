@@ -1,14 +1,14 @@
 {%- doc -%}
   The row of claim tags under the description (Figma: Standart Product Page →
-  Gluten-Free and Arrives gift-ready).
+  the tags such as Arrives gift-ready).
 
   What the merchant arranges here are the defaults for the template: the tags every
   product wears unless it says otherwise. A product says otherwise through the
   metafield named in `metafield` — a list of `icon_label` metaobject entries, each
   carrying an `icon` and a `label`.
 
-  Metaobjects rather than text: the same claims repeat across the catalogue, so
-  "Gluten-Free" is one entry every product points at rather than a string retyped on
+  Metaobjects rather than text: the same claims repeat across the catalogue, so a
+  claim is one entry every product points at rather than a string retyped on
   each. It also ends the `icon:Label` encoding this block used to parse by hand,
   which was a string pretending to be two fields.
 
@@ -106,7 +106,7 @@
           "type": "_ui-product-chip",
           "settings": {
             "icon": "wheat-slash",
-            "label": "Gluten-Free"
+            "label": "Certified gluten-free"
           }
         },
         "gift_ready": {

@@ -78,7 +78,12 @@
       assign row = search.results
       assign row_answered = search.performed
     when 'collection'
-      assign row = section.settings.collection.products
+      # An empty picker on a collection template means the collection being viewed.
+      assign row_collection = section.settings.collection
+      if row_collection == blank and collection != blank
+        assign row_collection = collection
+      endif
+      assign row = row_collection.products
       assign row_answered = true
     else
       assign row = section.settings.products
@@ -118,7 +123,7 @@
   endif
 
   assign onboarding_titles = 'Birthday 12-Pack,Birthday Bash Box,Birthday Party Bar,Custom Photo,Gluten Free 12-Pack' | split: ','
-  assign onboarding_copy = 'Classic birthday assortment,Birthday Party in a box,Classic birthday assortment,12 Pack of Custom Birthday Treats,Gluten-Free Crispy Rice' | split: ','
+  assign onboarding_copy = 'Classic birthday assortment,Birthday Party in a box,Classic birthday assortment,12 Pack of Custom Birthday Treats,Classic crispy rice treats' | split: ','
   assign onboarding_prices = '$ 38.00,$ 99.00,$ 60.00,$ 42.00,$ 36.00' | split: ','
   assign onboarding_badges = 'Bestsellers,New,Gift ready,Custom photo,' | split: ','
   assign onboarding_colors = '#ea6f36,#ffbd42,#6c276a,#a3d8f6,#6c276a' | split: ','
@@ -195,6 +200,14 @@
 
             {%- capture card_badge -%}{% render 'ui-product-badge', product: card_product %}{%- endcapture -%}
             {%- assign card_badge_parts = card_badge | strip | split: '|' -%}
+            {%- capture card_season -%}{% render 'season-status', product: card_product %}{%- endcapture -%}
+            {%- liquid
+              assign card_season_parts = card_season | strip | split: '|'
+              assign card_season_label = ''
+              if card_season_parts[0] != 'available'
+                assign card_season_label = card_season_parts[1]
+              endif
+            -%}
             <li class="best-sellers__item" data-product-id="{{ card_product.id }}">
               {% render 'ui-product-card',
                 title: card_product.title,
@@ -204,6 +217,7 @@
                 link: card_product.url,
                 badge: card_badge_parts[0],
                 badge_color: card_badge_parts[1],
+                season_label: card_season_label,
                 add_content: add_control
               %}
             </li>
@@ -543,7 +557,7 @@
       "type": "collection",
       "id": "collection",
       "label": "Collection",
-      "info": "Only read when the source above is \"Everything in a collection\". Cards come in the collection's own order, as many as the count below allows."
+      "info": "Only read when the source above is \"Everything in a collection\". Leave it empty on a collection template to show the collection being viewed. Cards come in the collection's own order, as many as the count below allows."
     },
     {
       "type": "range",
@@ -741,7 +755,7 @@
           "type": "_ui-link",
           "static": true,
           "settings": {
-            "label": "View all products",
+            "label": "View all treats",
             "variant": "primary"
           }
         }
@@ -761,14 +775,14 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2><em>Custom</em> Treats</h2>"
+            "heading": "<h2>Made <em>just for them</em></h2>"
           }
         },
         "cta": {
           "type": "_ui-link",
           "static": true,
           "settings": {
-            "label": "View all products",
+            "label": "View all treats",
             "variant": "primary"
           }
         }
@@ -789,14 +803,14 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2>Related Products</h2>"
+            "heading": "<h2>You might also like</h2>"
           }
         },
         "cta": {
           "type": "_ui-link",
           "static": true,
           "settings": {
-            "label": "View all products",
+            "label": "View all treats",
             "variant": "primary"
           }
         }
@@ -817,7 +831,7 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2><em>Recently</em> Viewed</h2>"
+            "heading": "<h2><em>Recently</em> viewed</h2>"
           }
         },
         "cta": {

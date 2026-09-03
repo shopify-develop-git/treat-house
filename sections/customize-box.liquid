@@ -1,4 +1,4 @@
-{%- doc -%}
+{%- comment -%}
   The box builder: four steps that end in one line item.
 
   What the store already knows, and what this therefore does not decide:
@@ -16,7 +16,7 @@
   and what is written on the card — so they travel as line item properties.
 
   The result is one `/cart/add`, no app, and a price that is Shopify's throughout.
-{%- enddoc -%}
+{%- endcomment -%}
 
 {%- liquid
   assign packs = section.settings.pack_collection.products
@@ -199,7 +199,15 @@
                     {%- if flavours.size > 0 -%}
                       <div class="customize-box__flavours">
                         {%- for flavour in flavours -%}
+                          {%- capture flavour_season -%}{% render 'season-status', product: flavour %}{%- endcapture -%}
                           {%- liquid
+                            # A seasonal flavour that is closed or not yet open is left out of
+                            # the builder rather than drawn disabled — see [season-status].
+                            assign flavour_season_status = flavour_season | strip | split: '|' | first
+                            if flavour_season_status != blank and flavour_season_status != 'available'
+                              continue
+                            endif
+
                             assign flavour_variant = flavour.first_available_variant | default: flavour.variants.first
                             assign flavour_attributes = 'data-flavour-variant="' | append: flavour_variant.id
                             assign flavour_attributes = flavour_attributes | append: '" data-flavour-available="' | append: flavour_variant.available | append: '"'
@@ -916,32 +924,32 @@
       "type": "text",
       "id": "heading",
       "label": "t:settings.heading",
-      "default": "Choose"
+      "default": "Design"
     },
     {
       "type": "text",
       "id": "heading_accent",
       "label": "Heading in purple",
-      "default": "Your Own Flavors"
+      "default": "your box"
     },
     {
       "type": "text",
       "id": "heading_after",
       "label": "Heading after step one",
-      "default": "Customize",
+      "default": "Your box,",
       "info": "The title changes once the reader is past the first step. Leave either field empty to keep the wording above for the whole builder."
     },
     {
       "type": "text",
       "id": "heading_accent_after",
       "label": "Heading in purple after step one",
-      "default": "Your Box"
+      "default": "your way"
     },
     {
       "type": "textarea",
       "id": "subheading",
       "label": "t:settings.text",
-      "default": "Four quick steps: pick your flavors, choose how it's packaged, add a note, then confirm. You can jump back anytime."
+      "default": "Pick your flavors, choose the packaging, add a note, and review. Four short steps, and you can go back at any point."
     },
     {
       "type": "header",
@@ -957,7 +965,7 @@
       "type": "text",
       "id": "step_1_intro",
       "label": "Step 1 note",
-      "default": "Price per treat improves at higher quantities."
+      "default": "The price per treat comes down as the box grows."
     },
     {
       "type": "text",
@@ -969,19 +977,19 @@
       "type": "text",
       "id": "step_2_intro",
       "label": "Step 2 note",
-      "default": "Tap a treat to select it, then set how many you'd like."
+      "default": "Tap a treat to add it, then set how many of each you would like."
     },
     {
       "type": "text",
       "id": "step_3_title",
       "label": "Step 3",
-      "default": "Select packaging"
+      "default": "Choose the packaging"
     },
     {
       "type": "text",
       "id": "step_3_intro",
       "label": "Step 3 note",
-      "default": "How your treats arrive."
+      "default": "How your treats will arrive, packed with care."
     },
     {
       "type": "text",
@@ -993,13 +1001,13 @@
       "type": "text",
       "id": "step_4_intro",
       "label": "Step 4 note",
-      "default": "Optional — printed on our signature card and included in the box."
+      "default": "Optional. Printed on our signature card and tucked inside the box."
     },
     {
       "type": "text",
       "id": "message_placeholder",
       "label": "Message placeholder",
-      "default": "Message."
+      "default": "Write a few words for them"
     },
     {
       "type": "range",
@@ -1024,7 +1032,7 @@
       "type": "text",
       "id": "review_intro",
       "label": "t:settings.text",
-      "default": "Everything looks good? Add it to your cart below."
+      "default": "Take a last look, then add it to your cart below."
     },
     {
       "type": "header",
@@ -1080,19 +1088,19 @@
       "type": "text",
       "id": "promo_title",
       "label": "t:settings.title",
-      "default": "Custom logo & corporate branding"
+      "default": "Your brand, made personal"
     },
     {
       "type": "textarea",
       "id": "promo_text",
       "label": "t:settings.text",
-      "default": "Want your company logo printed on every treat? Available for bulk corporate orders — our team will follow up with pricing and a proof."
+      "default": "Your logo and colors on every treat, for clients, teams, and events. Send us a note and a real person will follow up with pricing and a proof."
     },
     {
       "type": "text",
       "id": "promo_button_label",
       "label": "t:settings.label",
-      "default": "Request a quote"
+      "default": "Plan a thoughtful client gift"
     },
     {
       "type": "url",
@@ -1159,7 +1167,7 @@
           "type": "_ui-box-packaging",
           "settings": {
             "title": "Clear Tray",
-            "description": "Simple, everyday packaging",
+            "description": "Simple and clear, for everyday sharing",
             "gift_box": false,
             "individual_packs": false
           }
@@ -1168,7 +1176,7 @@
           "type": "_ui-box-packaging",
           "settings": {
             "title": "Gift Box",
-            "description": "Signature box, ready to give",
+            "description": "Our signature box, gift-ready on arrival",
             "gift_box": true,
             "individual_packs": false
           }
@@ -1177,7 +1185,7 @@
           "type": "_ui-box-packaging",
           "settings": {
             "title": "Individually Wrapped",
-            "description": "Great for sharing or favors",
+            "description": "Wrapped one by one, for favors and sharing",
             "gift_box": false,
             "individual_packs": true
           }

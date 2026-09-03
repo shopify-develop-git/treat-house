@@ -378,7 +378,7 @@
               "type": "_ui-product-chip",
               "settings": {
                 "icon": "wheat-slash",
-                "label": "Gluten-Free"
+                "label": "Certified gluten-free"
               }
             },
             "gift_ready": {
@@ -419,28 +419,28 @@
               "type": "_ui-product-assurance",
               "settings": {
                 "icon": "gift",
-                "label": "Gift-Ready Packaging"
+                "label": "Gift-ready on arrival"
               }
             },
             "gluten_free": {
               "type": "_ui-product-assurance",
               "settings": {
                 "icon": "wheat-slash",
-                "label": "Gluten-Free"
+                "label": "Certified Gluten-Free"
               }
             },
             "handcrafted": {
               "type": "_ui-product-assurance",
               "settings": {
                 "icon": "cookie",
-                "label": "Handcrafted Treats"
+                "label": "Handmade in small batches"
               }
             },
             "share_love": {
               "type": "_ui-product-assurance",
               "settings": {
                 "icon": "hand-holding-heart",
-                "label": "Made to Share Love"
+                "label": "Packed with care"
               }
             }
           },
@@ -457,39 +457,13 @@
         "shipping": {
           "type": "_ui-product-panel",
           "settings": {
-            "title": "Estimated shipping",
+            "title": "Shipping",
             "icon": "shipping-fast",
             "collapsible": false,
-            "padding": "tight"
-          },
-          "blocks": {
-            "ships_from": {
-              "type": "_ui-product-detail-row",
-              "settings": {
-                "label": "Ships from",
-                "value": "Made fresh, ships within 24 hrs"
-              }
-            },
-            "delivery": {
-              "type": "_ui-product-detail-row",
-              "settings": {
-                "label": "Estimated delivery",
-                "value": "3 to 5 business days"
-              }
-            },
-            "method": {
-              "type": "_ui-product-detail-row",
-              "settings": {
-                "label": "Shipping method",
-                "value": "Insulated box, ice pack included"
-              }
-            }
-          },
-          "block_order": [
-            "ships_from",
-            "delivery",
-            "method"
-          ]
+            "padding": "tight",
+            "intro": "Shipping timing and options are shown at checkout.",
+            "rows_metafield": "shipping_rows"
+          }
         },
         "panels": {
           "type": "_ui-product-panels",
@@ -500,9 +474,10 @@
                 "title": "Ingredients & allergens",
                 "icon": "info-circle",
                 "collapsible": true,
-                "intro": "Cocoa, cream, hazelnut, sea salt. Tap to view the full list.",
-                "body": "<p>Full ingredients: cocoa mass, cocoa butter, cream, sugar, hazelnut praline (12%), unsalted butter, sea salt, natural vanilla. Contains: milk, tree nuts (hazelnut). May contain traces of: peanut, soy, gluten. Not suitable for: vegan diets.</p>",
-                "padding": "default"
+                "intro": "Made in our SQF-certified kitchen.",
+                "body": "<p>Certified gluten-free. Full ingredient and allergen details are printed on every package. Have a question about another allergen? Write to <a href=\"mailto:info@treathouse.com\">info@treathouse.com</a> before you order.</p>",
+                "padding": "default",
+                "rows_metafield": ""
               }
             },
             "storage": {
@@ -511,9 +486,10 @@
                 "title": "Storage",
                 "icon": "thermometer",
                 "collapsible": true,
-                "intro": "Keep refrigerated below 18°C. Best enjoyed within 14 days of arrival.",
-                "body": "<p>Store in the original packaging or an airtight container to maintain freshness. Avoid direct sunlight and heat. For the best flavor and texture, allow treats to sit at room temperature for 10–15 minutes before serving. Do not refreeze after thawing.</p>",
-                "padding": "default"
+                "intro": "Keep sealed at room temperature away from heat and direct sun.",
+                "body": "<p>Best enjoyed within two weeks of arrival.</p>",
+                "padding": "default",
+                "rows_metafield": ""
               }
             }
           },

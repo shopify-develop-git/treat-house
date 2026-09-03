@@ -1,5 +1,19 @@
 
 
+{%- comment -%}
+  The delivery-date script, for the page. `header-actions.liquid` loads it for
+  the drawer but skips the whole drawer on the cart template, so without this
+  the page's checkout gate would have no calendar behind it. Defining the
+  element up front means the field is upgraded whenever the summary renders it.
+{%- endcomment -%}
+{%- if settings.show_cart_shipping_estimate and settings.show_cart_delivery_date -%}
+  <script
+    src="{{ 'cart-delivery-date.js' | asset_url }}"
+    type="module"
+    fetchpriority="low"
+  ></script>
+{%- endif -%}
+
 {% capture cart_page_more_blocks_content %}
   <div class="cart-page__more-blocks">
     {%- content_for 'blocks' -%}

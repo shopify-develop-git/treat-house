@@ -161,9 +161,16 @@
   # rather than asking for all three again.
   assign row_product = block.settings.product
 
-  assign row_image = block.settings.image
-  if row_image == blank
+  # The product's own photo when there is one, the block's picture otherwise. The
+  # image setting is what carries a photo for a choice with no product behind it
+  # (the tray), and it is left empty on the gift box so the product's media is
+  # the single place that photo lives.
+  assign row_image = ''
+  if row_product != blank and row_product.featured_image != blank
     assign row_image = row_product.featured_image
+  endif
+  if row_image == blank
+    assign row_image = block.settings.image
   endif
 
   # The product's own name, when there is one. The typed title is what a choice
@@ -225,7 +232,7 @@
       "type": "image_picker",
       "id": "image",
       "label": "t:settings.image",
-      "info": "Used only when no product is chosen above."
+      "info": "Used when no product is chosen above, or when that product has no image."
     },
     {
       "type": "header",

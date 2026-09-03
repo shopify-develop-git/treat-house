@@ -10,11 +10,18 @@
   So the confirmation survives a reload, works with JavaScript off, and cannot be
   reached by anyone who has not actually sent anything.
 
-  The seven fields are a fixed composition rather than a merchant's list — the
-  layout is drawn around two columns of them and a quote needs the answers it
-  needs — so they are the section's, with their labels as the file writes them.
-  What a merchant does change is exposed: the gift types on offer, the minimum on
-  the quantity field, and every word of the confirmation, which is blocks.
+  The fields are a fixed composition rather than a merchant's list — the layout is
+  drawn around two columns of them and a quote needs the answers it needs — so
+  they are the section's, with their labels as the file writes them: Name, Email,
+  Company, Phone, Number of gifts, Budget range, Requested delivery date,
+  Customization, Delivery location, Notes. Every `contact[Label]` field is echoed
+  into Shopify's notification email as a "Label: value" line, and a hidden
+  `contact[Inquiry type]` marks the mail as corporate so it can be told apart
+  from the general contact page, which posts to the same inbox.
+
+  What a merchant does change is exposed: the budget ranges and customization
+  options on offer, the helper lines under the quantity and date fields, and
+  every word of the confirmation, which is blocks.
 
   The whole form lives in a 630 column centred in the page, which is half the
   1280 content width. That is narrow on purpose: a quote form with its fields
@@ -22,8 +29,22 @@
 {% endcomment %}
 
 {%- liquid
-  assign gift_types = section.settings.gift_types
+  assign budget_ranges = section.settings.budget_ranges | default: 'Under $500, $500-$1000, $1000-$2500, $2500-$5000, $5000+, Not sure yet'
+  assign customization_options = section.settings.customization_options | default: 'Logo treats, Custom colors or theme, Printed photo, Gift message, Not sure yet'
   assign quantity_hint = section.settings.quantity_hint
+  assign date_min_days = section.settings.date_min_days | default: 3
+  # The note under the date field follows the earliest-date setting unless the
+  # merchant writes their own, so the two cannot drift apart.
+  assign date_hint = section.settings.date_hint
+  if date_hint == blank
+    if date_min_days == 1
+      assign date_hint = 'Optional. Dates open from 1 day out.'
+    elsif date_min_days > 1
+      assign date_hint = 'Optional. Dates open from ' | append: date_min_days | append: ' days out.'
+    else
+      assign date_hint = 'Optional.'
+    endif
+  endif
   assign submit_label = section.settings.submit_label | default: 'Submit inquiry'
 -%}
 
@@ -31,11 +52,12 @@
   class="section section--page-width spacing-style color-{{ section.settings.color_scheme }}"
   style="{% render 'spacing-style', settings: section.settings %}"
   data-testid="corporate-quote-form-{{ section.id }}"
+  data-corporate-quote
   {{ section.shopify_attributes }}
 >
   {%- form 'contact', class: 'corporate-quote' -%}
     {%- if form.posted_successfully? -%}
-      <div class="corporate-quote__confirmation">
+      <div class="corporate-quote__confirmation" data-corporate-quote-sent tabindex="-1">
         <span class="corporate-quote__sparkle" aria-hidden="true">
           {{- 'icon-ui-sparkle.svg' | inline_asset_content -}}
         </span>
@@ -53,7 +75,8 @@
         Shopify reports a failed post through `form.errors`, and the only field it
         validates itself is the email. Its message is put on that field so the
         error lands where the fix is, rather than in a banner above a form the
-        visitor then has to search.
+        visitor then has to search. A short live line above the grid still names
+        the problem, so a screen reader hears it without hunting for the field.
       {%- endcomment -%}
       {%- liquid
         assign email_error = blank
@@ -62,11 +85,23 @@
         endif
       -%}
 
+      {%- if form.errors -%}
+        <p class="corporate-quote__alert" role="alert" data-corporate-quote-error>
+          Your inquiry was not sent. Please check the highlighted field and try again.
+        </p>
+      {%- endif -%}
+
+      <p class="corporate-quote__required-note">* Required</p>
+
+      <input type="hidden" name="contact[Inquiry type]" value="Corporate gifting">
+
       <div class="corporate-quote__grid">
         {% render 'ui-input',
           label: 'Name',
           name: 'contact[name]',
-          value: form.name
+          value: form.name,
+          required: true,
+          attributes: 'autocomplete="name"'
         %}
 
         {% render 'ui-input',
@@ -75,33 +110,65 @@
           name: 'contact[email]',
           value: form.email,
           error: email_error,
-          required: true
+          required: true,
+          attributes: 'autocomplete="email"'
         %}
 
         {% render 'ui-input',
           label: 'Company',
-          name: 'contact[Company]'
+          name: 'contact[Company]',
+          attributes: 'autocomplete="organization"'
         %}
 
         {% render 'ui-input',
-          label: 'Estimated quantity',
+          label: 'Phone',
+          type: 'tel',
+          name: 'contact[Phone]',
+          attributes: 'autocomplete="tel"'
+        %}
+
+        {% render 'ui-input',
+          label: 'Number of gifts',
           type: 'number',
-          name: 'contact[Estimated quantity]',
-          hint: quantity_hint
-        %}
-
-        {% render 'ui-input',
-          label: 'Preferred delivery date',
-          name: 'contact[Preferred delivery date]',
-          mask: 'MM/DD/YYYY'
+          name: 'contact[Number of gifts]',
+          hint: quantity_hint,
+          required: true,
+          attributes: 'min="1" step="1" inputmode="numeric"'
         %}
 
         {% render 'ui-select',
-          label: 'Gift type',
-          name: 'contact[Gift type]',
-          placeholder: section.settings.gift_type_placeholder,
-          options: gift_types
+          label: 'Budget range',
+          name: 'contact[Budget range]',
+          placeholder: 'Select a range...',
+          options: budget_ranges
         %}
+
+        {%- capture date_attributes -%}
+          data-corporate-quote-date data-min-days="{{ date_min_days }}"
+        {%- endcapture -%}
+        {% render 'ui-input',
+          label: 'Requested delivery date',
+          type: 'date',
+          name: 'contact[Requested delivery date]',
+          hint: date_hint,
+          class: 'corporate-quote__date',
+          attributes: date_attributes
+        %}
+
+        {% render 'ui-select',
+          label: 'Customization',
+          name: 'contact[Customization]',
+          placeholder: 'Select an option...',
+          options: customization_options
+        %}
+
+        <div class="corporate-quote__wide">
+          {% render 'ui-input',
+            label: 'Delivery location',
+            name: 'contact[Delivery location]',
+            placeholder: "City and state, or 'multiple addresses'"
+          %}
+        </div>
 
         <div class="corporate-quote__wide">
           {% render 'ui-input',
@@ -109,6 +176,7 @@
             textarea: true,
             rows: '5',
             name: 'contact[body]',
+            value: form.body,
             placeholder: section.settings.notes_placeholder
           %}
         </div>
@@ -131,6 +199,57 @@
     {%- endif -%}
   {%- endform -%}
 </div>
+
+<script>
+  /*
+   * Two small jobs, both progressive: the form posts and confirms without a
+   * line of this running.
+   *
+   * 1. The delivery date's `min` is today plus the lead time the section sets
+   *    (3 days by default). A server cannot know the visitor's today, so the
+   *    floor is written here, in local time, and a value below it is cleared.
+   * 2. Shopify redirects back to the top of the page after a post. On a page
+   *    where the form is the last section, that leaves both the error and the
+   *    confirmation off screen — so on either render the form is scrolled into
+   *    view and the first invalid field, or the confirmation panel, is focused.
+   */
+  (function () {
+    var root = document.querySelector('[data-corporate-quote]');
+    if (!root) return;
+
+    var dateInputs = root.querySelectorAll('[data-corporate-quote-date]');
+    for (var i = 0; i < dateInputs.length; i++) {
+      var input = dateInputs[i];
+      var days = parseInt(input.getAttribute('data-min-days'), 10);
+      if (isNaN(days) || days < 0) days = 0;
+      var floor = new Date();
+      floor.setHours(0, 0, 0, 0);
+      floor.setDate(floor.getDate() + days);
+      var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+      var min = floor.getFullYear() + '-' + pad(floor.getMonth() + 1) + '-' + pad(floor.getDate());
+      input.setAttribute('min', min);
+      if (input.value && input.value < min) input.value = '';
+    }
+
+    var sent = root.querySelector('[data-corporate-quote-sent]');
+    var errored = root.querySelector('[data-corporate-quote-error]');
+    var posted = /[?&]contact_posted=true/.test(window.location.search);
+    if (!sent && !errored && !posted) return;
+
+    var form = root.querySelector('form');
+    var target = sent || root.querySelector('[aria-invalid="true"]') || form;
+    if (!target) return;
+
+    window.requestAnimationFrame(function () {
+      (form || target).scrollIntoView({ block: 'start' });
+      try {
+        target.focus({ preventScroll: true });
+      } catch (e) {
+        target.focus();
+      }
+    });
+  })();
+</script>
 
 {% stylesheet %}
   /*
@@ -161,14 +280,49 @@
     text-align: center;
   }
 
+  /* The heading's 48 is shared with the two short lines that can sit under it. */
+  .corporate-quote > :is(.ui-heading, h1, h2, h3):has(+ .corporate-quote__alert),
+  .corporate-quote > :is(.ui-heading, h1, h2, h3):has(+ .corporate-quote__required-note) {
+    margin-block-end: 24px;
+  }
+
+  .corporate-quote__alert {
+    margin: 0 0 16px;
+    padding: 12px 16px;
+    border: 1px solid var(--ui-color-error);
+    border-radius: var(--ui-radius-sm);
+    color: var(--ui-color-error);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .corporate-quote__required-note {
+    margin: 0 0 16px;
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: var(--ui-color-gray);
+  }
+
+  /*
+   * Required fields carry a star after the label. It comes from the control's own
+   * `required`, so the mark and the rule cannot drift apart. The star is styled
+   * text: screen readers already announce the control as required.
+   */
+  .corporate-quote :is(.ui-input, .ui-select):has([required]) > :is(.ui-input__label, .ui-select__label)::after {
+    content: ' *';
+    color: var(--ui-color-error);
+  }
+
   /*
    * Two columns of 305 with a 20 gutter is exactly 630, so the columns are
    * written as fractions and the gutter as the gap — the same pair of numbers,
    * without a width that stops being true the moment the container moves.
    *
-   * `align-items: start` because the quantity field is 20px taller than the one
-   * beside it: it carries a hint line. Stretched, the shorter field would grow a
-   * gap under its own box and the two controls would stop lining up.
+   * `align-items: start` because a field carrying a hint line is 20px taller
+   * than the one beside it. Stretched, the shorter field would grow a gap under
+   * its own box and the two controls would stop lining up.
    */
   .corporate-quote__grid {
     display: grid;
@@ -180,6 +334,21 @@
 
   .corporate-quote__wide {
     grid-column: 1 / -1;
+  }
+
+  /*
+   * A native date control, drawn as the kit's field. Browsers give it their own
+   * chrome and an intrinsic width; both are taken off so it sits at the height
+   * and width of the text field beside it.
+   */
+  .corporate-quote .corporate-quote__date .ui-input__control {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+  }
+
+  .corporate-quote .corporate-quote__date .ui-input__control::-webkit-date-and-time-value {
+    text-align: start;
   }
 
   /*
@@ -221,6 +390,10 @@
     border-radius: 20px;
     background-color: var(--ui-color-light-blue);
     text-align: center;
+  }
+
+  .corporate-quote__confirmation:focus {
+    outline: none;
   }
 
   .corporate-quote__sparkle {
@@ -279,34 +452,50 @@
   "settings": [
     {
       "type": "text",
-      "id": "gift_types",
-      "label": "Gift types",
-      "info": "Comma separated. These are the options in the gift type field.",
-      "default": "Logo treats, Gift boxes, Custom order"
+      "id": "budget_ranges",
+      "label": "Budget ranges",
+      "info": "Comma separated, so write 1000 rather than 1,000. These are the options in the budget range field.",
+      "default": "Under $500, $500-$1000, $1000-$2500, $2500-$5000, $5000+, Not sure yet"
     },
     {
       "type": "text",
-      "id": "gift_type_placeholder",
-      "label": "Gift type, empty option",
-      "default": "Select gift type..."
+      "id": "customization_options",
+      "label": "Customization options",
+      "info": "Comma separated. These are the options in the customization field.",
+      "default": "Logo treats, Custom colors or theme, Printed photo, Gift message, Not sure yet"
     },
     {
       "type": "text",
       "id": "quantity_hint",
-      "label": "Note under the quantity field",
-      "default": "Minimum order setup: 25 boxes"
+      "label": "Note under the number of gifts field",
+      "default": "A rough number is fine."
+    },
+    {
+      "type": "text",
+      "id": "date_hint",
+      "label": "Note under the delivery date field",
+      "info": "Left empty, the note follows the earliest delivery date setting below."
+    },
+    {
+      "type": "range",
+      "id": "date_min_days",
+      "label": "Earliest delivery date, days from today",
+      "min": 0,
+      "max": 30,
+      "step": 1,
+      "default": 3
     },
     {
       "type": "text",
       "id": "notes_placeholder",
       "label": "Notes field placeholder",
-      "default": "Tell us about the occasion, design theme directives, or specific requirements..."
+      "default": "Who is it for, and what would make it feel personal?"
     },
     {
       "type": "text",
       "id": "submit_label",
       "label": "Submit button",
-      "default": "Submit inquiry"
+      "default": "Send a note to our team"
     },
     {
       "type": "header",
@@ -350,21 +539,21 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Send a<br><em>Corporate Gifting Inquiry</em></h2>"
+            "heading": "<h2>Tell us about <em>your gift</em></h2>"
           }
         },
         "success-heading": {
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2><em>Thanks.</em><br>We have your inquiry.</h2>"
+            "heading": "<h2><em>Thanks.</em><br> We have your note and will be in touch.</h2>"
           }
         },
         "success-copy": {
           "type": "_ui-text",
           "static": true,
           "settings": {
-            "text": "<p>The Treat House team will review your order details and follow up with next steps. If your order has a firm event date, please include that in your inquiry.</p>"
+            "text": "<p>A real person will read it and reply by email.</p>"
           }
         },
         "success-buttons": {

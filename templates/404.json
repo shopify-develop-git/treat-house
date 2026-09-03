@@ -6,7 +6,8 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
     "main": {
       "type": "main-404",
@@ -15,7 +16,7 @@
           "type": "text",
           "name": "t:names.text",
           "settings": {
-            "text": "<h1>Page not found</h1>",
+            "text": "<h1>Page not found<\/h1>",
             "width": "100%",
             "max_width": "normal",
             "alignment": "center",
@@ -41,7 +42,7 @@
           "type": "text",
           "name": "t:names.text",
           "settings": {
-            "text": "<p>The link may be incorrect, or the page has been removed. </p>",
+            "text": "<p>The link may be incorrect, or the page has been removed. <\/p>",
             "width": "100%",
             "max_width": "normal",
             "alignment": "center",
@@ -68,7 +69,7 @@
           "name": "t:names.button",
           "settings": {
             "label": "Continue shopping",
-            "link": "shopify://collections/all",
+            "link": "shopify:\/\/collections\/all",
             "open_in_new_tab": false,
             "style_class": "button",
             "width": "fit-content",
@@ -136,7 +137,7 @@
               "type": "text",
               "name": "t:names.text",
               "settings": {
-                "text": "<p>Discover something new</p>",
+                "text": "<p>Discover something new<\/p>",
                 "width": "fit-content",
                 "max_width": "normal",
                 "alignment": "left",

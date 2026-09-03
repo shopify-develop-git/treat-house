@@ -60,7 +60,7 @@
   endcapture
 
   capture actions
-    render 'header-actions', wishlist_url: section.settings.wishlist_url
+    render 'header-actions'
   endcapture
 
   if shop.customer_accounts_enabled
@@ -1390,16 +1390,6 @@
     {
       "type": "paragraph",
       "content": "t:content.manage_customer_accounts"
-    },
-    {
-      "type": "header",
-      "content": "Wishlist"
-    },
-    {
-      "type": "url",
-      "id": "wishlist_url",
-      "label": "Wishlist page",
-      "info": "The heart in the header. Leave empty and it is not shown \u2014 the theme has no wishlist of its own, so this points at whichever page or app holds yours."
     },
     {
       "type": "header",

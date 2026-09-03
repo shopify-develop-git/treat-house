@@ -22,12 +22,28 @@
 
   The form's id is worked out from the section, not from this block, so a sibling
   block can post into it — see [_ui-product-gift-message].
+
+  Seasonal availability comes from [season-status]. Outside its window a
+  seasonal treat keeps its page but loses the sale: the button is disabled and
+  reads the season label, the stepper, Buy now and accelerated checkout are not
+  drawn, and one line under the row says why. This is the theme's gate only —
+  the storefront's /cart/add endpoint still accepts the variant, which is why
+  the cart re-checks every line and holds checkout (see [cart-summary]).
 {%- enddoc -%}
 
+{%- capture season -%}{% render 'season-status', product: closest.product %}{%- endcapture -%}
 {%- liquid
   assign product_resource = closest.product
   if request.visual_preview_mode and product_resource == blank
     assign product_resource = collections.all.products.first
+  endif
+
+  assign season_parts = season | strip | split: '|'
+  assign season_status = season_parts[0] | default: 'available'
+  assign season_label = season_parts[1]
+  assign season_closed = false
+  if season_status != 'available'
+    assign season_closed = true
   endif
 
   assign variant = product_resource.selected_or_first_available_variant
@@ -36,7 +52,9 @@
   assign add_to_cart_text = 'products.product.unavailable' | t
 
   if variant
-    if variant.available
+    if season_closed
+      assign add_to_cart_text = season_label
+    elsif variant.available
       assign can_add_to_cart = true
       assign add_to_cart_text = block.settings.label
     else
@@ -47,6 +65,14 @@
   assign sold_out = true
   if can_add_to_cart
     assign sold_out = false
+  endif
+
+  assign add_attributes = 'name="add" ref="addToCartButton" on:click="/handleClick"'
+  if sold_out
+    assign add_attributes = add_attributes | append: ' aria-disabled="true"'
+  endif
+  if season_closed
+    assign add_attributes = add_attributes | append: ' aria-describedby="ui-product-buy-season-' | append: section.id | append: '"'
   endif
 
   assign quantity_min = variant.quantity_rule.min | default: 1
@@ -93,7 +119,7 @@
     <input type="hidden" name="id" ref="variantId" value="{{ variant.id }}">
 
     <div class="ui-product-buy__row">
-      {%- if block.settings.show_quantity -%}
+      {%- if block.settings.show_quantity and season_closed == false -%}
         {% render 'ui-quantity-stepper',
           value: quantity_min,
           min: quantity_min,
@@ -116,11 +142,11 @@
           full_width: true,
           disabled: sold_out,
           class: 'ui-product-buy__add',
-          attributes: 'name="add" ref="addToCartButton" on:click="/handleClick"'
+          attributes: add_attributes
         %}
       </add-to-cart-component>
 
-      {%- if block.settings.show_buy_now -%}
+      {%- if block.settings.show_buy_now and season_closed == false -%}
         <ui-buy-now class="ui-product-buy__now-wrapper" data-checkout-url="{{ checkout_url | strip }}">
           {% render 'ui-button',
             variant: 'secondary',
@@ -132,13 +158,19 @@
         </ui-buy-now>
       {%- endif -%}
 
-      {%- if block.settings.show_accelerated_checkout and additional_checkout_buttons -%}
+      {%- if block.settings.show_accelerated_checkout and additional_checkout_buttons and season_closed == false -%}
         <div class="ui-product-buy__accelerated" ref="acceleratedCheckoutButtonContainer">
           {{ content_for_additional_checkout_buttons }}
         </div>
       {%- endif -%}
     </div>
   {%- endform -%}
+
+  {%- if season_closed -%}
+    <p class="ui-product-buy__season" id="ui-product-buy-season-{{ section.id }}" role="status">
+      {{ 'products.product.seasonal_notice' | t: label: season_label }}
+    </p>
+  {%- endif -%}
 </product-form-component>
 
 <script src="{{ 'ui-product-buy-now.js' | asset_url }}" type="module" fetchpriority="low"></script>
@@ -192,6 +224,17 @@
    * edges — the space typed before the dash was being thrown away and the label
    * read "ADD TO CART– $72.00".
    */
+  /* Why the button is off: read out with it through aria-describedby, and
+     drawn directly under the row so the reason and the control are one glance
+     apart. */
+  .ui-product-buy__season {
+    margin: 10px 0 0;
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--ui-color-primary);
+  }
+
   .ui-product-buy__price {
     margin-inline-start: 0.35em;
     font-family: var(--ui-font-emphasis);
@@ -246,8 +289,8 @@
       "type": "checkbox",
       "id": "show_buy_now",
       "label": "Show Buy now",
-      "info": "Adds the item and goes straight to checkout.",
-      "default": true
+      "info": "Adds the item and goes straight to checkout, skipping the cart's delivery-date step. Leave off while a delivery date is required.",
+      "default": false
     },
     {
       "type": "text",

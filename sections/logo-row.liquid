@@ -12,8 +12,23 @@
   Three counts, as CLAUDE.md asks. Eight across is the file's, and it only earns
   that from 1200: at 750 eight marks are 73px each, which is a wordmark nobody can
   read. Four in the middle, two on a phone.
+
+  With no marks at all — no logo block, or none with a picture — the section
+  renders nothing on the storefront: a "trusted by" line over an empty row is a
+  claim with nothing behind it. In the theme editor it still draws, so a merchant
+  can find it and add the marks.
 {% endcomment %}
 
+{%- liquid
+  assign mark_count = 0
+  for block in section.blocks
+    if block.type == '_ui-logo' and block.settings.image != blank
+      assign mark_count = mark_count | plus: 1
+    endif
+  endfor
+-%}
+
+{%- if mark_count > 0 or request.design_mode -%}
 <div
   class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
   style="{% render 'spacing-style', settings: section.settings %}"
@@ -39,6 +54,7 @@
     </div>
   </div>
 </div>
+{%- endif -%}
 
 {% stylesheet %}
   .logo-row {
@@ -62,6 +78,11 @@
   }
 
   .logo-row .logo-row__title:not(:has(*)) {
+    display: none;
+  }
+
+  /* An empty row (editor only — the storefront skips the section) takes no space. */
+  .logo-row__marks:not(:has(*)) {
     display: none;
   }
 
@@ -217,7 +238,7 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2><em>Trusted by</em> retailers, cafés &amp; corporate teams</h2>",
+            "heading": "<h2><em>Trusted by</em> retailers, cafés and teams</h2>",
             "heading_size": 30,
             "heading_size_mobile": 24
           }

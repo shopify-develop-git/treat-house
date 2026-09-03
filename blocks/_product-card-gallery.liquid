@@ -2,6 +2,23 @@
 
 {% assign product = closest.product %}
 
+{%- capture season -%}{% render 'season-status', product: product %}{%- endcapture -%}
+{%- liquid
+  # Seasonal availability, see [season-status]. A closed or not-yet-open product
+  # wears its season label as the badge and gets no quick-add at all.
+  assign season_parts = season | strip | split: '|'
+  assign season_status = season_parts[0] | default: 'available'
+  assign season_label = season_parts[1]
+
+  assign show_quick_add = false
+  if settings.quick_add or settings.mobile_quick_add
+    assign show_quick_add = true
+  endif
+  if season_status != 'available'
+    assign show_quick_add = false
+  endif
+-%}
+
 {% capture children %}
   {% unless product == blank %}
     <div
@@ -11,7 +28,11 @@
         --badge-font-family: var(--font-{{ settings.badge_font_family }}--family); --badge-font-weight: var(--font-{{ settings.badge_font_family }}--weight); --badge-text-transform: {{ settings.badge_text_transform }};
       "
     >
-      {%- if product.available == false or product.compare_at_price > product.price -%}
+      {%- if season_status != 'available' -%}
+        <div class="product-badges__badge product-badges__badge--rectangle product-badges__badge--season color-{{ settings.badge_sold_out_color_scheme }}">
+          {{ season_label }}
+        </div>
+      {%- elsif product.available == false or product.compare_at_price > product.price -%}
         <div
           class="
             product-badges__badge product-badges__badge--rectangle
@@ -26,7 +47,7 @@
         </div>
       {%- endif -%}
     </div>
-    {%  if settings.quick_add or settings.mobile_quick_add %}
+    {%  if show_quick_add %}
       {% render 'quick-add', product: product, section_id: section.id %}
     {% endif %}
   {% endunless %}

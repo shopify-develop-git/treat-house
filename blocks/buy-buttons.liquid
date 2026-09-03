@@ -17,12 +17,23 @@
   assign can_add_to_cart = false
   assign add_to_cart_text = 'products.product.unavailable' | t
 
+  # Seasonal availability, see [season-status].
+  capture season
+    render 'season-status', product: product
+  endcapture
+  assign season_parts = season | strip | split: '|'
+  assign season_status = season_parts[0] | default: 'available'
+  assign season_label = season_parts[1]
+
   if variant
     if variant.quantity_rule.min > variant.inventory_quantity and inventory_managed and inventory_policy == 'deny'
       assign quantity_rule_soldout = true
     endif
 
-    if variant.available
+    if season_status != 'available'
+      assign can_add_to_cart = false
+      assign add_to_cart_text = season_label
+    elsif variant.available
       assign can_add_to_cart = true
       assign add_to_cart_text = 'products.product.add_to_cart' | t
     elsif inventory_managed and inventory_quantity <= 0 and inventory_policy == 'deny' or quantity_rule_soldout
@@ -223,12 +234,18 @@
             add_to_cart_text: add_to_cart_text
           %}
 
-          {% content_for 'block',
-            type: 'accelerated-checkout',
-            id: 'accelerated-checkout',
-            can_add_to_cart: can_add_to_cart,
-            form_obj: form
-          %}
+          {%- if season_status == 'available' -%}
+            {% content_for 'block',
+              type: 'accelerated-checkout',
+              id: 'accelerated-checkout',
+              can_add_to_cart: can_add_to_cart,
+              form_obj: form
+            %}
+          {%- else -%}
+            <p class="product-form-text__season" role="status">
+              {{ 'products.product.seasonal_notice' | t: label: season_label }}
+            </p>
+          {%- endif -%}
         </div>
       {%- endform -%}
     </product-form-component>

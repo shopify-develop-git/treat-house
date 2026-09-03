@@ -19,8 +19,19 @@
   says it scrolls by cutting a card at the edge.
 {% endcomment %}
 
+{%- liquid
+  # Only the review cards with words in them count; the heading and rating line
+  # are static blocks, and an empty card draws nothing (see _ui-testimonial).
+  assign testimonial_count = 0
+  for block in section.blocks
+    if block.type == '_ui-testimonial' and block.settings.quote != blank
+      assign testimonial_count = testimonial_count | plus: 1
+    endif
+  endfor
+-%}
+
 <div
-  class="testimonials color-{{ section.settings.color_scheme }}"
+  class="testimonials color-{{ section.settings.color_scheme }}{% if testimonial_count < 2 %} testimonials--single{% endif %}"
   style="
     --testimonials-block-padding: {{ section.settings.vertical_padding_mobile }}px;
     --testimonials-block-padding-desktop: {{ section.settings.vertical_padding }}px;
@@ -40,19 +51,21 @@
       {% content_for 'blocks' %}
     </div>
 
-    <div class="testimonials__controls">
-      {% render 'ui-pagination-arrow',
-        direction: 'left',
-        class: 'testimonials__arrow',
-        attributes: 'data-carousel-prev'
-      %}
-      <div class="ui-carousel__dots" data-carousel-dots></div>
-      {% render 'ui-pagination-arrow',
-        direction: 'right',
-        class: 'testimonials__arrow',
-        attributes: 'data-carousel-next'
-      %}
-    </div>
+    {%- if testimonial_count > 1 -%}
+      <div class="testimonials__controls">
+        {% render 'ui-pagination-arrow',
+          direction: 'left',
+          class: 'testimonials__arrow',
+          attributes: 'data-carousel-prev'
+        %}
+        <div class="ui-carousel__dots" data-carousel-dots></div>
+        {% render 'ui-pagination-arrow',
+          direction: 'right',
+          class: 'testimonials__arrow',
+          attributes: 'data-carousel-next'
+        %}
+      </div>
+    {%- endif -%}
   </ui-carousel>
 </div>
 
@@ -72,6 +85,16 @@
     /* Opens on the second card: the file draws the row already moved along, and a
        first card flush to the edge hides that it scrolls. */
     --ui-carousel-start: 2;
+  }
+
+  /* One card has nothing to scroll to: open on it, and let it sit in the track
+     without the offset that would otherwise centre a second card. */
+  .testimonials--single {
+    --ui-carousel-start: 1;
+  }
+
+  .testimonials--single .testimonials__track {
+    overflow-x: hidden;
   }
 
   .testimonials__header {
@@ -178,7 +201,8 @@
       "type": "checkbox",
       "id": "show_rating",
       "label": "Show the rating line under the heading",
-      "default": true
+      "info": "Off by default. The manual rating and review count are unverified; switch on only with real figures.",
+      "default": false
     },
     {
       "type": "header",
@@ -222,20 +246,16 @@
         "heading": {
           "type": "_ui-heading",
           "static": true,
-          "settings": { "heading": "<h2>Sweet words from <em>Happy Customers</em></h2>", "max_width": 520 }
+          "settings": { "heading": "<h2>What <em>customers say</em></h2>", "max_width": 520 }
         },
         "rating": {
           "type": "_ui-review-line",
           "static": true,
-          "settings": { "layout": "inline", "rating_text": "4.9 rating", "reviews_text": "12,000+ reviews", "text_size": 16, "text_size_mobile": 14 }
+          "settings": { "layout": "inline", "rating_text": "", "reviews_text": "", "text_size": 16, "text_size_mobile": 14 }
         },
-        "one": { "type": "_ui-testimonial" },
-        "two": { "type": "_ui-testimonial" },
-        "three": { "type": "_ui-testimonial" },
-        "four": { "type": "_ui-testimonial" },
-        "five": { "type": "_ui-testimonial" }
+        "one": { "type": "_ui-testimonial" }
       },
-      "block_order": ["one", "two", "three", "four", "five"]
+      "block_order": ["one"]
     }
   ]
 }

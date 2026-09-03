@@ -20,8 +20,7 @@
     >
       {% render 'header-drawer',
         linklist: block_settings.menu,
-        data_header_drawer_type: 'mobile-drawer',
-        wishlist_url: section.settings.wishlist_url
+        data_header_drawer_type: 'mobile-drawer'
       %}
     </div>
 
@@ -113,6 +112,28 @@
           on:pointerenter="/activate"
           on:pointerleave="/deactivate"
         >
+          {%- liquid
+            # A parent saved in admin with "#" (or no URL) as a placeholder is a
+            # heading for its panel, not a page. It is drawn as a button, the way
+            # the overflow "More" item is, so nothing navigates to "#".
+            assign parent_is_placeholder = false
+            if link.url == blank or link.url == '#'
+              assign parent_is_placeholder = true
+            endif
+          -%}
+          {%- if parent_is_placeholder and link.links != blank -%}
+            <button
+              type="button"
+              data-skip-node-update="true"
+              class="menu-list__link button-unstyled{% if link.active %} menu-list__link--active{% endif %}"
+              aria-controls="submenu-{{ forloop.index }}"
+              aria-haspopup="true"
+              aria-expanded="false"
+              ref="menuitem"
+            >
+              <span class="menu-list__link-title">{{- link.title -}}</span>
+            </button>
+          {%- else -%}
           <a
             href="{{ link.url }}"
             data-skip-node-update="true"
@@ -126,6 +147,7 @@
           >
             <span class="menu-list__link-title">{{- link.title -}}</span>
           </a>
+          {%- endif -%}
           {%- if link.links != blank -%}
             <div class="menu-list__submenu{{ color_scheme_classes }}" ref="submenu[]">
               <div

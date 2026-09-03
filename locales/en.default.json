@@ -13,7 +13,7 @@
     "cart": "Cart",
     "cart_count": "Total items in cart",
     "close_dialog": "Close dialog",
-    "country_region": "Country/Region",
+    "country_region": "Country\/Region",
     "country_results_count": "{{ count }} results",
     "decrease_quantity": "Decrease quantity",
     "discount": "Apply a discount code",
@@ -54,56 +54,43 @@
     "slideshow_previous": "Previous slide",
     "unit_price": "Unit price",
     "find_country": "Find country",
-    "view_pricing_info": "View pricing information",
-    "wishlist": "Wishlist"
+    "view_pricing_info": "View pricing information"
   },
   "actions": {
     "continue": "Continue",
     "edit": "Edit",
-    // Quick add button on product cards, shortened version of add to cart
     "add": "Add",
     "add_to_cart": "Add to cart",
-    // Success message shown after adding item to cart
     "added": "Added",
-    // Button to apply discount code to cart
     "apply": "Apply",
     "back": "Back",
     "choose": "Choose",
-    // Button to reset current selection or input
     "clear": "Clear",
-    // Button to remove all applied product filters
     "clear_all": "Clear all",
     "close": "Close",
     "open": "Open",
-    // Continue shopping link on the cart page which takes the user back to a collection page
     "continue_shopping": "Continue shopping",
     "enter_password": "Enter password",
-    "log_in_html": "Have an account? <a href=\"{{ link }}\">Log in</a> to check out faster.",
+    "log_in_html": "Have an account? <a href=\"{{ link }}\">Log in<\/a> to check out faster.",
     "log_in": "Sign in",
     "log_out": "Log out",
     "open_image_in_full_screen": "Open image in full screen",
-    // Button to remove applied filters from search/collection results
     "remove": "Remove",
     "remove_discount": "Remove discount {{ code }}",
-    // Button to expand hidden product variant options
     "show_all_options": "Show all options",
     "see_items": {
       "one": "See {{ count }} item",
-      // Button to view filtered product results and close filter dialog
       "other": "See {{ count }} items"
     },
     "show_filters": "Filter",
     "show_less": "Show less",
     "show_more": "Show more",
     "sign_in_options": "Other sign in options",
-    // AR button to view 3D product model in physical space
     "view_in_your_space": "View in your space",
-    // Button to view complete collection/product list
     "view_all": "View all",
     "more": "More",
     "zoom": "Zoom",
     "close_dialog": "Close dialog",
-    // Button to clear search filter and restore default view
     "reset": "Reset",
     "enter_using_password": "Enter using password",
     "sign_up": "Sign up",
@@ -151,6 +138,24 @@
       "success": "Comment posted"
     }
   },
+  "cart": {
+    "delivery_heading": "Delivery",
+    "delivery_date_label": "Delivery date",
+    "delivery_date_choose": "Pick a delivery date",
+    "delivery_date_required": "Pick a delivery date to continue.",
+    "seasonal_blocked": "A seasonal treat in your cart is not available right now. Remove it to continue.",
+    "seasonal_remove_hint": "Remove this treat to continue.",
+    "delivery_date_error": "We could not save that date. Please try once more.",
+    "delivery_date_cleared": "That delivery date is no longer available. Please pick a new one.",
+    "delivery_date_lead": {
+      "one": "Pick a delivery date at least {{ count }} day out.",
+      "other": "Pick a delivery date at least {{ count }} days out."
+    },
+    "shipping_at_checkout": "Shipping timing and options are shown at checkout.",
+    "ships_from": "Ships from",
+    "shipping_method": "Shipping method",
+    "confirm_delivery_date": "Confirm delivery date"
+  },
   "content": {
     "added": "Added",
     "customize_box_setup": "Pick the pack sizes collection in this section's settings to switch the builder on.",
@@ -176,12 +181,12 @@
     "discount_code_error": "Discount code cannot be applied to your cart",
     "discounts": "Discounts",
     "duties_and_taxes_included": "Duties and taxes included.",
-    "duties_and_taxes_included_shipping_at_checkout_with_policy_html": "Duties and taxes included. Discounts and <a href=\"{{ link }}\">shipping</a> calculated at checkout.",
+    "duties_and_taxes_included_shipping_at_checkout_with_policy_html": "Duties and taxes included. Discounts and <a href=\"{{ link }}\">shipping<\/a> calculated at checkout.",
     "duties_and_taxes_included_shipping_at_checkout_with_policy_without_discounts_html": "Duties and taxes included. Shipping is calculated at checkout.",
     "duties_and_taxes_included_shipping_at_checkout_without_policy": "Duties and taxes included. Discounts and shipping calculated at checkout.",
     "duties_and_taxes_included_shipping_at_checkout_without_policy_without_discounts": "Duties and taxes included. Shipping is calculated at checkout.",
     "duties_included": "Duties included.",
-    "duties_included_taxes_at_checkout_shipping_at_checkout_with_policy_html": "Duties included. Taxes, discounts and <a href=\"{{ link }}\">shipping</a> calculated at checkout.",
+    "duties_included_taxes_at_checkout_shipping_at_checkout_with_policy_html": "Duties included. Taxes, discounts and <a href=\"{{ link }}\">shipping<\/a> calculated at checkout.",
     "duties_included_taxes_at_checkout_shipping_at_checkout_with_policy_without_discounts_html": "Duties included. Shipping is calculated at checkout.",
     "duties_included_taxes_at_checkout_shipping_at_checkout_without_policy": "Duties included. Taxes, discounts and shipping calculated at checkout.",
     "duties_included_taxes_at_checkout_shipping_at_checkout_without_policy_without_discounts": "Duties included. Shipping is calculated at checkout.",
@@ -217,7 +222,7 @@
       "next": "Next",
       "page": "Page {{ page }}"
     },
-    "pickup_available_at_html": "Pickup available at <b>{{ location }}</b>",
+    "pickup_available_at_html": "Pickup available at <b>{{ location }}<\/b>",
     "pickup_available_in": "Pickup available, {{ pickup_time }}",
     "pickup_not_available": "Pickup currently not available",
     "pickup_ready_in": "{{ pickup_time }}",
@@ -237,7 +242,7 @@
     "product_card_placeholder": "Product title",
     "placeholder_image": "Placeholder image",
     "quantity": "Quantity",
-    "quantity_per_item": "/ea",
+    "quantity_per_item": "\/ea",
     "recently_viewed_products": "Recently viewed",
     "remove_all": "Remove all",
     "remove_all_items_confirmation": "Remove all {{ count }} items from your cart?",
@@ -253,7 +258,6 @@
     "search_results_no_results_check_spelling": "No results found for \"{{ terms }}\". Check the spelling or use a different word or phrase.",
     "search_results_resource_articles": "Blog posts",
     "search_results_resource_collections": "Collections",
-    // Section heading for Shopify store pages in search results
     "search_results_resource_pages": "Pages",
     "search_results_resource_products": "Products",
     "search_results_resource_products_count": {
@@ -270,31 +274,28 @@
       "one": "1 item added to cart",
       "other": "{{ count }} items added to cart"
     },
-    // Button to go from search preview to full search results page
     "search_results_view_all": "View all",
     "search_results_view_all_button": "View all",
-    // Label for customer's note to seller during checkout
     "seller_note": "Special instructions",
     "shipping_policy": "Shipping calculated at checkout.",
-    "shipping_policy_html": "<a href=\"{{ link }}\">Shipping</a> calculated at checkout.",
-    "store_owner_link_html": "Are you the store owner? <a href=\"{{ link }}\">Log in here</a>",
-    "taxes_at_checkout_shipping_at_checkout_with_policy_html": "Taxes, discounts and <a href=\"{{ link }}\">shipping</a> calculated at checkout.",
-    "taxes_at_checkout_shipping_at_checkout_with_policy_without_discounts_html": "Taxes and <a href=\"{{ link }}\">shipping</a> calculated at checkout.",
+    "shipping_policy_html": "<a href=\"{{ link }}\">Shipping<\/a> calculated at checkout.",
+    "store_owner_link_html": "Are you the store owner? <a href=\"{{ link }}\">Log in here<\/a>",
+    "taxes_at_checkout_shipping_at_checkout_with_policy_html": "Taxes, discounts and <a href=\"{{ link }}\">shipping<\/a> calculated at checkout.",
+    "taxes_at_checkout_shipping_at_checkout_with_policy_without_discounts_html": "Taxes and <a href=\"{{ link }}\">shipping<\/a> calculated at checkout.",
     "taxes_at_checkout_shipping_at_checkout_without_policy": "Taxes, discounts and shipping calculated at checkout.",
     "taxes_at_checkout_shipping_at_checkout_without_policy_without_discounts": "Taxes and shipping calculated at checkout.",
     "taxes_included": "Taxes included.",
-    "taxes_included_shipping_at_checkout_with_policy_html": "Taxes included. Discounts and <a href=\"{{ link }}\">shipping</a> calculated at checkout.",
+    "taxes_included_shipping_at_checkout_with_policy_html": "Taxes included. Discounts and <a href=\"{{ link }}\">shipping<\/a> calculated at checkout.",
     "taxes_included_shipping_at_checkout_with_policy_without_discounts_html": "Taxes included. Shipping is calculated at checkout.",
     "taxes_included_shipping_at_checkout_without_policy": "Taxes included. Discounts and shipping calculated at checkout.",
     "taxes_included_shipping_at_checkout_without_policy_without_discounts": "Taxes included. Shipping is calculated at checkout.",
     "unavailable": "Unavailable",
-    "use_fewer_filters_html": "Try using fewer filters, or <a class=\"{{ class }}\" href=\"{{ link }}\">clear all filters</a>.",
-    // Link or button to expand additional information
+    "use_fewer_filters_html": "Try using fewer filters, or <a class=\"{{ class }}\" href=\"{{ link }}\">clear all filters<\/a>.",
     "view_more_details": "View more details",
     "volume_pricing_available": "Volume pricing available",
     "volume_pricing": "Volume pricing",
-    "at_price_each": "at {{ price }}/ea",
-    "each": "{{ price }}/ea",
+    "at_price_each": "at {{ price }}\/ea",
+    "each": "{{ price }}\/ea",
     "each_abbreviation": "ea",
     "price_at": "at",
     "price_range": "Price range",
@@ -302,23 +303,21 @@
     "product_count": "Product count",
     "errors": "Errors",
     "wrong_password": "Wrong password",
-    // Legend text for gift card delivery options
     "recipient_form_send_to": "Send to",
     "recipient_form_email_label": "Recipient’s email",
     "recipient_form_email_label_my_email": "My email",
     "recipient_form_email_address": "Recipient email address",
     "recipient_form_name_label": "Recipient name (optional)",
     "recipient_form_message": "Message (optional)",
-    "recipient_form_characters_used": "{{ used_chars }}/{{ max_chars }} characters used",
+    "recipient_form_characters_used": "{{ used_chars }}\/{{ max_chars }} characters used",
     "recipient_form_send_on": "YYYY-MM-DD",
     "recipient_form_send_on_label": "Send on (optional)",
     "recipient_form_fields_visible": "Recipient form fields are now visible",
     "recipient_form_fields_hidden": "Recipient form fields are now hidden",
     "recipient_form_error": "There was an error with the form submission",
-    "product_custom_property_character_count": "{{ used_chars }}/{{ max_chars }} characters used"
+    "product_custom_property_character_count": "{{ used_chars }}\/{{ max_chars }} characters used"
   },
   "fields": {
-    // Separates min and max values in price range filter
     "separator": "to"
   },
   "gift_cards": {
@@ -355,6 +354,9 @@
       "quantity_error_max": "This item has a maximum of {{ maximum }}",
       "sold_out": "Sold out",
       "unavailable": "Unavailable",
+      "coming_soon": "Coming soon",
+      "closed_season": "Back next season",
+      "seasonal_notice": "This is a seasonal treat. {{ label }}.",
       "quantity": "Quantity",
       "quantity_increments": "Increments of {{ increment }}",
       "quantity_minimum": "Minimum of {{ minimum }}",

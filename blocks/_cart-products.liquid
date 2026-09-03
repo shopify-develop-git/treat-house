@@ -2,8 +2,27 @@
 
 {% render 'cart-products' %}
 
+{%- comment -%}
+  The gift message the drawer offers, under the lines on the page as well, so
+  the two cart surfaces ask the same questions. It is Shopify's cart note,
+  posted through the same `cart-form` (`form="cart-form"` on the textarea) and
+  saved live by `cart-note.js`, which the snippet loads. Not rendered into the
+  empty state, and never alongside the drawer: `header-actions.liquid` skips
+  the drawer on the cart template, so the note's id stays unique.
+{%- endcomment -%}
+{%- unless cart.empty? or force_empty -%}
+  {% render 'ui-cart-drawer', part: 'gift' %}
+{%- endunless -%}
+
 {% stylesheet %}
   .cart-page__title + .cart-page__items {
+    margin-block-start: var(--margin-lg);
+  }
+
+  /* The gift note on the page: no drawer gutter to inset from, and a little
+     room above it after the last line's divider. */
+  .cart-page__items .ui-gift-note {
+    margin-inline: 0;
     margin-block-start: var(--margin-lg);
   }
 {% endstylesheet %}

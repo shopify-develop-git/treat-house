@@ -22,11 +22,41 @@
   {{ block.shopify_attributes }}
 >
   <div class="{{ cart_summary_inner_class }}">
+    {%- comment -%}
+      The same delivery panel and calendar the drawer shows, above the totals
+      so the date is picked before the checkout button it gates. One snippet
+      for both surfaces; a distinct picker id so `aria-controls` is unique.
+      The script is loaded by `main-cart.liquid`; the checkout gate and the
+      hidden form inputs read the same cart attribute (`cart-delivery-date-valid`).
+    {%- endcomment -%}
+    {%- if settings.show_cart_shipping_estimate -%}
+      {% render 'cart-delivery-date-field', picker_id: 'cart-page-delivery-picker' %}
+    {%- endif -%}
     {% render 'cart-summary', accelerated_checkout_buttons_layout: 'vertical', section_id: section.id %}
   </div>
 </div>
 
 {% stylesheet %}
+  /*
+   * The delivery panel on the page. The summary centres its children, so the
+   * panel is told to take the column's width; the drawer's gutter variable is
+   * scoped to the dialog and never reaches here, so the inset margins the
+   * drawer uses are set to nothing explicitly rather than left to a fallback.
+   */
+  .cart-summary__inner > .ui-cart-date {
+    width: 100%;
+  }
+
+  .cart-summary__inner .ui-cart-shipping,
+  .cart-summary__inner .ui-cart-date__picker,
+  .cart-summary__inner .ui-cart-date__error {
+    margin-inline: 0;
+  }
+
+  .cart-summary__inner .ui-cart-date__picker {
+    margin-block-start: var(--gap-lg, 16px);
+  }
+
   .cart-summary__inner {
     display: flex;
     flex-direction: column;

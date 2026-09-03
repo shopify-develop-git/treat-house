@@ -9,12 +9,17 @@
   whose option is called Box reads "Choose your Box" and one called Size reads
   "Choose your Size" — one setting that keeps working when the catalogue grows a
   second kind of product. Left blank, the option's name stands alone.
+
+  `image` is the gift-box photo for the packaging option's second value (the
+  upgrade). The picker prefers the variant's own featured media; this stands in
+  when a gift-box variant has none, so one photo covers every pack product.
 {%- enddoc -%}
 
 <div class="ui-product-variants" {{ block.shopify_attributes }}>
   {% render 'ui-product-variant-picker',
     product_resource: closest.product,
-    label_prefix: block.settings.label_prefix
+    label_prefix: block.settings.label_prefix,
+    gift_box_image: block.settings.image
   %}
 </div>
 
@@ -37,6 +42,12 @@
       "label": "Wording above the control",
       "info": "Leads the option's own name: \"Choose your\" gives \"Choose your Box\". Leave empty to show the option's name on its own.",
       "default": "Choose your"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Gift box image",
+      "info": "Shown beside the gift box choice when the variant has no image of its own. Leave empty to use only the variant's media."
     }
   ],
   "presets": [

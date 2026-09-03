@@ -19,6 +19,7 @@
   assign initial = block.settings.name | strip | slice: 0
 -%}
 
+{%- if block.settings.quote != blank or request.design_mode -%}
 <div class="ui-testimonial" {{ block.shopify_attributes }}>
   <div class="ui-testimonial__body">
     {%- if stars > 0 -%}
@@ -55,6 +56,7 @@
     </div>
   {%- endif -%}
 </div>
+{%- endif -%}
 
 {% stylesheet %}
   :root {
@@ -190,7 +192,7 @@
       "type": "richtext",
       "id": "quote",
       "label": "Review",
-      "default": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>"
+      "info": "Left empty, the card is not shown. Only publish quotes the customer has approved."
     },
     {
       "type": "range",
@@ -199,19 +201,17 @@
       "min": 0,
       "max": 5,
       "step": 1,
-      "default": 5
+      "default": 0
     },
     {
       "type": "text",
       "id": "name",
-      "label": "Name",
-      "default": "Jazmine D"
+      "label": "Name"
     },
     {
       "type": "text",
       "id": "role",
-      "label": "Company or role",
-      "default": "ServiceNow"
+      "label": "Company or role"
     },
     {
       "type": "image_picker",

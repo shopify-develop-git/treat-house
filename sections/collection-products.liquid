@@ -234,6 +234,14 @@
             -%}
             {%- capture grid_badge -%}{% render 'ui-product-badge', product: product %}{%- endcapture -%}
             {%- assign grid_badge_parts = grid_badge | strip | split: '|' -%}
+            {%- capture grid_season -%}{% render 'season-status', product: product %}{%- endcapture -%}
+            {%- liquid
+              assign grid_season_parts = grid_season | strip | split: '|'
+              assign grid_season_label = ''
+              if grid_season_parts[0] != 'available'
+                assign grid_season_label = grid_season_parts[1]
+              endif
+            -%}
 
             {%- capture add_control -%}
               {% render 'ui-product-card-add', product: product, section_id: section.id %}
@@ -247,6 +255,7 @@
                 link: product.url,
                 badge: grid_badge_parts[0],
                 badge_color: grid_badge_parts[1],
+                season_label: grid_season_label,
                 add_content: add_control,
                 loading: card_loading
               %}
@@ -255,9 +264,11 @@
         </ul>
       {%- else -%}
         <p class="collection-products__empty">
-          {{ section.settings.empty_text }}
-          {%- if active_count > 0 %}
+          {%- if active_count > 0 -%}
+            {{ section.settings.empty_text }}
             {% render 'ui-button', variant: 'link', label: 'Clear all', link: collection.url %}
+          {%- else -%}
+            {{ section.settings.empty_text_none | default: 'Nothing here right now. Check back soon.' }}
           {%- endif -%}
         </p>
       {%- endif -%}
@@ -527,8 +538,14 @@
     {
       "type": "text",
       "id": "empty_text",
-      "label": "When nothing matches",
+      "label": "When nothing matches the filters",
       "default": "No products match these filters."
+    },
+    {
+      "type": "text",
+      "id": "empty_text_none",
+      "label": "When the collection is empty",
+      "default": "Nothing here right now. Check back soon."
     },
     {
       "type": "header",

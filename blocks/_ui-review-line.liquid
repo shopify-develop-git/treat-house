@@ -274,21 +274,20 @@
       "min": 0,
       "max": 5,
       "step": 1,
-      "default": 5,
+      "default": 0,
       "visible_if": "{{ block.settings.source == 'manual' }}"
     },
     {
       "type": "text",
       "id": "rating_text",
       "label": "Rating",
-      "default": "4.9 rating",
+      "info": "Left empty, nothing is shown. Only publish a figure the shop can source.",
       "visible_if": "{{ block.settings.source == 'manual' }}"
     },
     {
       "type": "text",
       "id": "reviews_text",
       "label": "Review count",
-      "default": "12,000+ reviews",
       "visible_if": "{{ block.settings.source == 'manual' }}"
     },
     {

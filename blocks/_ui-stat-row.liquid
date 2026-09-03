@@ -34,6 +34,20 @@
   runs client names through this row rather than numbers, and a row of names
   with no line saying what they are is just three words on a panel.
 {%- endcomment -%}
+
+{%- liquid
+  # Only figures with a value count. An empty row draws nothing on the storefront
+  # (the same rule as sections/logo-row.liquid); in the editor it still draws so a
+  # merchant can find it and fill it.
+  assign stat_count = 0
+  for child in block.blocks
+    if child.type == '_ui-stat' and child.settings.value != blank
+      assign stat_count = stat_count | plus: 1
+    endif
+  endfor
+-%}
+
+{%- if stat_count > 0 or request.design_mode -%}
 <div
   class="ui-stat-row{% if block.settings.caption != blank %} ui-stat-row--captioned{% endif %}"
   style="--ui-stat-row-gap-set: {{ block.settings.gap }}px;"
@@ -47,6 +61,7 @@
     {% content_for 'blocks' %}
   </div>
 </div>
+{%- endif -%}
 
 {% stylesheet %}
   /*
@@ -172,18 +187,10 @@
           "type": "_ui-stat"
         },
         "two": {
-          "type": "_ui-stat",
-          "settings": {
-            "value": "40+",
-            "label": "Countries served"
-          }
+          "type": "_ui-stat"
         },
         "three": {
-          "type": "_ui-stat",
-          "settings": {
-            "value": "98%",
-            "label": "Client satisfaction"
-          }
+          "type": "_ui-stat"
         }
       },
       "block_order": [
