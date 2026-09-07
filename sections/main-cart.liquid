@@ -236,9 +236,47 @@
      * the items column 247 and a row that would not fold below 300. The page
      * scrolled sideways by 14px. Floored at 56 the frame gives way in that band
      * and keeps its drawn size everywhere there is room for it.
+     *
+     * Only the media track is ours. The rest are Horizon's own, restated because
+     * `grid-template-columns` cannot be edited one track at a time — and the row
+     * has two shapes, so this has to be said twice. Said once, the wide shape got
+     * three tracks for a four-area template: the media overflowed a 56px column,
+     * the details column collapsed to nothing, and the stepper and the bin landed
+     * at a different x on every line, which is what "the alignment is off" was.
      */
-    grid-template-columns: minmax(56px, var(--cart-media)) minmax(0, 1fr) auto;
+    grid-template-columns:
+      minmax(56px, var(--cart-media))
+      minmax(0, 1fr)
+      minmax(var(--cart-item-price-width, 6rem), auto);
     align-items: start;
+  }
+
+  /*
+   * Horizon's wide row: four tracks on one line, switched by a container query on
+   * the items list rather than by the viewport. The query is copied exactly —
+   * a different threshold here would leave a band where the tracks and the areas
+   * disagree, which is the state this rule exists to end.
+   */
+  @container cart-items (min-width: 720px) {
+    .cart-page .cart-items__table-row {
+      grid-template-columns:
+        minmax(56px, var(--cart-media))
+        minmax(0, 1fr)
+        1fr
+        minmax(var(--cart-item-price-width, 6rem), auto);
+    }
+
+    /*
+     * The price is a line of text and the stepper is 32px tall, so starting both
+     * at the top of the row left the price riding above it. Given the stepper's
+     * height it centres against it, and the two read as one line.
+     */
+    .cart-page .cart-items__price {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-height: 32px;
+    }
   }
 
   /* The frame follows the column it was given rather than restating the figure,
