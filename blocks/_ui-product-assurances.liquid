@@ -61,27 +61,59 @@
    * of two at 749px, where the stacked column is still 717px wide and all four sit
    * happily on one line.
    *
-   * 560 is where four stop fitting: the four items measure 136, 120, 120 and 125,
-   * which with three 20px gaps comes to 561. A container query cannot read a
-   * custom property, so the figure is written out rather than derived.
+   * 620 is where four stop fitting. The figure is measured, not derived — a
+   * container query cannot read a custom property — which means it tracks the
+   * wording, and the wording has already moved once. It read 560 for labels
+   * measuring 136, 120, 120 and 125; the row now carries "Handmade in small
+   * batches" at 175px, and the four measure 126, 133, 175 and 107, which with
+   * three 20px gaps comes to 601.
+   *
+   * That left the row in the dead band this number exists to close: the details
+   * column is 586px, too narrow for four and too wide to trip a 560px switch, so
+   * it wrapped where flex wraps — three on a line and the fourth orphaned under
+   * them, against the left edge. Re-measure this when the labels change, and give
+   * it headroom: below the threshold the arrangement is settled and further
+   * growth in the wording costs nothing, while above it every extra word is
+   * another chance to land back in the band.
    *
    * `space-between` is right for the full row — it is what the file draws — and
    * wrong the moment the row wraps, because two items on a line get flung to
    * opposite edges with a hole between them. The grid puts each in an even half
    * instead, so the pairs line up under each other.
    */
-  @container (max-width: 560px) {
+  @container (max-width: 620px) {
     .ui-product-assurances {
       display: grid;
+      /*
+       * Even columns still, but sized by the wording rather than by the room. Half
+       * of the container is not what the items need: in the product page's 586px
+       * column the halves came out 287 apiece around wording measuring 126, 133,
+       * 175 and 106, which left 169px of nothing down the middle and read as two
+       * separate columns rather than one block of four.
+       */
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      /*
+       * Two equal columns, but measured from the widest item rather than from the
+       * column the row happens to sit in — `fit-content` is what stops 1fr from
+       * meaning "half of whatever is going". The block then centres as a whole
+       * instead of being stretched to the edges.
+       */
+      width: fit-content;
+      margin-inline: auto;
       /*
        * The gap arrives as an inline custom property from the block's setting, and
        * an inline style outranks anything a stylesheet can say about that property
        * — so redeclaring `--ui-product-assurances-gap` here would lose silently.
-       * This sets `gap` itself, reading the separate mobile figure.
+       * This sets the gap itself, reading the separate mobile figure.
        * See docs/section-settings.md §6.
+       *
+       * Split, because the two directions are no longer doing the same job. Down
+       * the block the setting is the whole space between a label and the next
+       * glyph. Across it, the columns now touch at their own width, so the figure
+       * that separated even halves would leave the pairs all but joined.
        */
-      gap: var(--ui-product-assurances-gap-mobile, 12px);
+      row-gap: var(--ui-product-assurances-gap-mobile, 12px);
+      column-gap: var(--ui-product-assurances-column-gap, 48px);
     }
 
     /* The floor is what made the row wrap; in the grid the column decides. */
@@ -119,7 +151,7 @@
       "type": "range",
       "id": "gap_mobile",
       "label": "t:content.mobile_size",
-      "info": "The space between items once the row has broken to two rows of two, which happens on a column narrower than 560px.",
+      "info": "The space between items once the row has broken to two rows of two, which happens on a column narrower than 620px \u2014 the product page's own column included.",
       "min": 0,
       "max": 48,
       "step": 2,
