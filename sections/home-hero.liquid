@@ -330,6 +330,22 @@
     .home-hero__body .ui-link-row {
       width: auto;
     }
+
+    /*
+     * The 170px above is there so the home page's three buttons come out one
+     * width. A row of one has nothing to line up with, and the wholesale and
+     * corporate pages each open this hero on a single button whose label is
+     * longer than that — "Plan a thoughtful client gift" needs 183px, so at a
+     * fixed 170 with the `nowrap` below it printed straight out of its own box,
+     * over the panel on both sides.
+     *
+     * Given one child the row hands the sizing back to the kit, which measures a
+     * button by its label. The property rather than the width, so `ui-button`
+     * keeps owning how it is sized.
+     */
+    .home-hero__body .ui-link-row:has(> :only-child) {
+      --ui-link-row-item-width: fit-content;
+    }
   }
 
   /*
@@ -703,7 +719,7 @@
         "copy": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>A modern take on the Krispie treat you grew up with. Handcrafted, certified gluten-free, and ready to give for birthdays, thank-yous, and just because.</p>"
+            "text": "<p>A modern take on the Krispie treat you grew up with. Handcrafted and ready to give for birthdays, thank-yous, and just because.</p>"
           }
         },
         "buttons": {
