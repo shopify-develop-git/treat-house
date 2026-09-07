@@ -403,7 +403,8 @@
         "date_hint": "Optional. We confirm timing with your quote.",
         "date_min_days": 3,
         "notes_placeholder": "Who is it for, and what would make it feel personal?",
-        "submit_label": "Send a note to our team"
+        "submit_label": "Send a note to our team",
+        "shipping_template_url": "https://cdn.shopify.com/s/files/1/0718/8234/2617/files/TREAT_HOUSE_SHIPPING_TEMPLATE_3_2.xlsx?v=1788796113"
       }
     }
   },

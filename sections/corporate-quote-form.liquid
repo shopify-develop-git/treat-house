@@ -180,6 +180,33 @@
             placeholder: section.settings.notes_placeholder
           %}
         </div>
+
+        {%- comment -%}
+          One order going to forty desks is the corporate case, and Shopify's cart
+          carries one address. The list travels beside the order instead: a
+          spreadsheet with a row per recipient, which is what the shop already
+          hands its corporate customers by hand.
+
+          A link, not a file field. `{% form 'contact' %}` posts no attachment, so
+          a box that looked like it took one would swallow the document in
+          silence — [ui-upload-field] documents that trap and offers `link` for
+          exactly this. The filled sheet comes back on the reply to the quote,
+          which is a conversation that has already started by then.
+
+          Rendered only when there is a file to reach. A dashed panel pointing
+          nowhere is worse than no panel.
+        {%- endcomment -%}
+        {%- if section.settings.shipping_template_url != blank -%}
+          <div class="corporate-quote__wide">
+            {% render 'ui-upload-field',
+              label: 'Shipping to several addresses?',
+              prompt: section.settings.shipping_template_prompt,
+              hint: section.settings.shipping_template_hint,
+              link: section.settings.shipping_template_url,
+              class: 'corporate-quote__template'
+            %}
+          </div>
+        {%- endif -%}
       </div>
 
       {%- comment -%}
@@ -496,6 +523,34 @@
       "id": "submit_label",
       "label": "Submit button",
       "default": "Send a note to our team"
+    },
+    {
+      "type": "header",
+      "content": "Shipping template"
+    },
+    {
+      "type": "paragraph",
+      "content": "For orders going to more than one address. Upload the spreadsheet under Content \u2192 Files, then paste its link here. Left empty, the panel does not render."
+    },
+    {
+      "type": "url",
+      "id": "shipping_template_url",
+      "label": "Template file"
+    },
+    {
+      "type": "text",
+      "id": "shipping_template_prompt",
+      "label": "Panel text",
+      "default": "Download the multi-address shipping template",
+      "visible_if": "{{ section.settings.shipping_template_url != blank }}"
+    },
+    {
+      "type": "text",
+      "id": "shipping_template_hint",
+      "label": "Helper line",
+      "info": "Under the panel text. Say what to do with the file once it is filled.",
+      "default": "One row per recipient. Send it back with your reply and we ship each gift separately.",
+      "visible_if": "{{ section.settings.shipping_template_url != blank }}"
     },
     {
       "type": "header",
