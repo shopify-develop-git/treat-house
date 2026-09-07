@@ -24,6 +24,22 @@ const STATUS = '[data-gift-note-status]';
 const MESSAGE = '[data-gift-note-message]';
 const TOGGLE = '[data-gift-note-toggle]';
 
+/**
+ * Brings a panel's two pieces of state — the message and the button's label — in
+ * line with a note. Everything except the textarea, which belongs to whoever is
+ * typing in it: a shopper mid-sentence when someone else's request lands should
+ * not have their words replaced by the server's copy.
+ */
+const render = (panel, note) => {
+  const message = panel.querySelector(MESSAGE);
+  if (message) message.textContent = note;
+
+  const toggle = panel.querySelector(TOGGLE);
+  if (toggle) {
+    toggle.textContent = note ? (panel.dataset.editLabel ?? '') : (panel.dataset.addLabel ?? '');
+  }
+};
+
 const save = async (panel, button) => {
   const field = panel.querySelector('textarea');
   const status = panel.querySelector(STATUS);
@@ -44,16 +60,9 @@ const save = async (panel, button) => {
     if (details) details.open = false;
     if (status) status.textContent = '';
 
-    // The message and the button both carry the state, so both are brought up to
-    // it here rather than waiting for the next render. A cart with no message
-    // offers to add one; a cart with one offers to change it.
-    const message = panel.querySelector(MESSAGE);
-    if (message) message.textContent = note;
-
-    const toggle = panel.querySelector(TOGGLE);
-    if (toggle) {
-      toggle.textContent = note ? (panel.dataset.editLabel ?? '') : (panel.dataset.addLabel ?? '');
-    }
+    // Brought up to date here rather than waiting for the next render. A cart
+    // with no message offers to add one; a cart with one offers to change it.
+    render(panel, note);
   } catch (error) {
     // The note is not lost — the autosave above has it, or will on the next
     // keystroke — so the line says to try again rather than reporting a loss.
@@ -69,4 +78,32 @@ document.addEventListener('click', (event) => {
 
   const panel = button.closest(PANEL);
   if (panel) save(panel, button);
+});
+
+/**
+ * The panel is drawn by Liquid, and every cart change hands it back re-rendered
+ * from the server. That is normally right and normally in time. It is not
+ * something this file controls, though: the add comes from a product card, a
+ * quick-add or another section entirely, each asking for the cart's sections on
+ * its own schedule, and a panel that comes back rendered a moment before the
+ * note landed shows a cart that has a message as one that does not — which is
+ * the "I have to reload the page" report.
+ *
+ * So the panel does not trust what it is handed. On every cart change it asks
+ * the cart what the note actually is and says that. One small request against a
+ * class of staleness that is otherwise invisible until a shopper reloads.
+ */
+document.addEventListener('cart:update', async () => {
+  const panels = document.querySelectorAll(PANEL);
+  if (!panels.length) return;
+
+  try {
+    const cart = await fetch(window.Theme?.routes?.cart_url ? `${window.Theme.routes.cart_url}.js` : '/cart.js', {
+      headers: { Accept: 'application/json' },
+    }).then((response) => response.json());
+
+    for (const panel of panels) render(panel, (cart.note ?? '').trim());
+  } catch (error) {
+    // Leave what the server drew. It is right far more often than not.
+  }
 });
