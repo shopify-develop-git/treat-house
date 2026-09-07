@@ -39,6 +39,13 @@
     "home_hero_Kx9Ln4": {
       "type": "home-hero",
       "blocks": {
+        "eyebrow": {
+          "type": "_ui-product-chip",
+          "settings": {
+            "label": "Nostalgia, Reinvented",
+            "icon": "none"
+          }
+        },
         "heading": {
           "type": "_ui-heading",
           "settings": {
@@ -134,6 +141,7 @@
         }
       },
       "block_order": [
+        "eyebrow",
         "heading",
         "copy",
         "buttons"
@@ -145,7 +153,8 @@
         "show_badge": true,
         "badge_figure": "Certified",
         "badge_text": "gluten-free",
-        "show_reviews": false
+        "show_reviews": false,
+        "show_marquee": false
       }
     },
     "our_story_Vt6Rw1": {
