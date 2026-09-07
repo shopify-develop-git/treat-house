@@ -66,6 +66,13 @@
           {% endfor %}
         {% else %}
           {% for product in products limit: limit %}
+            {%- comment -%}
+              Another channel's product is no more a suggestion than it is a
+              result — see [channel-hidden]. This dropdown rides on every page,
+              so left alone it was the widest hole of the lot.
+            {%- endcomment -%}
+            {%- capture off_channel -%}{% render 'channel-hidden', product: product %}{%- endcapture -%}
+            {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
             <li
               class="predictive-search-results__card predictive-search-results__card--product"
               ref="recentlyViewedItems[]"
@@ -95,6 +102,8 @@
         assign limit = limit | default: 8
       %}
       {% for product in products limit: limit %}
+        {%- capture off_channel -%}{% render 'channel-hidden', product: product %}{%- endcapture -%}
+        {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
         <li
           class="predictive-search-results__card predictive-search-results__card--product"
           ref="resultsItems[]"

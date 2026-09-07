@@ -38,6 +38,13 @@
 
       {% capture children %}
         {% for product in products %}
+          {%- comment -%}
+            Another channel's product is not a search result for a shopper — see
+            [channel-hidden]. No collection is passed: a search is nobody's
+            collection, so nothing is open here.
+          {%- endcomment -%}
+          {%- capture off_channel -%}{% render 'channel-hidden', product: product %}{%- endcapture -%}
+          {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
           <li
             id="{{ section.id }}-{{ product.id }}"
             class="product-grid__item product-grid__item--{{ forloop.index0 }}"

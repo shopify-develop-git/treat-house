@@ -1,0 +1,76 @@
+{%- doc -%}
+  Whether a product belongs to a sales channel other than the shop, and so should
+  not be shown to a retail shopper anywhere.
+
+  Treat House sells the same kitchen through several doors. Most of the catalogue
+  is the shop; the rest belongs to somebody else — ReachDesk the corporate gifting
+  platform, wholesale, and named clients with their own branded range, Overture and
+  PNC among them. All seventy of those sat in the retail catalogue, where a shopper
+  met gift-platform SKUs, case quantities and another company's logo on a treat.
+
+  The channel is read from `custom.internal_vendor`, the field the team fills in
+  the admin. Not from the name. The codes are written there too, but one product is
+  called `We Miss You 12-PackRD` with no space, and a rule that read names would
+  miss it and every typo after it. More to the point, Overture and PNC carry no
+  code in their names at all. A field is answered or it is not.
+
+  **Any answer hides it.** The test is that the field is filled, not that it holds
+  one of today's four values, so the next client to arrive is handled by filling
+  the field and nothing else.
+
+  **Hidden from the retail storefront, not taken off the web.** The product stays
+  published and its URL keeps working, because ReachDesk sells by sending links.
+  What goes is every place a retail shopper browses: collection grids, search, the
+  search dropdown, recommendations and the home rows.
+
+  **Except in the collection its own channel is sold from.** A channel that cannot
+  be browsed cannot be bought from, and every one of these is somebody's shop:
+  wholesale has `wholesale-page` and `reachdesk-copy`, ReachDesk has `reachdesk`,
+  Overture and PNC have theirs. Those handles are listed in
+  `settings.channel_open_collections`, and a product listed inside one of them is
+  shown as normal.
+
+  A flat list is enough because the collections do not overlap — no wholesale
+  product sits in the ReachDesk collection, so there is no need to check that the
+  open collection is this product's own channel. The day that stops being true,
+  this is the line that has to learn about it.
+
+  The one product this cannot reach, and should not: the gift box the box builder
+  offers as packaging is a ReachDesk product, and the builder takes it straight
+  from a block setting rather than from a collection or a search, so it is never
+  judged here.
+
+  Echoes `hidden` when the product should be left out and nothing when it should
+  not, so a caller reads it as a string.
+
+  @param {object} product - The product to judge.
+  @param {object} [collection] - The collection being listed, when there is one.
+
+  @example
+  {%- capture off_channel -%}{% render 'channel-hidden', product: product, collection: collection %}{%- endcapture -%}
+  {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
+{%- enddoc -%}
+
+{%- liquid
+  assign channel = product.metafields.custom.internal_vendor.value | default: product.metafields.custom.internal_vendor
+
+  if channel != blank
+    # `render` gives a snippet no globals, so the collection being listed is the
+    # one the caller passed and nothing else. Search, recommendations and the home
+    # rows pass none, which is right: none of them is anybody's shop.
+    assign here = collection.handle | downcase
+    assign open_here = false
+
+    assign open_list = settings.channel_open_collections | split: ','
+    for entry in open_list
+      assign entry_handle = entry | strip | downcase
+      if entry_handle != blank and entry_handle == here
+        assign open_here = true
+      endif
+    endfor
+
+    unless open_here
+      echo 'hidden'
+    endunless
+  endif
+-%}

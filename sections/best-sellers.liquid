@@ -208,6 +208,8 @@
                 assign card_season_label = card_season_parts[1]
               endif
             -%}
+            {%- capture off_channel -%}{% render 'channel-hidden', product: card_product %}{%- endcapture -%}
+            {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
             <li class="best-sellers__item" data-product-id="{{ card_product.id }}">
               {% render 'ui-product-card',
                 title: card_product.title,

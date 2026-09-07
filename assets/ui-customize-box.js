@@ -341,28 +341,94 @@ class CustomizeBox extends HTMLElement {
    * first flavour rather than existing only in the attribute Shopify is about to
    * overwrite.
    */
-  #cartItems() {
+  /** How many boxes the cart already holds, so the next one can be numbered. */
+  async #boxCount() {
+    try {
+      const cart = await fetch('/cart.js', { headers: { Accept: 'application/json' } }).then((r) => r.json());
+      const seen = new Set();
+      for (const line of cart.items ?? []) {
+        const id = line.properties?._box;
+        if (id) seen.add(id);
+      }
+      return seen.size;
+    } catch {
+      // A cart that cannot be read is not a reason to refuse the box. One is the
+      // honest guess: most carts hold no box at all.
+      return 0;
+    }
+  }
+
+  #cartItems(boxNumber) {
     const message = this.#message();
+
+    /*
+     * Every line of one box carries the same `_box`, and this is the whole reason
+     * the cart can hold a box together. A box arrives as several lines — one per
+     * flavour and one for the packaging — and until now nothing tied them: the
+     * cart saw unrelated products, gave each its own stepper, and a shopper could
+     * set a flavour to 15 inside a box that holds 12. The mark is what lets the
+     * cart recognise the set and refuse to let it drift.
+     *
+     * The leading underscore is Shopify's: a property named `_something` is kept
+     * on the line and left out of the cart, the checkout, the order and the emails
+     * a customer sees. So this is bookkeeping, not a line of copy.
+     *
+     * `_box_size` rides along because the cart has no other way to know what the
+     * box was built to hold — the pack size lives in the builder and is gone by
+     * the time the lines land.
+     */
+    const boxId = `bx-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+    const boxSize = String(this.#packSize || this.#flavourTotal);
+
+    /*
+     * Two marks, and they do different jobs. `_box` is the machine's — the
+     * underscore keeps it off the cart, the checkout, the order and the emails,
+     * and it exists only so the lines of one box can find each other.
+     *
+     * `Box` has no underscore, so it is printed everywhere a line item property
+     * is printed. It is what tells a shopper that these four rows are one thing
+     * rather than four, and what tells the kitchen which box a flavour belongs to
+     * when an order carries two of them. An id would have done neither: nobody
+     * reads `bx-k3f9a` and thinks "the first box".
+     *
+     * The number is the count of boxes already in the cart plus one, so the
+     * second box a shopper builds is #2. Remove the first afterwards and the
+     * second stays #2 — the labels are the order they were built in, which is
+     * the order the kitchen packs them in, and renumbering the survivor would
+     * only make the packing slip disagree with the confirmation email.
+     */
+    const boxProperties = {
+      _box: boxId,
+      _box_size: boxSize,
+      Box: `Custom ${boxSize}-Pack #${boxNumber}`,
+    };
+
     const items = this.#chosenFlavours.map((flavour) => ({
       id: Number(flavour.variantId),
       quantity: flavour.count,
+      properties: { ...boxProperties },
     }));
 
     const entry = this.#entry;
     if (entry?.unitId) {
-      const packaging = { id: Number(entry.unitId), quantity: entry.units || 1 };
+      const packaging = {
+        id: Number(entry.unitId),
+        quantity: entry.units || 1,
+        properties: { ...boxProperties },
+      };
       items.push(packaging);
     }
 
     const carrier = entry?.unitId ? items.at(-1) : items[0];
-    if (message && carrier) carrier.properties = { 'Gift message': message };
+    if (message && carrier) carrier.properties['Gift message'] = message;
 
     return items;
   }
 
   async #addToCart(button) {
     if (this.#adding || !this.#sellable) return;
-    const items = this.#cartItems();
+    const boxNumber = (await this.#boxCount()) + 1;
+    const items = this.#cartItems(boxNumber);
     if (!items.length) return;
 
     this.#adding = true;

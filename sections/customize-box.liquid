@@ -146,18 +146,15 @@
                             assign pack_size = pack.title | split: ' ' | first | times: 1
                           endif
 
-                          assign base_variant = pack.variants.first
-                          for variant in pack.variants
-                            if variant.price < base_variant.price
-                              assign base_variant = variant
-                            endif
-                          endfor
-
+                          # No per-unit note under the tile. It read "$3.00 / treat"
+                          # under all three packs, because that is what the prices
+                          # are — the same rate at 12, 24 and 36 — so the line was
+                          # three identical figures pretending to be a comparison.
+                          # The cheapest variant was looked up only to divide by the
+                          # pack size, so that search goes with it; `unit_noun` and
+                          # [ui-choice-tile]'s `note` both stay for the day the rate
+                          # does step with the size.
                           assign per_treat = ''
-                          if pack_size > 0
-                            assign per_unit = base_variant.price | divided_by: pack_size
-                            assign per_treat = per_unit | money | append: ' / ' | append: section.settings.unit_noun
-                          endif
 
                           # Escaped into their own variables first. A filter in the
                           # middle of an append chain applies to everything

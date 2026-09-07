@@ -214,6 +214,18 @@
       {%- if collection.products.size > 0 -%}
         <ul class="collection-products__grid" role="list">
           {%- for product in collection.products -%}
+            {%- comment -%}
+              A product belonging to another channel is not listed here — see
+              [channel-hidden]. Skipped rather than filtered out of the loop,
+              because `paginate` counts the page before Liquid ever sees it: a
+              page of twenty-four that holds two ReachDesk lines shows twenty-two,
+              and no arrangement inside the loop can change that. Whether a
+              collection should hold those products at all is a merchandising
+              question, not this file's — and two of them, congratulations and
+              get-well, hold nothing else.
+            {%- endcomment -%}
+            {%- capture off_channel -%}{% render 'channel-hidden', product: product, collection: collection %}{%- endcapture -%}
+            {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
             {%- liquid
               # The supporting line is the product's own description, cut to a length the
               # card can hold. The empty second argument drops truncatewords' ellipsis,

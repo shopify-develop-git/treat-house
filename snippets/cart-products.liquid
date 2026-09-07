@@ -23,6 +23,16 @@
   type="module"
   fetchpriority="low"
 ></script>
+{%- comment -%}
+  [cart-box-lines] takes a whole box out when one of its lines is removed. It
+  listens on the document rather than on the buttons, so it survives the drawer
+  being re-rendered.
+{%- endcomment -%}
+<script
+  src="{{ 'cart-box-lines.js' | asset_url }}"
+  type="module"
+  fetchpriority="low"
+></script>
 <script
   src="{{ 'volume-pricing-info.js' | asset_url }}"
   type="module"
@@ -161,6 +171,19 @@
                 assign line_season_status = line_season_parts[0] | default: 'available'
                 assign line_season_label = line_season_parts[1]
               -%}
+              {%- comment -%}
+                The line's name as a shopper should read it — see [strip-hidden-words].
+                Spoken labels get it too: a screen reader reading a supplier code out
+                loud is the one place the code is least use to anybody.
+              {%- endcomment -%}
+              {%- capture line_title_shown -%}{% render 'strip-hidden-words', title: item.title %}{%- endcapture -%}
+              {%- assign line_title_shown = line_title_shown | strip -%}
+              {%- comment -%}
+                The mark every line of one box shares, written by [ui-customize-box].
+                Read here rather than where it is used, because the row's cells need
+                it before the quantity cell is reached.
+              {%- endcomment -%}
+              {%- assign line_box = item.properties._box -%}
               <tr
                 role="row"
                 class="cart-items__table-row{% if item.parent_relationship.parent != null %} cart-items__nested-line{% endif %}{% if line_season_status != 'available' %} cart-items__table-row--season{% endif %}"
@@ -209,7 +232,7 @@
                       href="{{ item.url }}"
                       class="cart-items__title"
                       {% if item.parent_relationship.parent != null %}
-                        aria-label="{{ 'accessibility.nested_product' | t: product_title: item.product.title, parent_title: item.parent_relationship.parent.title | escape }}"
+                        aria-label="{{ 'accessibility.nested_product' | t: product_title: line_title_shown, parent_title: item.parent_relationship.parent.title | escape }}"
                       {% endif %}
                     >
                       {%- comment -%}
@@ -332,11 +355,33 @@
                   class="cart-items__quantity"
                   role="cell"
                   headers="quantity"
+                  {%- if line_box != blank %} data-cart-box-row="{{ line_box | escape }}"{% endif -%}
                 >
                   {% # Here I want to pass some arguments to the quantity block so it knows which value should the input be set to. Though quantity block could be a snippet instead %}
                   {% assign can_update_quantity = item.instructions.can_update_quantity
                     | default: true, allow_false: true
                   %}
+                  {%- comment -%}
+                    A line built in the box builder carries `_box`, and the whole set
+                    of them shares one value — see [ui-customize-box]. Its quantity was
+                    decided there against the size of the pack, so it is not the
+                    cart's to change: a box that holds twelve had no answer for a
+                    flavour a shopper had turned up to fifteen out here.
+
+                    The stepper is still drawn, with its field and both buttons
+                    disabled. Taking it away instead left the row a different shape
+                    from its neighbours, and a locked control that is visibly a
+                    control says why the number cannot move; a bare number just looks
+                    like a row that forgot its buttons.
+
+                    `can_update_quantity` is Shopify's own switch for this and
+                    [quantity-selector] already honours it — it is what a Cart
+                    Transform Function would set. The switch is the same, thrown from
+                    the theme rather than from a function the plan does not carry.
+                  {%- endcomment -%}
+                  {%- if line_box != blank -%}
+                    {%- assign can_update_quantity = false -%}
+                  {%- endif -%}
                   <div class="cart-items__quantity-controls">
                     {% render 'volume-pricing-info',
                       variant: item.variant,
@@ -356,7 +401,16 @@
                     <button
                       class="button cart-items__remove"
                       type="button"
-                      aria-label="{{ 'accessibility.remove_item' | t: title: item.title | escape }}"
+                      aria-label="{{ 'accessibility.remove_item' | t: title: line_title_shown | escape }}"
+                      {%- comment -%}
+                        A box comes out whole. Removing one flavour from it would leave
+                        a packed box with nothing in it, or treats with nothing to go
+                        in, so the button carries the box's mark and [cart-box-lines]
+                        clears every line wearing it. Horizon's own handler stays on
+                        the button for every other line, and for the box it is the
+                        fallback if the script never loads.
+                      {%- endcomment -%}
+                      {%- if line_box != blank %} data-cart-box-remove="{{ line_box | escape }}"{% endif -%}
                       on:click="/onLineItemRemove/{{ item.index | plus: 1 }}"
                       {% assign can_remove = item.instructions.can_remove | default: true, allow_false: true %}
                       {% if can_remove == false %}
