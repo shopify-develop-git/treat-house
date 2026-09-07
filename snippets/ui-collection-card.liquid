@@ -16,6 +16,9 @@
   @param {string} [description] - The supporting copy.
   @param {object} [image] - A Shopify image object for the media box.
   @param {string} [link] - The collection URL.
+  @param {string} [media_fit] - `contain` (the default) fits the whole picture in
+    the media box; `cover` fills the box and crops. See the note on the box's
+    height below before reaching for `cover`.
   @param {string} [variant] - `default` or `cta`. Defaults to `default`.
   @param {string} [button_label] - The button text for the `cta` variant.
   @param {string} [class] - Additional CSS classes.
@@ -42,16 +45,28 @@
     assign card_classes = card_classes | append: ' ' | append: class
   endif
 
-  assign media_height = 158
+  comment
+    The height the srcset is asked for, and it has to be the height the box is
+    actually drawn at — see [ui-collection-card-media-height] in the stylesheet
+    for why that is 276 and not the 158 the file draws.
+  endcomment
+  assign media_height = 276
   if card_variant == 'cta'
     assign media_height = 200
   endif
+
+  assign card_media_fit = media_fit
+  unless card_media_fit == 'contain' or card_media_fit == 'cover'
+    assign card_media_fit = 'contain'
+  endunless
+
+  assign card_image_classes = 'ui-collection-card__image ui-collection-card__image--' | append: card_media_fit
 -%}
 
 {%- capture card_media -%}
   <div class="ui-collection-card__media">
     {%- if image != blank -%}
-      {% render 'image', image: image, height: media_height, class: 'ui-collection-card__image' %}
+      {% render 'image', image: image, height: media_height, class: card_image_classes %}
     {%- else -%}
       {{ 'collection-1' | placeholder_svg_tag: 'ui-collection-card__image ui-collection-card__image--placeholder' }}
     {%- endif -%}
@@ -93,13 +108,37 @@
 {%- endif -%}
 
 {% stylesheet %}
+  /*
+   * [ui-collection-card-media-height]
+   *
+   * The file draws this box 158px tall on desktop, and held at 158 it wastes
+   * nearly half the card. The store photographs a product on a white sweep at
+   * 800x880 — taller than wide — and `contain` fits a picture by whichever side
+   * runs out first, so a 0.91 picture in a 278x158 box is fitted by its height
+   * and comes out 144 wide. 134 of the box's 278 pixels go to nothing, on every
+   * card.
+   *
+   * At 276 the box is about as tall as the artwork is shaped, so the picture is
+   * fitted by width instead and fills it: 251 wide against 144, which is every
+   * treat on the row 1.74 times the size for no crop and no new photography. It
+   * is worth the most where the subject is smallest — the twelve-pack trays fill
+   * only half the height of their own frame, so their treats were coming out
+   * eleven pixels across.
+   *
+   * The mobile 186 is the same sum at a 390px phone: a 169px box, and 186 is the
+   * height that lets the picture use all of it.
+   *
+   * This is the one measurement in the card that leaves the file, and it leaves
+   * it because the file was drawn against artwork shaped the other way.
+   */
+
   :root {
     /*
      * Mobile first. Note the media inset: the kit tucks the image 13.5px in from
      * each side on desktop but only 1px on mobile. That asymmetry is what the file
      * draws, so it is reproduced here rather than smoothed over.
      */
-    --ui-collection-card-media-height: 122px;
+    --ui-collection-card-media-height: 186px;
     --ui-collection-card-media-inset: 1px;
     --ui-collection-card-body-padding: 14px;
     --ui-collection-card-body-gap: 8px;
@@ -111,7 +150,7 @@
 
   @media screen and (min-width: 750px) {
     :root {
-      --ui-collection-card-media-height: 158px;
+      --ui-collection-card-media-height: 276px;
       --ui-collection-card-media-inset: 13.5px;
       --ui-collection-card-body-padding: 16px;
       --ui-collection-card-body-gap: 10px;
@@ -193,8 +232,18 @@
   .ui-collection-card__image {
     width: 100%;
     height: 100%;
-    /* The kit centres the artwork and fits it by height rather than cropping. */
+  }
+
+  /* The kit centres the artwork and fits the whole of it in, never cropping. With
+     the box at the height above that means fitting it by width. */
+  .ui-collection-card__image--contain {
     object-fit: contain;
+  }
+
+  /* The other way, for a caller that passes `media_fit: 'cover'`: fill the box and
+     crop, following the image's focal point when one is set. */
+  .ui-collection-card__image--cover {
+    object-fit: cover;
   }
 
   .ui-collection-card__body {

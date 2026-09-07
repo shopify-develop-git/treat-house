@@ -463,8 +463,18 @@ thumb cannot do without.
 `variant: 'default'` is one link end to end. `variant: 'cta'` cannot be — a button
 inside a link is invalid markup — so there the button carries the link.
 
-`title` · `description` · `image` · `link` · `variant` · `button_label` ·
-`class` · `attributes`
+The media box is 276px tall on desktop and 186 on mobile, against the 158 and 122
+the file draws. That is the one measurement in the card that leaves the file, and
+it leaves it because the file was drawn against artwork shaped the other way: the
+store shoots a product on a white sweep at 800x880, taller than wide, so at 158
+the picture was fitted by its height and used 144 of the box's 278 pixels. At 276
+it is fitted by width and fills it — every treat 1.74x the size, no crop.
+
+`media_fit` is `contain` by default; `cover` fills the box and crops instead,
+following the image's focal point when one is set in Shopify.
+
+`title` · `description` · `image` · `link` · `media_fit` · `variant` ·
+`button_label` · `class` · `attributes`
 
 ### `ui-article-card`
 
