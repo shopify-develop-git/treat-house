@@ -10,10 +10,10 @@
   they sit rather than numbered — image_1 through image_4 would read as a list a
   merchant could lengthen, which this is not.
 
-  The panel distributes its three parts with space-between rather than the 99px the
-  file measures. That figure is what fell out of a 624px panel beside a 624px image
-  grid; asking for it directly would hold when the copy is the drawn length and
-  break the moment it is not.
+  The panel centres its parts as one group rather than asking for the 99px the file
+  measures. That figure is what fell out of a 624px panel beside a 624px image grid;
+  asking for it directly would hold when the copy is the drawn length and break the
+  moment it is not.
 {% endcomment %}
 
 <div
@@ -120,9 +120,20 @@
     flex-direction: column;
     align-items: center;
 
-    /* The parts sit at the top, the middle and the bottom of whatever height the
-       panel ends up; the gap is only the floor between them. */
-    justify-content: space-between;
+    /*
+     * The panel is as tall as the 2x2 grid of photographs beside it, which leaves
+     * it holding far more height than its words need. Distributing the parts
+     * across that height sent the star to the ceiling and the copy to the floor
+     * with the surplus opening between them, and it depended on the row of
+     * figures to hold the bottom — which is optional, and empty here, so the
+     * panel ran on two children and the copy sat on its bottom edge under the
+     * whole gap.
+     *
+     * Centred as one group instead, on the gap below. The surplus goes to the top
+     * and bottom edges, where it reads as air rather than as a hole. Same change,
+     * same reason, as `sections/home-hero.liquid`.
+     */
+    justify-content: center;
     gap: 32px;
     box-sizing: border-box;
     padding: var(--corporate-gifts-panel-padding);
