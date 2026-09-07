@@ -2021,16 +2021,16 @@
       },
       {
         "type": "text",
-        "id": "cart_gift_note_save",
-        "label": "Save button label",
-        "default": "Save message"
+        "id": "cart_gift_note_edit",
+        "label": "Button label once written",
+        "info": "Replaces the button label after a message has been added.",
+        "default": "Edit gift message"
       },
       {
         "type": "text",
-        "id": "cart_gift_note_saved",
-        "label": "Confirmation",
-        "info": "Shown once the message is saved.",
-        "default": "Saved. We'll print it on the card."
+        "id": "cart_gift_note_save",
+        "label": "Save button label",
+        "default": "Save message"
       },
       {
         "type": "header",

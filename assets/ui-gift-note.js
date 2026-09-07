@@ -21,6 +21,8 @@
 const PANEL = '.ui-gift-note';
 const SAVE = '[data-gift-note-save]';
 const STATUS = '[data-gift-note-status]';
+const MESSAGE = '[data-gift-note-message]';
+const TOGGLE = '[data-gift-note-toggle]';
 
 const save = async (panel, button) => {
   const field = panel.querySelector('textarea');
@@ -37,8 +39,21 @@ const save = async (panel, button) => {
       body: JSON.stringify({ note: field.value }),
     });
 
+    const note = field.value.trim();
+
     if (details) details.open = false;
-    if (status) status.textContent = panel.dataset.savedLabel ?? '';
+    if (status) status.textContent = '';
+
+    // The message and the button both carry the state, so both are brought up to
+    // it here rather than waiting for the next render. A cart with no message
+    // offers to add one; a cart with one offers to change it.
+    const message = panel.querySelector(MESSAGE);
+    if (message) message.textContent = note;
+
+    const toggle = panel.querySelector(TOGGLE);
+    if (toggle) {
+      toggle.textContent = note ? (panel.dataset.editLabel ?? '') : (panel.dataset.addLabel ?? '');
+    }
   } catch (error) {
     // The note is not lost — the autosave above has it, or will on the next
     // keystroke — so the line says to try again rather than reporting a loss.
