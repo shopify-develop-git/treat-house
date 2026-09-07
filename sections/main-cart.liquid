@@ -146,6 +146,313 @@
     }
   }
 
+  /*
+   * ---------- The kit repaint ----------
+   *
+   * The page keeps Horizon's cart wholesale — `cart-items-component`, the
+   * quantity control that posts to the cart, the section rendering behind every
+   * change — and only the presentation is ours. That is the trick the product
+   * page and `snippets/ui-cart-drawer.liquid` both use: kit clothes on Horizon's
+   * working parts, rather than teaching the kit about Shopify.
+   *
+   * The drawer already repainted these same classes for a 400px panel. The rules
+   * below are its rules at the page's size — a bigger frame, a longer title, a
+   * stepper with room for a finger — so the two read as one cart at two widths
+   * rather than as two designs. Change one, look at the other.
+   */
+  .cart-page {
+    --cart-media: 120px;
+    --cart-row-gap: 24px;
+    --cart-panel-radius: 20px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .cart-page {
+      --cart-media: 88px;
+      --cart-row-gap: 16px;
+    }
+  }
+
+  /*
+   * A grid item will not fold below its own min-content unless told to, and the
+   * gift-message panel inside this column has a wide one — a line of copy beside
+   * a button. Between 750 and 1199 Horizon hands the summary
+   * `min(50vw, --sidebar-width)`, 375px of a 670px content width, and the column
+   * left over could not reach the 300 it insisted on. The page scrolled sideways
+   * by 53px. Nothing inside needs that floor, so it goes.
+   */
+  .cart-page .cart-page__items {
+    min-width: 0;
+  }
+
+  .cart-page .cart-title {
+    font-family: var(--font-heading--family);
+    color: var(--ui-color-black);
+  }
+
+  /*
+   * The empty state's button is Horizon's `.button`, which takes the scheme's
+   * accent and came out red against a purple site. Restyled here rather than
+   * swapped for [ui-button], because `snippets/cart-products.liquid` renders the
+   * whole empty state and this file does not own that markup.
+   */
+  .cart-page .cart-items__empty-button {
+    min-height: 48px;
+    border: none;
+    border-radius: var(--ui-radius-sm);
+    background: var(--ui-color-primary);
+    color: var(--ui-color-white);
+    font-family: var(--ui-font-emphasis);
+    font-size: 14px;
+    font-weight: var(--ui-font-emphasis-weight);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  /*
+   * The "Log in to check out faster" link beside it takes the scheme's link
+   * colour, which is the same red.
+   *
+   * Scoped through `.cart-page--empty`, not through the wrapper: the wrapper is
+   * the same element in both states, and reaching it turned every product title
+   * on a filled cart purple — the title is an `<a>` too.
+   */
+  .cart-page--empty .cart-items__wrapper a:not(.button) {
+    color: var(--ui-color-primary);
+  }
+
+  /* ---------- A line ---------- */
+
+  .cart-page .cart-items__table-row {
+    column-gap: var(--cart-row-gap);
+    row-gap: 12px;
+    /*
+     * The drawn frame, not Horizon's `15cqi`, which grows the picture with the
+     * column and left the rows a third empty at page width.
+     *
+     * `minmax` and not the figure alone. A fixed first column raises the row's
+     * min-content, and between 750 and 1199 Horizon gives the summary
+     * `min(50vw, --sidebar-width)` — 375px of a 670px content width — which left
+     * the items column 247 and a row that would not fold below 300. The page
+     * scrolled sideways by 14px. Floored at 56 the frame gives way in that band
+     * and keeps its drawn size everywhere there is room for it.
+     */
+    grid-template-columns: minmax(56px, var(--cart-media)) minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  /* The frame follows the column it was given rather than restating the figure,
+     or it would keep 120 in the band where the column has folded to 56. */
+  .cart-page .cart-items__media-container,
+  .cart-page .cart-items__media {
+    width: 100%;
+    max-width: var(--cart-media);
+    aspect-ratio: 1;
+    height: auto;
+    border-radius: 10px;
+  }
+
+  .cart-page .cart-items__media {
+    box-sizing: border-box;
+    border: 1px solid var(--ui-color-light-blue);
+    overflow: hidden;
+  }
+
+  .cart-page .cart-items__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cart-page .cart-items__title {
+    color: var(--ui-color-black);
+    font-family: var(--font-heading--family);
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .cart-page .cart-items__price {
+    min-width: 0;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .cart-page .cart-items__variants,
+  .cart-page .cart-items__properties {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 13px;
+    font-weight: var(--ui-font-body-weight);
+    line-height: 1.3;
+  }
+
+  .cart-page .cart-items__variant {
+    color: var(--ui-color-black);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  /*
+   * Horizon prints the price twice on a line — the line total on the right and
+   * the unit price again in grey under the title. At a quantity of one they are
+   * the same number twice. It goes, except where it is carrying a markdown, which
+   * the right-hand cell does not show. The drawer documents this at length.
+   */
+  .cart-page .cart-items__details > div:last-child:not(:has(.compare-at-price)) {
+    display: none;
+  }
+
+  /* The rule between lines, in the kit's hairline rather than Horizon's. */
+  .cart-page .cart-items__table-row {
+    border-block-end: var(--ui-hairline-width) solid var(--ui-color-border-gray);
+  }
+
+  .cart-page .cart-items__remove {
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    color: var(--ui-color-primary);
+  }
+
+  .cart-page .cart-items__remove svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /*
+   * The stepper is Horizon's own, restyled rather than swapped: the cart form and
+   * its section rendering hang off this element. Sized through the theme's own
+   * variable, and its max-width cap lifted — the drawer's comment explains why a
+   * cap of "control minus two 44px touch targets" leaves the number in a box of
+   * no width.
+   */
+  .cart-page .quantity-selector {
+    --quantity-selector-width: 104px;
+    --quantity-selector-button: 32px;
+
+    width: var(--quantity-selector-width);
+    height: 32px;
+    min-height: 0;
+    padding: 0;
+    gap: 0;
+    border: var(--ui-hairline-width) solid var(--ui-color-black);
+    border-radius: var(--ui-radius-sm);
+    background-color: var(--ui-color-white);
+  }
+
+  .cart-page .quantity-selector button {
+    flex: 0 0 auto;
+    width: var(--quantity-selector-button);
+    min-width: 0;
+    height: var(--quantity-selector-button);
+    min-height: 0;
+    padding: 0;
+    color: var(--ui-color-black);
+  }
+
+  .cart-page .quantity-selector button svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .cart-page .quantity-selector input {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    height: var(--quantity-selector-button);
+    padding: 0;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-emphasis);
+    font-size: 13px;
+    font-weight: var(--ui-font-emphasis-weight);
+    text-align: center;
+  }
+
+  /* ---------- The summary ---------- */
+
+  /*
+   * Horizon runs the summary as a full-height sidebar whose background bleeds to
+   * the window edge, and stretches it to the height of the items beside it. The
+   * kit draws a panel instead — a rounded block that is as tall as what is in it —
+   * so the stretch is undone and the tint moves off the outer element onto the
+   * inner one. Left stretched, the panel ran 265px of empty blue under the
+   * checkout button on a three-line cart.
+   */
+  .cart-page .cart-summary {
+    background: transparent;
+  }
+
+  .cart-page .cart-summary__inner {
+    align-self: start;
+    height: fit-content;
+    /*
+     * Horizon pads the extended sidebar 80px on the inside so its content clears
+     * the bleed. The panel does not bleed, so it takes the kit's own inset.
+     */
+    padding: 24px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .cart-page .cart-page__summary {
+      height: fit-content;
+      align-self: start;
+    }
+  }
+
+
+  .cart-page .cart-summary__inner {
+    box-sizing: border-box;
+    padding: 24px;
+    border-radius: var(--cart-panel-radius);
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .cart-page .cart-summary__inner :is(.totals__item, .cart-discounts__item) {
+    font-family: var(--ui-font-body);
+    font-size: 15px;
+    color: var(--ui-color-black);
+  }
+
+  /*
+   * The checkout button wears [ui-button]'s primary skin. Rendering the component
+   * is not on the table — this is Horizon's `name="checkout"` submit, and the
+   * cart form needs that element — so the look is brought to it instead. The
+   * values are the kit snippet's own; if they move there, they move here.
+   */
+  .cart-page .cart__checkout-button {
+    --border-radius: var(--ui-radius-sm);
+
+    min-height: 48px;
+    border: none;
+    border-radius: var(--ui-radius-sm);
+    background: var(--ui-color-primary);
+    color: var(--ui-color-white);
+    font-family: var(--ui-font-emphasis);
+    font-size: 14px;
+    font-weight: var(--ui-font-emphasis-weight);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .cart-page .cart__checkout-button:hover:not([disabled]) {
+    background: var(--ui-color-primary);
+    opacity: 0.9;
+  }
+
+  .cart-page .cart__checkout-hint {
+    font-family: var(--ui-font-body);
+    font-size: 13px;
+    color: var(--ui-color-gray);
+  }
+
   html:active-view-transition-type(empty-cart-page) {
     .cart-items-component {
       view-transition-name: cart-page-content;
