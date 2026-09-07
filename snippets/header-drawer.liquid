@@ -4,7 +4,6 @@
   @param {object} linklist - The linklist to render
   @param {string} [class] - Additional classes to add to the drawer
   @param {string} [data_header_drawer_type] - The type of header drawer to render
-  @param {string} [wishlist_url] - Passed through to the drawer's action rows
   @param {object} [block] - The block that can be used to provide settings
   @param {object} [section] - The section that can be used to provide settings
 
@@ -178,6 +177,22 @@
                   {%- comment -%}
                     Flat menus for links with children, in menus with fewer than 3 levels of links
                   {%- endcomment -%}
+                  {%- liquid
+                    # A parent saved with "#" (or no URL) is a heading for the rows
+                    # under it, so it is drawn as text rather than a dead link.
+                    assign parent_is_placeholder = false
+                    if link.url == blank or link.url == '#'
+                      assign parent_is_placeholder = true
+                    endif
+                  -%}
+                  {%- if parent_is_placeholder -%}
+                  <span
+                    id="HeaderDrawer-{{ link.handle }}"
+                    class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element"
+                  >
+                    <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
+                  </span>
+                  {%- else -%}
                   <a
                     id="HeaderDrawer-{{ link.handle }}"
                     href="{{ link.url }}"
@@ -188,6 +203,7 @@
                   >
                     <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                   </a>
+                  {%- endif -%}
                   {% liquid
                     assign render_link_image = false
                     if block_settings.menu_style == 'collection_images'
@@ -229,6 +245,22 @@
                   {%- comment -%}
                     Simple links for links with no children (regardless of accordion setting), in menus with fewer than 3 levels of links
                   {%- endcomment -%}
+                  {%- liquid
+                    # A parent saved with "#" (or no URL) is a heading for the rows
+                    # under it, so it is drawn as text rather than a dead link.
+                    assign parent_is_placeholder = false
+                    if link.url == blank or link.url == '#'
+                      assign parent_is_placeholder = true
+                    endif
+                  -%}
+                  {%- if parent_is_placeholder -%}
+                  <span
+                    id="HeaderDrawer-{{ link.handle }}"
+                    class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element"
+                  >
+                    <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
+                  </span>
+                  {%- else -%}
                   <a
                     id="HeaderDrawer-{{ link.handle }}"
                     href="{{ link.url }}"
@@ -239,6 +271,7 @@
                   >
                     <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                   </a>
+                  {%- endif -%}
                 {% endif %}
               </li>
             {%- endfor -%}
@@ -543,6 +576,22 @@
                   {%- comment -%}
                     Simple links for links with no children (regardless of accordion setting), in menus with 3 levels of links
                   {%- endcomment -%}
+                  {%- liquid
+                    # A parent saved with "#" (or no URL) is a heading for the rows
+                    # under it, so it is drawn as text rather than a dead link.
+                    assign parent_is_placeholder = false
+                    if link.url == blank or link.url == '#'
+                      assign parent_is_placeholder = true
+                    endif
+                  -%}
+                  {%- if parent_is_placeholder -%}
+                  <span
+                    id="HeaderDrawer-{{ link.handle }}"
+                    class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element"
+                  >
+                    <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
+                  </span>
+                  {%- else -%}
                   <a
                     id="HeaderDrawer-{{ link.handle }}"
                     href="{{ link.url }}"
@@ -553,6 +602,7 @@
                   >
                     <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                   </a>
+                  {%- endif -%}
                 {%- endif -%}
               </li>
             {%- endfor -%}
@@ -568,7 +618,7 @@
           a row with no room for labels; here there is room, and the drawer is
           the one place the whole header is listed rather than glanced at.
         {%- endcomment -%}
-        {% render 'ui-drawer-actions', wishlist_url: wishlist_url %}
+        {% render 'ui-drawer-actions' %}
 
         {% liquid
           assign show_language = section.settings.show_language

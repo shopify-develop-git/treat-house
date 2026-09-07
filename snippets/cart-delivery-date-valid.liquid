@@ -1,0 +1,66 @@
+{%- doc -%}
+  Echoes the cart's chosen delivery date (`cart.attributes['_delivery_date']`,
+  ISO `YYYY-MM-DD`) if it is still bookable, and nothing at all if it is not.
+
+  One place decides what "still bookable" means, so the drawer panel, the
+  checkout gate and the hidden form inputs cannot disagree:
+
+  - not before today + `cart_delivery_min_days` (default 3) and not after
+    today + `cart_delivery_max_days` (default 60), both calendar days from the
+    render moment in the shop's timezone;
+  - not on a weekday listed in `cart_delivery_disabled_weekdays` ("0,6");
+  - not on a date listed in `cart_delivery_blackout_dates` (one per line).
+
+  A stale value is therefore treated as blank by every consumer, which
+  re-prompts a returning visitor rather than carrying a past date onto an
+  order. ISO strings compare lexically, which is why no date maths is needed.
+
+  Use with capture, because `render` cannot hand a variable back:
+
+  @example
+  {%- capture delivery_iso -%}{% render 'cart-delivery-date-valid' %}{%- endcapture -%}
+  {%- assign delivery_iso = delivery_iso | strip -%}
+{%- enddoc -%}
+
+{%- liquid
+  assign lead_days = settings.cart_delivery_min_days | default: 3
+  assign window_days = settings.cart_delivery_max_days | default: 60
+  if window_days < lead_days
+    assign window_days = lead_days
+  endif
+
+  assign now_seconds = 'now' | date: '%s'
+  assign earliest = lead_days | times: 86400 | plus: now_seconds | date: '%Y-%m-%d'
+  assign latest = window_days | times: 86400 | plus: now_seconds | date: '%Y-%m-%d'
+
+  assign iso = cart.attributes['_delivery_date'] | default: '' | strip
+  assign valid = false
+
+  if iso.size == 10 and iso >= earliest and iso <= latest
+    assign valid = true
+
+    assign weekday = iso | date: '%w'
+    # `date` hands an unparsable string back unchanged, so anything but a single
+    # digit here is not a date and must not reach the cart as one.
+    if weekday.size != 1
+      assign valid = false
+    endif
+    assign disabled_weekdays = settings.cart_delivery_disabled_weekdays | default: '' | replace: ' ', '' | split: ','
+    if disabled_weekdays contains weekday
+      assign valid = false
+    endif
+
+    assign blackout_raw = settings.cart_delivery_blackout_dates | default: '' | strip | newline_to_br | replace: '<br />', ',' | replace: '<br>', ','
+    assign blackout = blackout_raw | split: ','
+    for day in blackout
+      assign clean = day | strip
+      if clean == iso
+        assign valid = false
+      endif
+    endfor
+  endif
+
+  if valid
+    echo iso
+  endif
+-%}

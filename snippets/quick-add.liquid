@@ -7,6 +7,14 @@
   @param {string} [color_scheme] - The color scheme to use
 {%- enddoc -%}
 
+{%- capture season -%}{% render 'season-status', product: product %}{%- endcapture -%}
+{%- assign season_parts = season | strip | split: '|' -%}
+{%- assign season_status = season_parts[0] | default: 'available' -%}
+{%- comment -%}
+  A seasonal product that is closed or not yet open gets no quick-add form at
+  all (see [season-status]); its card badge carries the season label instead.
+{%- endcomment -%}
+{%- if season_status == 'available' -%}
 {% liquid
   assign product_form_id = 'QuickAdd-ProductForm-' | append: product.id | append: '-' | append: block.id
   assign add_to_cart_text = 'actions.add' | t
@@ -112,6 +120,7 @@
     {%- endform -%}
   </product-form-component>
 </quick-add-component>
+{%- endif -%}
 
 {% stylesheet %}
   /* Quick Add */

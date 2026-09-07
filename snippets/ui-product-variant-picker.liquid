@@ -37,6 +37,10 @@
     does an option already starting with the same word — a shop with an option
     called "Choose a Pack" does not want "Choose your Choose a Pack".
   @param {string} [class] - Additional CSS classes.
+  @param {object} [gift_box_image] - A fallback image for the packaging option's
+    upgrade value (the second value of the first option). Matched on position
+    rather than wording, since the value strings differ per pack. Used only when
+    that value's variant has no featured media of its own.
 
   @example
   {% render 'ui-product-variant-picker', product_resource: closest.product, label_prefix: 'Choose your' %}
@@ -90,10 +94,16 @@
             {%- unless value.available %} aria-disabled="true"{% endunless -%}
           {%- endcapture -%}
 
+          {%- liquid
+            assign row_image = value.variant.featured_media.preview_image
+            if row_image == blank and fieldset_index == 0 and forloop.index0 == 1 and gift_box_image != blank
+              assign row_image = gift_box_image
+            endif
+          -%}
           {% render 'ui-variant-item',
             label: value.name,
             value: value.name,
-            image: value.variant.featured_media.preview_image,
+            image: row_image,
             checked: value.selected,
             name: group_name,
             attributes: row_attributes
@@ -104,6 +114,9 @@
       {%- for value in product_option.values -%}
         {%- if value.selected -%}
           {%- assign trigger_image = value.variant.featured_media.preview_image -%}
+          {%- if trigger_image == blank and fieldset_index == 0 and forloop.index0 == 1 and gift_box_image != blank -%}
+            {%- assign trigger_image = gift_box_image -%}
+          {%- endif -%}
           {%- break -%}
         {%- endif -%}
       {%- endfor -%}

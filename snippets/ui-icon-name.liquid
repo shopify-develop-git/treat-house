@@ -33,8 +33,8 @@
   unless key == blank or key == 'none'
     assign asset = key | replace: ' ', '-'
 
-    assign alias_names = 'gluten-free,hand-and-heart,shipping,information,birthday-cake,baby,heart' | split: ','
-    assign alias_assets = 'wheat-slash,hand-holding-heart,shipping-fast,info-circle,cake-birthday,smiling-baby,wishlist' | split: ','
+    assign alias_names = 'gluten-free,hand-and-heart,shipping,information,birthday-cake,baby' | split: ','
+    assign alias_assets = 'wheat-slash,hand-holding-heart,shipping-fast,info-circle,cake-birthday,smiling-baby' | split: ','
 
     for alias in alias_names
       if alias == asset

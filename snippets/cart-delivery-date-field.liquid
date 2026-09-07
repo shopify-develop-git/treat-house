@@ -1,0 +1,153 @@
+{%- doc -%}
+  The delivery panel: the date the order is booked for, and the calendar it is
+  picked in. One control — the panel's date row is the trigger and the readout,
+  the calendar under it is what it opens — driven by `cart-delivery-date.js`.
+
+  Rendered by the cart drawer (`ui-cart-drawer`, part `shipping`) and by the
+  /cart page (`blocks/_cart-summary`, above the totals); each passes its own
+  `picker_id` so `aria-controls` never points at two elements. The panel's CSS lives in
+  the stylesheet tag of `ui-cart-drawer.liquid`; those are bundled globally,
+  so the rules exist wherever this is rendered.
+
+  The date is saved as two cart attributes: the one named in
+  `cart_delivery_attribute` carries the human string ("Thu, Sep 10, 2026"),
+  `_delivery_date` carries ISO `YYYY-MM-DD`. A stored date that is no longer
+  bookable (see `cart-delivery-date-valid`) is shown as unset, flagged
+  `data-stale` so the script clears it from the cart, and the checkout gate in
+  `cart-summary` re-engages.
+
+  The script is loaded by `header-actions.liquid` (drawer) and
+  `main-cart.liquid` (page), not here: this markup is swapped in through
+  section rendering and an inline `<script>` would never run.
+
+  @param {string} [picker_id] - Id for the calendar root. Default `cart-delivery-picker`.
+
+  @example
+  {% render 'cart-delivery-date-field', picker_id: 'cart-delivery-picker' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign picker_id = picker_id | default: 'cart-delivery-picker'
+
+  assign lead_days = settings.cart_delivery_min_days | default: 3
+  assign window_days = settings.cart_delivery_max_days | default: 60
+  if window_days < lead_days
+    assign window_days = lead_days
+  endif
+
+  assign now_seconds = 'now' | date: '%s'
+  assign earliest = lead_days | times: 86400 | plus: now_seconds | date: '%Y-%m-%d'
+  assign latest = window_days | times: 86400 | plus: now_seconds | date: '%Y-%m-%d'
+
+  assign date_attribute = settings.cart_delivery_attribute | default: 'Delivery date'
+  assign stored_iso = cart.attributes['_delivery_date'] | default: '' | strip
+-%}
+{%- capture chosen_iso -%}{% render 'cart-delivery-date-valid' %}{%- endcapture -%}
+{%- liquid
+  assign chosen_iso = chosen_iso | strip
+  assign chosen = ''
+  assign stale = false
+
+  if chosen_iso != blank
+    assign chosen = cart.attributes[date_attribute] | default: ''
+    if chosen == blank
+      assign chosen = chosen_iso | date: '%a, %b %-d, %Y'
+    endif
+  elsif stored_iso != blank
+    assign stale = true
+  endif
+
+  assign choose_label = settings.cart_delivery_choose_label | default: 'Choose a date'
+  assign change_label = settings.cart_delivery_change_label | default: 'Change'
+
+  assign disabled_weekdays = settings.cart_delivery_disabled_weekdays | default: '' | replace: ' ', ''
+  assign blackout_dates = settings.cart_delivery_blackout_dates | default: '' | strip | newline_to_br | replace: '<br />', ',' | replace: '<br>', ',' | replace: ' ', '' | strip_newlines
+
+  assign required = false
+  if settings.require_cart_delivery_date and settings.show_cart_delivery_date
+    assign required = true
+  endif
+
+  assign confirm_label = 'cart.confirm_delivery_date' | t
+-%}
+
+<cart-delivery-date
+  class="ui-cart-date"
+  data-earliest="{{ earliest }}"
+  data-latest="{{ latest }}"
+  data-selected="{{ chosen_iso | escape }}"
+  data-attribute="{{ date_attribute | escape }}"
+  data-change-label="{{ change_label | escape }}"
+  data-disabled-weekdays="{{ disabled_weekdays | escape }}"
+  data-blackout="{{ blackout_dates | escape }}"
+  {% if required %}data-required="true"{% endif %}
+  {% if stale %}data-stale="true"{% endif %}
+>
+  <div class="ui-cart-shipping">
+    <p class="ui-cart-shipping__heading">
+      <span class="ui-cart-shipping__icon" aria-hidden="true">
+        {{- 'icon-ui-truck.svg' | inline_asset_content -}}
+      </span>
+      {{ 'cart.delivery_heading' | t }}
+    </p>
+
+    {%- if settings.cart_shipping_from != blank -%}
+      <p class="ui-cart-shipping__row">
+        <span class="ui-cart-shipping__label">{{ 'cart.ships_from' | t }}</span>
+        <span class="ui-cart-shipping__value">{{ settings.cart_shipping_from }}</span>
+      </p>
+    {%- endif -%}
+
+    <p class="ui-cart-shipping__row ui-cart-shipping__row--date">
+      <span class="ui-cart-shipping__label">{{ 'cart.delivery_date_label' | t }}</span>
+
+      {%- if settings.show_cart_delivery_date -%}
+        <span class="ui-cart-date__value">
+          <span class="ui-cart-date__pill" data-date-pill {% if chosen == blank %}hidden{% endif %}>
+            {{- chosen | escape -}}
+          </span>
+
+          <button
+            type="button"
+            class="ui-button ui-button--underline ui-cart-date__toggle"
+            data-date-toggle
+            aria-expanded="false"
+            aria-controls="{{ picker_id }}"
+          >
+            {%- if chosen != blank -%}{{ change_label }}{%- else -%}{{ choose_label }}{%- endif -%}
+          </button>
+        </span>
+      {%- else -%}
+        <span class="ui-cart-shipping__value">{{ 'cart.shipping_at_checkout' | t }}</span>
+      {%- endif -%}
+    </p>
+
+    {%- if settings.show_cart_delivery_date -%}
+      <p class="ui-cart-date__lead">{{ 'cart.delivery_date_lead' | t: count: lead_days }}</p>
+
+      {%- if stale -%}
+        <p class="ui-cart-date__notice" role="status">{{ 'cart.delivery_date_cleared' | t }}</p>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- if settings.cart_shipping_method != blank -%}
+      <p class="ui-cart-shipping__row">
+        <span class="ui-cart-shipping__label">{{ 'cart.shipping_method' | t }}</span>
+        <span class="ui-cart-shipping__value">{{ settings.cart_shipping_method }}</span>
+      </p>
+    {%- endif -%}
+  </div>
+
+  {%- if settings.show_cart_delivery_date -%}
+    {% render 'ui-date-picker',
+      id: picker_id,
+      class: 'ui-cart-date__picker',
+      confirm_label: confirm_label,
+      attributes: 'hidden'
+    %}
+
+    <p class="ui-cart-date__error" data-date-error role="alert" hidden>
+      {{- 'cart.delivery_date_error' | t -}}
+    </p>
+  {%- endif -%}
+</cart-delivery-date>

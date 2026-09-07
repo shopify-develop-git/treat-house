@@ -32,7 +32,7 @@
           "type": "_ui-text",
           "settings": {
             "source": "custom",
-            "text": "<p>Partner with us to stock handcrafted Krispie treats in your store, café, or venue. Submit an inquiry and our wholesale team will follow up with pricing and minimums.</p>",
+            "text": "<p>Handcrafted Krispie treats, certified gluten-free and ready for retail and café shelves. Send us a wholesale application. A real person reviews it and follows up by email with pricing and ordering details.</p>",
             "text_size": 16,
             "text_size_mobile": 16,
             "max_width": 0,
@@ -54,7 +54,7 @@
               "type": "_ui-link",
               "settings": {
                 "label": "Apply for wholesale",
-                "link": "/pages/wholesale?view=wholesale",
+                "link": "#apply",
                 "variant": "primary",
                 "full_width": false,
                 "open_in_new_tab": false,
@@ -75,8 +75,8 @@
             "source": "manual",
             "image": "shopify://shop_images/review-line-composite.webp",
             "rating_stars": 5,
-            "rating_text": "4.9 rating",
-            "reviews_text": "12,000+ reviews",
+            "rating_text": "",
+            "reviews_text": "",
             "layout": "stacked",
             "text_size": 14,
             "text_size_mobile": 14,
@@ -94,13 +94,13 @@
       ],
       "settings": {
         "color_scheme": "",
-        "image": "shopify://shop_images/image_28_a1d5c213-d8c6-448f-8572-ca78d2dcf19d.webp",
+        "image": "shopify://shop_images/th-wholesale-hero.jpg",
         "show_badge": false,
-        "badge_figure": "100%",
-        "badge_text": "Gluten-Free",
-        "show_reviews": true,
+        "badge_figure": "",
+        "badge_text": "",
+        "show_reviews": false,
         "show_marquee": true,
-        "marquee_text": "nationwide shipping",
+        "marquee_text": "handcrafted krispie treats",
         "marquee_repeat": 8,
         "marquee_direction": "normal"
       }
@@ -108,22 +108,12 @@
     "claims": {
       "type": "step-cards",
       "blocks": {
-        "gluten": {
-          "type": "_ui-feature-card",
-          "settings": {
-            "icon": "wheat-slash",
-            "badge": "",
-            "title": "Certified Gluten Free",
-            "body": "<p>Consistent quality at wholesale volume.</p>"
-          },
-          "blocks": {}
-        },
         "minimums": {
           "type": "_ui-feature-card",
           "settings": {
             "icon": "box-add",
             "badge": "",
-            "title": "Low Minimums",
+            "title": "Flexible order sizes",
             "body": "<p>Case packs sized for retail and café shelves.</p>"
           },
           "blocks": {}
@@ -133,8 +123,8 @@
           "settings": {
             "icon": "sparkles",
             "badge": "",
-            "title": "Seasonal Flavors",
-            "body": "<p>New flavors each season, ready to rotate onto your shelf.</p>"
+            "title": "Seasonal flavors",
+            "body": "<p>New flavors each season, every one certified gluten-free.</p>"
           },
           "blocks": {}
         },
@@ -143,8 +133,8 @@
           "settings": {
             "icon": "shipping-fast",
             "badge": "",
-            "title": "Nationwide Shipping",
-            "body": "<p>Orders ship to retailers anywhere in the country.</p>"
+            "title": "We ship nationwide",
+            "body": "<p>Ask us about timing to your location.</p>"
           },
           "blocks": {}
         },
@@ -167,7 +157,6 @@
         }
       },
       "block_order": [
-        "gluten",
         "minimums",
         "seasonal",
         "shipping"
@@ -176,8 +165,8 @@
         "show_connector": false,
         "card_height": 0,
         "heading_gap": 64,
-        "columns": 4,
-        "columns_md": 2,
+        "columns": 3,
+        "columns_md": 3,
         "columns_sm": "1",
         "section_width": "page-width",
         "card_background": "light-blue",
@@ -190,84 +179,12 @@
     "trusted": {
       "type": "logo-row",
       "blocks": {
-        "logo1": {
-          "type": "_ui-logo",
-          "settings": {
-            "image": "shopify://shop_images/trusted-by-whole-foods-market.webp",
-            "name": "Whole Foods Market",
-            "link": ""
-          },
-          "blocks": {}
-        },
-        "logo2": {
-          "type": "_ui-logo",
-          "settings": {
-            "image": "shopify://shop_images/trusted-by-equator-coffees.webp",
-            "name": "Equator Coffees & Teas",
-            "link": ""
-          },
-          "blocks": {}
-        },
-        "logo3": {
-          "type": "_ui-logo",
-          "settings": {
-            "image": "shopify://shop_images/trusted-by-four-seasons.webp",
-            "name": "Four Seasons Hotels and Resorts",
-            "link": ""
-          },
-          "blocks": {}
-        },
-        "logo4": {
-          "type": "_ui-logo",
-          "settings": {
-            "image": "shopify://shop_images/trusted-by-jenis-ice-creams.webp",
-            "name": "Jeni's Ice Creams",
-            "link": ""
-          },
-          "blocks": {}
-        },
-        "logo5": {
-          "type": "_ui-logo",
-          "settings": {
-            "image": "shopify://shop_images/trusted-by-west-bourne-market.webp",
-            "name": "West~Bourne Market",
-            "link": ""
-          },
-          "blocks": {}
-        },
-        "logo6": {
-          "type": "_ui-logo",
-          "settings": {
-            "image": "shopify://shop_images/trusted-by-tatte-bakery.webp",
-            "name": "Tatte Bakery & Café",
-            "link": ""
-          },
-          "blocks": {}
-        },
-        "logo7": {
-          "type": "_ui-logo",
-          "settings": {
-            "image": "shopify://shop_images/trusted-by-barrington-coffee.webp",
-            "name": "Barrington Coffee",
-            "link": ""
-          },
-          "blocks": {}
-        },
-        "logo8": {
-          "type": "_ui-logo",
-          "settings": {
-            "image": "shopify://shop_images/trusted-by-blue-plate-catering.webp",
-            "name": "Blue Plate Catering",
-            "link": ""
-          },
-          "blocks": {}
-        },
         "heading": {
           "type": "_ui-heading",
           "static": true,
           "settings": {
             "source": "custom",
-            "heading": "<h2><em>Trusted by</em> retailers, cafés &amp; corporate teams</h2>",
+            "heading": "<h2><em>Trusted by</em> retailers, cafés and teams</h2>",
             "heading_tag": "h1",
             "heading_size": 30,
             "heading_size_mobile": 24,
@@ -280,16 +197,6 @@
           "blocks": {}
         }
       },
-      "block_order": [
-        "logo1",
-        "logo2",
-        "logo3",
-        "logo4",
-        "logo5",
-        "logo6",
-        "logo7",
-        "logo8"
-      ],
       "settings": {
         "heading_gap": 48,
         "logo_height": 105,
@@ -310,8 +217,8 @@
           "settings": {
             "icon": "document",
             "badge": "Step 1",
-            "title": "Submit Your Application",
-            "body": "<p>Complete the wholesale inquiry form and tell us about your business.</p>"
+            "title": "Send your application",
+            "body": "<p>Fill in the form below and tell us a little about your business.</p>"
           },
           "blocks": {}
         },
@@ -320,18 +227,18 @@
           "settings": {
             "icon": "audit",
             "badge": "Step 2",
-            "title": "Application Review",
-            "body": "<p>Our team reviews your business information and contacts you if additional details are needed.</p>"
+            "title": "A real person reviews it",
+            "body": "<p>Someone on our team reads it over and reaches out if we need anything else.</p>"
           },
           "blocks": {}
         },
         "approved": {
           "type": "_ui-feature-card",
           "settings": {
-            "icon": "badge-check",
+            "icon": "envelope",
             "badge": "Step 3",
-            "title": "Get Approved",
-            "body": "<p>Once approved, you will be given access to our wholesale page.</p>"
+            "title": "Pricing and ordering details",
+            "body": "<p>We reply by email with pricing and how to place your first order.</p>"
           },
           "blocks": {}
         },
@@ -380,7 +287,7 @@
           "type": "_ui-heading",
           "settings": {
             "source": "custom",
-            "heading": "<h2>Apply for a <em>wholesale account</em></h2>",
+            "heading": "<h2>Apply for <em>wholesale</em></h2>",
             "heading_tag": "h1",
             "heading_size": 48,
             "heading_size_mobile": 32,
@@ -396,7 +303,7 @@
           "type": "_ui-text",
           "settings": {
             "source": "custom",
-            "text": "<p>Complete the form below and we'll review your application within 1–2 business days.</p>",
+            "text": "<p>Fill in the form below and we will be in touch by email.</p>",
             "text_size": 16,
             "text_size_mobile": 14,
             "max_width": 0,
@@ -411,6 +318,38 @@
           "settings": {
             "registration_form_id": "57a614f4-3ee7-48fe-b7e0-3a910d4ee93d"
           }
+        },
+        "sent-heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "source": "custom",
+            "heading": "<h2>Thanks, your application <em>is in</em></h2>",
+            "heading_tag": "h2",
+            "heading_size": 36,
+            "heading_size_mobile": 28,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
+        },
+        "sent-copy": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "source": "custom",
+            "text": "<p>A real person will review it and email you pricing and ordering details. Questions in the meantime? Write to info@treathouse.com.</p>",
+            "text_size": 16,
+            "text_size_mobile": 14,
+            "max_width": 0,
+            "color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -431,7 +370,7 @@
           "type": "_ui-heading",
           "settings": {
             "source": "custom",
-            "heading": "<h2>Need to Contact Our Team</h2>",
+            "heading": "<h2>Questions before <em>you apply?</em></h2>",
             "heading_tag": "h1",
             "heading_size": 48,
             "heading_size_mobile": 32,
@@ -447,7 +386,7 @@
           "type": "_ui-text",
           "settings": {
             "source": "custom",
-            "text": "<p>Have questions before applying? We'd love to help.</p>",
+            "text": "<p>We'd love to help.</p>",
             "text_size": 16,
             "text_size_mobile": 14,
             "max_width": 0,
@@ -472,7 +411,7 @@
           "type": "_ui-link",
           "static": true,
           "settings": {
-            "label": "",
+            "label": "Send us a note",
             "link": "/pages/contact",
             "variant": "secondary",
             "full_width": false,

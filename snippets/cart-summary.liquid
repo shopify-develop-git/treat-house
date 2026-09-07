@@ -250,14 +250,71 @@
   </div>
 </div>
 
+{%- comment -%}
+  The delivery-date gate. Rendered on the server so it survives every morph
+  (quantity edits re-render this summary from section HTML) and holds with
+  JavaScript off. `cart-delivery-date-valid` treats a past or blocked date as
+  blank, so a returning visitor is re-prompted. `cart-delivery-date.js` adds a
+  capturing guard on the form as well, and re-renders the section from the
+  server once a date is confirmed so the button un-disables from cart state.
+{%- endcomment -%}
+{%- liquid
+  # The seasonal gate. Every line's product is re-read through [season-status]
+  # at render time, so a treat that closed after it was added — or one posted
+  # straight to /cart/add around the theme's buttons — still holds checkout
+  # until the line is removed. Server-rendered like the date gate, so it
+  # survives every morph and JavaScript off. The delivery-date script only
+  # touches a button carrying `data-delivery-date-gate`, which is withheld while
+  # this gate is closed so a saved date cannot re-enable the button.
+  assign season_gate = false
+  for line_item in cart.items
+    capture line_season
+      render 'season-status', product: line_item.product
+    endcapture
+    assign line_season_status = line_season | strip | split: '|' | first
+    if line_season_status != blank and line_season_status != 'available'
+      assign season_gate = true
+      break
+    endif
+  endfor
+  assign season_hint_id = 'cart-season-hint-' | append: section_id
+
+  assign date_gate = false
+  if settings.require_cart_delivery_date and settings.show_cart_shipping_estimate and settings.show_cart_delivery_date
+    capture delivery_iso
+      render 'cart-delivery-date-valid'
+    endcapture
+    assign delivery_iso = delivery_iso | strip
+    if delivery_iso == blank
+      assign date_gate = true
+    endif
+  endif
+  assign hint_id = 'cart-delivery-date-hint-' | append: section_id
+
+  assign describedby = ''
+  if season_gate
+    assign describedby = season_hint_id
+  endif
+  if date_gate
+    assign describedby = describedby | append: ' ' | append: hint_id | strip
+  endif
+-%}
+
 <div class="cart__ctas">
   <button
     type="submit"
     id="checkout"
     class="cart__checkout-button button"
     name="checkout"
-    {% if cart == empty %}
+    {% if cart == empty or date_gate or season_gate %}
       disabled
+    {% endif %}
+    {% if date_gate or season_gate %}
+      aria-disabled="true"
+      aria-describedby="{{ describedby }}"
+    {% endif %}
+    {% if date_gate and season_gate == false %}
+      data-delivery-date-gate
     {% endif %}
     form="cart-form"
   >
@@ -271,6 +328,27 @@
       <span class="cart__checkout-total" aria-hidden="true"> — {{ total_price }}</span>
     </span>
   </button>
+
+  {%- if season_gate -%}
+    <p
+      id="{{ season_hint_id }}"
+      class="cart__checkout-hint cart-primary-typography"
+      role="status"
+      data-season-gate-hint
+    >
+      {{- 'cart.seasonal_blocked' | t -}}
+    </p>
+  {%- endif -%}
+  {%- if date_gate -%}
+    <p
+      id="{{ hint_id }}"
+      class="cart__checkout-hint cart-primary-typography"
+      role="status"
+      {% if season_gate == false %}data-delivery-date-hint{% endif %}
+    >
+      {{- 'cart.delivery_date_required' | t -}}
+    </p>
+  {%- endif -%}
 
   {%- comment -%}
     The file puts this line under the button, not over it, and gives it one
@@ -484,6 +562,24 @@
     width: 100%;
     height: clamp(25px, var(--height-buy-buttons), 55px);
     padding-inline: var(--padding-4xl);
+  }
+
+  .cart__ctas .cart__checkout-button[aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+
+  /* Why the button is off: read out with it through aria-describedby, and drawn
+     directly under it so the reason and the control are one glance apart. */
+  .cart__checkout-hint {
+    margin: calc(var(--checkout-button-gap, 10px) * -1) 0 0;
+    font-size: var(--font-size--2xs);
+    line-height: 1.3;
+    text-align: center;
+    color: var(--ui-color-primary, var(--color-primary));
+  }
+
+  .cart__checkout-hint[hidden] {
+    display: none;
   }
 
   .cart-drawer__summary .cart-totals:not(:has(.cart-totals__original-container:empty)) {

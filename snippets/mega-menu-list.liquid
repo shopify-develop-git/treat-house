@@ -107,10 +107,24 @@
       endif
     %}
     <div>
+      {%- liquid
+        # A group heading saved with "#" (or no URL) labels its column rather than
+        # opening a page, so it is drawn as text instead of a dead link.
+        assign heading_is_placeholder = false
+        if link.url == blank or link.url == '#'
+          assign heading_is_placeholder = true
+        endif
+      -%}
+      {%- if heading_is_placeholder -%}
+      <span
+        class="mega-menu__link {% if link.links != blank %}mega-menu__link--parent{% endif %}"
+      >
+      {%- else -%}
       <a
         href="{{ link.url }}"
         class="mega-menu__link {% if link.links != blank %}mega-menu__link--parent{% endif %}"
       >
+      {%- endif -%}
         {% if menu_content_type == 'collection_images' %}
           {%- capture collection_image_sizes -%}
             {%- if parent_link.links.size <= 4 -%}
@@ -134,7 +148,11 @@
         <span class="wrap-text">
           {{- link.title -}}
         </span>
+      {%- if heading_is_placeholder -%}
+      </span>
+      {%- else -%}
       </a>
+      {%- endif -%}
       {%- comment -%}
         The panel carries one call to action — "Shop All Treats", "All Occasions",
         "All Seasonal" — and in the navigation it is the last item of the first

@@ -14,7 +14,8 @@
   @param {string} title - The choice.
   @param {string} [description] - The line under it.
   @param {string} [price_note] - What it adds, already formatted. "Included" when free.
-  @param {object} [image] - A Shopify image object for the thumbnail.
+  @param {object} [image] - A Shopify image object for the thumbnail. Without one
+    a neutral placeholder is drawn in its place so the rows stay aligned.
   @param {boolean} [checked] - Selected on load.
   @param {string} [class] - Additional CSS classes.
   @param {string} [attributes] - Extra HTML attributes for the input.
@@ -40,6 +41,10 @@
         | image_url: width: 176
         | image_tag: loading: 'lazy', class: 'ui-option-row__image', widths: '88, 176', sizes: '88px', alt: ''
       }}
+    </span>
+  {%- else -%}
+    <span class="ui-option-row__media">
+      {{ 'image' | placeholder_svg_tag: 'ui-option-row__image' }}
     </span>
   {%- endif -%}
 

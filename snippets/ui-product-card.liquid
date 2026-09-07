@@ -32,6 +32,9 @@
   @param {string} [badge] - Badge text, shown over the top-left of the media.
   @param {string} [badge_color] - Background colour for the badge, any CSS colour. Defaults to the kit purple.
   @param {string} [badge_text_color] - Text colour for the badge, any CSS colour. Defaults to white.
+  @param {string} [season_label] - Set when the product is seasonal and not on sale (see [season-status]).
+    Draws a ribbon across the foot of the media carrying these words and quietens
+    the photograph. The link to the product page keeps working.
   @param {boolean} [show_add] - Renders the basket button. Defaults to true.
   @param {string} [add_label] - Accessible label for the basket. Defaults to the theme's add-to-cart string.
   @param {string} [add_attributes] - Extra HTML attributes for the basket button, for wiring it to a form.
@@ -62,6 +65,9 @@
   assign card_loading = loading | default: 'lazy'
 
   assign card_classes = 'ui-product-card'
+  if season_label != blank
+    assign card_classes = card_classes | append: ' ui-product-card--season'
+  endif
   if class != blank
     assign card_classes = card_classes | append: ' ' | append: class
   endif
@@ -92,6 +98,9 @@
       }}
     {%- else -%}
       {{ 'product-1' | placeholder_svg_tag: 'ui-product-card__image ui-product-card__image--placeholder' }}
+    {%- endif -%}
+    {%- if season_label != blank -%}
+      <span class="ui-product-card__season-ribbon">{{ season_label }}</span>
     {%- endif -%}
   </div>
 
@@ -304,6 +313,44 @@
     line-height: 1;
     text-transform: uppercase;
     color: var(--ui-color-black);
+  }
+
+  /*
+   * A seasonal product that is not on sale. The photograph is quietened rather
+   * than greyed — it is still the treat, just not this month's — and a ribbon
+   * across the foot of the media says why the basket is gone. The pill that
+   * stands in the basket's square is the kit's secondary button in its disabled
+   * state, sized down to the price row.
+   */
+  .ui-product-card--season .ui-product-card__image {
+    opacity: 0.72;
+  }
+
+  .ui-product-card__season-ribbon {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline: 0;
+    z-index: 1;
+    padding: 6px 8px;
+    background-color: var(--ui-color-primary);
+    font-family: var(--ui-font-accent);
+    font-weight: var(--font-accent--weight-semibold, 600);
+    font-size: 12px;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--ui-color-white);
+  }
+
+  .ui-product-card__price-row .ui-product-card__season {
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 6px 10px;
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: normal;
+    text-align: center;
   }
 
   .ui-product-card__badge {

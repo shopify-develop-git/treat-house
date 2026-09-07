@@ -9,6 +9,45 @@
  */
 {
   "sections": {
+    "hero": {
+      "type": "collection-hero",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "source": "collection_title",
+            "heading": "<h1>Shop Treats</h1>",
+            "heading_size": 48,
+            "heading_size_mobile": 32
+          }
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "source": "collection_description",
+            "text": "",
+            "text_size": 16,
+            "text_size_mobile": 14
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "body"
+      ],
+      "settings": {
+        "show_star": true,
+        "show_breadcrumb": true,
+        "parent_title": "Shop Treats",
+        "parent_link": "shopify://collections/all",
+        "height": 380,
+        "height_mobile": 260,
+        "section_width": "page-width",
+        "color_scheme": "scheme-1",
+        "padding-block-start": 24,
+        "padding-block-end": 0
+      }
+    },
     "products": {
       "type": "collection-products",
       "settings": {
@@ -40,7 +79,7 @@
         "body": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Design your own birthday box — pick flavors, packaging, and add a gift message.</p>",
+            "text": "<p>Pick the flavors, choose the packaging, add a note. We take it from there.</p>",
             "text_size": 14,
             "text_size_mobile": 14,
             "max_width": 600
@@ -50,8 +89,8 @@
           "type": "_ui-link",
           "static": true,
           "settings": {
-            "label": "Customize your birthday box",
-            "link": "/pages/faqs?view=customize",
+            "label": "Design your box",
+            "link": "/pages/customize",
             "variant": "primary"
           }
         }
@@ -74,7 +113,7 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2>Why these fit Birthday</h2>",
+            "heading": "<h2>Made for this moment</h2>",
             "heading_size": 48,
             "heading_size_mobile": 32
           }
@@ -90,14 +129,13 @@
           "type": "_ui-feature-panel",
           "static": true,
           "settings": {
-            "show_logo": true,
-            "image": "shopify://shop_images/birthday-krispie-treat-candle.webp"
+            "show_logo": true
           },
           "blocks": {
             "panel_heading": {
               "type": "_ui-heading",
               "settings": {
-                "heading": "<h3><em>Sweet birthday moments,</em> made unforgettable</h3>",
+                "heading": "<h3><em>Nostalgia,</em> made personal</h3>",
                 "heading_size": 40,
                 "heading_size_mobile": 28
               }
@@ -105,7 +143,7 @@
             "panel_text": {
               "type": "_ui-text",
               "settings": {
-                "text": "<p>Celebrate birthdays with handcrafted Krispie treats that are as joyful as the occasion itself. From colorful party favors to personalized gift boxes, every treat is freshly made to help create memorable celebrations for friends, family, coworkers, and loved ones.</p>"
+                "text": "<p>A modern take on the Krispie treat you grew up with. Every box is handcrafted, made to order, and packed to arrive gift-ready, for a friend, a family member, or a client.</p>"
               }
             }
           },
@@ -119,23 +157,23 @@
           "settings": {
             "icon": "gift",
             "title": "Gift-Ready Packaging",
-            "body": "<p>Beautifully packaged and ready to delight from the moment it arrives.</p>"
+            "body": "<p>Arrives ready to hand over. No wrapping needed.</p>"
           }
         },
         "every_age": {
           "type": "_ui-feature-card",
           "settings": {
-            "icon": "sparkles",
-            "title": "Perfect for Every Age",
-            "body": "<p>Thoughtfully crafted treats everyone will enjoy, from kids to adults.</p>"
+            "icon": "party-horn",
+            "title": "Made for Sharing",
+            "body": "<p>A childhood favorite that kids and adults both reach for, at parties, in offices, and at events.</p>"
           }
         },
         "toppers": {
           "type": "_ui-feature-card",
           "settings": {
-            "icon": "cake-birthday",
-            "title": "Custom name & age toppers",
-            "body": "<p>Personalize every celebration with custom names and milestone ages.</p>"
+            "icon": "sparkles",
+            "title": "Custom Photo Treats",
+            "body": "<p>Add a printed photo or a message to make the box theirs.</p>"
           }
         },
         "fresh": {
@@ -143,7 +181,7 @@
           "settings": {
             "icon": "leaf",
             "title": "Made Fresh to Order",
-            "body": "<p>Handcrafted with premium ingredients and prepared fresh for every order.</p>"
+            "body": "<p>Handcrafted in small batches once your order comes in.</p>"
           }
         }
       },
@@ -178,56 +216,14 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2>Sweet words from <em>Happy Customers</em></h2>",
+            "heading": "<h2>What <em>customers</em> say</h2>",
             "max_width": 520
-          }
-        },
-        "rating": {
-          "type": "_ui-review-line",
-          "static": true,
-          "settings": {
-            "rating_text": "4.9 rating",
-            "reviews_text": "12,000+ reviews",
-            "layout": "inline",
-            "text_size": 16,
-            "text_size_mobile": 14
           }
         },
         "one": {
           "type": "_ui-testimonial",
           "settings": {
-            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
-            "name": "Jazmine D",
-            "role": "ServiceNow"
-          }
-        },
-        "two": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
-            "name": "Jazmine D",
-            "role": "ServiceNow"
-          }
-        },
-        "three": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
-            "name": "Jazmine D",
-            "role": "ServiceNow"
-          }
-        },
-        "four": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
-            "name": "Jazmine D",
-            "role": "ServiceNow"
-          }
-        },
-        "five": {
-          "type": "_ui-testimonial",
-          "settings": {
+            "rating": 5,
             "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
             "name": "Jazmine D",
             "role": "ServiceNow"
@@ -235,13 +231,11 @@
         }
       },
       "block_order": [
-        "one",
-        "two",
-        "three",
-        "four",
-        "five"
+        "one"
       ],
-      "settings": {}
+      "settings": {
+        "show_rating": false
+      }
     },
     "you_may_also_like": {
       "type": "shop-by-occasion",
@@ -249,7 +243,7 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>You may also like</h2>"
+            "heading": "<h2>More moments</h2>"
           }
         }
       },
@@ -259,9 +253,9 @@
       "settings": {
         "collections": [
           "birthday",
-          "graduation",
-          "baby-shower",
-          "deluxe-gift-box"
+          "get-well",
+          "congratulations",
+          "baby-shower"
         ],
         "max_collections": 4
       }
@@ -273,7 +267,7 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2>Related Products</h2>"
+            "heading": "<h2>More from this collection</h2>"
           }
         },
         "cta": {
@@ -287,14 +281,7 @@
         }
       },
       "settings": {
-        "source": "chosen",
-        "products": [
-          "12-pack-of-custom-treats",
-          "12-pack-choose-your-own",
-          "birthday-12-pack",
-          "assorted-12-pack",
-          "gluten-free-12-pack"
-        ],
+        "source": "collection",
         "max_products": 5,
         "heading_alignment": "start",
         "cta_position": "heading",
@@ -325,35 +312,35 @@
           "type": "_ui-faq-item",
           "settings": {
             "question": "What types of treats do you offer?",
-            "answer": "<p>Handcrafted Krispie treats in twelve-packs, gift boxes and party bars, plus custom photo treats and gluten-free options. Every box is made to order in small batches.</p>"
+            "answer": "<p>Handcrafted Krispie treats in twelve-packs, gift boxes and party bars, plus custom photo treats. Everything is certified gluten-free and made to order.</p>"
           }
         },
         "customize": {
           "type": "_ui-faq-item",
           "settings": {
             "question": "Can I customize my order?",
-            "answer": "<p>Yes. Choose your own mix of flavors, add a printed photo, and include a gift message at checkout. Corporate orders can carry your branding.</p>"
+            "answer": "<p>Yes. Choose your own mix of flavors, add a printed photo, and include a gift message at checkout. For client and team gifts we can add your logo and colors.</p>"
           }
         },
         "allergies": {
           "type": "_ui-faq-item",
           "settings": {
             "question": "Do you accommodate food allergies or dietary restrictions?",
-            "answer": "<p>We make gluten-free treats, and every product page lists its full ingredients and allergens. Our kitchen handles milk, tree nuts, peanut, soy and gluten, so we cannot promise a trace-free box.</p>"
+            "answer": "<p>Our treats are certified gluten-free. Full ingredient and allergen details are printed on every package. Have a question about another allergen? Write to info@treathouse.com before you order.</p>"
           }
         },
         "lead_time": {
           "type": "_ui-faq-item",
           "settings": {
             "question": "How far in advance should I place my order?",
-            "answer": "<p>Most orders are made fresh and ship within 24 hours. For a dated delivery or a large corporate order, three to five business days ahead is safest.</p>"
+            "answer": "<p>Every box is made to order. Choose a delivery date at least 3 days out in your cart; shipping options and timing are shown at checkout. Planning a larger order? Send a note to our team and we will work around your date.</p>"
           }
         },
         "storage": {
           "type": "_ui-faq-item",
           "settings": {
             "question": "How do I store my treats after receiving them?",
-            "answer": "<p>Keep them refrigerated below 18°C in their original packaging and enjoy them within 14 days. Let a treat sit at room temperature for 10 to 15 minutes before serving.</p>"
+            "answer": "<p>Keep sealed at room temperature away from heat and direct sun. Best enjoyed within two weeks of arrival.</p>"
           }
         }
       },
@@ -379,13 +366,13 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Newsletter</h2>"
+            "heading": "<h2>Stay in touch</h2>"
           }
         },
         "body": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Subscribe to our newsletter and be the first to hear about new arrivals, exclusive offers, seasonal collections, and special promotions.</p>",
+            "text": "<p>Be first to hear about new flavors and seasonal boxes, plus a few ideas for the moments worth marking.</p>",
             "text_size": 16,
             "text_size_mobile": 14
           }
@@ -404,6 +391,7 @@
     }
   },
   "order": [
+    "hero",
     "products",
     "customize",
     "why_choose_us",

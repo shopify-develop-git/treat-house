@@ -1,0 +1,74 @@
+{%- doc -%}
+  Works out whether a product is on sale this season, and what to call it when
+  it is not.
+
+  Seasonal treats (Halloween, Thanksgiving, Christmas, Valentine's) stay
+  published all year so their pages, photos and search listings keep working,
+  but outside their window they must not be added to a cart. This snippet is the
+  one place that decides. Every add-to-cart surface — kit cards, Horizon cards,
+  quick-add, the product page buy row, the cart lines and the checkout gate —
+  reads its answer, so the rule lives here and nowhere else.
+
+  Source, in order of precedence:
+
+  1. `product.metafields.custom.season_status` — single-line text, one of
+     `available`, `coming_soon` or `closed`. Case and dashes are forgiven
+     (`Coming-Soon` reads as `coming_soon`).
+  2. Product tags `season:coming-soon` or `season:closed` (any casing), for a
+     shop working without the metafield definition.
+  3. Otherwise `available`.
+
+  The label is `product.metafields.custom.season_label` when filled (e.g. "Back
+  for Halloween"), else the locale's `products.product.coming_soon` or
+  `products.product.closed_season`. It is empty for an available product.
+
+  Outputs `status|label`. Liquid cannot hand a variable back out of `render`,
+  so the caller captures and splits, in two lines:
+
+  @param {object} product - The product to read.
+
+  @example
+  {%- capture season -%}{% render 'season-status', product: product %}{%- endcapture -%}
+  {%- assign season_parts = season | strip | split: '|' -%}
+  {%- assign season_status = season_parts[0] | default: 'available' -%}
+  {%- assign season_label = season_parts[1] -%}
+  {%- if season_status != 'available' -%} ... {%- endif -%}
+{%- enddoc -%}
+
+{%- liquid
+  assign season_status = 'available'
+  assign season_label = ''
+
+  assign meta_status = product.metafields.custom.season_status.value | default: product.metafields.custom.season_status | default: ''
+  assign meta_status = meta_status | append: '' | strip | downcase | replace: '-', '_' | replace: ' ', '_'
+
+  if meta_status == 'coming_soon' or meta_status == 'closed' or meta_status == 'available'
+    assign season_status = meta_status
+  else
+    for tag in product.tags
+      assign candidate = tag | strip | downcase | replace: '_', '-'
+      if candidate == 'season:coming-soon'
+        assign season_status = 'coming_soon'
+        break
+      elsif candidate == 'season:closed'
+        assign season_status = 'closed'
+        break
+      endif
+    endfor
+  endif
+
+  if season_status != 'available'
+    assign meta_label = product.metafields.custom.season_label.value | default: product.metafields.custom.season_label | default: ''
+    assign meta_label = meta_label | append: '' | strip
+
+    if meta_label != blank
+      assign season_label = meta_label
+    elsif season_status == 'coming_soon'
+      assign season_label = 'products.product.coming_soon' | t
+    else
+      assign season_label = 'products.product.closed_season' | t
+    endif
+  endif
+
+  echo season_status | append: '|' | append: season_label
+-%}

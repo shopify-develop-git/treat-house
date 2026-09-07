@@ -1,26 +1,23 @@
 {%- doc -%}
-  The three header actions, written out as rows for the drawer.
+  The header actions, written out as rows for the drawer.
 
   On a phone the header keeps its icons but loses the room to explain them, and
-  the drawer is where a menu is read rather than glanced at — so search, account
-  and wishlist appear here as labelled rows under the navigation instead of as
-  three more glyphs in a crowded row.
+  the drawer is where a menu is read rather than glanced at — so search and
+  account appear here as labelled rows under the navigation instead of as more
+  glyphs in a crowded row.
 
   The search row is the same control the header uses, not a link to a search
   page: it opens `#search-modal`, so the drawer and the header reach the same
   dialog and there is one search on the site rather than two.
 
   A row is dropped rather than disabled when it has nowhere to go — customer
-  accounts switched off, or no wishlist page chosen — because a drawer is a list
-  of places you can get to, and a dead row in it is a worse answer than a
-  shorter list. The header keeps its silent wishlist placeholder for spacing
-  reasons that do not apply here.
+  accounts switched off — because a drawer is a list of places you can get to,
+  and a dead row in it is a worse answer than a shorter list.
 
-  @param {string} [wishlist_url] - The wishlist page. No URL, no row.
   @param {string} [class] - Additional CSS classes.
 
   @example
-  {% render 'ui-drawer-actions', wishlist_url: section.settings.wishlist_url %}
+  {% render 'ui-drawer-actions' %}
 {%- enddoc -%}
 
 <ul class="ui-drawer-actions list-unstyled {{ class }}">
@@ -44,17 +41,6 @@
           {{- 'icon-ui-account.svg' | inline_asset_content -}}
         </span>
         {{ 'content.account_title' | t }}
-      </a>
-    </li>
-  {%- endif -%}
-
-  {%- if wishlist_url != blank -%}
-    <li>
-      <a href="{{ wishlist_url }}" class="ui-drawer-actions__item">
-        <span class="ui-drawer-actions__icon" aria-hidden="true">
-          {{- 'icon-ui-wishlist.svg' | inline_asset_content -}}
-        </span>
-        {{ 'accessibility.wishlist' | t }}
       </a>
     </li>
   {%- endif -%}

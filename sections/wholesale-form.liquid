@@ -1,5 +1,5 @@
 {% comment %}
-  Apply for a wholesale account (Figma: 508:13439).
+  Apply for wholesale (Figma: 508:13439, drawn there as "Apply for a wholesale account").
 
   The form is not this section's own. It is the Clay B2B Wholesale app's
   registration block, added as an `@app` block — so which fields there are, their
@@ -16,15 +16,26 @@
   Clay also owns the state after sending — it swaps the form for its own message
   in place, with no redirect, which is why the `form.posted_successfully?` branch
   this section used to carry has gone with the form. It announces the send on
-  `document` as `clay:form:submitted`, carrying the new customer, so a
-  confirmation of ours can be hung off that when we want one.
+  `document` as `clay:form:submitted`, carrying the new customer. The section's
+  own confirmation panel — the same tinted panel the corporate quote form shows,
+  with the `sent-heading` and `sent-copy` static blocks inside it — is hung off
+  that event by `assets/wholesale-confirmation.js`. Because the event name is
+  the app's and may change under us, the script also watches the app block: once
+  the visitor has pressed the submit button and the app has removed it, the
+  panel is shown as well. The panel is rendered hidden and stays hidden with
+  JavaScript off, where the app's own message still appears.
 
-  The hand-built version this replaces — fifteen fields on `{% form 'contact' %}`,
+  There is no login, gated catalog or portal behind this form. A submission is
+  recorded by the app as a tagged customer and reviewed by Treat House staff by
+  hand; what the applicant is told afterwards is copy, not theme logic.
+
+  The hand-built version this replaces — fifteen fields on a native contact form,
   with the certificate as a mailto panel because that form carries no attachment —
   is in git immediately before this commit.
 {% endcomment %}
 
 <div
+  id="apply"
   class="section section--page-width spacing-style color-{{ section.settings.color_scheme }}"
   style="{% render 'spacing-style', settings: section.settings %}"
   data-testid="wholesale-form-{{ section.id }}"
@@ -33,12 +44,41 @@
   <div
     class="wholesale-form"
     style="--th-caret: url({{ 'icon-ui-caret-down.svg' | asset_url }});"
+    data-wholesale-form
   >
     {% content_for 'blocks' %}
+
+    {%- comment -%}
+      The confirmation. Rendered on every load but hidden until the script sees
+      the app accept a submission, so the merchant edits its words in the editor
+      and nobody reaches it without sending anything. `tabindex="-1"` lets the
+      script move focus to it when it appears, so a screen reader hears the news.
+    {%- endcomment -%}
+    {%- capture sent -%}
+      {% content_for 'block', type: '_ui-heading', id: 'sent-heading' %}
+      {% content_for 'block', type: '_ui-text', id: 'sent-copy' %}
+    {%- endcapture -%}
+    <div
+      class="wholesale-form__sent"
+      data-wholesale-form-sent
+      role="status"
+      aria-live="polite"
+      tabindex="-1"
+      hidden
+    >
+      {% render 'ui-confirmation-panel', content: sent %}
+    </div>
   </div>
 </div>
 
+<script src="{{ 'wholesale-confirmation.js' | asset_url }}" defer></script>
+
 {% stylesheet %}
+  /* The #apply anchor lands under the sticky header without this. */
+  #apply {
+    scroll-margin-block-start: calc(var(--header-height, 60px) + 16px);
+  }
+
   /*
    * 630 centred, whatever the page is doing around it. The section already sits in
    * the `.section` grid's central column, so this narrows that column rather than
@@ -73,6 +113,19 @@
   .wholesale-form > .shopify-block {
     inline-size: 100%;
     margin-block-start: 32px;
+  }
+
+  /* The confirmation takes the form's place and its width. The heading and copy
+     blocks inside it are centred by the panel, not by the rule above. */
+  .wholesale-form__sent {
+    inline-size: 100%;
+    margin-block-start: 32px;
+    outline: none;
+  }
+
+  .wholesale-form__sent[hidden],
+  .wholesale-form > .shopify-block[hidden] {
+    display: none;
   }
 
   /* ------------------------------------------------------------------
@@ -251,7 +304,7 @@
    * The caret is a pseudo-element on the grid that holds the pair, because a
    * `<select>` can carry none of its own. It is the kit's own glyph, painted
    * through a mask so it takes a colour rather than carrying one; the URL arrives
-   * as `--th-caret` on the section, since a `{% stylesheet %}` block is plain CSS
+   * as `--th-caret` on the section, since a stylesheet block is plain CSS
    * and cannot ask Liquid for an asset.
    */
   /*
@@ -433,7 +486,7 @@
   "settings": [
     {
       "type": "paragraph",
-      "content": "The form is the Clay B2B Wholesale app's registration block. Add it below, then pick which of the app's forms it shows. Fields, order and what is required are set in the app, not here."
+      "content": "The form is the Clay B2B Wholesale app's registration block. Add it below, then pick which of the app's forms it shows. Fields, order and what is required are set in the app, not here. Submissions are recorded by the app as tagged customers and reviewed by hand; the thank-you panel shown after sending is the two static blocks named Sent heading and Sent copy."
     },
     {
       "type": "header",
@@ -478,13 +531,30 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Apply for a <em>wholesale account</em></h2>"
+            "heading": "<h2>Apply for <em>wholesale</em></h2>"
           }
         },
         "intro": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Complete the form below and we'll review your application within 1–2 business days.</p>"
+            "text": "<p>Fill in the form below and we will be in touch by email.</p>"
+          }
+        },
+        "sent-heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>Thanks, your application <em>is in</em></h2>",
+            "heading_tag": "h2",
+            "heading_size": 36,
+            "heading_size_mobile": 28
+          }
+        },
+        "sent-copy": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": "<p>A real person will review it and email you pricing and ordering details. Questions in the meantime? Write to info@treathouse.com.</p>"
           }
         }
       },

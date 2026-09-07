@@ -77,38 +77,6 @@
     </dialog-component>
   {% endif %}
 
-  {%- comment -%}
-    The file draws a wishlist between the account and the cart. Horizon has no such
-    feature, so where it goes is the merchant's to say — an app's page, a collection,
-    anything — and that lives in the section's Wishlist setting.
-
-    Until it is set the heart is still drawn, because the row is four icons wide in
-    the file and three is a different header. What it is not is a link: an anchor
-    with nowhere to go takes a tab stop and promises a page that is not there. So it
-    is a plain span, out of the tab order and unannounced, and it becomes a real link
-    the moment the setting has a value.
-  {%- endcomment -%}
-  {%- if wishlist_url != blank -%}
-    <a
-      href="{{ wishlist_url }}"
-      class="header-actions__action header-actions__action--wishlist"
-      aria-label="{{ 'accessibility.wishlist' | t }}"
-    >
-      <span class="svg-wrapper" aria-hidden="true">
-        {{- 'icon-ui-wishlist.svg' | inline_asset_content -}}
-      </span>
-    </a>
-  {%- else -%}
-    <span
-      class="header-actions__action header-actions__action--wishlist"
-      aria-hidden="true"
-    >
-      <span class="svg-wrapper">
-        {{- 'icon-ui-wishlist.svg' | inline_asset_content -}}
-      </span>
-    </span>
-  {%- endif -%}
-
   {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
     <script
       src="{{ 'cart-drawer.js' | asset_url }}"
@@ -276,7 +244,7 @@
                 <scroll-hint
                   class="cart-drawer__items"
                 >
-                  {% render 'cart-products', drawer_context: 'drawer' %}
+                  {% render 'cart-products' %}
                   {% render 'ui-cart-drawer', part: 'gift' %}
                 </scroll-hint>
 

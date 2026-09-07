@@ -15,13 +15,13 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h1><em>Corporate</em> Gifting</h1>"
+            "heading": "<h1>Client and team gifts <br><em>that feel personal</em></h1>"
           }
         },
         "copy": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Custom treats, gift boxes, and bulk gifting support for teams, clients, events, and employee moments.</p>"
+            "text": "<p>Not a name on a list. When the box opens, they know someone stopped and thought about them, and the first bite tastes like being a kid again. For client appreciation, employee appreciation, welcome gifts for new hires, conferences, team offsites and client events.</p>"
           }
         },
         "buttons": {
@@ -31,7 +31,7 @@
             "primary": {
               "type": "_ui-link",
               "settings": {
-                "label": "Send an inquiry",
+                "label": "Plan a thoughtful client gift",
                 "variant": "primary",
                 "link": "#contact_form"
               }
@@ -45,7 +45,9 @@
           "type": "_ui-review-line",
           "static": true,
           "settings": {
-            "image": "shopify://shop_images/review-line-composite.webp"
+            "image": "shopify://shop_images/review-line-composite.webp",
+            "rating_text": "",
+            "reviews_text": ""
           }
         }
       },
@@ -58,7 +60,7 @@
       "settings": {
         "image": "shopify://shop_images/corporate-hero-image.webp",
         "show_badge": false,
-        "show_reviews": true,
+        "show_reviews": false,
         "show_marquee": true
       }
     },
@@ -75,32 +77,32 @@
           "type": "_ui-feature-card",
           "settings": {
             "icon": "shipping-fast",
-            "title": "Nationwide Drop-Ship",
-            "body": "<p>We ship directly to every recipient - no repacking on your end.</p>"
+            "title": "We ship straight to each recipient",
+            "body": "<p>Nationwide, with no repacking on your end.</p>"
           }
         },
         "two": {
           "type": "_ui-feature-card",
           "settings": {
             "icon": "bolt",
-            "title": "Quick Turnaround",
-            "body": "<p>Standard orders ready in 3–5 business days. Rush available.</p>"
+            "title": "Built around your date",
+            "body": "<p>Share your date and we confirm timing with your quote.</p>"
           }
         },
         "three": {
           "type": "_ui-feature-card",
           "settings": {
             "icon": "box-add",
-            "title": "Flexible Pack Sizes",
-            "body": "<p>1 packs, 2 packs, 4 packs, 6 packs, and 12 packs</p>"
+            "title": "No minimum order",
+            "body": "<p>Order as few or as many as you need, in 1-, 2-, 4-, 6- and 12-packs.</p>"
           }
         },
         "four": {
           "type": "_ui-feature-card",
           "settings": {
             "icon": "headset",
-            "title": "Dedicated Support",
-            "body": "<p>A real person manages your order from quote to delivery.</p>"
+            "title": "A real person, start to finish",
+            "body": "<p>We handle every detail with care, from quote to delivery.</p>"
           }
         },
         "heading": {
@@ -141,7 +143,7 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2>Sweet words from <em>Happy Customers</em></h2>",
+            "heading": "<h2>What <em>customers say</em></h2>",
             "max_width": 520
           }
         },
@@ -149,8 +151,8 @@
           "type": "_ui-review-line",
           "static": true,
           "settings": {
-            "rating_text": "4.9 rating",
-            "reviews_text": "12,000+ reviews",
+            "rating_text": "",
+            "reviews_text": "",
             "layout": "inline",
             "text_size": 16,
             "text_size_mobile": 14
@@ -159,38 +161,7 @@
         "one": {
           "type": "_ui-testimonial",
           "settings": {
-            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
-            "name": "Jazmine D",
-            "role": "ServiceNow"
-          }
-        },
-        "two": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
-            "name": "Jazmine D",
-            "role": "ServiceNow"
-          }
-        },
-        "three": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
-            "name": "Jazmine D",
-            "role": "ServiceNow"
-          }
-        },
-        "four": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
-            "name": "Jazmine D",
-            "role": "ServiceNow"
-          }
-        },
-        "five": {
-          "type": "_ui-testimonial",
-          "settings": {
+            "rating": 5,
             "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
             "name": "Jazmine D",
             "role": "ServiceNow"
@@ -198,13 +169,11 @@
         }
       },
       "block_order": [
-        "one",
-        "two",
-        "three",
-        "four",
-        "five"
+        "one"
       ],
-      "settings": {}
+      "settings": {
+        "show_rating": false
+      }
     },
     "cards": {
       "type": "corporate-cards",
@@ -212,9 +181,9 @@
         "logo-treats": {
           "type": "_ui-cta-card",
           "settings": {
-            "image": "shopify://shop_images/corporate-gifts-top-right.webp",
-            "title": "Logo Treats",
-            "description": "For branded orders and events.",
+            "image": "shopify://shop_images/th-corporate-logo-treat.jpg",
+            "title": "Your brand, made personal",
+            "description": "Your logo, custom colors or a printed photo on every treat.",
             "link": "/collections/custom-treats",
             "button_label": "Shop now"
           }
@@ -223,8 +192,8 @@
           "type": "_ui-cta-card",
           "settings": {
             "image": "shopify://shop_images/corporate-gift-holiday-6-pack.webp",
-            "title": "Deluxe Gift Boxes",
-            "description": "For clients and employee gifting.",
+            "title": "Gift boxes for clients and teams",
+            "description": "Client appreciation, new hires, teacher and healthcare gifts.",
             "link": "/collections/deluxe-gift-box",
             "button_label": "Shop now"
           }
@@ -233,9 +202,9 @@
           "type": "_ui-cta-card",
           "settings": {
             "image": "shopify://shop_images/corporate-gifts-top-left.webp",
-            "title": "Bulk Custom Orders",
-            "description": "50+ treats · Custom quantities · Personalization",
-            "link": "/pages/corporate-gifting?view=corporate-gifting",
+            "title": "Larger orders",
+            "description": "Custom quantities and personalization, with no minimum order.",
+            "link": "#contact_form",
             "button_label": "Get a quote"
           }
         }
@@ -250,7 +219,7 @@
     "band": {
       "type": "corporate-band",
       "settings": {
-        "label": "Email our corporate gifting and events specialist.",
+        "label": "Email our client and team gifts specialist.",
         "link": "mailto:jennifer@treathouse.com"
       }
     },
@@ -260,21 +229,23 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Browse our<br><em>corporate catalog</em></h2>"
+            "heading": "<h2>Our <br><em>corporate catalog</em></h2>"
           }
         },
         "copy": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>See full pack sizes, branding options, and pricing tiers in one PDF.</p>"
+            "text": "<p>Pack sizes, branding options and pricing come with every quote. Ask and we will send the current catalog. Every treat is certified gluten-free and made in our SQF-certified kitchen.</p>"
           }
         },
         "button": {
           "type": "_ui-link",
           "settings": {
             "label": "Download catalog (PDF)",
-            "variant": "primary"
-          }
+            "variant": "primary",
+            "open_in_new_tab": true
+          },
+          "disabled": true
         },
         "stat-row": {
           "type": "_ui-stat-row",
@@ -293,14 +264,14 @@
             "two": {
               "type": "_ui-stat",
               "settings": {
-                "value": "NBC",
+                "value": "",
                 "label": ""
               }
             },
             "three": {
               "type": "_ui-stat",
               "settings": {
-                "value": "Restaurant Associates",
+                "value": "",
                 "label": ""
               }
             }
@@ -333,14 +304,14 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Send a<br><em>Corporate Gifting Inquiry</em></h2>"
+            "heading": "<h2>Tell us about <em>your gift</em></h2>"
           }
         },
         "success-heading": {
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2><em>Thanks.</em><br>We have your inquiry.</h2>",
+            "heading": "<h2><em>Thanks.</em><br> We have your note and will be in touch.</h2>",
             "heading_size": 40,
             "heading_size_mobile": 28
           }
@@ -349,7 +320,7 @@
           "type": "_ui-text",
           "static": true,
           "settings": {
-            "text": "<p>The Treat House team will review your order details and follow up with next steps. If your order has a firm event date, please include that in your inquiry.</p>"
+            "text": "<p>A real person will read it and reply by email.</p>"
           }
         },
         "success-buttons": {
@@ -385,7 +356,15 @@
       "block_order": [
         "heading"
       ],
-      "settings": {}
+      "settings": {
+        "budget_ranges": "Under $500, $500-$1000, $1000-$2500, $2500-$5000, $5000+, Not sure yet",
+        "customization_options": "Logo treats, Custom colors or theme, Printed photo, Gift message, Not sure yet",
+        "quantity_hint": "A rough number is fine.",
+        "date_hint": "Optional. We confirm timing with your quote.",
+        "date_min_days": 3,
+        "notes_placeholder": "Who is it for, and what would make it feel personal?",
+        "submit_label": "Send a note to our team"
+      }
     }
   },
   "order": [

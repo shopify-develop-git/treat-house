@@ -71,6 +71,30 @@
       id="cart-form"
       method="post"
     >
+      {%- comment -%}
+        The chosen delivery date, carried by the form itself so a full-page
+        submit (JavaScript off, or a checkout click before the script has run)
+        posts the same attributes the calendar saved through /cart/update.js.
+        `cart-delivery-date-valid` echoes nothing for a past or blocked date,
+        so a native submit then clears the stale value instead of re-posting
+        it. Rendered whenever the delivery panel is on, drawer or page.
+      {%- endcomment -%}
+      {%- if settings.show_cart_shipping_estimate and settings.show_cart_delivery_date -%}
+        {%- capture delivery_iso -%}{% render 'cart-delivery-date-valid' %}{%- endcapture -%}
+        {%- liquid
+          assign delivery_iso = delivery_iso | strip
+          assign delivery_attribute = settings.cart_delivery_attribute | default: 'Delivery date'
+          assign delivery_display = ''
+          if delivery_iso != blank
+            assign delivery_display = cart.attributes[delivery_attribute] | default: ''
+            if delivery_display == blank
+              assign delivery_display = delivery_iso | date: '%a, %b %-d, %Y'
+            endif
+          endif
+        -%}
+        <input type="hidden" name="attributes[_delivery_date]" value="{{ delivery_iso }}" data-delivery-date-iso>
+        <input type="hidden" name="attributes[{{ delivery_attribute | escape }}]" value="{{ delivery_display | escape }}" data-delivery-date-display>
+      {%- endif -%}
       <div
         class="cart-items spacing-style{% if block_settings.dividers %} cart-items--dividers{% endif %}"
         style="{%  render 'spacing-style', settings: block_settings %} --cart-items-gap:{{ block_settings.gap | append: "px" }};"
@@ -128,9 +152,18 @@
 
           <tbody role="rowgroup">
             {% for item in cart.items %}
+              {%- capture line_season -%}{% render 'season-status', product: item.product %}{%- endcapture -%}
+              {%- liquid
+                # Seasonal availability, see [season-status]. A line whose product
+                # has closed since it was added is flagged here and holds checkout
+                # in [cart-summary] until it is removed.
+                assign line_season_parts = line_season | strip | split: '|'
+                assign line_season_status = line_season_parts[0] | default: 'available'
+                assign line_season_label = line_season_parts[1]
+              -%}
               <tr
                 role="row"
-                class="cart-items__table-row{% if item.parent_relationship.parent != null %} cart-items__nested-line{% endif %}"
+                class="cart-items__table-row{% if item.parent_relationship.parent != null %} cart-items__nested-line{% endif %}{% if line_season_status != 'available' %} cart-items__table-row--season{% endif %}"
                 ref="cartItemRows[]"
                 data-parent-key="{{ item.parent_relationship.parent.key }}"
                 data-key="{{ item.key }}"
@@ -192,6 +225,12 @@
                       -%}
                     </a>
                   </p>
+                  {%- if line_season_status != 'available' -%}
+                    <p class="cart-items__season" role="status">
+                      <strong class="cart-items__season-label">{{ line_season_label }}</strong>
+                      <span class="cart-items__season-hint">{{ 'cart.seasonal_remove_hint' | t }}</span>
+                    </p>
+                  {%- endif -%}
                   {% if item.product.vendor and block_settings.vendor %}
                     <p>
                       {{ item.product.vendor }}
@@ -379,6 +418,28 @@
 </div>
 
 {% stylesheet %}
+  /* A seasonal line that is no longer on sale: the reason under the title,
+     in the brand colour, and the row itself left intact so the bin still works. */
+  .cart-items__season {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 4px 0 0;
+    font-size: var(--font-size--2xs);
+    line-height: 1.3;
+    color: var(--ui-color-primary, var(--color-primary));
+  }
+
+  .cart-items__season-label {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .cart-items__table-row--season .cart-items__media-image {
+    opacity: 0.72;
+  }
+
   .cart-items {
     --cart-item-media-width-min: 2.5rem;
     --cart-item-media-width-max: 7.5rem;

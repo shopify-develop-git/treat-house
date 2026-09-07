@@ -20,9 +20,15 @@
   {% endif %}
 {% endstyle %}
 
+{%- capture season -%}{% render 'season-status', product: product %}{%- endcapture -%}
 {% liquid
+  # Seasonal availability, see [season-status]: no quick-add for a product that
+  # is closed or not yet open this season.
+  assign season_parts = season | strip | split: '|'
+  assign season_status = season_parts[0] | default: 'available'
+
   assign has_quick_add = false
-  if settings.quick_add and product.available
+  if settings.quick_add and product.available and season_status == 'available'
     assign has_quick_add = true
   endif
 

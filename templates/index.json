@@ -15,7 +15,7 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Shop by <em>Occasion</em></h2>"
+            "heading": "<h2>Shop by <em>moment</em></h2>"
           }
         }
       },
@@ -23,15 +23,16 @@
         "heading"
       ],
       "settings": {
+        "description": "Handcrafted treats, ready to give.",
         "collections": [
           "birthday",
-          "graduation",
+          "get-well",
+          "congratulations",
           "baby-shower",
-          "deluxe-gift-box",
-          "pride",
-          "valentines-day",
           "halloween",
-          "christmas-treats"
+          "thanksgiving",
+          "christmas-treats",
+          "valentines-day"
         ]
       }
     },
@@ -41,13 +42,13 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h1>Who doesn't love<br><em>a Krispie Treat?</em></h1>"
+            "heading": "<h1>Who doesn't love <br><em>a Krispie Treat?</em></h1>"
           }
         },
         "copy": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Discover handcrafted Krispie treats made with premium ingredients, designed to celebrate life's biggest moments—from birthdays to corporate gifting.</p>"
+            "text": "<p>A modern take on the Krispie treat you grew up with. Handcrafted, certified gluten-free, and ready to give for birthdays, thank-yous, and just because.</p>"
           }
         },
         "buttons": {
@@ -65,17 +66,17 @@
             "secondary": {
               "type": "_ui-link",
               "settings": {
-                "label": "Customize treats",
+                "label": "Design your box",
                 "variant": "secondary",
-                "link": "/pages/faqs?view=customize"
+                "link": "/pages/customize"
               }
             },
             "gifting": {
               "type": "_ui-link",
               "settings": {
-                "label": "Corporate gifting",
+                "label": "Client and team gifts",
                 "variant": "secondary",
-                "link": "/pages/corporate-gifting?view=corporate-gifting"
+                "link": "/pages/corporate-gifting#contact_form"
               }
             }
           },
@@ -139,8 +140,12 @@
       ],
       "name": "Home hero",
       "settings": {
-        "image": "shopify://shop_images/home-hero-image.webp",
-        "marquee_text": "nationwide shipping"
+        "image": "shopify://shop_images/th-home-hero.jpg",
+        "marquee_text": "nostalgia, reinvented",
+        "show_badge": true,
+        "badge_figure": "Certified",
+        "badge_text": "gluten-free",
+        "show_reviews": false
       }
     },
     "our_story_Vt6Rw1": {
@@ -155,7 +160,7 @@
         "body": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>The idea for Treat House was inspired by a charitable bake sale that Daniel and Eli Russell had in 2011. The proceeds went to provide athletic equipment for impoverished children in Africa.</p><p>Giving back to our greater community has always been key to Treat House's mission. For the first year of business, Treat House donated 10 cents for every treat sold to the Food Bank of NY.</p><p>Starting in 2015 Treat House formed a partnership with the Lymphoma and Leukemia Society. Now we are thrilled to also partner with The Andrew McDonough B+ Foundation. We have been blown away by their commitment to help fight those affected by childhood cancer.</p>"
+            "text": "<p>Treat House began with a bake sale on the Upper West Side. Our two kids were raising money for athletic equipment for kids in Africa, and people lined up for the rice krispie treats. They raised $300 that day.</p><p>We kept going, with tastings at school and honest feedback from parents and families. The treat you grew up with, made a little more elevated and a lot more personal.</p><p>Giving back has been part of Treat House from the start, and today we are proud to partner with the Andrew McDonough B+ Foundation.</p><p>Built on a childhood favorite, shared to create new memories.</p>"
           }
         }
       },
@@ -182,7 +187,7 @@
           "type": "_ui-link",
           "static": true,
           "settings": {
-            "label": "View all products",
+            "label": "View all treats",
             "variant": "primary",
             "link": "/collections/all"
           }
@@ -198,61 +203,26 @@
         ]
       }
     },
-    "custom_treats_preview": {
-      "type": "best-sellers",
-      "disabled": true,
-      "blocks": {
-        "heading": {
-          "type": "_ui-heading",
-          "static": true,
-          "settings": {
-            "heading": "<h2><em>Custom</em> Treats</h2>"
-          }
-        },
-        "cta": {
-          "type": "_ui-link",
-          "static": true,
-          "settings": {
-            "label": "View all products",
-            "variant": "primary",
-            "link": "/collections/all"
-          }
-        }
-      },
-      "settings": {
-        "products": [
-          "12-pack-of-custom-birthday-treats",
-          "12-pack-of-custom-baby-shower",
-          "12-pack-of-custom-graduation-treats",
-          "12-pack-of-custom-wedding-treats",
-          "custom-college-deluxe"
-        ],
-        "heading_alignment": "center",
-        "cta_position": "below",
-        "media_ratio": "4 / 3",
-        "background": "white"
-      }
-    },
     "corporate_gifts_preview": {
       "type": "corporate-gifts",
       "blocks": {
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2><em>Corporate gifts</em> they'll actually love</h2>"
+            "heading": "<h2><em>Client and team gifts</em> that feel personal</h2>"
           }
         },
         "copy": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>From employee appreciation to client thank-you gifts, our handcrafted treats are customized with your brand to create memorable experiences that leave a lasting impression.</p>"
+            "text": "<p>Employee appreciation, client thank-yous, welcome gifts, and milestones. Your logo and colors on handcrafted treats, shipped straight to each recipient. No minimum order, quick turnaround, and a real person on your order start to finish.</p>"
           }
         },
         "button": {
           "type": "_ui-link",
           "settings": {
-            "label": "Explore corporate gifting",
-            "link": "/pages/corporate-gifting?view=corporate-gifting"
+            "label": "Plan a thoughtful client gift",
+            "link": "/pages/corporate-gifting#contact_form"
           }
         },
         "stat-row": {
@@ -262,20 +232,23 @@
           "blocks": {
             "one": {
               "type": "_ui-stat",
-              "settings": {}
+              "settings": {
+                "value": "",
+                "label": ""
+              }
             },
             "two": {
               "type": "_ui-stat",
               "settings": {
-                "value": "40+",
-                "label": "Countries served"
+                "value": "",
+                "label": ""
               }
             },
             "three": {
               "type": "_ui-stat",
               "settings": {
-                "value": "98%",
-                "label": "Client satisfaction"
+                "value": "",
+                "label": ""
               }
             }
           },
@@ -304,7 +277,7 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>We are partnered with the Andrew McDonough B+ Foundation</h2>"
+            "heading": "<h2>Proud partners of the Andrew McDonough B+ Foundation</h2>"
           }
         },
         "body": {
@@ -329,7 +302,7 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2>Sweet words from <em>Happy Customers</em></h2>",
+            "heading": "<h2>What customers say</h2>",
             "max_width": 520
           }
         },
@@ -337,8 +310,8 @@
           "type": "_ui-review-line",
           "static": true,
           "settings": {
-            "rating_text": "4.9 rating",
-            "reviews_text": "12,000+ reviews",
+            "rating_text": "",
+            "reviews_text": "",
             "layout": "inline",
             "text_size": 16,
             "text_size_mobile": 14
@@ -347,38 +320,7 @@
         "one": {
           "type": "_ui-testimonial",
           "settings": {
-            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
-            "name": "Jazmine D",
-            "role": "ServiceNow"
-          }
-        },
-        "two": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
-            "name": "Jazmine D",
-            "role": "ServiceNow"
-          }
-        },
-        "three": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
-            "name": "Jazmine D",
-            "role": "ServiceNow"
-          }
-        },
-        "four": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
-            "name": "Jazmine D",
-            "role": "ServiceNow"
-          }
-        },
-        "five": {
-          "type": "_ui-testimonial",
-          "settings": {
+            "rating": 5,
             "quote": "<p>\"Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\"</p>",
             "name": "Jazmine D",
             "role": "ServiceNow"
@@ -386,13 +328,11 @@
         }
       },
       "block_order": [
-        "one",
-        "two",
-        "three",
-        "four",
-        "five"
+        "one"
       ],
-      "settings": {}
+      "settings": {
+        "show_rating": false
+      }
     },
     "newsletter_preview": {
       "type": "newsletter",
@@ -400,13 +340,13 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Newsletter</h2>"
+            "heading": "<h2>Stay in touch</h2>"
           }
         },
         "body": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Subscribe to our newsletter and be the first to hear about new arrivals, exclusive offers, seasonal collections, and special promotions.</p>",
+            "text": "<p>New flavors, seasonal boxes, and a gentle reminder now and then that someone in your life could use a treat.</p>",
             "text_size": 16,
             "text_size_mobile": 14
           }
@@ -429,21 +369,21 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2><em>Custom</em> Treats</h2>"
+            "heading": "<h2>Made <em>just for them</em></h2>"
           }
         },
         "body": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Create a one-of-a-kind treat made just for you. Personalize it with your own photo, message, or design.</p>",
+            "text": "<p>Add a photo, a message, or a design of your own. Handcrafted treats, personalized and ready to give.</p>",
             "max_width": 400
           }
         },
         "cta": {
           "type": "_ui-link",
           "settings": {
-            "label": "Create your custom treat",
-            "link": "/pages/faqs?view=customize",
+            "label": "Design your treat",
+            "link": "/pages/customize",
             "variant": "primary"
           }
         }
@@ -469,7 +409,6 @@
     "shop_by_occasion_preview",
     "best_sellers_preview",
     "custom_treats_banner",
-    "custom_treats_preview",
     "our_story_Vt6Rw1",
     "corporate_gifts_preview",
     "partner_story_preview",

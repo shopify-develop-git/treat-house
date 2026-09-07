@@ -29,9 +29,9 @@
   assign form_masks = ' | | | |MM/DD/YYYY' | split: '|'
   assign form_typing = 'Nam|name@gm|Treat Ho|2|24/0' | split: '|'
   assign form_values = 'Name|name@gmail.com|Treat House|25|24/07/2026' | split: '|'
-  assign form_hints = ' | | |Minimum order setup: 25 boxes| ' | split: '|'
+  assign form_hints = ' | | |Tell us roughly how many boxes you need.| ' | split: '|'
   assign form_err1 = 'Please enter your name.|Please enter your email address.|Please enter your company.|Please enter estimated quantity.|Enter your preferred delivery date.' | split: '|'
-  assign form_err2 = 'Please enter a valid name.|Please enter a valid email address.|Please enter a valid company.|Minimum initial request quantity is 25 units.|Please use the format MM/DD/YYYY.' | split: '|'
+  assign form_err2 = 'Please enter a valid name.|Please enter a valid email address.|Please enter a valid company.|Please enter a whole number.|Please use the format MM/DD/YYYY.' | split: '|'
 -%}
 
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>

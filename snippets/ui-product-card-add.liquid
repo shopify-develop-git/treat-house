@@ -28,6 +28,10 @@
   `[data-product-grid-content]` out of it — an element that belongs to Horizon's
   `product-information` section and does not exist on this theme's product page.
 
+  A seasonal product that is closed or not yet open (see [season-status]) gets
+  no form at all: the square holds an inert pill carrying the season label,
+  so there is nothing on the card that can post to the cart.
+
   @param {object} product - The product to add.
   @param {string} section_id - The id of the section drawing the card. Keeps one page's forms apart.
   @param {string} [class] - Additional CSS classes for the host element.
@@ -39,7 +43,12 @@
   {% render 'ui-product-card', title: product.title, add_content: add_control %}
 {%- enddoc -%}
 
+{%- capture season -%}{% render 'season-status', product: product %}{%- endcapture -%}
 {%- liquid
+  assign season_parts = season | strip | split: '|'
+  assign season_status = season_parts[0] | default: 'available'
+  assign season_label = season_parts[1]
+
   assign variant = product.selected_or_first_available_variant
 
   assign sold_out = true
@@ -65,12 +74,22 @@
   endif
 -%}
 
-{%- if sold_out -%}
+{%- if season_status != 'available' -%}
+  {%- assign season_classes = host_classes | append: ' ui-product-card__season' -%}
+  {% render 'ui-button',
+    variant: 'secondary',
+    tag: 'span',
+    label: season_label,
+    disabled: true,
+    class: season_classes
+  %}
+{%- elsif sold_out -%}
   {% render 'ui-button',
     variant: 'basket',
     label: add_label,
     disabled: true,
-    class: host_classes
+    class: host_classes,
+    attributes: 'aria-disabled="true"'
   %}
 {%- else -%}
   <product-form-component
