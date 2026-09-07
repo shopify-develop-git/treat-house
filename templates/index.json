@@ -9,33 +9,6 @@
  */
 {
   "sections": {
-    "shop_by_occasion_preview": {
-      "type": "shop-by-occasion",
-      "blocks": {
-        "heading": {
-          "type": "_ui-heading",
-          "settings": {
-            "heading": "<h2>Shop by <em>moment</em></h2>"
-          }
-        }
-      },
-      "block_order": [
-        "heading"
-      ],
-      "settings": {
-        "description": "Handcrafted treats, ready to give.",
-        "collections": [
-          "birthday",
-          "get-well",
-          "congratulations",
-          "baby-shower",
-          "halloween",
-          "thanksgiving",
-          "christmas-treats",
-          "valentines-day"
-        ]
-      }
-    },
     "home_hero_Kx9Ln4": {
       "type": "home-hero",
       "blocks": {
@@ -44,47 +17,85 @@
           "settings": {
             "label": "Nostalgia, Reinvented",
             "icon": "none"
-          }
+          },
+          "blocks": {}
         },
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h1>Who doesn't love <br><em>a Krispie Treat?</em></h1>"
-          }
+            "source": "custom",
+            "heading": "<h1>Who doesn't love <br><em>a Krispie Treat?</em></h1>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "copy": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>A modern take on the Krispie treat you grew up with. Handcrafted and ready to give for birthdays, thank-yous, and just because.</p>"
-          }
+            "source": "custom",
+            "text": "<p>A modern take on the Krispie treat you grew up with. Handcrafted and ready to give for birthdays, thank-yous, and just because.</p>",
+            "text_size": 16,
+            "text_size_mobile": 16,
+            "max_width": 0,
+            "color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "buttons": {
           "type": "_ui-link-row",
-          "settings": {},
+          "settings": {
+            "gap": 16,
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
           "blocks": {
             "primary": {
               "type": "_ui-link",
               "settings": {
                 "label": "Shop treats",
+                "link": "/collections/all",
                 "variant": "primary",
-                "link": "/collections/all"
-              }
+                "full_width": false,
+                "open_in_new_tab": false,
+                "padding_block_start": 0,
+                "padding_block_end": 0
+              },
+              "blocks": {}
             },
             "secondary": {
               "type": "_ui-link",
               "settings": {
                 "label": "Design your box",
+                "link": "/pages/customize",
                 "variant": "secondary",
-                "link": "/pages/customize"
-              }
+                "full_width": false,
+                "open_in_new_tab": false,
+                "padding_block_start": 0,
+                "padding_block_end": 0
+              },
+              "blocks": {}
             },
             "gifting": {
               "type": "_ui-link",
               "settings": {
                 "label": "Client and team gifts",
+                "link": "/pages/corporate-gifting?view=corporate-gifting",
                 "variant": "secondary",
-                "link": "/pages/corporate-gifting?view=corporate-gifting"
-              }
+                "full_width": false,
+                "open_in_new_tab": false,
+                "padding_block_start": 0,
+                "padding_block_end": 0
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -97,38 +108,43 @@
           "type": "_ui-review-line",
           "static": true,
           "settings": {
-            "image": "shopify://shop_images/review-line-composite.webp"
+            "source": "manual",
+            "image": "shopify://shop_images/review-line-composite.webp",
+            "rating_stars": 0,
+            "rating_text": "",
+            "reviews_text": "",
+            "layout": "stacked",
+            "text_size": 14,
+            "text_size_mobile": 14,
+            "gap": 11,
+            "padding_block_start": 0,
+            "padding_block_end": 0
           },
           "blocks": {
             "one": {
               "type": "_ui-avatar",
-              "settings": {
-                "image": "shopify://shop_images/home-hero-reviewer-1.webp"
-              }
+              "settings": {},
+              "blocks": {}
             },
             "two": {
               "type": "_ui-avatar",
-              "settings": {
-                "image": "shopify://shop_images/home-hero-reviewer-2.webp"
-              }
+              "settings": {},
+              "blocks": {}
             },
             "three": {
               "type": "_ui-avatar",
-              "settings": {
-                "image": "shopify://shop_images/home-hero-reviewer-3.webp"
-              }
+              "settings": {},
+              "blocks": {}
             },
             "four": {
               "type": "_ui-avatar",
-              "settings": {
-                "image": "shopify://shop_images/home-hero-reviewer-4.webp"
-              }
+              "settings": {},
+              "blocks": {}
             },
             "five": {
               "type": "_ui-avatar",
-              "settings": {
-                "image": "shopify://shop_images/home-hero-reviewer-5.webp"
-              }
+              "settings": {},
+              "blocks": {}
             }
           },
           "block_order": [
@@ -148,38 +164,67 @@
       ],
       "name": "Home hero",
       "settings": {
+        "color_scheme": "",
         "image": "shopify://shop_images/th-home-hero.jpg",
-        "marquee_text": "nostalgia, reinvented",
         "show_badge": true,
         "badge_figure": "Certified",
         "badge_text": "gluten-free",
+        "height": 600,
+        "height_mobile": 416,
+        "content_position": "center",
         "show_reviews": false,
-        "show_marquee": false
+        "show_marquee": false,
+        "marquee_text": "nostalgia, reinvented",
+        "marquee_repeat": 8,
+        "marquee_direction": "normal"
       }
     },
-    "our_story_Vt6Rw1": {
-      "type": "our-story",
+    "shop_by_occasion_preview": {
+      "type": "shop-by-occasion",
       "blocks": {
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Our <em>story</em></h2>"
-          }
-        },
-        "body": {
-          "type": "_ui-text",
-          "settings": {
-            "text": "<p>Treat House began with a bake sale on the Upper West Side. Our two kids were raising money for athletic equipment for kids in Africa, and people lined up for the rice krispie treats. They raised $300 that day.</p><p>We kept going, with tastings at school and honest feedback from parents and families. The treat you grew up with, made a little more elevated and a lot more personal.</p><p>Giving back has been part of Treat House from the start, and today we are proud to partner with the Andrew McDonough B+ Foundation.</p><p>Built on a childhood favorite, shared to create new memories.</p>"
-          }
+            "source": "custom",
+            "heading": "<h2>Shop by <em>moment</em></h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         }
       },
       "block_order": [
-        "heading",
-        "body"
+        "heading"
       ],
-      "name": "Our story",
       "settings": {
-        "image": "shopify://shop_images/our-story-image.webp"
+        "collections": [
+          "birthday",
+          "get-well",
+          "congratulations",
+          "baby-shower",
+          "halloween",
+          "thanksgiving",
+          "christmas-treats",
+          "valentines-day",
+          "specialty-packs"
+        ],
+        "max_collections": 8,
+        "description": "Handcrafted treats, ready to give.",
+        "heading_alignment": "center",
+        "columns": 4,
+        "tablet_columns": 3,
+        "mobile_columns": "2",
+        "section_width": "page-width",
+        "background": "none",
+        "color_scheme": "",
+        "padding-block-start": 80,
+        "padding-block-end": 80
       }
     },
     "best_sellers_preview": {
@@ -189,27 +234,167 @@
           "type": "_ui-heading",
           "static": true,
           "settings": {
-            "heading": "<h2>Bestsellers</h2>"
-          }
+            "source": "custom",
+            "heading": "<h2>Bestsellers</h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "cta": {
           "type": "_ui-link",
           "static": true,
           "settings": {
             "label": "View all treats",
+            "link": "/collections/all",
             "variant": "primary",
-            "link": "/collections/all"
-          }
+            "full_width": false,
+            "open_in_new_tab": false,
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         }
       },
       "settings": {
+        "source": "chosen",
         "products": [
           "birthday-12-pack",
           "birthday-bash-box",
           "birthday-party-bar",
           "12-pack-of-custom-birthday-treats",
           "12-pack-of-custom-corporate-treats"
-        ]
+        ],
+        "collection": "",
+        "max_products": 5,
+        "heading_alignment": "start",
+        "cta_position": "heading",
+        "media_ratio": "240 / 215",
+        "columns": 5,
+        "columns_md": 4,
+        "columns_sm": 3,
+        "section_width": "page-width",
+        "background": "light-blue",
+        "color_scheme": "",
+        "padding-block-start": 80,
+        "padding-block-end": 80
+      }
+    },
+    "custom_treats_banner": {
+      "type": "our-story",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "source": "custom",
+            "heading": "<h2>Made <em>just for them</em></h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "source": "custom",
+            "text": "<p>Add a photo, a message, or a design of your own. Handcrafted treats, personalized and ready to give.</p>",
+            "text_size": 16,
+            "text_size_mobile": 16,
+            "max_width": 400,
+            "color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
+        },
+        "cta": {
+          "type": "_ui-link",
+          "settings": {
+            "label": "Design your treat",
+            "link": "/pages/customize",
+            "variant": "primary",
+            "full_width": false,
+            "open_in_new_tab": false,
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "heading",
+        "body",
+        "cta"
+      ],
+      "settings": {
+        "image": "shopify://shop_images/image_38.webp",
+        "media_style": "cut-out",
+        "media_position": "start",
+        "text_gap": 24,
+        "background": "white",
+        "vertical_padding": 80,
+        "vertical_padding_mobile": 64
+      }
+    },
+    "our_story_Vt6Rw1": {
+      "type": "our-story",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "source": "custom",
+            "heading": "<h2>Our <em>story</em></h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
+        },
+        "body": {
+          "type": "_ui-text",
+          "settings": {
+            "source": "custom",
+            "text": "<p>Treat House began with a bake sale on the Upper West Side. Our two kids were raising money for athletic equipment for kids in Africa, and people lined up for the rice krispie treats. They raised $300 that day.</p><p>We kept going, with tastings at school and honest feedback from parents and families. The treat you grew up with, made a little more elevated and a lot more personal.</p><p>Giving back has been part of Treat House from the start, and today we are proud to partner with the Andrew McDonough B+ Foundation.</p><p>Built on a childhood favorite, shared to create new memories.</p>",
+            "text_size": 16,
+            "text_size_mobile": 16,
+            "max_width": 0,
+            "color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "heading",
+        "body"
+      ],
+      "name": "Our story",
+      "settings": {
+        "image": "shopify://shop_images/our-story-image.webp",
+        "media_style": "photo",
+        "media_position": "end",
+        "text_gap": 32,
+        "background": "light-blue",
+        "vertical_padding": 32,
+        "vertical_padding_mobile": 64
       }
     },
     "corporate_gifts_preview": {
@@ -218,47 +403,77 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2><em>Client and team gifts</em> that feel personal</h2>"
-          }
+            "source": "custom",
+            "heading": "<h2><em>Client and team gifts</em> that feel personal</h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "copy": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Employee appreciation, client thank-yous, welcome gifts, and milestones. Your logo and colors on handcrafted treats, shipped straight to each recipient. No minimum order, quick turnaround, and a real person on your order start to finish.</p>"
-          }
+            "source": "custom",
+            "text": "<p>Employee appreciation, client thank-yous, welcome gifts, and milestones. Your logo and colors on handcrafted treats, shipped straight to each recipient. No minimum order, quick turnaround, and a real person on your order start to finish.</p>",
+            "text_size": 16,
+            "text_size_mobile": 16,
+            "max_width": 0,
+            "color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "button": {
           "type": "_ui-link",
           "settings": {
             "label": "Plan a thoughtful client gift",
-            "link": "/pages/corporate-gifting?view=corporate-gifting"
-          }
+            "link": "/pages/corporate-gifting?view=corporate-gifting",
+            "variant": "primary",
+            "full_width": false,
+            "open_in_new_tab": false,
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "stat-row": {
           "type": "_ui-stat-row",
           "static": true,
-          "settings": {},
+          "settings": {
+            "caption": "",
+            "gap": 24
+          },
           "blocks": {
             "one": {
               "type": "_ui-stat",
               "settings": {
                 "value": "",
                 "label": ""
-              }
+              },
+              "blocks": {}
             },
             "two": {
               "type": "_ui-stat",
               "settings": {
                 "value": "",
                 "label": ""
-              }
+              },
+              "blocks": {}
             },
             "three": {
               "type": "_ui-stat",
               "settings": {
                 "value": "",
                 "label": ""
-              }
+              },
+              "blocks": {}
             }
           },
           "block_order": [
@@ -277,7 +492,12 @@
         "image_top_left": "shopify://shop_images/corporate-gifts-top-left.webp",
         "image_top_right": "shopify://shop_images/corporate-gifts-top-right.webp",
         "image_bottom_left": "shopify://shop_images/corporate-gifts-bottom-left.webp",
-        "image_bottom_right": "shopify://shop_images/corporate-gifts-bottom-right.webp"
+        "image_bottom_right": "shopify://shop_images/corporate-gifts-bottom-right.webp",
+        "media_position": "left",
+        "show_star": true,
+        "color_scheme": "",
+        "vertical_padding": 80,
+        "vertical_padding_mobile": 64
       }
     },
     "partner_story_preview": {
@@ -286,14 +506,32 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Proud partners of the Andrew McDonough B+ Foundation</h2>"
-          }
+            "source": "custom",
+            "heading": "<h2>Proud partners of the Andrew McDonough B+ Foundation</h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "body": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>The Andrew McDonough B+ Foundation honors the life of Andrew McDonough. Andrew battled leukemia, septic shock, and complications of childhood cancer for 167 days before passing away on July 14, 2007, at the age of 14.</p><p>Andrew's B+ blood type became his family's and friends' motto throughout his fight against childhood cancer — to “Be Positive”. The B+ Foundation is the largest provider of financial assistance to families of kids with cancer nationwide.</p><p>Additionally, The B+ Foundation funds cutting-edge childhood cancer research and advocates on behalf of kids with cancer.</p>"
-          }
+            "source": "custom",
+            "text": "<p>The Andrew McDonough B+ Foundation honors the life of Andrew McDonough. Andrew battled leukemia, septic shock, and complications of childhood cancer for 167 days before passing away on July 14, 2007, at the age of 14.</p><p>Andrew's B+ blood type became his family's and friends' motto throughout his fight against childhood cancer — to “Be Positive”. The B+ Foundation is the largest provider of financial assistance to families of kids with cancer nationwide.</p><p>Additionally, The B+ Foundation funds cutting-edge childhood cancer research and advocates on behalf of kids with cancer.</p>",
+            "text_size": 16,
+            "text_size_mobile": 16,
+            "max_width": 0,
+            "color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -301,86 +539,112 @@
         "body"
       ],
       "settings": {
-        "image": "shopify://shop_images/partner-story-image.webp"
+        "image": "shopify://shop_images/partner-story-image.webp",
+        "background": "purple",
+        "vertical_padding": 80,
+        "vertical_padding_mobile": 64
       }
     },
     "testimonials_preview": {
       "type": "testimonials",
       "blocks": {
+        "one": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>“Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.”</p>",
+            "rating": 5,
+            "name": "Jazmine D",
+            "role": "ServiceNow"
+          },
+          "blocks": {}
+        },
+        "two": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>“We use Treat House for many corporate occasions because it’s a great way to showcase our logos. The print quality is excellent, and you are providing tasty, delicious treats! The owners are incredibly attentive and very pleasant to work with. Highly recommend!”</p>",
+            "rating": 5,
+            "name": "",
+            "role": "NBC"
+          },
+          "blocks": {}
+        },
+        "three": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>“I’ve worked with Treat House for years, and they have been nothing short of exceptional. Whether it’s a last-minute request for a few hundred treats or a large-scale order of thousands shipped nationwide, they always deliver with consistency and care. Their branding and quality are unmatched (logo’d treats are so hard to find!), with endless flavor options that never fail to impress. Most importantly, Jen and Chris are so accommodating, reliable, and truly committed to making it work every single time. They always meet you where you’re at and will try anything you need to make it happen—they’re simply the best. Working in the hospitality industry myself, I deeply value their dedication to their customers—it’s what makes them the best in the business.”</p>",
+            "rating": 5,
+            "name": "Julia W",
+            "role": "Restaurant Associates"
+          },
+          "blocks": {}
+        },
+        "four": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>“I’ve been working with the Treat House team for over two years and they have been amazing to work with. Their treats are always a hit with our clients- they’re very tasty, and our custom logos look great every time. Orders are always delivered quickly and reliably, which makes my life a lot easier. Highly recommend it if you're looking for a fun, unique treat that leaves a great impression!”</p>",
+            "rating": 5,
+            "name": "Alexa H",
+            "role": "VML"
+          },
+          "blocks": {}
+        },
+        "five": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "quote": "<p>“I have been a loyal customer to the Treat House team for several years now and cannot applaud the team enough for their incredible customer service, ease of use ordering, and incredibly tasty treats! I frequently select these gourmet treats not just for family but as a high tech professional, I select these for thoughtful and unique client gifting! I am often given incredible feedback from my clients on the delicious taste, unique thought, and beautiful presentation. Treathouse never fails to impress with their exceptional quality and delightful flavor - red velvet being my favorite! Treat House has set a new standard for confectionery excellence, making their Rice Krispie Treats an ideal choice for premium gifting. I could not endorse them more!”</p>",
+            "rating": 5,
+            "name": "Larissa F.",
+            "role": "Large Software Company"
+          },
+          "blocks": {}
+        },
         "heading": {
           "type": "_ui-heading",
           "static": true,
           "settings": {
+            "source": "custom",
             "heading": "<h2>What customers say</h2>",
-            "max_width": 520
-          }
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 520,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "rating": {
           "type": "_ui-review-line",
           "static": true,
           "settings": {
+            "source": "manual",
+            "rating_stars": 0,
             "rating_text": "",
             "reviews_text": "",
             "layout": "inline",
             "text_size": 16,
-            "text_size_mobile": 14
-          }
-        },
-        "one": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "rating": 5,
-            "quote": "<p>“Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.”</p>",
-            "name": "Jazmine D",
-            "role": "ServiceNow"
-          }
-        },
-        "two": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "rating": 5,
-            "quote": "<p>“We use Treat House for many corporate occasions because it’s a great way to showcase our logos. The print quality is excellent, and you are providing tasty, delicious treats! The owners are incredibly attentive and very pleasant to work with. Highly recommend!”</p>",
-            "name": "",
-            "role": "NBC"
-          }
-        },
-        "three": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "rating": 5,
-            "quote": "<p>“I’ve worked with Treat House for years, and they have been nothing short of exceptional. Whether it’s a last-minute request for a few hundred treats or a large-scale order of thousands shipped nationwide, they always deliver with consistency and care. Their branding and quality are unmatched (logo’d treats are so hard to find!), with endless flavor options that never fail to impress. Most importantly, Jen and Chris are so accommodating, reliable, and truly committed to making it work every single time. They always meet you where you’re at and will try anything you need to make it happen—they’re simply the best. Working in the hospitality industry myself, I deeply value their dedication to their customers—it’s what makes them the best in the business.”</p>",
-            "name": "Julia W",
-            "role": "Restaurant Associates"
-          }
-        },
-        "four": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "rating": 5,
-            "quote": "<p>“I’ve been working with the Treat House team for over two years and they have been amazing to work with. Their treats are always a hit with our clients- they’re very tasty, and our custom logos look great every time. Orders are always delivered quickly and reliably, which makes my life a lot easier. Highly recommend it if you're looking for a fun, unique treat that leaves a great impression!”</p>",
-            "name": "Alexa H",
-            "role": "VML"
-          }
-        },
-        "five": {
-          "type": "_ui-testimonial",
-          "settings": {
-            "rating": 5,
-            "quote": "<p>“I have been a loyal customer to the Treat House team for several years now and cannot applaud the team enough for their incredible customer service, ease of use ordering, and incredibly tasty treats! I frequently select these gourmet treats not just for family but as a high tech professional, I select these for thoughtful and unique client gifting! I am often given incredible feedback from my clients on the delicious taste, unique thought, and beautiful presentation. Treathouse never fails to impress with their exceptional quality and delightful flavor - red velvet being my favorite! Treat House has set a new standard for confectionery excellence, making their Rice Krispie Treats an ideal choice for premium gifting. I could not endorse them more!”</p>",
-            "name": "Larissa F.",
-            "role": "Large Software Company"
-          }
+            "text_size_mobile": 14,
+            "gap": 11,
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         }
       },
       "block_order": [
-          "one",
-          "two",
-          "three",
-          "four",
-          "five"
-        ],
+        "one",
+        "two",
+        "three",
+        "four",
+        "five"
+      ],
       "settings": {
-        "show_rating": false
+        "show_rating": false,
+        "color_scheme": "",
+        "vertical_padding": 80,
+        "vertical_padding_mobile": 64
       }
     },
     "newsletter_preview": {
@@ -389,65 +653,65 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Stay in touch</h2>"
-          }
+            "source": "custom",
+            "heading": "<h2>Stay in touch</h2>",
+            "heading_tag": "h1",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "max_width": 0,
+            "color": "",
+            "accent_color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "body": {
           "type": "_ui-text",
           "settings": {
+            "source": "custom",
             "text": "<p>New flavors, seasonal boxes, and a gentle reminder now and then that someone in your life could use a treat.</p>",
             "text_size": 16,
-            "text_size_mobile": 14
-          }
+            "text_size_mobile": 14,
+            "max_width": 0,
+            "color": "",
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
+        },
+        "cta": {
+          "type": "_ui-link",
+          "static": true,
+          "settings": {
+            "label": "Shop treats",
+            "link": "",
+            "variant": "primary",
+            "full_width": false,
+            "open_in_new_tab": false,
+            "padding_block_start": 0,
+            "padding_block_end": 0
+          },
+          "blocks": {}
         },
         "signup": {
           "type": "_ui-newsletter-form",
           "static": true,
-          "settings": {}
+          "settings": {
+            "placeholder": "Your email",
+            "button_label": "Subscribe",
+            "field_label": ""
+          },
+          "blocks": {}
         }
       },
       "block_order": [
         "heading",
         "body"
       ],
-      "settings": {}
-    },
-    "custom_treats_banner": {
-      "type": "our-story",
-      "blocks": {
-        "heading": {
-          "type": "_ui-heading",
-          "settings": {
-            "heading": "<h2>Made <em>just for them</em></h2>"
-          }
-        },
-        "body": {
-          "type": "_ui-text",
-          "settings": {
-            "text": "<p>Add a photo, a message, or a design of your own. Handcrafted treats, personalized and ready to give.</p>",
-            "max_width": 400
-          }
-        },
-        "cta": {
-          "type": "_ui-link",
-          "settings": {
-            "label": "Design your treat",
-            "link": "/pages/customize",
-            "variant": "primary"
-          }
-        }
-      },
-      "block_order": [
-        "heading",
-        "body",
-        "cta"
-      ],
       "settings": {
-        "image": "shopify://shop_images/image_38.webp",
-        "media_style": "cut-out",
-        "media_position": "start",
-        "text_gap": 24,
-        "background": "white",
+        "action": "form",
+        "background": "purple",
         "vertical_padding": 80,
         "vertical_padding_mobile": 64
       }
