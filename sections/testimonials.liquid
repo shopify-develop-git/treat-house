@@ -20,14 +20,22 @@
 {% endcomment %}
 
 {%- liquid
-  # Only the review cards with words in them count; the heading and rating line
-  # are static blocks, and an empty card draws nothing (see _ui-testimonial).
-  assign testimonial_count = 0
-  for block in section.blocks
-    if block.type == '_ui-testimonial' and block.settings.quote != blank
-      assign testimonial_count = testimonial_count | plus: 1
-    endif
-  endfor
+  # `section.blocks` is the merchant's list of review cards, and only that — the
+  # heading and the rating line are static and never appear in it. What is not
+  # available is anything inside them: a theme block reaches a section as `@theme`
+  # carrying neither its type nor its settings, so the test that used to stand here
+  # — `block.type == '_ui-testimonial'`, and a look at that block's `quote` —
+  # matched nothing and left the count at zero. The section then called itself
+  # single whatever it held, which pinned the carousel to the first card and hid
+  # the rest behind `overflow-x: hidden`. With one review in the list that looked
+  # exactly right, so it survived until there were five.
+  #
+  # The size is what is left to count, and it is the right number: the schema
+  # admits no other block here. A card the merchant has added but not yet written
+  # counts towards it — that is a scroll onto an empty card in the editor, and
+  # nothing at all on a live page, since [_ui-testimonial] draws no card without a
+  # quote.
+  assign testimonial_count = section.blocks.size
 -%}
 
 <div

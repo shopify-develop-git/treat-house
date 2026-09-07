@@ -16,7 +16,12 @@
 
 {%- liquid
   assign stars = block.settings.rating | at_most: 5
-  assign initial = block.settings.name | strip | slice: 0
+
+  # Some reviews are signed by the company and not by a person — the one from NBC
+  # is — so the letter in the disc falls back to the company's. Without this the
+  # disc is drawn empty, which reads as a picture that failed to load.
+  assign attribution = block.settings.name | default: block.settings.role
+  assign initial = attribution | strip | slice: 0
 -%}
 
 {%- if block.settings.quote != blank or request.design_mode -%}
@@ -35,7 +40,12 @@
     {%- endif -%}
   </div>
 
-  {%- if block.settings.name != blank or block.settings.image != blank -%}
+  {%- comment -%}
+    `role` counts as an attribution of its own. A review credited only to the
+    company that gave it is a real review, and left out of this test the whole
+    footer went with the missing name — quote, then nothing.
+  {%- endcomment -%}
+  {%- if attribution != blank or block.settings.image != blank -%}
     <div class="ui-testimonial__author">
       <span class="ui-testimonial__avatar">
         {%- if block.settings.image != blank -%}
