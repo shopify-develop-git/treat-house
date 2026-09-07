@@ -53,9 +53,17 @@
     assign gift_heading = settings.cart_gift_note_heading | default: 'Gift message'
     assign gift_copy = settings.cart_gift_note_copy
     assign gift_button = settings.cart_gift_note_button | default: 'Add gift message'
+    assign gift_save = settings.cart_gift_note_save | default: 'Save message'
+    assign gift_saved = settings.cart_gift_note_saved | default: 'Saved.'
   -%}
 
-  <cart-note class="ui-gift-note">
+  <script src="{{ 'ui-gift-note.js' | asset_url }}" type="module" fetchpriority="low"></script>
+
+  <cart-note
+    class="ui-gift-note"
+    data-saved-label="{{ gift_saved | escape }}"
+    data-error-label="{{ 'That did not save. Try again.' | escape }}"
+  >
     <details class="ui-gift-note__details"{% if cart.note != blank %} open{% endif %}>
       <summary class="ui-gift-note__toggle ui-button ui-button--secondary">
         {{- gift_button -}}
@@ -71,7 +79,23 @@
           attributes: 'form="cart-form" on:input="/updateCartNote"'
         %}
       </div>
+
+      {%- comment -%}
+        The note saves as it is typed — Horizon's `cart-note` sees to that — so
+        this button is the confirmation, not the mechanism. Without one the box
+        gave the shopper nothing back, and a box that saves in silence reads as
+        one that did not.
+      {%- endcomment -%}
+      <div class="ui-gift-note__actions">
+        {% render 'ui-button',
+          variant: 'primary',
+          label: gift_save,
+          attributes: 'data-gift-note-save'
+        %}
+      </div>
     </details>
+
+    <p class="ui-gift-note__status" role="status" data-gift-note-status></p>
 
     <p class="ui-gift-note__heading">
       <span class="ui-gift-note__icon" aria-hidden="true">
@@ -483,6 +507,32 @@
   .ui-gift-note__details {
     grid-area: button;
     justify-self: end;
+  }
+
+  /*
+   * The Save row and the line it leaves. The row sits inside the disclosure with
+   * the field; the line sits outside it, because the button closes the
+   * disclosure on the way and a confirmation that shuts with the thing it is
+   * confirming has told nobody anything.
+   */
+  .ui-gift-note__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-block-start: 12px;
+  }
+
+  .ui-gift-note__status {
+    margin: 0;
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-body);
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  /* Empty until the button has something to report, and out of the layout until
+     then so the panel does not carry a blank line's worth of space. */
+  .ui-gift-note__status:empty {
+    display: none;
   }
 
   .ui-gift-note__details[open] {

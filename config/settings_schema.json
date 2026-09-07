@@ -2020,6 +2020,19 @@
         "default": "Add gift message"
       },
       {
+        "type": "text",
+        "id": "cart_gift_note_save",
+        "label": "Save button label",
+        "default": "Save message"
+      },
+      {
+        "type": "text",
+        "id": "cart_gift_note_saved",
+        "label": "Confirmation",
+        "info": "Shown once the message is saved.",
+        "default": "Saved. We'll print it on the card."
+      },
+      {
         "type": "header",
         "content": "Delivery date"
       },
