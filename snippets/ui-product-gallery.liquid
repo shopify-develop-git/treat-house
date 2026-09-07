@@ -61,6 +61,14 @@
   <div class="ui-product-gallery__stage">
     {%- if gallery_media.size > 0 -%}
       {%- for media in gallery_media -%}
+        {%- comment -%}
+          Shopify fills an image's `alt` with the product's own name when the
+          merchant has not written one, so a supplier code in the name reaches the
+          gallery too — spoken by a screen reader, and printed in the frame when a
+          photograph fails to load.
+        {%- endcomment -%}
+        {%- capture media_alt -%}{% render 'strip-hidden-words', title: media.alt %}{%- endcapture -%}
+        {%- assign media_alt = media_alt | strip -%}
         {%- liquid
           assign is_selected = false
           if media.id == selected_media.id
@@ -84,7 +92,7 @@
               sizes: '(min-width: 1200px) 46vw, (min-width: 990px) 44vw, 92vw',
               class: 'ui-product-gallery__image',
               loading: loading,
-              alt: media.alt
+              alt: media_alt
           }}
         </div>
       {%- endfor -%}
@@ -120,6 +128,8 @@
   {%- if gallery_media.size > 1 -%}
     <div class="ui-product-gallery__thumbs">
       {%- for media in gallery_media -%}
+        {%- capture media_alt -%}{% render 'strip-hidden-words', title: media.alt %}{%- endcapture -%}
+        {%- assign media_alt = media_alt | strip -%}
         {%- assign is_selected = false -%}
         {%- if media.id == selected_media.id -%}{%- assign is_selected = true -%}{%- endif -%}
         <button
@@ -136,7 +146,7 @@
               sizes: '118px',
               class: 'ui-product-gallery__thumb-image',
               loading: 'lazy',
-              alt: media.alt
+              alt: media_alt
           }}
         </button>
       {%- endfor -%}

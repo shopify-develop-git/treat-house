@@ -102,6 +102,22 @@
     ]
   },
   {
+    "name": "Product names",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Internal codes some products carry in their name, such as a supplier's initials. The product keeps the word, so the team still reads it in the admin; the storefront stops printing it."
+      },
+      {
+        "type": "text",
+        "id": "title_hidden_words",
+        "label": "Words to hide",
+        "info": "Comma separated. A word is dropped only when the whole of it matches, ignoring case — \"RD\" hides the code and leaves \"Birthday\" alone. This hides the word on the site only: checkout, order emails, invoices and product feeds still carry the full name.",
+        "default": "RD"
+      }
+    ]
+  },
+  {
     "name": "Product badges",
     "settings": [
       {

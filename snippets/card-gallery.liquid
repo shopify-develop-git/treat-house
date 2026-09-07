@@ -161,7 +161,7 @@
       class="contents"
       ref="cardGalleryLink"
       href="{{ product.selected_or_first_available_variant.url }}"
-      aria-label="{{- product.title -}}"
+      aria-label="{%- render 'strip-hidden-words', title: product.title -%}"
     >
       {% render 'slideshow',
         ref: 'slideshow',
@@ -180,7 +180,7 @@
         href="{{ product.selected_or_first_available_variant.url }}"
         aria-hidden="true"
       >
-        <span class="title-text">{{- product.title -}}</span>
+        <span class="title-text">{%- render 'strip-hidden-words', title: product.title -%}</span>
       </a>
     </product-title>
   {% elsif product == blank %}

@@ -5,7 +5,8 @@
   {% assign product_title = '<p>' | append: text | append: '</p>' %}
   {% render 'text', fallback_text: product_title, block: block %}
 {% else %}
-  {% assign product_title = '<p>' | append: closest.product.title | append: '</p>' %}
+  {%- capture product_title_shown -%}{% render 'strip-hidden-words', title: closest.product.title %}{%- endcapture -%}
+  {% assign product_title = '<p>' | append: product_title_shown | append: '</p>' | strip %}
   <a
     class="contents user-select-text"
     ref="productTitleLink"

@@ -177,7 +177,10 @@
   # with no product behind it is called.
   assign row_title = block.settings.title
   if row_product != blank
-    assign row_title = row_product.title
+    capture row_title
+      render 'strip-hidden-words', title: row_product.title
+    endcapture
+    assign row_title = row_title | strip
   endif
 -%}
 

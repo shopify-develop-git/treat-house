@@ -54,7 +54,7 @@
   </div>
 
   <div class="ui-flavour-card__footer">
-    <p class="ui-flavour-card__title">{{ title }}</p>
+    <p class="ui-flavour-card__title">{% render 'strip-hidden-words', title: title %}</p>
 
     <button
       type="button"

@@ -60,7 +60,7 @@
   {% if product == blank %}
     <h3 class="h4">{{ 'content.product_card_placeholder' | t }}</h3>
   {% else %}
-    <h3 class="h4">{{ product.title }}</h3>
+    <h3 class="h4">{% render 'strip-hidden-words', title: product.title %}</h3>
   {% endif %}
 </div>
 

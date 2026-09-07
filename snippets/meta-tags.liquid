@@ -17,7 +17,17 @@
 >
 
 {%- liquid
-  assign og_title = page_title | default: shop.name
+  # The tab, the share card and the search result all read from `page_title`, and
+  # a supplier code hidden on the page but printed in the tab is worse than one
+  # printed in both — it looks like two different products. [strip-hidden-words]
+  # cannot reach the title Shopify sends to checkout or to a feed, but this is one
+  # place it can.
+  capture page_title_shown
+    render 'strip-hidden-words', title: page_title
+  endcapture
+  assign page_title_shown = page_title_shown | strip
+
+  assign og_title = page_title_shown | default: shop.name
   assign og_url = canonical_url | default: request.origin
   assign og_type = 'website'
   assign og_description = page_description | default: shop.description | default: shop.name
@@ -102,10 +112,10 @@
 >
 
 <title>
-  {{ page_title }}
+  {{ page_title_shown }}
   {%- if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif -%}
   {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
-  {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+  {%- unless page_title_shown contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
 </title>
 
 <link

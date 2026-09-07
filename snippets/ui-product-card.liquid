@@ -73,6 +73,14 @@
   endif
 -%}
 
+{%- comment -%}
+  Shopify hands back the product's own name as an image's `alt` when the merchant
+  has not written one, so the supplier code arrives here too — spoken by a screen
+  reader, and printed on the page whenever the photograph fails to load.
+{%- endcomment -%}
+{%- capture image_alt -%}{% render 'strip-hidden-words', title: image.alt %}{%- endcapture -%}
+{%- assign image_alt = image_alt | strip -%}
+
 <article class="{{ card_classes }}"{% if attributes != blank %} {{ attributes }}{% endif %}>
   <div class="ui-product-card__media">
     {%- if image != blank -%}
@@ -94,7 +102,7 @@
           sizes: '(min-width: 1200px) 320px, (min-width: 750px) 33vw, max(50vw, 240px)',
           class: 'ui-product-card__image',
           loading: card_loading,
-          alt: image.alt
+          alt: image_alt
       }}
     {%- else -%}
       {{ 'product-1' | placeholder_svg_tag: 'ui-product-card__image ui-product-card__image--placeholder' }}
@@ -106,10 +114,12 @@
 
   <div class="ui-product-card__body">
     <h3 class="ui-product-card__title">
+      {%- capture title_shown -%}{% render 'strip-hidden-words', title: title %}{%- endcapture -%}
+      {%- assign title_shown = title_shown | strip -%}
       {%- if link != blank -%}
-        <a class="ui-product-card__link" href="{{ link }}">{{ title }}</a>
+        <a class="ui-product-card__link" href="{{ link }}">{{ title_shown }}</a>
       {%- else -%}
-        {{ title }}
+        {{ title_shown }}
       {%- endif -%}
     </h3>
     {%- if subtitle != blank -%}

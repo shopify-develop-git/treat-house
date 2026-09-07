@@ -89,7 +89,7 @@
     ref="productCardLink"
   >
     <span class="visually-hidden">
-      {{ product.title }}
+      {% render 'strip-hidden-words', title: product.title %}
     </span>
   </a>
   <div

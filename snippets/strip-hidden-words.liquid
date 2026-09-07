@@ -1,0 +1,70 @@
+{%- doc -%}
+  A product name with the shop's internal codes taken out of it.
+
+  Some names carry a supplier code on the end — `12 PACK GIFT BOX RD` — which the
+  Treat House team reads in the admin and a shopper has no use for. The code stays
+  on the product, because the team is the reason it is there; this takes it off the
+  name on the way to the page.
+
+  Which words go is `settings.title_hidden_words`, a comma-separated list in Theme
+  settings, so a code can be added or dropped without a developer.
+
+  **A whole word, not a substring.** The name is split on spaces and a part is
+  dropped only when the whole of it matches, ignoring case. That is what keeps
+  `Birthday` and `Chocolate` intact while `RD` goes — a substring rule would eat
+  the middle of half the catalogue.
+
+  **This is a curtain, not a rename.** The name still reaches checkout, order
+  confirmations and invoices, the Google Shopping feed, `products.json`, the
+  Storefront API and anything Shopify sends by email, because none of those render
+  through the theme. It buys time while the merchant decides whether the products
+  can be renamed for real; it is not the same thing as renaming them.
+
+  @param {string} title - The name to clean.
+
+  @example
+  {%- capture shown -%}{% render 'strip-hidden-words', title: product.title %}{%- endcapture -%}
+{%- enddoc -%}
+
+{%- liquid
+  assign hidden_words = settings.title_hidden_words | strip
+  assign shown = title
+
+  # Nothing configured is the normal case, and it should cost nothing — the name
+  # is handed straight back rather than walked word by word.
+  if hidden_words != blank and title != blank
+    # The list becomes one delimited string matched with `contains`, because Liquid
+    # has no way to ask whether an array holds a value.
+    assign drop = '|'
+    assign configured = hidden_words | split: ','
+    for word in configured
+      assign word_key = word | strip | downcase
+      if word_key != blank
+        assign drop = drop | append: word_key | append: '|'
+      endif
+    endfor
+
+    if drop != '|'
+      assign kept = ''
+      assign parts = title | split: ' '
+      for part in parts
+        assign part_key = part | strip | downcase
+        if part_key != blank
+          assign lookup = '|' | append: part_key | append: '|'
+          unless drop contains lookup
+            assign kept = kept | append: ' ' | append: part
+          endunless
+        endif
+      endfor
+
+      # A name that was nothing but hidden words would come back empty and leave
+      # the card with no heading at all, so there the original stands.
+      assign kept = kept | strip
+      if kept != blank
+        assign shown = kept
+      endif
+    endif
+  endif
+
+  echo shown
+-%}

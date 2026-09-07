@@ -36,7 +36,15 @@
   # hands back; passing the object itself and asking it to escape renders nothing.
   assign accent_value = accent.value | default: accent
 
-  assign title_text = title | escape
+  # Through [strip-hidden-words], because this snippet is the one home a product
+  # name has: the same name is printed from here on the product page, in the cart
+  # drawer and in the heading blocks. Taking the code off in one of those would
+  # have meant leaving it standing in the others.
+  capture title_shown
+    render 'strip-hidden-words', title: title
+  endcapture
+
+  assign title_text = title_shown | strip | escape
   assign accent_text = accent_value | escape
 
   if accent_text != blank and title_text contains accent_text
