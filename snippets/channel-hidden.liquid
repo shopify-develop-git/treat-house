@@ -54,7 +54,12 @@
 {%- liquid
   assign channel = product.metafields.custom.internal_vendor.value | default: product.metafields.custom.internal_vendor
 
-  if channel != blank
+  # The switch is `true` unless the merchant has turned it off, which is what
+  # `default: true, allow_false: true` says: a checkbox that has never been
+  # touched is nil, and nil here has to mean on.
+  assign hiding = settings.channel_hide_enabled | default: true, allow_false: true
+
+  if channel != blank and hiding
     # `render` gives a snippet no globals, so the collection being listed is the
     # one the caller passed and nothing else. Search, recommendations and the home
     # rows pass none, which is right: none of them is anybody's shop.

@@ -106,30 +106,32 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "Products belonging to another channel — ReachDesk, wholesale, a named client — are marked with the Internal vendor field on the product. They stay published and their links keep working, but a retail shopper does not meet them: they are left out of collection grids, search, recommendations and the home rows."
+        "content": "Set Internal vendor on a product to mark it as another channel's. Today: RD (ReachDesk), WS (wholesale), OVERTURE, PNC. Any value works — a new channel needs no code change."
+      },
+      {
+        "type": "checkbox",
+        "id": "channel_hide_enabled",
+        "label": "Hide them from the storefront",
+        "default": true,
+        "info": "Collections, search, recommendations. Direct links keep working."
       },
       {
         "type": "text",
         "id": "channel_open_collections",
-        "label": "Collections each channel is sold from",
+        "label": "Except in these collections",
         "default": "reachdesk, reachdesk-copy, wholesale-page, wholesale, overture-catalog, for-overture",
-        "info": "Comma separated collection handles. A channel's own collection belongs here, or its products cannot be browsed at all and the page reads as empty. Wholesale lives in two — wholesale-page and reachdesk-copy, which is a duplicate of the ReachDesk collection that was repurposed and never renamed."
-      }
-    ]
-  },
-  {
-    "name": "Product names",
-    "settings": [
+        "info": "Comma separated handles. Each channel needs one, or its page is empty."
+      },
       {
-        "type": "paragraph",
-        "content": "Internal codes some products carry in their name, such as a supplier's initials. The product keeps the word, so the team still reads it in the admin; the storefront stops printing it."
+        "type": "header",
+        "content": "Codes in product names"
       },
       {
         "type": "text",
         "id": "title_hidden_words",
         "label": "Words to hide",
-        "info": "Comma separated. A word is dropped only when the whole of it matches, ignoring case — \"RD\" hides the code and leaves \"Birthday\" alone. This hides the word on the site only: checkout, order emails, invoices and product feeds still carry the full name.",
-        "default": "RD"
+        "default": "RD",
+        "info": "Comma separated, whole words only. Site only — orders and emails keep the full name."
       }
     ]
   },

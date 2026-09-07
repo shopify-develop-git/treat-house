@@ -10,6 +10,7 @@
 {
   "current": {
     "title_hidden_words": "RD",
+    "channel_hide_enabled": true,
     "channel_open_collections": "reachdesk, reachdesk-copy, wholesale-page, wholesale, overture-catalog, for-overture",
     "logo": "shopify://shop_images/treat-house-logo.webp",
     "logo_height": 47,
