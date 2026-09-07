@@ -61,7 +61,7 @@
         "image": "shopify://shop_images/corporate-hero-image.webp",
         "show_badge": false,
         "show_reviews": false,
-        "show_marquee": true
+        "show_marquee": false
       }
     },
     "banner": {
@@ -205,12 +205,12 @@
         }
       },
       "block_order": [
-          "one",
-          "two",
-          "three",
-          "four",
-          "five"
-        ],
+        "one",
+        "two",
+        "three",
+        "four",
+        "five"
+      ],
       "settings": {
         "show_rating": false
       }

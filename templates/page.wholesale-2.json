@@ -99,7 +99,7 @@
         "badge_figure": "",
         "badge_text": "",
         "show_reviews": false,
-        "show_marquee": true,
+        "show_marquee": false,
         "marquee_text": "handcrafted krispie treats",
         "marquee_repeat": 8,
         "marquee_direction": "normal"
