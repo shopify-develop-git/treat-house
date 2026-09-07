@@ -751,6 +751,23 @@
     color: var(--color-foreground-heading);
   }
 
+  /*
+   * `hidden` is a browser default sitting at the very bottom of the cascade, and
+   * any author rule that sets `display` outranks it — including the two above.
+   * The script was setting the attribute correctly and the stylesheet was putting
+   * the row straight back, which is how the summary came to read "Gift message —
+   * Added" over an empty box. The chips are the same shape of bug and only look
+   * fine because an empty grid measures nothing.
+   *
+   * `.customize-box__screen[hidden]` above already carries this fix; these rows
+   * were written later and did not inherit the lesson. Anything in here that is
+   * toggled with `hidden` and given a `display` needs a line in this rule.
+   */
+  .customize-box__summary-row[hidden],
+  .customize-box__summary-chips[hidden] {
+    display: none;
+  }
+
   .customize-box__add-error {
     margin-block-start: 8px;
     font-family: var(--ui-font-body);
