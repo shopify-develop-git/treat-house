@@ -47,6 +47,19 @@
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
 <div
   class="home-hero color-{{ section.settings.color_scheme }}"
+  {% comment %}
+    The height is written as two properties, one per breakpoint, rather than as
+    --home-hero-media-height itself. An inline style outweighs any rule in the
+    stylesheet, so setting the used property here would freeze one number across
+    every width and the mobile step below could never reach it. The media query
+    picks which of the two is used instead — the trap docs/section-settings.md
+    documents.
+  {% endcomment %}
+  style="
+    --home-hero-media-height-mobile: {{ section.settings.height_mobile }}px;
+    --home-hero-media-height-desktop: {{ section.settings.height }}px;
+    --home-hero-panel-justify: {{ section.settings.content_position }};
+  "
   data-testid="home-hero-{{ section.id }}"
   {{ section.shopify_attributes }}
 >
@@ -139,7 +152,7 @@
     --home-hero-panel-gap: 32px;
     --home-hero-block-gap: 16px;
     --home-hero-sparkle-size: 24px;
-    --home-hero-media-height: 416px;
+    --home-hero-media-height: var(--home-hero-media-height-mobile, 416px);
     --home-hero-badge-inset: 16px;
 
     /* Marquee */
@@ -157,9 +170,9 @@
       --home-hero-space-start: 32px;
       --home-hero-panel-padding-block: 32px;
       --home-hero-panel-padding-inline: 32px;
-      --home-hero-panel-gap: 0px;
+      --home-hero-panel-gap: 32px;
       --home-hero-sparkle-size: 32px;
-      --home-hero-media-height: 600px;
+      --home-hero-media-height: var(--home-hero-media-height-desktop, 600px);
       --home-hero-badge-inset: 20px;
       --home-hero-marquee-padding: 24px;
       --home-hero-marquee-size: 20px;
@@ -219,14 +232,25 @@
     background-color: var(--ui-color-light-blue);
   }
 
+  /*
+   * The panel is as tall as the photograph beside it, which leaves it with far
+   * more height than its contents need, and the merchant chooses where that
+   * surplus goes.
+   *
+   * "Center" gathers the three parts into one group on the panel's own gap and
+   * pushes the surplus out to the top and bottom edges, where it reads as air.
+   * "Space between" is what the file draws — the sparkle on the ceiling, the
+   * review line on the floor — and it wants the review line switched on to earn
+   * it. Without one there are two children rather than three, nothing holds the
+   * floor, and the whole surplus opens as a single hole under the sparkle. Hence
+   * the default, and the note on the setting.
+   *
+   * Below 750px the panel has no min-height and hugs its content, so neither
+   * arrangement has any surplus to place and the rule stays inside the query.
+   */
   @media screen and (min-width: 750px) {
-    /*
-     * The design distributes the panel's three parts rather than stacking them,
-     * which is what keeps the sparkle at the top and the review line on the
-     * floor however tall the column ends up.
-     */
     .home-hero__panel {
-      justify-content: space-between;
+      justify-content: var(--home-hero-panel-justify, center);
       min-height: var(--home-hero-media-height);
     }
   }
@@ -557,6 +581,49 @@
       "label": "Badge",
       "default": "gluten-free",
       "visible_if": "{{ section.settings.show_badge }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.layout"
+    },
+    {
+      "type": "range",
+      "id": "height",
+      "label": "t:settings.height",
+      "info": "The photograph's height, and the least the panel beside it can be. The panel grows past it if the copy needs the room.",
+      "min": 320,
+      "max": 920,
+      "step": 10,
+      "unit": "px",
+      "default": 600
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "label": "t:settings.mobile_height",
+      "info": "Stacked, so this is the photograph alone — the panel above it is as tall as its copy.",
+      "min": 240,
+      "max": 640,
+      "step": 8,
+      "unit": "px",
+      "default": 416
+    },
+    {
+      "type": "select",
+      "id": "content_position",
+      "label": "t:settings.content_position",
+      "info": "How the panel's spare height is used, on desktop. \"Space between\" pins the sparkle to the top and the review line to the bottom, so it needs the review line shown — without it the copy drops to the panel's floor.",
+      "options": [
+        {
+          "value": "center",
+          "label": "t:options.center"
+        },
+        {
+          "value": "space-between",
+          "label": "t:options.space_between"
+        }
+      ],
+      "default": "center"
     },
     {
       "type": "header",
