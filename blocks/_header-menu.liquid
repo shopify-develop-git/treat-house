@@ -617,6 +617,22 @@
     }
   }
 
+  /*
+   * `.menu-list__list-item` holds `white-space: nowrap` so a top-level label
+   * never breaks mid-word, and it inherits the whole way down into the open
+   * panel. Horizon undoes it wherever prose lands — on its own links, on the
+   * featured rows, on the overflow item — and the card is the one piece of prose
+   * in the panel that is ours, so it has to undo it too. Left inheriting, the
+   * line under the heading sets as one unbroken run and leaves the card through
+   * its right edge instead of wrapping inside it.
+   *
+   * On the card rather than on its two paragraphs, so the button's label is
+   * covered by the same rule.
+   */
+  .mega-menu__promo {
+    white-space: normal;
+  }
+
   .mega-menu__link--parent {
     font-family: var(--menu-parent-font-family);
     font-style: var(--menu-parent-font-style);
