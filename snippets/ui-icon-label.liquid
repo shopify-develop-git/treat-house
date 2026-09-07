@@ -31,7 +31,15 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--ui-icon-label-gap, 12px);
+    /*
+     * 8, against the 12 the file draws. The glyph and the wording under it are one
+     * label, not two things in a column, and at 12 they read as two — which shows
+     * on the product page, where the row wraps to two lines and the vertical gap
+     * between one item and the next is not much larger than the gap inside a
+     * single item. The property is still the way out for a caller that wants the
+     * drawn figure back.
+     */
+    gap: var(--ui-icon-label-gap, 8px);
     color: var(--ui-color-gray);
     font-family: var(--ui-font-body);
     font-size: var(--ui-icon-label-font-size, 14px);
