@@ -205,7 +205,17 @@
    * and same ratio gives every card in a row the same picture and the same first
    * baseline, and the card still fills its cell because the body grows instead.
    */
+  /*
+   * Positioned, because the season ribbon inside it is laid out against its foot.
+   * Without this the nearest positioned ancestor is the card, so `inset-block-end:
+   * 0` put the ribbon across the bottom of the whole card — over the price row,
+   * and outside the media's `overflow: hidden`, so it ran past the rounded corners
+   * the card is cut to. Positioning the media makes it the ribbon's containing
+   * block, which both drops the ribbon onto the picture where the file draws it
+   * and brings it back inside the clip.
+   */
   .ui-product-card__media {
+    position: relative;
     display: block;
     flex: 0 0 auto;
     aspect-ratio: var(--ui-product-card-media-ratio);
