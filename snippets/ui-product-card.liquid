@@ -247,7 +247,30 @@
     padding: var(--ui-product-card-body-padding);
   }
 
+  /*
+   * Two lines, whether the name needs them or not. A row of cards is read across
+   * as much as down — the names on one line, the descriptions on the next — and a
+   * one-line name broke that: "Candy Corn Party Bar" started its description
+   * 18px above "Box of 12 Jumbo Candy Corn Treats" did, so no two cards in the
+   * row agreed on where anything after the name began.
+   *
+   * The floor holds the short names down and the clamp holds the long ones up, so
+   * it takes both. Two is the number because it is what the longest name in the
+   * catalogue takes at the card's narrowest, and it is the same count the
+   * description below is already clamped to.
+   *
+   * `lh` is exactly the line box this element draws; `2.2em` is the same sum
+   * arithmetically — two lines of the 1.1 above — kept for anything that has not
+   * got the unit.
+   */
   .ui-product-card__title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    min-block-size: 2.2em;
+    min-block-size: 2lh;
     margin: 0;
     font-family: var(--ui-font-body);
     font-weight: 700;
