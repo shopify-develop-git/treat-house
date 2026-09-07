@@ -20,7 +20,33 @@
   {% render 'ui-cart-drawer', part: 'gift' %}
 {%- enddoc -%}
 
-{%- if part == 'gift' and settings.show_cart_gift_note -%}
+{%- liquid
+  # The panel offers to take a gift message. It stops offering once one has
+  # already been written, because by then it is asking a second time for
+  # something the shopper can see they have done — their words are printed on the
+  # line right above this — and a second answer would not even join the first:
+  # the box builder and the product page write a line item property, this writes
+  # Shopify's cart note, and the two never meet. An order could leave with two
+  # different messages in two different places and a packer reading one of them.
+  #
+  # Only when the cart note itself is empty. A shopper who typed here first has a
+  # message living in this field and nowhere else, and hiding the panel would put
+  # it beyond reach.
+  assign show_cart_gift_note = false
+  if part == 'gift' and settings.show_cart_gift_note
+    assign show_cart_gift_note = true
+    if cart.note == blank
+      for item in cart.items
+        if item.properties['Gift message'] != blank
+          assign show_cart_gift_note = false
+          break
+        endif
+      endfor
+    endif
+  endif
+-%}
+
+{%- if show_cart_gift_note -%}
   <script src="{{ 'cart-note.js' | asset_url }}" type="module" fetchpriority="low"></script>
 
   {%- liquid
