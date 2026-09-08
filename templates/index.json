@@ -40,6 +40,7 @@
           "type": "_ui-text",
           "settings": {
             "source": "custom",
+            "max_words": 0,
             "text": "<p>A modern take on the Krispie treat you grew up with. Handcrafted and ready to give for birthdays, thank-yous, and just because.</p>",
             "text_size": 16,
             "text_size_mobile": 16,
@@ -309,6 +310,7 @@
           "type": "_ui-text",
           "settings": {
             "source": "custom",
+            "max_words": 0,
             "text": "<p>Add a photo, a message, or a design of your own. Handcrafted treats, personalized and ready to give.</p>",
             "text_size": 16,
             "text_size_mobile": 16,
@@ -339,7 +341,7 @@
         "cta"
       ],
       "settings": {
-        "image": "shopify://shop_images/image_38.webp",
+        "image": "shopify://shop_images/image-without-bg.png",
         "media_style": "cut-out",
         "media_position": "start",
         "text_gap": 24,
@@ -371,6 +373,7 @@
           "type": "_ui-text",
           "settings": {
             "source": "custom",
+            "max_words": 0,
             "text": "<p>Treat House began with a bake sale on the Upper West Side. Our two kids were raising money for athletic equipment for kids in Africa, and people lined up for the rice krispie treats. They raised $300 that day.</p><p>We kept going, with tastings at school and honest feedback from parents and families. The treat you grew up with, made a little more elevated and a lot more personal.</p><p>Giving back has been part of Treat House from the start, and today we are proud to partner with the Andrew McDonough B+ Foundation.</p><p>Built on a childhood favorite, shared to create new memories.</p>",
             "text_size": 16,
             "text_size_mobile": 16,
@@ -420,6 +423,7 @@
           "type": "_ui-text",
           "settings": {
             "source": "custom",
+            "max_words": 0,
             "text": "<p>Employee appreciation, client thank-yous, welcome gifts, and milestones. Your logo and colors on handcrafted treats, shipped straight to each recipient. No minimum order, quick turnaround, and a real person on your order start to finish.</p>",
             "text_size": 16,
             "text_size_mobile": 16,
@@ -523,6 +527,7 @@
           "type": "_ui-text",
           "settings": {
             "source": "custom",
+            "max_words": 0,
             "text": "<p>The Andrew McDonough B+ Foundation honors the life of Andrew McDonough. Andrew battled leukemia, septic shock, and complications of childhood cancer for 167 days before passing away on July 14, 2007, at the age of 14.</p><p>Andrew's B+ blood type became his family's and friends' motto throughout his fight against childhood cancer — to “Be Positive”. The B+ Foundation is the largest provider of financial assistance to families of kids with cancer nationwide.</p><p>Additionally, The B+ Foundation funds cutting-edge childhood cancer research and advocates on behalf of kids with cancer.</p>",
             "text_size": 16,
             "text_size_mobile": 16,
@@ -670,6 +675,7 @@
           "type": "_ui-text",
           "settings": {
             "source": "custom",
+            "max_words": 0,
             "text": "<p>New flavors, seasonal boxes, and a gentle reminder now and then that someone in your life could use a treat.</p>",
             "text_size": 16,
             "text_size_mobile": 14,
