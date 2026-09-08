@@ -277,19 +277,24 @@
     display: -webkit-box;
     -webkit-box-orient: vertical;
     /*
-     * Three lines, and three reserved, so every card gives its name the same room
-     * and the prices line up across a row.
+     * Room for three lines, two of them reserved.
      *
-     * Three because of the capitals below. Measured on the collection at two: 15
-     * of 23 names came out cut, against 7 in the case the shop types — capitals
-     * are wider and this shop writes long names. The card pays 17px for the third
-     * line and every card pays the same, so the grid still lines up.
+     * The two are separate decisions. The clamp is how long a name may run before
+     * it is cut, and capitals need three: at two, 15 of 23 names on the collection
+     * came out short. The reserve is how much every card holds open so the
+     * descriptions under them start level, and that wants the length names
+     * actually use — of those 23, eight run to one line, fourteen to two, and one
+     * to three. Reserving the third for that one left a line of nothing under
+     * every short name, which is what "too much space" meant.
+     *
+     * The prices stay level regardless: `.ui-product-card__body` grows, so the
+     * price row sits on the card's floor whatever the name above it does.
      */
     -webkit-line-clamp: 3;
     line-clamp: 3;
     overflow: hidden;
-    min-block-size: 3.3em;
-    min-block-size: 3lh;
+    min-block-size: 2.2em;
+    min-block-size: 2lh;
     margin: 0;
     font-family: var(--ui-font-body);
     font-weight: 700;
