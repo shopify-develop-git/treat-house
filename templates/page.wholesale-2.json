@@ -370,7 +370,7 @@
           "type": "_ui-heading",
           "settings": {
             "source": "custom",
-            "heading": "<h2>Questions before <em>you apply?</em></h2>",
+            "heading": "<h2>Questions before you apply?</h2>",
             "heading_tag": "h1",
             "heading_size": 48,
             "heading_size_mobile": 32,
