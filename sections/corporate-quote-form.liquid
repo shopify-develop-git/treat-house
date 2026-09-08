@@ -13,14 +13,14 @@
   The fields are a fixed composition rather than a merchant's list — the layout is
   drawn around two columns of them and a quote needs the answers it needs — so
   they are the section's, with their labels as the file writes them: Name, Email,
-  Company, Phone, Number of gifts, Budget range, Requested delivery date,
-  Customization, Delivery location, Notes. Every `contact[Label]` field is echoed
+  Company, Phone, Number of gifts, Requested delivery date, Customization,
+  Delivery location, Notes. Every `contact[Label]` field is echoed
   into Shopify's notification email as a "Label: value" line, and a hidden
   `contact[Inquiry type]` marks the mail as corporate so it can be told apart
   from the general contact page, which posts to the same inbox.
 
-  What a merchant does change is exposed: the budget ranges and customization
-  options on offer, the helper lines under the quantity and date fields, and
+  What a merchant does change is exposed: the customization options on offer,
+  the helper lines under the quantity and date fields, and
   every word of the confirmation, which is blocks.
 
   The whole form lives in a 630 column centred in the page, which is half the
@@ -29,7 +29,6 @@
 {% endcomment %}
 
 {%- liquid
-  assign budget_ranges = section.settings.budget_ranges | default: 'Under $500, $500-$1000, $1000-$2500, $2500-$5000, $5000+, Not sure yet'
   assign customization_options = section.settings.customization_options | default: 'Logo treats, Custom colors or theme, Printed photo, Gift message, Not sure yet'
   assign quantity_hint = section.settings.quantity_hint
   assign date_min_days = section.settings.date_min_days | default: 3
@@ -136,13 +135,6 @@
           attributes: 'min="1" step="1" inputmode="numeric"'
         %}
 
-        {% render 'ui-select',
-          label: 'Budget range',
-          name: 'contact[Budget range]',
-          placeholder: 'Select a range...',
-          options: budget_ranges
-        %}
-
         {%- capture date_attributes -%}
           data-corporate-quote-date data-min-days="{{ date_min_days }}"
         {%- endcapture -%}
@@ -155,12 +147,19 @@
           attributes: date_attributes
         %}
 
-        {% render 'ui-select',
-          label: 'Customization',
-          name: 'contact[Customization]',
-          placeholder: 'Select an option...',
-          options: customization_options
-        %}
+        {%- comment -%}
+          Full width, not half. Take Budget range out and the half-width fields
+          come to an odd number, which leaves this one alone in the left column
+          with a hole beside it. Six paired fields and then the wide ones.
+        {%- endcomment -%}
+        <div class="corporate-quote__wide">
+          {% render 'ui-select',
+            label: 'Customization',
+            name: 'contact[Customization]',
+            placeholder: 'Select an option...',
+            options: customization_options
+          %}
+        </div>
 
         <div class="corporate-quote__wide">
           {% render 'ui-input',
@@ -576,13 +575,6 @@
   "tag": "section",
   "blocks": [{ "type": "_ui-heading" }, { "type": "_ui-text" }, { "type": "_ui-link-row" }],
   "settings": [
-    {
-      "type": "text",
-      "id": "budget_ranges",
-      "label": "Budget ranges",
-      "info": "Comma separated, so write 1000 rather than 1,000. These are the options in the budget range field.",
-      "default": "Under $500, $500-$1000, $1000-$2500, $2500-$5000, $5000+, Not sure yet"
-    },
     {
       "type": "text",
       "id": "customization_options",
