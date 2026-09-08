@@ -120,10 +120,9 @@
    * The product's name in the same case the cards use, so a treat reads the same
    * in a row and on its own page.
    *
-   * `capitalize` raises the first letter of each word and leaves the rest as
-   * typed: a lower-case name comes out tidy, one already in capitals is untouched,
-   * because CSS cannot come back down from a capital. The catalogue's shouting
-   * names are a job for the titles themselves.
+   * Capitals, matching the cards. `capitalize` could not even out a catalogue that
+   * is half shouting already, because CSS raises letters and never lowers them.
+   * Up is a direction every name can go.
    *
    * On the `h1` itself, not on the wrapper around it. `assets/base.css` sets
    * `text-transform: var(--font-h1--case)` on every h1, and a rule on the element
@@ -134,7 +133,7 @@
    * the case they were drawn in.
    */
   .product-main__details .ui-heading > h1 {
-    text-transform: capitalize;
+    text-transform: uppercase;
   }
 
   .product-main__details {

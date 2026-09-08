@@ -276,24 +276,33 @@
   .ui-product-card__title {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    /*
+     * Three lines, and three reserved, so every card gives its name the same room
+     * and the prices line up across a row.
+     *
+     * Three because of the capitals below. Measured on the collection at two: 15
+     * of 23 names came out cut, against 7 in the case the shop types — capitals
+     * are wider and this shop writes long names. The card pays 17px for the third
+     * line and every card pays the same, so the grid still lines up.
+     */
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     overflow: hidden;
-    min-block-size: 2.2em;
-    min-block-size: 2lh;
+    min-block-size: 3.3em;
+    min-block-size: 3lh;
     margin: 0;
     font-family: var(--ui-font-body);
     font-weight: 700;
     font-size: 16px;
     line-height: 1.1;
     /*
-     * Asked for, and worth knowing what it does: `capitalize` raises the first
-     * letter of every word and leaves the rest of the string alone. A name the
-     * shop typed in lower case comes out tidy; one already shouting — "12 PACK OF
-     * CUSTOM GREEK TREATS" — is untouched, because CSS has no way down from a
-     * capital. Evening those out is a job for the product titles themselves.
+     * Capitals, which is the one case CSS can actually deliver on this catalogue.
+     * `capitalize` left the shouting names shouting — it raises a first letter and
+     * cannot lower anything — so half the grid stayed loud beside the half it had
+     * tidied. Up is a direction every name can go, so every name goes there and
+     * the row reads as one set.
      */
-    text-transform: capitalize;
+    text-transform: uppercase;
     color: var(--ui-color-black);
   }
 
