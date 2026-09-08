@@ -116,7 +116,7 @@
           "type": "_ui-product-prompt",
           "settings": {
             "text": "Want a different mix in every square?",
-            "link_label": "Design your box",
+            "link_label": "Build your own box",
             "link": "/pages/customize"
           },
           "blocks": {}
