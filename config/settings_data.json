@@ -9,9 +9,6 @@
  */
 {
   "current": {
-    "title_hidden_words": "RD",
-    "channel_hide_enabled": true,
-    "channel_open_collections": "reachdesk, reachdesk-copy, wholesale-page, wholesale, overture-catalog, for-overture",
     "logo": "shopify://shop_images/treat-house-logo.webp",
     "logo_height": 47,
     "logo_height_mobile": 62,
@@ -21,6 +18,9 @@
     "social_instagram_url": "",
     "social_x_url": "",
     "social_pinterest_url": "",
+    "channel_hide_enabled": true,
+    "channel_open_collections": "reachdesk, reachdesk-copy, wholesale-page, wholesale, overture-catalog, for-overture",
+    "title_hidden_words": "RD",
     "type_body_font": "nunito_n4",
     "type_subheading_font": "nunito_n6",
     "type_heading_font": "nunito_n7",
@@ -55,8 +55,6 @@
     "page_transition_enabled": false,
     "transition_to_main_product": false,
     "card_hover_effect": "none",
-    "quick_add": false,
-    "mobile_quick_add": false,
     "badge_position": "top-right",
     "badge_corner_radius": 100,
     "badge_sale_color_scheme": "scheme-1",
@@ -72,9 +70,9 @@
     "show_cart_note": false,
     "show_add_discount_code": false,
     "show_accelerated_checkout_buttons": false,
+    "show_cart_shipping_estimate": true,
     "cart_shipping_from": "",
     "cart_shipping_method": "",
-    "show_cart_shipping_estimate": true,
     "show_cart_delivery_date": true,
     "require_cart_delivery_date": true,
     "cart_delivery_disabled_weekdays": "",
@@ -89,6 +87,8 @@
     "currency_code_enabled_product_cards": false,
     "currency_code_enabled_cart_items": false,
     "currency_code_enabled_cart_total": false,
+    "quick_add": false,
+    "mobile_quick_add": false,
     "product_corner_radius": 0,
     "card_corner_radius": 4,
     "show_variant_image": false,
@@ -105,18 +105,18 @@
         "disabled": false,
         "settings": {}
       },
-      "2400098815675207992": {
-        "type": "shopify://apps/clay-b2b-wholesale/blocks/clay-wholesale-price/e89e496b-328b-4767-a3bb-2ff0d4065819",
-        "disabled": true,
-        "settings": {
-          "useCustomCode": true
-        }
-      },
       "13047258039897440615": {
         "type": "shopify://apps/judge-me-reviews/blocks/cart_drawer_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
         "disabled": true,
         "settings": {
           "widget_type": "review-widget"
+        }
+      },
+      "2400098815675207992": {
+        "type": "shopify://apps/clay-b2b-wholesale/blocks/clay-wholesale-price/e89e496b-328b-4767-a3bb-2ff0d4065819",
+        "disabled": false,
+        "settings": {
+          "useCustomCode": true
         }
       }
     },
