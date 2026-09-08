@@ -15,6 +15,7 @@
  * drift.
  */
 import { CartAddEvent } from '@theme/events';
+import { formatMoney } from '@theme/money-formatting';
 
 const STORAGE_PREFIX = 'treat-house:customize-box:';
 
@@ -66,6 +67,7 @@ class CustomizeBox extends HTMLElement {
         handle: card.dataset.flavour,
         title: card.dataset.flavourTitle,
         count: Number(card.querySelector('input[type="number"]')?.value ?? 0),
+        price: Number(card.dataset.flavourPrice ?? 0),
         variantId: card.dataset.flavourVariant ?? '',
         available: card.dataset.flavourAvailable === 'true',
         image: card.querySelector('img')?.getAttribute('src') ?? '',
@@ -75,6 +77,34 @@ class CustomizeBox extends HTMLElement {
 
   get #flavourTotal() {
     return this.#chosenFlavours.reduce((sum, flavour) => sum + flavour.count, 0);
+  }
+
+  /**
+   * What the box costs so far, in minor units, and it is the cart's own sum
+   * rather than a figure quoted ahead of it.
+   *
+   * The pack product used to answer this: pick a twelve and the summary said
+   * $36.00 before a single treat had been chosen. That figure was never wrong by
+   * accident — it is 12 x $3.00 — but it was the price of a product the cart is
+   * never sent, and it told a shopper who had picked nothing that they owed
+   * thirty-six dollars. It also had every flavour at the same rate written into
+   * it, so a treat priced differently would have been added for free.
+   *
+   * Adding up the lines is what the cart does, so the two cannot disagree, and
+   * the total now starts at nothing and climbs as the treats go in.
+   */
+  get #totalMinorUnits() {
+    const flavours = this.#chosenFlavours.reduce((sum, flavour) => sum + flavour.price * flavour.count, 0);
+    const entry = this.#entry;
+    const packaging = entry?.unitId ? (entry.unitPrice ?? 0) * (entry.units || 1) : 0;
+    return flavours + packaging;
+  }
+
+  /** The running total, in the shop's own money format. */
+  #totalText() {
+    const format = this.dataset.moneyFormat || '${{amount}}';
+    const currency = this.dataset.currency || 'USD';
+    return formatMoney(this.#totalMinorUnits, format, currency);
   }
 
   /** The variant the current pack and packaging resolve to, with its price. */
@@ -274,7 +304,7 @@ class CustomizeBox extends HTMLElement {
     const messageRow = this.querySelector('[data-summary-message-row]');
     if (messageRow) messageRow.hidden = this.#message().length === 0;
 
-    if (entry) this.#setText('[data-summary-total]', entry.priceText);
+    this.#setText('[data-summary-total]', this.#totalText());
   }
 
   #renderReview(entry) {

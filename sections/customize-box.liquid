@@ -33,6 +33,39 @@
 
   # `render` takes no filters on a named argument, so every translated label is
   # resolved here rather than at the call.
+
+  ##
+  # The wording of the steps, the review and the summary is not a merchant
+  # decision. There is one builder in this shop and nobody was going to run a
+  # second one with different step titles, but it lived as eighteen text
+  # settings all the same, and they made the section panel three quarters copy:
+  # forty settings, of which twenty-nine were words. Every one of the eighteen
+  # still held the value it shipped with.
+  #
+  # They live in `locales` now, which is where Shopify already edits theme text,
+  # and the panel is left with the handful of things that decide what the
+  # builder does. Resolved here rather than at each call for the same reason
+  # `back_label` is: a filter cannot go inside an `if`, and `render` takes none
+  # on a named argument.
+  assign step_1_title = 'content.customize_box_step_1_title' | t
+  assign step_1_intro = 'content.customize_box_step_1_intro' | t
+  assign step_2_title = 'content.customize_box_step_2_title' | t
+  assign step_2_intro = 'content.customize_box_step_2_intro' | t
+  assign step_3_title = 'content.customize_box_step_3_title' | t
+  assign step_3_intro = 'content.customize_box_step_3_intro' | t
+  assign step_4_title = 'content.customize_box_step_4_title' | t
+  assign step_4_intro = 'content.customize_box_step_4_intro' | t
+  assign message_placeholder = 'content.customize_box_message_placeholder' | t
+  assign review_title = 'content.customize_box_review_title' | t
+  assign review_intro = 'content.customize_box_review_intro' | t
+  assign summary_title = 'content.customize_box_summary_title' | t
+  assign label_flavours = 'content.customize_box_label_flavours' | t
+  assign label_flavours_selected = 'content.customize_box_label_flavours_selected' | t
+  assign label_quantity = 'content.customize_box_label_quantity' | t
+  assign label_packaging = 'content.customize_box_label_packaging' | t
+  assign label_message = 'content.customize_box_label_message' | t
+  assign summary_total_label = 'content.customize_box_summary_total_label' | t
+
   assign back_label = 'actions.back' | t
   assign continue_label = 'actions.continue' | t
   assign add_to_cart_label = 'actions.add_to_cart' | t
@@ -101,6 +134,8 @@
     <customize-box
       class="customize-box__builder"
       data-total-steps="4"
+      data-money-format="{{ shop.money_format | strip_html | escape }}"
+      data-currency="{{ cart.currency.iso_code }}"
     >
       {%- comment -%}
         No product form here, and no pack variant. A box is a set of lines now —
@@ -129,15 +164,15 @@
                     <div class="customize-box__card-head">
                       <h2 class="customize-box__card-title">
                         <span class="customize-box__card-number">1.</span>
-                        {{ section.settings.step_1_title }}
+                        {{ step_1_title }}
                       </h2>
-                      {%- if section.settings.step_1_intro != blank -%}
-                        <p class="customize-box__card-intro">{{ section.settings.step_1_intro }}</p>
+                      {%- if step_1_intro != blank -%}
+                        <p class="customize-box__card-intro">{{ step_1_intro }}</p>
                       {%- endif -%}
                     </div>
                     <hr class="customize-box__rule">
 
-                    <div class="customize-box__packs" role="radiogroup" aria-label="{{ section.settings.step_1_title | escape }}">
+                    <div class="customize-box__packs" role="radiogroup" aria-label="{{ step_1_title | escape }}">
                       {%- for pack in packs -%}
                         {%- liquid
                           assign short_title = pack.title | split: '–' | first | strip
@@ -185,10 +220,10 @@
                     <div class="customize-box__card-head">
                       <h2 class="customize-box__card-title">
                         <span class="customize-box__card-number">2.</span>
-                        {{ section.settings.step_2_title }}
+                        {{ step_2_title }}
                       </h2>
-                      {%- if section.settings.step_2_intro != blank -%}
-                        <p class="customize-box__card-intro">{{ section.settings.step_2_intro }}</p>
+                      {%- if step_2_intro != blank -%}
+                        <p class="customize-box__card-intro">{{ step_2_intro }}</p>
                       {%- endif -%}
                     </div>
                     <hr class="customize-box__rule">
@@ -207,6 +242,10 @@
 
                             assign flavour_variant = flavour.first_available_variant | default: flavour.variants.first
                             assign flavour_attributes = 'data-flavour-variant="' | append: flavour_variant.id
+                            # The price rides along so the summary can add up what has actually
+                            # been picked. It is the variant's own figure, the one the cart line
+                            # will carry, so the two cannot drift.
+                            assign flavour_attributes = flavour_attributes | append: '" data-flavour-price="' | append: flavour_variant.price
                             assign flavour_attributes = flavour_attributes | append: '" data-flavour-available="' | append: flavour_variant.available | append: '"'
                           -%}
                           {% render 'ui-flavour-card',
@@ -237,15 +276,15 @@
                   <div class="customize-box__card-head">
                     <h2 class="customize-box__card-title">
                       <span class="customize-box__card-number">3.</span>
-                      {{ section.settings.step_3_title }}
+                      {{ step_3_title }}
                     </h2>
-                    {%- if section.settings.step_3_intro != blank -%}
-                      <p class="customize-box__card-intro">{{ section.settings.step_3_intro }}</p>
+                    {%- if step_3_intro != blank -%}
+                      <p class="customize-box__card-intro">{{ step_3_intro }}</p>
                     {%- endif -%}
                   </div>
                   <hr class="customize-box__rule">
 
-                  <div class="customize-box__packaging" role="radiogroup" aria-label="{{ section.settings.step_3_title | escape }}">
+                  <div class="customize-box__packaging" role="radiogroup" aria-label="{{ step_3_title | escape }}">
                     {% content_for 'blocks' %}
                   </div>
 
@@ -263,16 +302,16 @@
                   <div class="customize-box__card-head">
                     <h2 class="customize-box__card-title">
                       <span class="customize-box__card-number">4.</span>
-                      {{ section.settings.step_4_title }}
+                      {{ step_4_title }}
                     </h2>
-                    {%- if section.settings.step_4_intro != blank -%}
-                      <p class="customize-box__card-intro">{{ section.settings.step_4_intro }}</p>
+                    {%- if step_4_intro != blank -%}
+                      <p class="customize-box__card-intro">{{ step_4_intro }}</p>
                     {%- endif -%}
                   </div>
                   <hr class="customize-box__rule">
 
                   {% render 'ui-message',
-                    placeholder: section.settings.message_placeholder,
+                    placeholder: message_placeholder,
                     maxlength: section.settings.message_maxlength,
                     class: 'customize-box__message',
                     attributes: 'data-message'
@@ -289,18 +328,18 @@
               <section class="customize-box__screen" data-screen="4" hidden>
                 <div class="customize-box__card">
                   <div class="customize-box__card-head">
-                    <h2 class="customize-box__card-title">{{ section.settings.review_title }}</h2>
-                    {%- if section.settings.review_intro != blank -%}
-                      <p class="customize-box__card-intro">{{ section.settings.review_intro }}</p>
+                    <h2 class="customize-box__card-title">{{ review_title }}</h2>
+                    {%- if review_intro != blank -%}
+                      <p class="customize-box__card-intro">{{ review_intro }}</p>
                     {%- endif -%}
                   </div>
                   <hr class="customize-box__rule">
 
                   <div class="customize-box__review">
-                    {% render 'ui-review-row', label: section.settings.label_flavours, value: '', edit_step: '1', class: 'customize-box__review-flavours' %}
-                    {% render 'ui-review-row', label: section.settings.label_quantity, value: '', edit_step: '1', class: 'customize-box__review-pack' %}
-                    {% render 'ui-review-row', label: section.settings.label_packaging, value: '', edit_step: '2', class: 'customize-box__review-packaging' %}
-                    {% render 'ui-review-row', label: section.settings.label_message, value: '', edit_step: '3', class: 'customize-box__review-message' %}
+                    {% render 'ui-review-row', label: label_flavours, value: '', edit_step: '1', class: 'customize-box__review-flavours' %}
+                    {% render 'ui-review-row', label: label_quantity, value: '', edit_step: '1', class: 'customize-box__review-pack' %}
+                    {% render 'ui-review-row', label: label_packaging, value: '', edit_step: '2', class: 'customize-box__review-packaging' %}
+                    {% render 'ui-review-row', label: label_message, value: '', edit_step: '3', class: 'customize-box__review-message' %}
                   </div>
 
                   <hr class="customize-box__rule">
@@ -341,16 +380,16 @@
 
             <aside class="customize-box__summary">
               <div class="customize-box__summary-inner">
-                <h2 class="customize-box__summary-title">{{ section.settings.summary_title }}</h2>
+                <h2 class="customize-box__summary-title">{{ summary_title }}</h2>
                 <hr class="customize-box__rule">
 
                 <div class="customize-box__summary-row">
-                  <span>{{ section.settings.label_quantity }}</span>
+                  <span>{{ label_quantity }}</span>
                   <strong data-summary-pack>&mdash;</strong>
                 </div>
 
                 <div class="customize-box__summary-row">
-                  <span>{{ section.settings.label_flavours_selected }}</span>
+                  <span>{{ label_flavours_selected }}</span>
                   <strong data-summary-flavour-count>0</strong>
                 </div>
 
@@ -364,19 +403,19 @@
                   surcharge, so a choice that adds nothing leaves no gap behind.
                 {%- endcomment -%}
                 <div class="customize-box__summary-row" data-summary-packaging-row hidden>
-                  <span>{{ section.settings.label_packaging }}</span>
+                  <span>{{ label_packaging }}</span>
                   <strong data-summary-packaging><span data-summary-packaging-name></span><span class="customize-box__summary-extra" data-summary-packaging-extra></span></strong>
                 </div>
 
                 <div class="customize-box__summary-row" data-summary-message-row hidden>
-                  <span>{{ section.settings.label_message }}</span>
+                  <span>{{ label_message }}</span>
                   <strong>{{ 'content.added' | t }}</strong>
                 </div>
 
                 <hr class="customize-box__rule">
 
                 <div class="customize-box__summary-total">
-                  <span>{{ section.settings.summary_total_label }}</span>
+                  <span>{{ summary_total_label }}</span>
                   <strong data-summary-total>{{ 0 | money }}</strong>
                 </div>
 
@@ -891,27 +930,29 @@
       "info": "One product per size. The size is read from the product's custom.pack_size metafield, or from the number its title starts with."
     },
     {
+      "type": "product_list",
+      "id": "flavour_products",
+      "label": "Flavours",
+      "limit": 24,
+      "info": "Used instead of the collection below when it has anything in it."
+    },
+    {
       "type": "collection",
       "id": "flavour_collection",
       "label": "Flavours collection"
     },
     {
-      "type": "product_list",
-      "id": "flavour_products",
-      "label": "Flavours",
-      "limit": 24,
-      "info": "Used instead of the collection above when it has anything in it."
-    },
-    {
-      "type": "text",
-      "id": "unit_noun",
-      "label": "Unit name",
-      "default": "treat",
-      "info": "Used for the per-unit price under each pack: “$3.00 / treat”."
+      "type": "range",
+      "id": "message_maxlength",
+      "label": "Gift message length",
+      "min": 50,
+      "max": 500,
+      "step": 10,
+      "default": 200
     },
     {
       "type": "header",
-      "content": "Breadcrumb"
+      "content": "Page top"
     },
     {
       "type": "text",
@@ -923,10 +964,6 @@
       "type": "url",
       "id": "breadcrumb_parent_url",
       "label": "t:settings.link"
-    },
-    {
-      "type": "header",
-      "content": "t:content.heading"
     },
     {
       "type": "text",
@@ -967,136 +1004,7 @@
     },
     {
       "type": "header",
-      "content": "Steps"
-    },
-    {
-      "type": "text",
-      "id": "step_1_title",
-      "label": "Step 1",
-      "default": "Choose your quantity"
-    },
-    {
-      "type": "text",
-      "id": "step_1_intro",
-      "label": "Step 1 note",
-      "default": "The price per treat comes down as the box grows."
-    },
-    {
-      "type": "text",
-      "id": "step_2_title",
-      "label": "Step 2",
-      "default": "Pick your flavors"
-    },
-    {
-      "type": "text",
-      "id": "step_2_intro",
-      "label": "Step 2 note",
-      "default": "Tap a treat to add it, then set how many of each you would like."
-    },
-    {
-      "type": "text",
-      "id": "step_3_title",
-      "label": "Step 3",
-      "default": "Choose the packaging"
-    },
-    {
-      "type": "text",
-      "id": "step_3_intro",
-      "label": "Step 3 note",
-      "default": "How your treats will arrive, packed with care."
-    },
-    {
-      "type": "text",
-      "id": "step_4_title",
-      "label": "Step 4",
-      "default": "Add a gift message"
-    },
-    {
-      "type": "text",
-      "id": "step_4_intro",
-      "label": "Step 4 note",
-      "default": "Optional. Printed on our signature card and tucked inside the box."
-    },
-    {
-      "type": "text",
-      "id": "message_placeholder",
-      "label": "Message placeholder",
-      "default": "Write a few words for them"
-    },
-    {
-      "type": "range",
-      "id": "message_maxlength",
-      "label": "Message length",
-      "min": 50,
-      "max": 500,
-      "step": 10,
-      "default": 200
-    },
-    {
-      "type": "header",
-      "content": "Review"
-    },
-    {
-      "type": "text",
-      "id": "review_title",
-      "label": "t:settings.title",
-      "default": "Review your box"
-    },
-    {
-      "type": "text",
-      "id": "review_intro",
-      "label": "t:settings.text",
-      "default": "Take a last look, then add it to your cart below."
-    },
-    {
-      "type": "header",
-      "content": "Summary"
-    },
-    {
-      "type": "text",
-      "id": "summary_title",
-      "label": "t:settings.title",
-      "default": "Your box"
-    },
-    {
-      "type": "text",
-      "id": "label_flavours",
-      "label": "Flavours",
-      "default": "Flavors"
-    },
-    {
-      "type": "text",
-      "id": "label_flavours_selected",
-      "label": "Flavours chosen",
-      "default": "Flavors selected"
-    },
-    {
-      "type": "text",
-      "id": "label_quantity",
-      "label": "Quantity",
-      "default": "Quantity"
-    },
-    {
-      "type": "text",
-      "id": "label_packaging",
-      "label": "Packaging",
-      "default": "Packaging"
-    },
-    {
-      "type": "text",
-      "id": "label_message",
-      "label": "Gift message",
-      "default": "Gift message"
-    },
-    {
-      "type": "text",
-      "id": "summary_total_label",
-      "label": "Total row",
-      "default": "Total"
-    },
-    {
-      "type": "header",
-      "content": "Corporate branding note"
+      "content": "Corporate note"
     },
     {
       "type": "text",
