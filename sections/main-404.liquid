@@ -15,6 +15,7 @@
         layout-panel-flex--column
         section-content-wrapper
         mobile-column
+        main-404
       "
       style="
         {% render 'layout-panel-style', settings: section.settings %}
@@ -39,6 +40,18 @@
     },
     {
       "type": "_divider"
+    },
+    {
+      "type": "_ui-heading"
+    },
+    {
+      "type": "_ui-text"
+    },
+    {
+      "type": "_ui-link"
+    },
+    {
+      "type": "_ui-link-row"
     }
   ],
   "settings": [
@@ -186,3 +199,20 @@
   ]
 }
 {% endschema %}
+
+{% stylesheet %}
+  .main-404 .ui-heading,
+  .main-404 .ui-text {
+    text-align: center;
+  }
+
+  /*
+   * The row stacks below 750 and its items keep their own width, so `stretch`
+   * lands them on the start edge — two buttons of different widths, left-aligned
+   * under a centred heading. Weighed one class heavier than the row's own rule,
+   * which sets `flex-start` inside a media query.
+   */
+  .main-404 .ui-link-row {
+    align-items: center;
+  }
+{% endstylesheet %}
