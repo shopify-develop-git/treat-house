@@ -164,6 +164,17 @@
     --ui-product-card-border-color: var(--ui-color-border-gray);
     --ui-product-card-border-width: var(--ui-hairline-width);
 
+    /*
+     * A query container, so the title answers to the card's own width and not the
+     * window's. The two part company constantly here: at 750px the collection runs
+     * three across and the card is 206px, narrower than the same card at 600px
+     * where it runs two and gets 269. A viewport rule would set the smaller type
+     * at 600 and the larger at 750, which is backwards. The card is also used in
+     * the recommendation rows and the home rows, each with its own column count,
+     * and none of them would agree on a breakpoint either.
+     */
+    container-type: inline-size;
+
     position: relative;
     display: flex;
     flex-direction: column;
@@ -276,17 +287,59 @@
   .ui-product-card__title {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    /*
+     * Three lines, not two, because the uppercase below costs width and the shop
+     * writes long names. Measured on the collection: at two lines the caps cut 16
+     * of 23 titles short against 7 before them; at three, one. The card pays 17px
+     * for it and every card pays the same, so the grid still lines up.
+     */
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     overflow: hidden;
-    min-block-size: 2.2em;
-    min-block-size: 2lh;
+    min-block-size: 3.3em;
+    min-block-size: 3lh;
     margin: 0;
     font-family: var(--ui-font-body);
     font-weight: 700;
     font-size: 16px;
     line-height: 1.1;
+    /*
+     * One case for every card, because the catalogue does not have one. The shop
+     * writes some names shouting and some not — "12 PACK OF CUSTOM GREEK TREATS"
+     * sits beside "12-Pack Anniversary" — and a grid of the two reads as a rash.
+     *
+     * Upwards, and not the other way, because the other way does not exist: no
+     * rule turns "12 PACK GIFT BOX" back into "12 Pack Gift Box", and doing it in
+     * Liquid would spell M&M as M&m and WS as Ws. Uppercase is the one
+     * transformation that cannot be wrong about a word it has never seen.
+     *
+     * The tracking is what stops it setting solid; caps without it read as a
+     * fence. Same figure the kit's buttons and tags use.
+     */
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
     color: var(--ui-color-black);
+  }
+
+  /*
+   * A narrow card gets two points smaller and a fourth line. Sixteen-point caps do
+   * not fit a long name into 206px: measured across the collection, nineteen of
+   * twenty-three names came out cut at that width — fourteen of them already cut
+   * before the caps arrived. Smaller with more room takes that to none, and costs
+   * the card nine pixels.
+   *
+   * 250 is where the measuring said to put it. The cards come out 164, 206, 242,
+   * 269, 286 and 302 across the range, and the first three could not hold their
+   * names while the rest could.
+   */
+  @container (max-width: 250px) {
+    .ui-product-card__title {
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+      min-block-size: 4.4em;
+      min-block-size: 4lh;
+      font-size: 14px;
+    }
   }
 
   .ui-product-card__link {
