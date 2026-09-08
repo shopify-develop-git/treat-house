@@ -26,7 +26,22 @@
   # same product is the same money whichever pack it goes in, so this is worked
   # out once and every pack in the map below carries it.
   assign linked_product = block.settings.product
-  assign capacity = block.settings.capacity
+
+  ##
+  # How many treats one of these holds. The product is asked first and the
+  # setting is the fallback, because the answer belongs to the box rather than to
+  # the row it is shown in: swap a twelve for a twenty-four and the number that
+  # has to change travels with it.
+  #
+  # Left the other way round, a bigger box dropped into a row still reading 12
+  # would be charged twice for a 24 pack, and nothing on the screen would say so.
+  # `custom.pack_size` is the field the pack products already answer, so this is
+  # the same question asked of the packaging.
+  assign capacity = linked_product.metafields.custom.pack_size.value | default: linked_product.metafields.custom.pack_size
+  assign capacity = capacity | times: 1
+  if capacity == 0
+    assign capacity = block.settings.capacity
+  endif
 
   for pack in packs
     assign option_one = pack.options_with_values[0]
@@ -98,18 +113,46 @@
       endif
     endif
 
+    ##
+    # The figure shown has to be the figure the cart will reach, and the cart is
+    # never sent this pack product. What it gets is one line per flavour, whose
+    # sum is the pack's own base price, plus `units` of the packaging product.
+    #
+    # `chosen.price` stood in for that and agreed only while a pack needed one
+    # box. Shopify prices the gift box option as a flat +$6 at every size, while
+    # the cart is charged one box per twelve treats, so the two parted company
+    # the moment the pack went past twelve. Measured before this was written: a
+    # 24 with a gift box showed $78.00 and charged $84.00, and the row beneath it
+    # already said "+ $12.00" while the total had only counted $6.
+    #
+    # A choice with no product behind it charges nothing extra whatever its
+    # variant costs, because there is no line to carry the difference, so the
+    # base is the whole answer there.
+    assign shown_price = base.price
+    if linked_product != blank
+      assign packaging_price = linked_product.price | times: units
+      assign shown_price = shown_price | plus: packaging_price
+    endif
+
     # Money is formatted into its own variable first. A `money` in the middle of
     # an append chain formats everything accumulated so far, not the price — the
     # same trap the Product row documents, and here it silently produced a map
     # that would not parse.
-    assign price_text = chosen.price | money
+    assign price_text = shown_price | money
 
     assign entry = '"' | append: pack.handle | append: '":{"id":' | append: chosen.id
     assign entry = entry | append: ',"available":' | append: chosen.available
-    assign entry = entry | append: ',"price":' | append: chosen.price
+    assign entry = entry | append: ',"price":' | append: shown_price
     assign entry = entry | append: ',"priceText":"' | append: price_text | append: '"'
     assign entry = entry | append: ',"note":"' | append: note | append: '"'
     assign entry = entry | append: ',"units":' | append: units
+    # What one of these costs, so the summary can add the packaging to the
+    # flavours it has counted rather than reading a figure worked out here.
+    assign unit_price = 0
+    if linked_product != blank
+      assign unit_price = linked_product.price
+    endif
+    assign entry = entry | append: ',"unitPrice":' | append: unit_price
     # Resolved first, not appended through a filter. `default` at the end of an
     # append chain applies to the whole string, which is never blank — so a
     # product with no available variant would have written `"unitId":}` and left
@@ -217,7 +260,7 @@
       "type": "number",
       "id": "capacity",
       "label": "Treats it holds",
-      "info": "How many treats fit in one. A box that holds 12 counts as two for a 24 pack, and the price shown follows. Leave empty for packaging that scales with the box rather than being counted."
+      "info": "How many treats fit in one. A box that holds 12 counts as two for a 24 pack, and both the price shown and the price charged follow. Set Pack size on the product itself and it is read from there instead, so a bigger box brings its own figure. This number is the fallback for a product that has none. Leave both empty for packaging that scales with the box rather than being counted."
     },
     {
       "type": "text",
