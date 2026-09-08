@@ -227,11 +227,6 @@
             {%- capture off_channel -%}{% render 'channel-hidden', product: product, collection: collection %}{%- endcapture -%}
             {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
             {%- liquid
-              # The supporting line is the product's own description, cut to a length the
-              # card can hold. The empty second argument drops truncatewords' ellipsis,
-              # because the card clamps the line in CSS and adds its own.
-              assign tagline = product.description | strip_html | truncatewords: 15, ''
-
               assign price = product.price | money
 
               # The grid runs four across at its widest, so the first four are the
@@ -261,7 +256,6 @@
             <li class="collection-products__item">
               {% render 'ui-product-card',
                 title: product.title,
-                subtitle: tagline,
                 price: price,
                 image: product.featured_image,
                 link: product.url,

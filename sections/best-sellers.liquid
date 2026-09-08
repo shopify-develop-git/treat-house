@@ -123,7 +123,6 @@
   endif
 
   assign onboarding_titles = 'Birthday 12-Pack,Birthday Bash Box,Birthday Party Bar,Custom Photo,Gluten Free 12-Pack' | split: ','
-  assign onboarding_copy = 'Classic birthday assortment,Birthday Party in a box,Classic birthday assortment,12 Pack of Custom Birthday Treats,Classic crispy rice treats' | split: ','
   assign onboarding_prices = '$ 38.00,$ 99.00,$ 60.00,$ 42.00,$ 36.00' | split: ','
   assign onboarding_badges = 'Bestsellers,New,Gift ready,Custom photo,' | split: ','
   assign onboarding_colors = '#ea6f36,#ffbd42,#6c276a,#a3d8f6,#6c276a' | split: ','
@@ -184,11 +183,6 @@
           {%- endcomment -%}
           {%- for card_product in row limit: card_limit -%}
             {%- liquid
-              # The supporting line is the product's own description, cut to a length the
-              # card can hold. The empty second argument drops truncatewords' ellipsis,
-              # because the card clamps the line in CSS and adds its own.
-              assign tagline = card_product.description | strip_html | truncatewords: 15, ''
-
               # A named argument takes no filter, so `price: card_product.price | money`
               # hands the card the raw cents and says nothing about it. Format first.
               assign price = card_product.price | money
@@ -213,7 +207,6 @@
             <li class="best-sellers__item" data-product-id="{{ card_product.id }}">
               {% render 'ui-product-card',
                 title: card_product.title,
-                subtitle: tagline,
                 price: price,
                 image: card_product.featured_image,
                 link: card_product.url,
@@ -230,7 +223,6 @@
             <li class="best-sellers__item">
               {% render 'ui-product-card',
                 title: placeholder_title,
-                subtitle: onboarding_copy[i],
                 price: onboarding_prices[i],
                 badge: onboarding_badges[i],
                 badge_color: onboarding_colors[i]
