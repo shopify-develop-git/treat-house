@@ -122,9 +122,13 @@
         {{ title_shown }}
       {%- endif -%}
     </h3>
-    {%- if subtitle != blank -%}
-      <p class="ui-product-card__subtitle">{{ subtitle }}</p>
-    {%- endif -%}
+    {%- comment -%}
+      Printed even when there is nothing to print. The line holds two rows open in
+      CSS, and a box that is not in the markup holds nothing — leave it out on the
+      67 products with no description and those cards come up short, putting their
+      prices above their neighbours' in the same row. Empty, it keeps the shape.
+    {%- endcomment -%}
+    <p class="ui-product-card__subtitle">{{ subtitle }}</p>
   </div>
 
   {%- if price != blank or show_add != false or add_content != blank -%}
@@ -249,11 +253,19 @@
 
   /* Grows into whatever a stretched row leaves over, so the price row stays on the
      card's bottom edge and the copy stays at the top of its own box. */
+  /*
+   * No longer grows. It used to, so that the price row was pushed onto the card's
+   * floor and every price in a row lined up — but the growth is where the empty
+   * space came from, and on a card with nothing to say it was all of it.
+   *
+   * With the name and the description both reserving their lines, the cards come
+   * out the same height on their own and the prices line up without anything
+   * being stretched to make them.
+   */
   .ui-product-card__body {
     display: flex;
     flex-direction: column;
     gap: var(--ui-product-card-body-gap);
-    flex: 1 1 auto;
     padding: var(--ui-product-card-body-padding);
   }
 
@@ -331,18 +343,38 @@
    * so a word count that reads well at one size overflows at the other. Lines are
    * what actually break the grid, so lines are what is capped.
    */
+  /*
+   * Two lines, and two reserved, for the same reason the name above reserves its
+   * own: a row is read across, and 67 of the shop's 217 products carry no
+   * description at all. Left to size itself, a card without one ended 56px above
+   * its price where its neighbour ended 14px — the same row, one card with a hole
+   * in it. Reserved, the blank is the shape of a description rather than a gap of
+   * some other size, and every card in the row is built the same way.
+   */
   .ui-product-card__subtitle {
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     overflow: hidden;
+    min-block-size: 2.6em;
+    min-block-size: 2lh;
     margin: 0;
     font-family: var(--ui-font-body);
     font-weight: var(--ui-font-body-weight);
     font-size: 14px;
     line-height: 1.3;
     color: var(--ui-color-gray);
+  }
+
+  /*
+   * `base.css` hides every empty paragraph — `p:empty { display: none }` — which
+   * takes the reserved box away on exactly the cards that need it, the ones with
+   * no description. Put back, so the space the rule above holds open survives
+   * having nothing in it.
+   */
+  .ui-product-card__subtitle:empty {
+    display: -webkit-box;
   }
 
   /*
