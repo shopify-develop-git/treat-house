@@ -27,7 +27,8 @@
             "source": "collection_description",
             "text": "",
             "text_size": 16,
-            "text_size_mobile": 14
+            "text_size_mobile": 14,
+            "max_words": 30
           }
         }
       },
@@ -267,12 +268,12 @@
         }
       },
       "block_order": [
-          "one",
-          "two",
-          "three",
-          "four",
-          "five"
-        ],
+        "one",
+        "two",
+        "three",
+        "four",
+        "five"
+      ],
       "settings": {
         "show_rating": false
       }

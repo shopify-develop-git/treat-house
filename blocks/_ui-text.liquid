@@ -21,11 +21,31 @@
   assign padding_end = block.settings.padding_block_end
 
   assign copy = block.settings.text
+  assign pulled = false
   if block.settings.source == 'product_description'
     assign copy = closest.product.description
+    assign pulled = true
   elsif block.settings.source == 'collection_description'
     assign source_collection = closest.collection | default: collection
     assign copy = source_collection.description
+    assign pulled = true
+  endif
+
+  ##
+  # A description is written for its own page and answers to nobody's layout. The
+  # MARKET OF CHOICE collection runs to four sentences, and in a hero drawn for
+  # two it pushed the products the better part of a screen down.
+  #
+  # Cutting strips the markup with it, which is the honest trade rather than an
+  # oversight: half a paragraph of HTML has no closing tag, and a truncated
+  # `<p>` takes the rest of the page into itself. Plain text is what a shortened
+  # description can safely be.
+  #
+  # Off by default. The same block carries the product description on the product
+  # page, where the whole of it is the point.
+  assign max_words = block.settings.max_words
+  if pulled and max_words > 0
+    assign copy = copy | strip_html | truncatewords: max_words
   endif
 -%}
 
@@ -106,6 +126,18 @@
         }
       ],
       "default": "custom"
+    },
+    {
+      "type": "range",
+      "id": "max_words",
+      "label": "Shorten to",
+      "min": 0,
+      "max": 120,
+      "step": 5,
+      "unit": "wd",
+      "default": 0,
+      "info": "How much of the pulled description to show. 0 shows all of it. Shortening also drops the formatting, since half a paragraph cannot be closed.",
+      "visible_if": "{{ block.settings.source != 'custom' }}"
     },
     {
       "type": "richtext",
