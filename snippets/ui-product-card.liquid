@@ -115,6 +115,7 @@
   <div class="ui-product-card__body">
     <h3 class="ui-product-card__title">
       {%- capture title_shown -%}{% render 'strip-hidden-words', title: title %}{%- endcapture -%}
+      {%- capture title_shown -%}{% render 'ui-title-case', title: title_shown %}{%- endcapture -%}
       {%- assign title_shown = title_shown | strip -%}
       {%- if link != blank -%}
         <a class="ui-product-card__link" href="{{ link }}">{{ title_shown }}</a>
@@ -304,20 +305,11 @@
     font-size: 16px;
     line-height: 1.1;
     /*
-     * One case for every card, because the catalogue does not have one. The shop
-     * writes some names shouting and some not — "12 PACK OF CUSTOM GREEK TREATS"
-     * sits beside "12-Pack Anniversary" — and a grid of the two reads as a rash.
-     *
-     * Upwards, and not the other way, because the other way does not exist: no
-     * rule turns "12 PACK GIFT BOX" back into "12 Pack Gift Box", and doing it in
-     * Liquid would spell M&M as M&m and WS as Ws. Uppercase is the one
-     * transformation that cannot be wrong about a word it has never seen.
-     *
-     * The tracking is what stops it setting solid; caps without it read as a
-     * fence. Same figure the kit's buttons and tags use.
+     * The one case every card is set in comes from [ui-title-case], not from here.
+     * CSS can only shout: it has no way back from "12 PACK GIFT BOX" to "12 Pack
+     * Gift Box", because the lowercase that name needs is not in the string any
+     * more. Liquid can rebuild it, and knows to leave M&Ms and RD alone.
      */
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
     color: var(--ui-color-black);
   }
 
