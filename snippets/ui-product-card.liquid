@@ -286,6 +286,14 @@
     font-weight: 700;
     font-size: 16px;
     line-height: 1.1;
+    /*
+     * Asked for, and worth knowing what it does: `capitalize` raises the first
+     * letter of every word and leaves the rest of the string alone. A name the
+     * shop typed in lower case comes out tidy; one already shouting — "12 PACK OF
+     * CUSTOM GREEK TREATS" — is untouched, because CSS has no way down from a
+     * capital. Evening those out is a job for the product titles themselves.
+     */
+    text-transform: capitalize;
     color: var(--ui-color-black);
   }
 

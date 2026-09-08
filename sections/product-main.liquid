@@ -116,6 +116,27 @@
     gap: 32px;
   }
 
+  /*
+   * The product's name in the same case the cards use, so a treat reads the same
+   * in a row and on its own page.
+   *
+   * `capitalize` raises the first letter of each word and leaves the rest as
+   * typed: a lower-case name comes out tidy, one already in capitals is untouched,
+   * because CSS cannot come back down from a capital. The catalogue's shouting
+   * names are a job for the titles themselves.
+   *
+   * On the `h1` itself, not on the wrapper around it. `assets/base.css` sets
+   * `text-transform: var(--font-h1--case)` on every h1, and a rule on the element
+   * beats one inherited from its parent however specific that parent's is — the
+   * heading kept coming out untransformed while the wrapper said otherwise.
+   *
+   * And on the `h1` alone, so the accordion heads further down this column keep
+   * the case they were drawn in.
+   */
+  .product-main__details .ui-heading > h1 {
+    text-transform: capitalize;
+  }
+
   .product-main__details {
     display: flex;
     flex-direction: column;
