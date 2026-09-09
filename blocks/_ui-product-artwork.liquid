@@ -1,0 +1,58 @@
+{%- doc -%}
+  Artwork for personalized products. Shopify receives the file as a multipart
+  line-item property through the existing product form and stores its URL with
+  the cart line. Selecting a file is not reported as a completed upload.
+  custom.requires_artwork can explicitly enable/disable the control; existing
+  custom-treat handles are the fallback until the catalog field is populated.
+{%- enddoc -%}
+{%- liquid
+  assign artwork_product = closest.product
+  assign show_artwork = false
+  if artwork_product.handle contains 'custom'
+    assign show_artwork = true
+  endif
+  if artwork_product.metafields.custom.requires_artwork != blank
+    assign show_artwork = artwork_product.metafields.custom.requires_artwork.value
+  endif
+  assign artwork_id = 'product-artwork-' | append: section.id
+  assign artwork_form = 'ui-product-form-' | append: section.id
+  assign artwork_attributes = 'form="' | append: artwork_form | append: '" aria-describedby="' | append: artwork_id | append: '-status"'
+-%}
+{%- if show_artwork -%}
+  <ui-product-artwork {{ block.shopify_attributes }}>
+    {% render 'ui-file',
+      label: block.settings.label,
+      prompt: 'Choose or drop your logo or photo',
+      note: 'JPG, PNG, WEBP or PDF. Maximum 10 MB.',
+      accept: 'image/jpeg,image/png,image/webp,application/pdf',
+      name: 'properties[Artwork]',
+      id: artwork_id,
+      attributes: artwork_attributes
+    %}
+    <p id="{{ artwork_id }}-status" role="status" data-artwork-status></p>
+    <button type="button" class="ui-file__remove" data-artwork-remove hidden>Remove file</button>
+  </ui-product-artwork>
+  <script src="{{ 'ui-product-artwork.js' | asset_url }}" type="module"></script>
+{%- endif -%}
+
+{% stylesheet %}
+  ui-product-artwork { display: block; }
+  ui-product-artwork [data-artwork-status] {
+    margin-block: 8px;
+    font: inherit;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+  }
+  ui-product-artwork [data-artwork-status]:empty { display: none; }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Custom treat artwork",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "label", "label": "t:settings.heading", "default": "Upload your logo or photo" }
+  ],
+  "presets": [{ "name": "Custom treat artwork" }]
+}
+{% endschema %}

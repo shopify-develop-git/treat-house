@@ -41,7 +41,7 @@
           "settings": {
             "source": "custom",
             "max_words": 0,
-            "text": "<p>A modern take on the Krispie treat you grew up with. Handcrafted and ready to give for birthdays, thank-yous, and just because.</p>",
+            "text": "<p>A modern take on the crispy treat you grew up with. Handcrafted and perfect for birthdays, thank yous, and just because.</p>",
             "text_size": 16,
             "text_size_mobile": 16,
             "max_width": 0,
@@ -325,7 +325,7 @@
           "type": "_ui-link",
           "settings": {
             "label": "Design your treat",
-            "link": "/pages/customize",
+            "link": "/products/12-pack-of-custom-treats",
             "variant": "primary",
             "full_width": false,
             "open_in_new_tab": false,

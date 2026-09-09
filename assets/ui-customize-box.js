@@ -25,6 +25,8 @@ class CustomizeBox extends HTMLElement {
   #saveKey = '';
   #sellable = false;
   #adding = false;
+  #previousPack = '';
+  #capacityMessage = '';
 
   connectedCallback() {
     if (this.dataset.ready) return;
@@ -57,7 +59,12 @@ class CustomizeBox extends HTMLElement {
   }
 
   get #packSize() {
-    return Number(this.#packInput?.dataset.packSize ?? 0);
+    return this.#count(this.#packInput?.dataset.packSize);
+  }
+
+  #count(value) {
+    const count = Number(value);
+    return Number.isFinite(count) ? Math.max(0, Math.floor(count)) : 0;
   }
 
   get #chosenFlavours() {
@@ -66,7 +73,7 @@ class CustomizeBox extends HTMLElement {
         card,
         handle: card.dataset.flavour,
         title: card.dataset.flavourTitle,
-        count: Number(card.querySelector('input[type="number"]')?.value ?? 0),
+        count: this.#count(card.querySelector('input[type="number"]')?.value),
         price: Number(card.dataset.flavourPrice ?? 0),
         variantId: card.dataset.flavourVariant ?? '',
         available: card.dataset.flavourAvailable === 'true',
@@ -122,8 +129,25 @@ class CustomizeBox extends HTMLElement {
   /* ---------------------------------------------------------------- events */
 
   #onChange = (event) => {
+    if (event.target.matches?.('input[name="customize-pack"]') && !event.target.checked) return;
+    this.#capacityMessage = '';
+    if (event.target.matches?.('input[name="customize-pack"]') && this.#flavourTotal > this.#packSize) {
+      const excess = this.#flavourTotal - this.#packSize;
+      const requestedSize = this.#packSize;
+      const previous = this.querySelector(`input[name="customize-pack"][value="${CSS.escape(this.#previousPack)}"]`);
+      // Keep the shopper's mix intact when a smaller box cannot hold it.
+      if (previous) {
+        previous.checked = true;
+        this.#capacityMessage = `Remove ${excess} treat${excess === 1 ? '' : 's'} before choosing a ${requestedSize}-pack.`;
+      }
+    }
     const card = event.target.closest?.('[data-flavour]');
-    if (card) card.toggleAttribute('data-chosen', Number(event.target.value) > 0);
+    if (card && event.target.matches?.('input[type="number"]')) {
+      const otherTotal = this.#chosenFlavours
+        .filter((flavour) => flavour.card !== card)
+        .reduce((sum, flavour) => sum + flavour.count, 0);
+      event.target.value = String(Math.min(this.#count(event.target.value), Math.max(0, this.#packSize - otherTotal)));
+    }
     this.#render();
     this.#save();
   };
@@ -133,6 +157,7 @@ class CustomizeBox extends HTMLElement {
     if (add) {
       const card = add.closest('[data-flavour]');
       const input = card.querySelector('input[type="number"]');
+      if (!input || !this.#packSize || this.#flavourTotal >= this.#packSize) return;
       input.value = '1';
       card.setAttribute('data-chosen', '');
       // `input` then `change`, the pair a typed edit produces. The stepper
@@ -166,6 +191,8 @@ class CustomizeBox extends HTMLElement {
   /* --------------------------------------------------------------- writing */
 
   #render() {
+    this.#syncFlavourLimits();
+    this.#previousPack = this.#packHandle;
     for (const screen of this.#screens) {
       screen.hidden = Number(screen.dataset.screen) !== this.#screen;
     }
@@ -174,22 +201,38 @@ class CustomizeBox extends HTMLElement {
     const total = this.#flavourTotal;
     const entry = this.#entry;
 
-    // Nothing here narrows a stepper any more. Rewriting `max` from out here was
-    // a lie the steppers could not see: each one decides which of its buttons to
-    // disable when its own value changes, and never again — so a `max` moved
-    // behind its back left the buttons showing the previous answer. A flavour
-    // added while the box was full arrived with `max` already down at its value,
-    // its minus still disabled from sitting at zero, and no way to take it off.
-    //
-    // The box being over its size is now said rather than prevented: the tally
-    // reads "14 of 12 chosen" and Continue stays disabled until it does not.
-
     this.#renderHeading();
     this.#renderTally(size, total);
     this.#renderPackagingNotes();
     this.#renderSummary(entry, size, total);
     this.#renderReview(entry);
     this.#renderGates(size, total, entry);
+  }
+
+  /** Keep every flavour within the capacity left by the other flavours. */
+  #syncFlavourLimits() {
+    const cards = [...this.querySelectorAll('[data-flavour]')];
+    let remaining = this.#packSize;
+    // Normalise persisted values as well as typed numbers. Valid mixes are
+    // unchanged; old overfilled sessions are brought back inside their box.
+    for (const card of cards) {
+      const input = card.querySelector('input[type="number"]');
+      if (!input) continue;
+      const count = Math.min(this.#count(input.value), remaining);
+      input.value = String(count);
+      remaining -= count;
+      card.toggleAttribute('data-chosen', count > 0);
+    }
+    for (const card of cards) {
+      const input = card.querySelector('input[type="number"]');
+      if (!input) continue;
+      input.max = String(this.#count(input.value) + remaining);
+      const add = card.querySelector('[data-flavour-add]');
+      if (add) add.disabled = remaining === 0;
+      // The kit stepper observes input, not max mutations. Refresh its plus
+      // AND minus after changing the limit, without re-entering this builder.
+      input.dispatchEvent(new Event('input'));
+    }
   }
 
   /**
@@ -221,7 +264,7 @@ class CustomizeBox extends HTMLElement {
       tally.textContent = '';
       return;
     }
-    tally.textContent = `${total} of ${size} chosen`;
+    tally.textContent = `${total} of ${size} chosen${this.#capacityMessage ? '. ' + this.#capacityMessage : ''}`;
     tally.toggleAttribute('data-complete', total === size);
   }
 
@@ -345,7 +388,7 @@ class CustomizeBox extends HTMLElement {
     // anything. What has to be sellable is what actually goes in the cart: every
     // chosen flavour, and the packaging when it stands for a product.
     const flavours = this.#chosenFlavours;
-    const packagingSellable = !entry?.unitId || entry.unitAvailable !== false;
+    const packagingSellable = Boolean(entry) && (!entry.unitId || entry.unitAvailable !== false);
     this.#sellable =
       complete && flavours.length > 0 && flavours.every((f) => f.variantId && f.available) && packagingSellable;
 
@@ -456,16 +499,19 @@ class CustomizeBox extends HTMLElement {
   }
 
   async #addToCart(button) {
+    this.#render();
     if (this.#adding || !this.#sellable) return;
-    const boxNumber = (await this.#boxCount()) + 1;
-    const items = this.#cartItems(boxNumber);
-    if (!items.length) return;
-
     this.#adding = true;
     button.disabled = true;
     this.#setAddError('');
 
     try {
+      const boxNumber = (await this.#boxCount()) + 1;
+      // The shopper can edit the mix while the existing cart is being read.
+      this.#render();
+      if (!this.#sellable) return;
+      const items = this.#cartItems(boxNumber);
+      if (!items.length) return;
       const response = await fetch(Theme?.routes?.cart_add_url ?? '/cart/add.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },

@@ -117,6 +117,7 @@
 
   {%- form 'product', product_resource, id: form_id, data-type: 'add-to-cart-form' -%}
     <input type="hidden" name="id" ref="variantId" value="{{ variant.id }}">
+    <p class="hidden" ref="addToCartTextError" role="alert"></p>
 
     <div class="ui-product-buy__row">
       {%- if block.settings.show_quantity and season_closed == false -%}

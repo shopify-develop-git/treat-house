@@ -622,7 +622,17 @@
   }
 
   .customize-box__packs > .ui-choice-tile {
-    block-size: 203px;
+    block-size: 250px;
+  }
+
+  .customize-box__packs .ui-choice-tile__media {
+    min-block-size: 180px;
+  }
+
+  @media screen and (min-width: 750px) and (max-width: 1199px) {
+    .customize-box__packs {
+      gap: 16px;
+    }
   }
 
   @media screen and (max-width: 749px) {
@@ -634,6 +644,17 @@
     .customize-box__packs > .ui-choice-tile {
       block-size: auto;
     }
+
+    .customize-box__packs .ui-choice-tile__media {
+      flex-basis: 48%;
+      block-size: 120px;
+      min-block-size: 120px;
+    }
+  }
+
+  .customize-box__flavours [data-flavour-add]:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
   }
 
   /*

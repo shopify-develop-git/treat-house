@@ -115,7 +115,7 @@
         "prompt": {
           "type": "_ui-product-prompt",
           "settings": {
-            "text": "Want a different mix in every square?",
+            "text": "Choose your flavors and build your own box.",
             "link_label": "Build your own box",
             "link": "/pages/customize"
           },
@@ -262,6 +262,13 @@
             "ingredients",
             "storage"
           ]
+        },
+        "artwork": {
+          "type": "_ui-product-artwork",
+          "settings": {
+            "label": "Upload your logo or photo"
+          },
+          "blocks": {}
         }
       },
       "block_order": [
@@ -273,6 +280,7 @@
         "rule_variants",
         "variants",
         "prompt",
+        "artwork",
         "gift_message",
         "rule_buy",
         "buy",
