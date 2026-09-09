@@ -5,9 +5,9 @@
   One place decides what "within the request window" means, so the drawer panel, the
   checkout gate and the hidden form inputs cannot disagree:
 
-  - not before today + `cart_delivery_min_days` (default 3) and not after
-    today + `cart_delivery_max_days` (default 60), both calendar days from the
-    render moment in the shop's timezone;
+  - not before estimated dispatch + `cart_delivery_min_days` (default 1) and
+    not after today + `cart_delivery_max_days` (default 60), in the shop's
+    timezone. Dispatch applies production business days, cutoff and closures;
   - not on a weekday listed in `cart_delivery_disabled_weekdays` ("0,6");
   - not on a date listed in `cart_delivery_blackout_dates` (one per line).
 
@@ -23,15 +23,24 @@
 {%- enddoc -%}
 
 {%- liquid
-  assign lead_days = settings.cart_delivery_min_days | default: 3
+  assign lead_days = settings.cart_delivery_min_days | default: 1
   assign window_days = settings.cart_delivery_max_days | default: 60
   if window_days < lead_days
     assign window_days = lead_days
   endif
 
   assign now_seconds = 'now' | date: '%s'
-  assign earliest = lead_days | times: 86400 | plus: now_seconds | date: '%Y-%m-%d'
-  assign latest = window_days | times: 86400 | plus: now_seconds | date: '%Y-%m-%d'
+  assign today_noon = 'now' | date: '%Y-%m-%d' | append: ' 12:00:00' | date: '%s'
+  capture dispatch_iso
+    render 'th-production-dispatch-date'
+  endcapture
+  assign dispatch_iso = dispatch_iso | strip
+  assign earliest = '9999-12-31'
+  if dispatch_iso != blank
+    assign dispatch_noon = dispatch_iso | append: ' 12:00:00' | date: '%s'
+    assign earliest = lead_days | times: 86400 | plus: dispatch_noon | date: '%Y-%m-%d'
+  endif
+  assign latest = window_days | times: 86400 | plus: today_noon | date: '%Y-%m-%d'
 
   assign iso = cart.attributes['_delivery_date'] | default: '' | strip
   assign valid = false

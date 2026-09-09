@@ -1,0 +1,131 @@
+{%- doc -%}
+  Outputs the earliest dispatch date as YYYY-MM-DD, or nothing if the
+  production configuration is invalid. This is not an arrival estimate.
+
+  The shop timezone must be America/New_York. Before the cutoff on an open
+  business day, processing starts that day. At or after the cutoff, or on a
+  closed day, it starts on the next open business day. Dispatch follows the
+  configured number of production business days, excluding processing day.
+
+  Weekends and cart_production_blackout_dates are closed. Production days
+  must be an integer from 1 to 30 (default 1); cutoff hour must be an integer
+  from 0 to 23 (default 17). Up to 50 comma/newline-separated ISO blackout
+  dates are supported. Invalid dates fail closed, rather than being ignored.
+  A bounded search returns blank if no dispatch is found within 400 days.
+
+  @param {string} [now] - Optional Unix timestamp or timestamp with
+    timezone for deterministic checks. Defaults to the current render time.
+{%- enddoc -%}
+
+{%- liquid
+  assign config_valid = true
+  assign production_raw = settings.cart_production_business_days | append: '' | strip
+  assign cutoff_raw = settings.cart_order_cutoff_hour | append: '' | strip
+  if production_raw == blank
+    assign production_raw = '1'
+  endif
+  if cutoff_raw == blank
+    assign cutoff_raw = '17'
+  endif
+
+  assign production_non_digits = production_raw | remove: '0' | remove: '1' | remove: '2' | remove: '3' | remove: '4' | remove: '5' | remove: '6' | remove: '7' | remove: '8' | remove: '9'
+  assign cutoff_non_digits = cutoff_raw | remove: '0' | remove: '1' | remove: '2' | remove: '3' | remove: '4' | remove: '5' | remove: '6' | remove: '7' | remove: '8' | remove: '9'
+  assign production_days = production_raw | plus: 0
+  assign cutoff_hour = cutoff_raw | plus: 0
+  if production_non_digits != blank or cutoff_non_digits != blank or production_days < 1 or production_days > 30 or cutoff_hour > 23
+    assign config_valid = false
+  endif
+
+  assign clock = now
+  if clock == nil or clock == blank
+    assign clock = 'now'
+  endif
+  assign epoch_raw = clock | date: '%s' | append: ''
+  assign epoch = epoch_raw | plus: 0
+  assign epoch_check = epoch | append: ''
+  if epoch_check != epoch_raw
+    assign config_valid = false
+  endif
+
+  assign blackout_raw = settings.cart_production_blackout_dates | default: '' | strip | newline_to_br | replace: '<br />', ',' | replace: '<br>', ','
+  assign blackout_entries = blackout_raw | split: ','
+  assign blackout_lookup = '|'
+  if blackout_entries.size > 50
+    assign config_valid = false
+  endif
+
+  if config_valid
+    assign current_offset = epoch | date: '%z'
+    for entry in blackout_entries limit: 50
+      assign closed_iso = entry | strip
+      if closed_iso != blank
+        assign first_dash = closed_iso | slice: 4, 1
+        assign second_dash = closed_iso | slice: 7, 1
+        assign date_non_digits = closed_iso | remove: '-' | remove: '0' | remove: '1' | remove: '2' | remove: '3' | remove: '4' | remove: '5' | remove: '6' | remove: '7' | remove: '8' | remove: '9'
+        assign closed_parts = closed_iso | split: '-'
+        assign closed_anchor = closed_iso | append: ' 12:00:00 ' | append: current_offset
+        assign closed_round_trip = closed_anchor | date: '%Y-%m-%d'
+        if closed_iso.size != 10 or first_dash != '-' or second_dash != '-' or date_non_digits != blank or closed_parts.size != 3 or closed_round_trip != closed_iso
+          assign config_valid = false
+          break
+        endif
+        assign blackout_lookup = blackout_lookup | append: closed_iso | append: '|'
+      endif
+    endfor
+  endif
+
+  if config_valid
+    assign order_hour = epoch | date: '%H' | plus: 0
+    assign hour_seconds = order_hour | times: 3600
+    assign minute_seconds = epoch | date: '%M' | times: 60
+    assign second_seconds = epoch | date: '%S' | plus: 0
+    assign day_anchor = epoch | minus: hour_seconds | minus: minute_seconds | minus: second_seconds | plus: 43200
+
+    # Re-anchor after the initial shift too: a DST transition may lie between
+    # the order instant and noon. Every following step starts at local noon.
+    assign anchor_hour = day_anchor | date: '%H' | plus: 0
+    assign noon_correction = 12 | minus: anchor_hour | times: 3600
+    assign day_anchor = day_anchor | plus: noon_correction
+
+    assign processing_started = false
+    assign production_remaining = production_days
+    assign dispatch_iso = ''
+    assign calendar_index = 0
+
+    # Keep each loop within Shopify Liquid's 50-iteration limit.
+    for search_batch in (1..8)
+      for search_day in (1..50)
+        assign day_iso = day_anchor | date: '%Y-%m-%d'
+        assign weekday = day_anchor | date: '%w'
+        assign blackout_key = '|' | append: day_iso | append: '|'
+        assign business_day = true
+        if weekday == '0' or weekday == '6' or blackout_lookup contains blackout_key
+          assign business_day = false
+        endif
+
+        if business_day
+          if processing_started
+            assign production_remaining = production_remaining | minus: 1
+            if production_remaining == 0
+              assign dispatch_iso = day_iso
+              break
+            endif
+          elsif calendar_index > 0 or order_hour < cutoff_hour
+            assign processing_started = true
+          endif
+        endif
+
+        assign day_anchor = day_anchor | plus: 86400
+        assign anchor_hour = day_anchor | date: '%H' | plus: 0
+        assign noon_correction = 12 | minus: anchor_hour | times: 3600
+        assign day_anchor = day_anchor | plus: noon_correction
+        assign calendar_index = calendar_index | plus: 1
+      endfor
+      if dispatch_iso != blank
+        break
+      endif
+    endfor
+
+    echo dispatch_iso
+  endif
+-%}

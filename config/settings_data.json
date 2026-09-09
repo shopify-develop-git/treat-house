@@ -71,8 +71,8 @@
     "show_add_discount_code": false,
     "show_accelerated_checkout_buttons": false,
     "show_cart_shipping_estimate": true,
-    "cart_shipping_from": "",
-    "cart_shipping_method": "",
+    "cart_shipping_from": "Long Island City, NY 11101",
+    "cart_shipping_method": "FedEx or UPS",
     "show_cart_delivery_date": true,
     "require_cart_delivery_date": true,
     "cart_delivery_disabled_weekdays": "",
@@ -420,7 +420,11 @@
     "ui_light_blue": "#acd9f0",
     "season_closed_products": [
       "st-patricks-day-12-pack"
-    ]
+    ],
+    "cart_production_business_days": 1,
+    "cart_order_cutoff_hour": 17,
+    "cart_production_blackout_dates": "",
+    "cart_delivery_min_days": 1
   },
   "presets": {
     "Horizon": {

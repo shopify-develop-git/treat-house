@@ -7,10 +7,10 @@
  * shown as unset and the checkout gate re-engages.
  *
  *   Supported
- *   - Minimum lead time: today + `cart_delivery_min_days` calendar days
- *     (default 3). Earlier days are greyed out; no date is automatically selected.
- *     Counted from the moment the cart was rendered, in the shop's
- *     timezone; there is no same-day cut-off hour.
+ *   - One business day of production, with a 5pm Eastern processing cutoff.
+ *     Weekends and configured production closures do not count. The minimum
+ *     request date is estimated dispatch + the request buffer (default 1 day).
+ *     Dispatch is separate from carrier transit; no arrival is promised.
  *   - Maximum window: today + `cart_delivery_max_days` calendar days (default
  *     60). Month navigation stops at the last requestable month.
  *   - Disabled weekdays: `cart_delivery_disabled_weekdays`, a comma list of
@@ -30,7 +30,6 @@
  *   - Server-side enforcement: a visitor with JavaScript off and a hand-typed
  *     /checkout URL, or an accelerated-checkout wallet button if one is turned
  *     on, is not stopped. A Cart & Checkout Validation Function would be.
- *   - Business-day counting or a daily cut-off hour for the lead time.
  *   - Date ranges or repeating rules in the blackout list.
  *   - Destination-based or shipping-method-based availability: the cart does
  *     not know the address or the rate before checkout.
@@ -66,6 +65,7 @@
  */
 
 import { sectionRenderer } from '@theme/section-renderer';
+import { calculateProductionTiming } from '@theme/th-shipping-timing';
 
 const ISO = /^(\d{4})-(\d{2})-(\d{2})$/;
 
@@ -153,6 +153,10 @@ class CartDeliveryDate extends HTMLElement {
   #blackout = new Set();
   /** @type {Date} */
   #firstAllowed = new Date();
+  #clockStamp = null;
+  #clockOffset = 0;
+  #timer;
+  #timingValid = true;
 
   /*
    * The parts are looked up each time rather than cached on connect. The
@@ -193,6 +197,7 @@ class CartDeliveryDate extends HTMLElement {
     this.latest = parseISO(this.dataset.latest) ?? new Date(this.earliest.getFullYear() + 1, 0, 1);
     this.#disabledWeekdays = parseWeekdays(this.dataset.disabledWeekdays);
     this.#blackout = parseBlackout(this.dataset.blackout);
+    this.#refreshTiming();
     this.#firstAllowed = this.#findFirstAllowed();
 
     this.#chosen = parseISO(this.dataset.selected);
@@ -203,6 +208,13 @@ class CartDeliveryDate extends HTMLElement {
     this.#renderMonth();
 
     this.addEventListener('click', this.#onClick);
+    // An open cart must not retain a pre-cutoff date overnight or after 5pm.
+    this.#timer = window.setInterval(() => {
+      if (this.#refreshTiming()) {
+        this.#firstAllowed = this.#findFirstAllowed();
+        this.#renderMonth();
+      }
+    }, 30_000);
 
     // Liquid found a saved date that is no longer requestable and showed the row
     // as unset. Clear it from the cart too, so it cannot reach the order.
@@ -211,10 +223,12 @@ class CartDeliveryDate extends HTMLElement {
 
   disconnectedCallback() {
     this.removeEventListener('click', this.#onClick);
+    window.clearInterval(this.#timer);
   }
 
   /** Whether the cart has a saved, still-requestable date. */
   get hasDate() {
+    this.#refreshTiming();
     const selected = parseISO(this.dataset.selected);
     return selected != null && this.#isAllowed(selected);
   }
@@ -274,6 +288,8 @@ class CartDeliveryDate extends HTMLElement {
     this.#showError(false);
 
     if (open) {
+      this.#refreshTiming();
+      this.#firstAllowed = this.#findFirstAllowed();
       // A section render (a quantity change, or the one after a save) morphs
       // the server's empty frame over the cells built here — on the drawer's
       // keyed inner and on the cart page's whole section alike. The element
@@ -301,10 +317,65 @@ class CartDeliveryDate extends HTMLElement {
    * @param {Date} date
    */
   #isAllowed(date) {
+    if (!this.#timingValid) return false;
     if (date < this.earliest || date > this.latest) return false;
     if (this.#disabledWeekdays.has(date.getDay())) return false;
     if (this.#blackout.has(toISO(date))) return false;
     return true;
+  }
+
+  /** Re-evaluate production against server time plus elapsed page time. */
+  #refreshTiming() {
+    // Older cached markup retains its explicit request window until refreshed.
+    if (this.dataset.productionDays == null) return false;
+    const stamp = this.dataset.serverNow || '';
+    if (stamp !== this.#clockStamp) {
+      this.#clockStamp = stamp;
+      const epoch = Number(stamp) * 1000;
+      const serverNow = stamp && Number.isFinite(epoch) ? epoch : Date.now();
+      this.#clockOffset = Math.max(serverNow, this.#clockOffset + performance.now()) - performance.now();
+    }
+    const result = calculateProductionTiming({
+      now: this.#clockOffset + performance.now(),
+      cutoffHour: Number(this.dataset.cutoffHour),
+      leadBusinessDays: Number(this.dataset.productionDays),
+      productionBlackoutDates: (this.dataset.productionBlackout || '').split(/[,\n]/).map(x => x.trim()).filter(Boolean),
+    });
+    const buffer = Number(this.dataset.requestBuffer || 1);
+    const windowDays = Number(this.dataset.windowDays || 60);
+    this.#timingValid = result.ok && Number.isInteger(buffer) && buffer >= 1 && buffer <= 21 && Number.isInteger(windowDays) && windowDays >= 8 && windowDays <= 180;
+    const row = this.querySelector('[data-dispatch-row]');
+    if (row) row.hidden = !this.#timingValid;
+    if (!this.#timingValid) {
+      this.#setGate(true);
+      return false;
+    }
+    const dispatch = parseISO(result.dispatchDate);
+    const earliest = new Date(dispatch);
+    earliest.setDate(earliest.getDate() + buffer);
+    const latest = parseISO(result.localDate);
+    latest.setDate(latest.getDate() + windowDays);
+    const changed = toISO(earliest) !== toISO(this.earliest) || toISO(latest) !== toISO(this.latest);
+    this.earliest = earliest;
+    this.latest = latest;
+    const label = this.querySelector('[data-dispatch-date]');
+    if (label) label.textContent = this.#format(dispatch);
+
+    // A server morph can also update closures and delivery-day rules.
+    this.#disabledWeekdays = parseWeekdays(this.dataset.disabledWeekdays);
+    this.#blackout = parseBlackout(this.dataset.blackout);
+    const selected = parseISO(this.dataset.selected);
+    if (selected && !this.#isAllowed(selected)) {
+      this.dataset.selected = '';
+      this.#chosen = null;
+      this.#pending = null;
+      if (this.pill) this.pill.hidden = true;
+      if (this.toggleButton) this.toggleButton.textContent = this.dataset.chooseLabel || 'Choose a date';
+      this.#syncForm('', '');
+      this.#setGate(true);
+      this.#save('', '');
+    }
+    return changed;
   }
 
   /**
@@ -506,6 +577,7 @@ class CartDeliveryDate extends HTMLElement {
   }
 
   async #confirm() {
+    this.#refreshTiming();
     const pending = this.#pending;
     if (!pending || !this.#isAllowed(pending)) return;
 
@@ -523,6 +595,17 @@ class CartDeliveryDate extends HTMLElement {
       // why, and the next confirm tries again.
       this.#showError(true);
       if (confirm instanceof HTMLButtonElement) confirm.disabled = false;
+      return;
+    }
+
+    // A write can cross 5pm while the network is pending. Recheck before
+    // displaying success or enabling checkout for a now-unavailable request.
+    this.#refreshTiming();
+    if (!this.#isAllowed(pending)) {
+      await this.#save('', '');
+      this.#setGate(true);
+      this.#renderMonth();
+      this.#showError(true);
       return;
     }
 

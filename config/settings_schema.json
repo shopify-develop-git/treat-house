@@ -2131,6 +2131,33 @@
         "info": "Optional row below the delivery date. Leave empty to hide it."
       },
       {
+        "type": "range",
+        "id": "cart_production_business_days",
+        "label": "Production lead time",
+        "info": "Business days after order processing begins. Saturdays, Sundays and production closures are excluded.",
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "unit": "d",
+        "default": 1
+      },
+      {
+        "type": "range",
+        "id": "cart_order_cutoff_hour",
+        "label": "Order cutoff hour (Eastern Time)",
+        "info": "24-hour time. Orders at or after this hour begin processing on the next business day.",
+        "min": 0,
+        "max": 23,
+        "step": 1,
+        "default": 17
+      },
+      {
+        "type": "textarea",
+        "id": "cart_production_blackout_dates",
+        "label": "Production closures",
+        "info": "One YYYY-MM-DD date per line. These dates are excluded from production and dispatch estimates, separately from unavailable delivery dates."
+      },
+      {
         "type": "checkbox",
         "id": "show_cart_delivery_date",
         "label": "Let the customer request a delivery date",
@@ -2147,13 +2174,13 @@
       {
         "type": "range",
         "id": "cart_delivery_min_days",
-        "label": "Earliest date request",
-        "info": "Calendar days from today before a date may be requested. This is a request window, not a transit or delivery estimate.",
+        "label": "Minimum request buffer after dispatch",
+        "info": "Calendar days after estimated dispatch before a date can be requested. This does not confirm carrier availability or arrival.",
         "min": 1,
         "max": 21,
         "step": 1,
         "unit": "d",
-        "default": 3
+        "default": 1
       },
       {
         "type": "range",
