@@ -74,8 +74,7 @@
     "cart_shipping_from": "Long Island City, NY 11101",
     "cart_shipping_method": "FedEx or UPS",
     "show_cart_delivery_date": true,
-    "require_cart_delivery_date": true,
-    "cart_delivery_disabled_weekdays": "",
+    "cart_delivery_disabled_weekdays": "0,6",
     "cart_delivery_blackout_dates": "",
     "drawer_drop_shadow": true,
     "icon_stroke": "default",
@@ -424,7 +423,8 @@
     "cart_production_business_days": 1,
     "cart_order_cutoff_hour": 17,
     "cart_production_blackout_dates": "",
-    "cart_delivery_min_days": 1
+    "cart_transit_blackout_dates": "",
+    "cart_delivery_choose_label": "Request a later delivery date"
   },
   "presets": {
     "Horizon": {

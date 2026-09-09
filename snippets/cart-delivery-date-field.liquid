@@ -1,7 +1,6 @@
 {%- doc -%}
-  The delivery panel: the date the customer requests, and the calendar it is
-  picked in. One control — the panel's date row is the trigger and the readout,
-  the calendar under it is what it opens — driven by `cart-delivery-date.js`.
+  ZIP-first delivery estimate with ASAP as the default and an optional later
+  request. The calendar stays disabled until the script validates an estimate.
 
   Rendered by the cart drawer (`ui-cart-drawer`, part `shipping`) and by the
   /cart page (`blocks/_cart-summary`, above the totals); each passes its own
@@ -9,12 +8,9 @@
   the stylesheet tag of `ui-cart-drawer.liquid`; those are bundled globally,
   so the rules exist wherever this is rendered.
 
-  The date is saved as two cart attributes: the one named in
-  `cart_delivery_attribute` carries the human string ("Thu, Sep 10, 2026"),
-  `_delivery_date` carries ISO `YYYY-MM-DD`. A stored date that is no longer
-  within the request window (see `cart-delivery-date-valid`) is shown as unset, flagged
-  `data-stale` so the script clears it from the cart, and the checkout gate in
-  `cart-summary` re-engages.
+  ZIP, estimate bounds and delivery mode are handed to the script as data
+  attributes. A saved estimate is initially hidden until revalidated. Existing
+  server-clock, production-rule and calendar hooks remain shared by both surfaces.
 
   The script is loaded by `header-actions.liquid` (drawer) and
   `main-cart.liquid` (page), not here: this markup is swapped in through
@@ -29,23 +25,19 @@
 {%- liquid
   assign picker_id = picker_id | default: 'cart-delivery-picker'
 
-  assign lead_days = settings.cart_delivery_min_days | default: 1
   assign window_days = settings.cart_delivery_max_days | default: 60
-  if window_days < lead_days
-    assign window_days = lead_days
-  endif
 
   assign now_seconds = 'now' | date: '%s'
-  assign today_noon = 'now' | date: '%Y-%m-%d' | append: ' 12:00:00' | date: '%s'
+  assign current_offset = 'now' | date: '%z'
+  assign today_noon = 'now' | date: '%Y-%m-%d' | append: ' 12:00:00 ' | append: current_offset | date: '%s'
   capture dispatch_iso
     render 'th-production-dispatch-date'
   endcapture
   assign dispatch_iso = dispatch_iso | strip
-  assign earliest = '9999-12-31'
-  if dispatch_iso != blank
-    assign dispatch_noon = dispatch_iso | append: ' 12:00:00' | date: '%s'
-    assign earliest = lead_days | times: 86400 | plus: dispatch_noon | date: '%Y-%m-%d'
-  endif
+  capture earliest
+    render 'th-delivery-earliest-date'
+  endcapture
+  assign earliest = earliest | strip | default: '9999-12-31'
   assign latest = window_days | times: 86400 | plus: today_noon | date: '%Y-%m-%d'
 
   assign date_attribute = settings.cart_delivery_attribute | default: 'Requested delivery date'
@@ -60,22 +52,34 @@
   if chosen_iso != blank
     assign chosen = cart.attributes[date_attribute] | default: ''
     if chosen == blank
-      assign chosen = chosen_iso | date: '%a, %b %-d, %Y'
+      assign chosen = chosen_iso | append: ' 12:00:00 ' | append: current_offset | date: '%a, %b %-d, %Y'
     endif
   elsif stored_iso != blank
     assign stale = true
   endif
 
-  assign choose_label = settings.cart_delivery_choose_label | default: 'Choose a date'
+  assign choose_label = 'Request a later delivery date'
   assign change_label = settings.cart_delivery_change_label | default: 'Change'
+  assign delivery_mode = cart.attributes['_delivery_mode'] | default: 'asap'
+  unless delivery_mode == 'requested'
+    assign delivery_mode = 'asap'
+  endunless
+  assign zip_value = cart.attributes['Ship-to ZIP'] | default: '' | escape
+  assign zip_id = picker_id | append: '-zip'
+  assign estimate_status_id = picker_id | append: '-estimate-status'
+  assign zip_attributes = 'data-delivery-zip inputmode="numeric" autocomplete="postal-code" maxlength="5" aria-describedby="' | append: estimate_status_id | append: '"'
+  assign toggle_attributes = 'data-date-toggle aria-expanded="false" aria-controls="' | append: picker_id | append: '"'
+  assign asap_attributes = 'data-delivery-asap'
+  unless delivery_mode == 'requested'
+    assign asap_attributes = asap_attributes | append: ' hidden'
+  endunless
+  assign toggle_label = choose_label
+  if delivery_mode == 'requested' and chosen != blank
+    assign toggle_label = change_label
+  endif
 
   assign disabled_weekdays = settings.cart_delivery_disabled_weekdays | default: '' | replace: ' ', ''
   assign blackout_dates = settings.cart_delivery_blackout_dates | default: '' | strip | newline_to_br | replace: '<br />', ',' | replace: '<br>', ',' | replace: ' ', '' | strip_newlines
-
-  assign required = false
-  if settings.require_cart_delivery_date and settings.show_cart_delivery_date
-    assign required = true
-  endif
 
   assign confirm_label = 'cart.confirm_delivery_date' | t
   assign cutoff_hour = settings.cart_order_cutoff_hour | default: 17
@@ -91,17 +95,24 @@
   data-production-days="{{ settings.cart_production_business_days | default: 1 }}"
   data-cutoff-hour="{{ settings.cart_order_cutoff_hour | default: 17 }}"
   data-production-blackout="{{ settings.cart_production_blackout_dates | escape }}"
-  data-request-buffer="{{ lead_days }}"
+  data-zip-states-url="{{ 'th-zip-states.json' | asset_url }}"
+  data-transit-blackout="{{ settings.cart_transit_blackout_dates | escape }}"
+  data-zip="{{ zip_value }}"
+  data-mode="{{ delivery_mode }}"
+  data-state="{{ cart.attributes['_delivery_estimate_state'] | escape }}"
+  data-estimate-from="{{ cart.attributes['_delivery_estimate_from'] | escape }}"
+  data-estimate-to="{{ cart.attributes['_delivery_estimate_to'] | escape }}"
+  data-calendar-enabled="{% if settings.show_cart_delivery_date %}true{% else %}false{% endif %}"
   data-window-days="{{ window_days }}"
   data-earliest="{{ earliest }}"
   data-latest="{{ latest }}"
   data-selected="{{ chosen_iso | escape }}"
+  data-stored-date="{{ cart.attributes['_delivery_date'] | escape }}"
   data-attribute="{{ date_attribute | escape }}"
   data-choose-label="{{ choose_label | escape }}"
   data-change-label="{{ change_label | escape }}"
   data-disabled-weekdays="{{ disabled_weekdays | escape }}"
   data-blackout="{{ blackout_dates | escape }}"
-  {% if required %}data-required="true"{% endif %}
   {% if stale %}data-stale="true"{% endif %}
 >
   <div class="ui-cart-shipping">
@@ -109,66 +120,80 @@
       <span class="ui-cart-shipping__icon" aria-hidden="true">
         {{- 'icon-ui-truck.svg' | inline_asset_content -}}
       </span>
-      {{ 'cart.delivery_heading' | t }}
+      Where are we shipping?
     </p>
 
-    {%- if settings.cart_shipping_from != blank -%}
-      <p class="ui-cart-shipping__row">
-        <span class="ui-cart-shipping__label">{{ 'cart.ships_from' | t }}</span>
-        <span class="ui-cart-shipping__value">{{ settings.cart_shipping_from }}</span>
+    <div class="ui-cart-estimate__zip-row">
+      {% render 'ui-input',
+        label: 'Destination ZIP code',
+        id: zip_id,
+        type: 'text',
+        value: zip_value,
+        class: 'ui-cart-estimate__zip',
+        attributes: zip_attributes
+      %}
+      {% render 'ui-button',
+        variant: 'primary',
+        label: 'See estimate',
+        type: 'button',
+        class: 'ui-cart-estimate__submit',
+        attributes: 'data-estimate-submit'
+      %}
+    </div>
+    <p class="ui-cart-estimate__status" id="{{ estimate_status_id }}" data-estimate-status role="status" aria-live="polite"></p>
+    <noscript><p class="ui-cart-date__notice">Delivery options are shown at checkout.</p></noscript>
+
+    <div class="ui-cart-estimate__result" data-estimate-result hidden>
+      <span class="ui-cart-estimate__label">Estimated arrival</span>
+      <strong class="ui-cart-estimate__range" data-estimate-range></strong>
+      <span class="ui-cart-estimate__destination" data-estimate-destination></span>
+    </div>
+
+    <div class="ui-cart-estimate__delivery">
+      <p class="ui-cart-estimate__mode" data-delivery-mode-label>{% if delivery_mode == 'requested' %}Requested delivery date{% else %}As soon as possible{% endif %}</p>
+      <p class="ui-cart-shipping__row ui-cart-shipping__row--date" data-request-summary{% unless delivery_mode == 'requested' %} hidden{% endunless %}>
+        <span class="ui-cart-shipping__label">Requested date</span>
+        <span class="ui-cart-date__pill" data-date-pill{% if delivery_mode != 'requested' or chosen == blank %} hidden{% endif %}>{{ chosen | escape }}</span>
       </p>
-    {%- endif -%}
-
-    <p class="ui-cart-date__lead">Preparation takes {{ settings.cart_production_business_days | default: 1 }} business day{% if settings.cart_production_business_days > 1 %}s{% endif %}. Orders placed at or after {{ cutoff_display }}{% if cutoff_hour >= 12 %}pm{% else %}am{% endif %} Eastern begin processing the next business day.</p>
-    <p class="ui-cart-shipping__row" data-dispatch-row {% if dispatch_iso == blank %}hidden{% endif %}>
-      <span class="ui-cart-shipping__label">Estimated ship date</span>
-      <span class="ui-cart-shipping__value" data-dispatch-date>{{ dispatch_iso | date: '%a, %b %-d, %Y' }}</span>
-    </p>
-
-    <p class="ui-cart-shipping__row ui-cart-shipping__row--date">
-      <span class="ui-cart-shipping__label">{{ 'cart.delivery_date_label' | t }}</span>
-
+      {% render 'ui-button',
+        variant: 'underline',
+        label: 'As soon as possible',
+        type: 'button',
+        class: 'ui-cart-date__asap',
+        attributes: asap_attributes
+      %}
       {%- if settings.show_cart_delivery_date -%}
-        <span class="ui-cart-date__value">
-          <span class="ui-cart-date__pill" data-date-pill {% if chosen == blank %}hidden{% endif %}>
-            {{- chosen | escape -}}
-          </span>
-
-          <button
-            type="button"
-            class="ui-button ui-button--underline ui-cart-date__toggle"
-            data-date-toggle
-            aria-expanded="false"
-            aria-controls="{{ picker_id }}"
-          >
-            {%- if chosen != blank -%}{{ change_label }}{%- else -%}{{ choose_label }}{%- endif -%}
-          </button>
-        </span>
-      {%- else -%}
-        <span class="ui-cart-shipping__value">{{ 'cart.shipping_at_checkout' | t }}</span>
+        {% render 'ui-button',
+          variant: 'underline',
+          label: toggle_label,
+          type: 'button',
+          disabled: true,
+          class: 'ui-cart-date__toggle',
+          attributes: toggle_attributes
+        %}
       {%- endif -%}
-    </p>
+    </div>
+
+    <p class="ui-cart-estimate__caveat">Estimated ground delivery. Final timing depends on your address and shipping method.</p>
 
     {%- if settings.show_cart_delivery_date -%}
-      <p class="ui-cart-date__lead">{{ 'cart.delivery_date_lead' | t: count: lead_days }}</p>
-
       {%- if stale -%}
         <p class="ui-cart-date__notice" role="status">{{ 'cart.delivery_date_cleared' | t }}</p>
       {%- endif -%}
     {%- endif -%}
 
-    {%- if settings.cart_shipping_method != blank -%}
-      <p class="ui-cart-shipping__row">
-        <span class="ui-cart-shipping__label">{{ 'cart.shipping_method' | t }}</span>
-        <span class="ui-cart-shipping__value">{{ settings.cart_shipping_method }}</span>
-      </p>
-    {%- endif -%}
     <details class="ui-cart-transit-map">
-      <summary>View ground transit estimates</summary>
-      <p>Transit time varies by destination and excludes preparation time. Shipping options are confirmed at checkout.</p>
+      <summary>How delivery estimates work</summary>
+      <p>Ships from ZIP 11101, New York.</p>
+      <p>Preparation takes {{ settings.cart_production_business_days | default: 1 }} business day{% if settings.cart_production_business_days > 1 %}s{% endif %}. Orders placed at or after {{ cutoff_display }}{% if cutoff_hour >= 12 %}pm{% else %}am{% endif %} Eastern begin processing the next business day.</p>
+      <p class="ui-cart-shipping__row" data-dispatch-row {% if dispatch_iso == blank %}hidden{% endif %}>
+        <span class="ui-cart-shipping__label">Estimated ship date</span>
+        <span class="ui-cart-shipping__value" data-dispatch-date>{% if dispatch_iso != blank %}{{ dispatch_iso | append: ' 12:00:00 ' | append: current_offset | date: '%a, %b %-d, %Y' }}{% endif %}</span>
+      </p>
       <a href="{{ 'th-ground-delivery-map.webp' | asset_url }}" target="_blank" rel="noopener" aria-label="Open the ground transit map at full size">
-        <img src="{{ 'th-ground-delivery-map.webp' | asset_url }}" width="1977" height="1111" loading="lazy" alt="Treat House ground transit map showing estimated transit zones from one to six days across the United States" style="width:100%;height:auto;">
+        <img src="{{ 'th-ground-delivery-map.webp' | asset_url }}" width="1977" height="1111" loading="lazy" alt="Treat House ground transit map showing estimated transit zones from one to six days across the United States">
       </a>
+      <p class="ui-cart-estimate__attribution">ZIP lookup adapted from <a href="https://www.geonames.org/" target="_blank" rel="noopener">GeoNames</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>.</p>
     </details>
   </div>
 

@@ -1,77 +1,89 @@
 /**
- * A requested delivery date. No destination or carrier service is known before checkout.
- *
- * WHAT THE CALENDAR SUPPORTS — and what it does not. Every rule below is
- * enforced twice: here in the browser, and in Liquid (`cart-delivery-date-valid`)
- * when the cart renders, so a date saved earlier that no longer qualifies is
- * shown as unset and the checkout gate re-engages.
- *
- *   Supported
- *   - One business day of production, with a 5pm Eastern processing cutoff.
- *     Weekends and configured production closures do not count. The minimum
- *     request date is estimated dispatch + the request buffer (default 1 day).
- *     Dispatch is separate from carrier transit; no arrival is promised.
- *   - Maximum window: today + `cart_delivery_max_days` calendar days (default
- *     60). Month navigation stops at the last requestable month.
- *   - Disabled weekdays: `cart_delivery_disabled_weekdays`, a comma list of
- *     0 (Sunday) … 6 (Saturday). Empty means every weekday is allowed.
- *   - Blackout dates: `cart_delivery_blackout_dates`, one YYYY-MM-DD per line.
- *     Single dates only — no ranges, no recurring holidays.
- *   - One date per cart, saved as three cart attributes (see below), carried by
- *     the cart form as hidden inputs as well, and copied onto the order as
- *     "Additional details".
- *   - Required before checkout (`require_cart_delivery_date`): the checkout
- *     button is rendered disabled by Liquid until a request is saved, and a
- *     capturing guard here opens the calendar instead of submitting if the
- *     button is ever clicked without one.
- *
- *   Not supported (needs an app, a checkout Function, or store data the cart
- *   does not have)
- *   - Server-side enforcement: a visitor with JavaScript off and a hand-typed
- *     /checkout URL, or an accelerated-checkout wallet button if one is turned
- *     on, is not stopped. A Cart & Checkout Validation Function would be.
- *   - Date ranges or repeating rules in the blackout list.
- *   - Destination-based or shipping-method-based availability: the cart does
- *     not know the address or the rate before checkout.
- *   - Capacity per day (a maximum number of orders on one date).
- *
- * Three attributes are written. The named one (`cart_delivery_attribute`,
- * default "Requested delivery date") carries the date the way the drawer printed it,
- * with the year, so the order shows the customer what they picked.
- * `_delivery_date` carries the ISO date, which is what the drawer reads back to
- * reopen the calendar on the right month — "Thu, Sep 10, 2026" parses
- * differently in every locale, so the display string cannot do that job.
- * `_delivery_date_type` is "requested"; legacy dates without it require a new
- * selection. The old "Delivery date" display attribute is cleared on each save.
- *
- * The underscore is not a hiding mechanism here. That convention is a line
- * item property one; a cart attribute called `_delivery_date` is still a cart
- * attribute and shows up in the order's additional details like any other. It
- * is named this way to mark it as the machine's copy, not the reader's.
- *
- * A plain custom element rather than Horizon's `Component`: the calendar
- * mostly talks to itself. The one thing it does with the rest of the cart is
- * ask the section renderer to re-render the section after a save, so the
- * pill, the link label and the checkout button all come from server state
- * through the same path a quantity change uses.
- *
- * Two surfaces render the field through one snippet
- * (`cart-delivery-date-field`): the cart drawer (`header-actions.liquid`,
- * which also loads this script) and the /cart page (`blocks/_cart-summary`,
- * with the script loaded by `sections/main-cart.liquid`). Each is a separate
- * custom-element instance with its own picker id, upgraded by the browser
- * wherever it appears; the guard below finds the field that belongs to the
- * checkout button being pressed through the enclosing `cart-items-component`.
+ * ZIP-first ground estimates shared by the cart drawer and cart page.
+ * Estimates use statewide directional ranges, never a carrier promise. ASAP
+ * needs no date; an opted-in later request must be valid and acknowledged.
+ * A page-wide intent state and serialized writes prevent stale section morphs
+ * and slower responses from replacing a newer destination/date selection.
  */
-
-import { sectionRenderer } from '@theme/section-renderer';
 import { calculateProductionTiming } from '@theme/th-shipping-timing';
+import { calculateDeliveryEstimate, normalizeDeliveryZip, DELIVERY_ESTIMATE_BASIS } from '@theme/th-delivery-estimate';
+
+const fields = new Set();
+const postalLoads = new Map();
+let state;
+let postalSnapshot = null;
+let writes = Promise.resolve();
+let latestWrite = Promise.resolve(true);
+let revision = 0;
+let queuedSignature = '';
+let serverClockOffset = 0;
+let repaintQueued = false;
+
+function hidden(node, value) { if (node && node.hidden !== value) node.hidden = value; }
+function text(node, value) { if (node && node.textContent !== value) node.textContent = value; }
+function data(node, key, value) { if (node.dataset[key] !== value) node.dataset[key] = value; }
+
+async function loadPostal(url) {
+  if (!url) throw new Error('Missing ZIP data');
+  if (!postalLoads.has(url)) {
+    postalLoads.set(url, fetch(url).then(response => {
+      if (!response.ok) throw new Error('ZIP lookup unavailable');
+      return response.json();
+    }).then(result => {
+      if (!result?.states || typeof result.states !== 'object') throw new Error('Invalid ZIP data');
+      postalSnapshot = result;
+      return result;
+    }).catch(error => { postalLoads.delete(url); throw error; }));
+  }
+  return postalLoads.get(url);
+}
+
+function refreshAll(persist = false) {
+  for (const field of fields) field.refresh();
+  for (const field of fields) field.paint();
+  const source = fields.values().next().value;
+  if (persist && source && source.lookupReady) queueSave(source);
+}
+
+function queueSave(source) {
+  const attributes = source.deliveryAttributes();
+  const signature = JSON.stringify(attributes);
+  if (signature === state.savedSignature && !state.saving && !state.failed) return Promise.resolve(true);
+  if (signature === queuedSignature && state.saving) return latestWrite;
+  const current = ++revision;
+  queuedSignature = signature;
+  state.saving = true;
+  state.failed = false;
+  refreshAll();
+  const write = async () => {
+    if (current !== revision) return false;
+    let saved = false;
+    try {
+      const response = await fetch(window.Theme?.routes?.cart_update_url ?? '/cart/update.js', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ attributes }),
+      });
+      const cart = response.ok ? await response.json() : null;
+      saved = Boolean(cart && Object.entries(attributes).every(([key, value]) => String(cart.attributes?.[key] ?? '') === value));
+    } catch { /* The active request remains retryable. */ }
+    if (current === revision) {
+      state.saving = false;
+      state.failed = !saved;
+      if (saved) state.savedSignature = signature;
+      refreshAll();
+    }
+    return saved && current === revision;
+  };
+  latestWrite = writes.then(write, write);
+  writes = latestWrite.catch(() => false);
+  return latestWrite;
+}
 
 const ISO = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 // The drawer and cart page may both clear a legacy date. Serialize their writes
 // so a slow clear cannot arrive after a shopper's newer requested-date save.
-let deliveryDateWrites = Promise.resolve();
+
 
 /**
  * Parses `YYYY-MM-DD` as a local date.
@@ -141,243 +153,301 @@ function parseBlackout(value) {
 }
 
 class CartDeliveryDate extends HTMLElement {
-  /** @type {Date | null} */
   #pending = null;
-  /** @type {Date | null} */
   #chosen = null;
-  /** @type {Date} */
   #view = new Date();
-  /** @type {Set<number>} */
-  #disabledWeekdays = new Set();
-  /** @type {Set<string>} */
+  #disabledWeekdays = new Set([0, 6]);
   #blackout = new Set();
-  /** @type {Date} */
   #firstAllowed = new Date();
   #clockStamp = null;
-  #clockOffset = 0;
   #timer;
-  #timingValid = true;
+  #typingTimer;
+  #timingValid = false;
+  #postal = null;
+  #lookupLoading = false;
+  #lookupFailed = false;
 
-  /*
-   * The parts are looked up each time rather than cached on connect. The
-   * cart's section renderer morphs this element's subtree after a quantity
-   * change or a save, and a reference taken before the morph may point at a
-   * node that is no longer in the document.
-   */
-  get picker() {
-    return this.querySelector('.ui-date-picker');
-  }
-  get grid() {
-    return this.querySelector('[data-date-grid]');
-  }
-  get weekdays() {
-    return this.querySelector('[data-date-weekdays]');
-  }
-  get monthLabel() {
-    return this.querySelector('[data-date-month]');
-  }
-  get confirmButton() {
-    return this.querySelector('[data-date-confirm]');
-  }
-  get toggleButton() {
-    return this.querySelector('[data-date-toggle]');
-  }
-  get pill() {
-    return this.querySelector('[data-date-pill]');
-  }
-  get error() {
-    return this.querySelector('[data-date-error]');
-  }
+  get picker() { return this.querySelector('.ui-date-picker'); }
+  get grid() { return this.querySelector('[data-date-grid]'); }
+  get weekdays() { return this.querySelector('[data-date-weekdays]'); }
+  get monthLabel() { return this.querySelector('[data-date-month]'); }
+  get confirmButton() { return this.querySelector('[data-date-confirm]'); }
+  get toggleButton() { return this.querySelector('[data-date-toggle]'); }
+  get pill() { return this.querySelector('[data-date-pill]'); }
+  get error() { return this.querySelector('[data-date-error]'); }
+  get zipInput() { return this.querySelector('[data-delivery-zip]'); }
+  get lookupReady() { return Boolean(this.#postal) || this.#lookupFailed; }
 
   connectedCallback() {
-    if (!this.picker || !this.grid || !this.toggleButton) return;
-
     this.locale = document.documentElement.lang || 'en';
     this.earliest = parseISO(this.dataset.earliest) ?? new Date();
-    this.latest = parseISO(this.dataset.latest) ?? new Date(this.earliest.getFullYear() + 1, 0, 1);
-    this.#disabledWeekdays = parseWeekdays(this.dataset.disabledWeekdays);
-    this.#blackout = parseBlackout(this.dataset.blackout);
-    this.#refreshTiming();
-    this.#firstAllowed = this.#findFirstAllowed();
-
-    this.#chosen = parseISO(this.dataset.selected);
-    this.#pending = this.#chosen;
-    this.#view = new Date(this.#chosen ?? this.#firstAllowed);
-
-    this.#renderWeekdays();
-    this.#renderMonth();
-
+    this.latest = parseISO(this.dataset.latest) ?? new Date();
+    if (!state) {
+      state = {
+        zip: this.dataset.zip || '', mode: this.dataset.mode === 'requested' ? 'requested' : 'asap',
+        selected: this.dataset.selected || '', estimate: null, dispatchDate: '',
+        saving: false, failed: false, savedSignature: '', draft: false, asapClearing: false,
+      };
+      if (state.mode === 'asap') state.selected = '';
+    }
+    fields.add(this);
     this.addEventListener('click', this.#onClick);
-    // An open cart must not retain a pre-cutoff date overnight or after 5pm.
-    this.#timer = window.setInterval(() => {
-      if (this.#refreshTiming()) {
-        this.#firstAllowed = this.#findFirstAllowed();
-        this.#renderMonth();
-      }
-    }, 30_000);
-
-    // Liquid found a saved date that is no longer requestable and showed the row
-    // as unset. Clear it from the cart too, so it cannot reach the order.
-    if (this.dataset.stale === 'true') this.#clearStale();
+    this.addEventListener('input', this.#onInput);
+    this.addEventListener('keydown', this.#onKeydown);
+    this.#timer = window.setInterval(() => refreshAll(Boolean(state.zip || state.mode === 'requested')), 30_000);
+    refreshAll();
+    this.#load();
   }
 
   disconnectedCallback() {
+    fields.delete(this);
     this.removeEventListener('click', this.#onClick);
+    this.removeEventListener('input', this.#onInput);
+    this.removeEventListener('keydown', this.#onKeydown);
     window.clearInterval(this.#timer);
+    window.clearTimeout(this.#typingTimer);
   }
 
-  /** Whether the cart has a saved, still-requestable date. */
+  async #load() {
+    if (this.#lookupLoading) return;
+    this.#lookupLoading = true;
+    this.#lookupFailed = false;
+    this.paint();
+    try { this.#postal = await loadPostal(this.dataset.zipStatesUrl); }
+    catch { this.#lookupFailed = true; }
+    this.#lookupLoading = false;
+    if (!this.isConnected) return;
+    refreshAll(Boolean(state.zip || state.mode === 'requested' || this.dataset.storedDate));
+  }
+
+  get required() { return state.mode === 'requested' || state.asapClearing; }
   get hasDate() {
-    this.#refreshTiming();
-    const selected = parseISO(this.dataset.selected);
-    return selected != null && this.#isAllowed(selected);
+    this.refresh();
+    if (state.asapClearing) return false;
+    const selected = parseISO(state.selected);
+    return Boolean(selected && this.#isAllowed(selected) && !state.saving && !state.failed && !state.draft &&
+      state.savedSignature === JSON.stringify(this.deliveryAttributes()));
   }
 
-  /** Whether checkout is meant to wait for a date. */
-  get required() {
-    return this.dataset.required === 'true';
-  }
-
-  /**
-   * Opens the calendar and puts focus in it. Used by the checkout guard when
-   * the button is pressed without a date.
-   */
   prompt() {
-    this.#setOpen(true);
+    if (state.mode === 'requested' && state.estimate?.ok) this.#setOpen(true);
     this.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-
-    const target =
-      this.grid?.querySelector('[data-date-day][aria-selected="true"]:not(:disabled)') ??
-      this.grid?.querySelector('[data-date-day]:not(:disabled)') ??
-      this.toggleButton;
-    if (target instanceof HTMLElement) target.focus({ preventScroll: true });
+    const target = this.grid?.querySelector('[data-date-day]:not(:disabled)') ?? this.zipInput;
+    target?.focus({ preventScroll: true });
   }
 
-  /** @param {MouseEvent} event */
-  #onClick = (event) => {
+  #onInput = event => {
+    if (!event.target.matches('[data-delivery-zip]')) return;
+    window.clearTimeout(this.#typingTimer);
+    // Capture intent before debounce so checkout cannot use the previous ZIP.
+    state.zip = event.target.value.trim();
+    state.selected = ''; state.draft = false; state.estimate = null;
+    for (const field of fields) field.#pending = null;
+    refreshAll();
+    this.#typingTimer = window.setTimeout(() => this.#applyZip(), 350);
+  };
+
+  #onKeydown = event => {
+    if (event.key === 'Enter' && event.target.matches('[data-delivery-zip]')) {
+      event.preventDefault(); event.stopPropagation(); this.#applyZip();
+    }
+  };
+
+  #onClick = event => {
     const target = event.target instanceof Element ? event.target : null;
     if (!target) return;
-
+    if (target.closest('[data-estimate-submit]')) { this.#applyZip(); return; }
+    if (target.closest('[data-delivery-asap]')) { this.#asap(); return; }
     if (target.closest('[data-date-toggle]')) {
-      this.#setOpen(this.picker?.hasAttribute('hidden') ?? false);
+      this.refresh();
+      if (!state.estimate?.ok || !this.picker) return;
+      if (state.mode !== 'requested') {
+        state.mode = 'requested'; state.selected = ''; state.draft = false;
+        refreshAll(); queueSave(this);
+      }
+      this.#setOpen(this.picker.hidden);
       return;
     }
-
     const nav = target.closest('[data-date-nav]');
-    if (nav instanceof HTMLElement) {
-      this.#step(Number(nav.dataset.dateNav));
-      return;
-    }
-
+    if (nav) { this.#step(Number(nav.dataset.dateNav)); return; }
     const day = target.closest('[data-date-day]');
     if (day instanceof HTMLButtonElement && !day.disabled) {
-      this.#select(day);
-      return;
+      this.#select(day); state.draft = true; this.#setGate(true); return;
     }
-
     if (target.closest('[data-date-confirm]')) this.#confirm();
   };
 
-  /** @param {boolean} open */
+  async #applyZip() {
+    window.clearTimeout(this.#typingTimer);
+    const raw = this.zipInput?.value.trim() || '';
+    if (raw !== state.zip) {
+      state.zip = raw; state.selected = ''; state.draft = false; state.estimate = null;
+      for (const field of fields) field.#pending = null;
+    }
+    if (!this.#postal) await this.#load();
+    refreshAll();
+    await queueSave(this);
+  }
+
+  async #asap() {
+    state.asapClearing = state.mode === 'requested';
+    state.mode = 'asap'; state.selected = ''; state.draft = false;
+    for (const field of fields) { field.#pending = null; field.#setOpen(false); }
+    refreshAll();
+    await queueSave(this);
+    state.asapClearing = false;
+    refreshAll();
+  }
+
   #setOpen(open) {
-    const picker = this.picker;
-    if (!picker) return;
-
-    picker.toggleAttribute('hidden', !open);
+    if (!this.picker) return;
+    hidden(this.picker, !open);
     this.toggleButton?.setAttribute('aria-expanded', String(open));
-    this.#showError(false);
-
     if (open) {
-      this.#refreshTiming();
+      this.refresh();
       this.#firstAllowed = this.#findFirstAllowed();
-      // A section render (a quantity change, or the one after a save) morphs
-      // the server's empty frame over the cells built here — on the drawer's
-      // keyed inner and on the cart page's whole section alike. The element
-      // itself survives the morph, so nothing reconnects; the frame is filled
-      // again on the next open instead.
-      if (!this.weekdays?.childElementCount) this.#renderWeekdays();
-
-      // A server morph or the other calendar may have changed the saved date.
-      // Reconcile only when opening, so an unrelated morph does not replace a
-      // shopper's pending selection while the calendar is already open.
-      const selected = parseISO(this.dataset.selected);
-      this.#chosen = selected && this.#isAllowed(selected) ? selected : null;
-
-      // Reopening after a confirm starts from the requested date, not last month.
+      this.#chosen = parseISO(state.selected);
       this.#pending = this.#chosen;
       this.#view = new Date(this.#chosen ?? this.#firstAllowed);
-      this.#renderMonth();
+      this.#renderWeekdays(); this.#renderMonth();
     }
   }
 
-  /**
-   * Whether a date falls within the configured request window: inside the window, not a blocked
-   * weekday, not a blackout date.
-   *
-   * @param {Date} date
-   */
   #isAllowed(date) {
-    if (!this.#timingValid) return false;
-    if (date < this.earliest || date > this.latest) return false;
-    if (this.#disabledWeekdays.has(date.getDay())) return false;
-    if (this.#blackout.has(toISO(date))) return false;
-    return true;
+    return this.#timingValid && date >= this.earliest && date <= this.latest &&
+      !this.#disabledWeekdays.has(date.getDay()) && !this.#blackout.has(toISO(date));
   }
 
-  /** Re-evaluate production against server time plus elapsed page time. */
-  #refreshTiming() {
-    // Older cached markup retains its explicit request window until refreshed.
-    if (this.dataset.productionDays == null) return false;
+  refresh() {
+    if (postalSnapshot) this.#postal = postalSnapshot;
     const stamp = this.dataset.serverNow || '';
     if (stamp !== this.#clockStamp) {
       this.#clockStamp = stamp;
       const epoch = Number(stamp) * 1000;
       const serverNow = stamp && Number.isFinite(epoch) ? epoch : Date.now();
-      this.#clockOffset = Math.max(serverNow, this.#clockOffset + performance.now()) - performance.now();
+      serverClockOffset = Math.max(serverNow, serverClockOffset + performance.now()) - performance.now();
     }
-    const result = calculateProductionTiming({
-      now: this.#clockOffset + performance.now(),
-      cutoffHour: Number(this.dataset.cutoffHour),
-      leadBusinessDays: Number(this.dataset.productionDays),
+    const timing = calculateProductionTiming({
+      now: serverClockOffset + performance.now(), cutoffHour: Number(this.dataset.cutoffHour ?? 17),
+      leadBusinessDays: Number(this.dataset.productionDays ?? 1),
       productionBlackoutDates: (this.dataset.productionBlackout || '').split(/[,\n]/).map(x => x.trim()).filter(Boolean),
     });
-    const buffer = Number(this.dataset.requestBuffer || 1);
     const windowDays = Number(this.dataset.windowDays || 60);
-    this.#timingValid = result.ok && Number.isInteger(buffer) && buffer >= 1 && buffer <= 21 && Number.isInteger(windowDays) && windowDays >= 8 && windowDays <= 180;
-    const row = this.querySelector('[data-dispatch-row]');
-    if (row) row.hidden = !this.#timingValid;
-    if (!this.#timingValid) {
-      this.#setGate(true);
-      return false;
+    const validTiming = timing.ok && Number.isInteger(windowDays) && windowDays >= 8 && windowDays <= 180;
+    state.dispatchDate = validTiming ? timing.dispatchDate : '';
+    const result = this.#postal && validTiming ? calculateDeliveryEstimate({
+      zip: state.zip, zipStates: this.#postal.states, dispatchDate: timing.dispatchDate,
+      transitBlackoutDates: this.dataset.transitBlackout || '',
+    }) : null;
+    // A loading sibling must not erase a result already computed by the other cart view.
+    if (this.#postal || this.#lookupFailed || !validTiming) state.estimate = result;
+    this.#timingValid = Boolean(validTiming && state.estimate?.ok);
+    if (validTiming) {
+      this.latest = parseISO(timing.localDate);
+      this.latest.setDate(this.latest.getDate() + windowDays);
+      text(this.querySelector('[data-dispatch-date]'), this.#format(parseISO(timing.dispatchDate)));
     }
-    const dispatch = parseISO(result.dispatchDate);
-    const earliest = new Date(dispatch);
-    earliest.setDate(earliest.getDate() + buffer);
-    const latest = parseISO(result.localDate);
-    latest.setDate(latest.getDate() + windowDays);
-    const changed = toISO(earliest) !== toISO(this.earliest) || toISO(latest) !== toISO(this.latest);
-    this.earliest = earliest;
-    this.latest = latest;
-    const label = this.querySelector('[data-dispatch-date]');
-    if (label) label.textContent = this.#format(dispatch);
-
-    // A server morph can also update closures and delivery-day rules.
+    hidden(this.querySelector('[data-dispatch-row]'), !validTiming);
+    this.earliest = parseISO(state.estimate?.arrivalTo) ?? new Date(this.latest.getFullYear() + 1, 0, 1);
     this.#disabledWeekdays = parseWeekdays(this.dataset.disabledWeekdays);
-    this.#blackout = parseBlackout(this.dataset.blackout);
-    const selected = parseISO(this.dataset.selected);
-    if (selected && !this.#isAllowed(selected)) {
-      this.dataset.selected = '';
-      this.#chosen = null;
-      this.#pending = null;
-      if (this.pill) this.pill.hidden = true;
-      if (this.toggleButton) this.toggleButton.textContent = this.dataset.chooseLabel || 'Choose a date';
-      this.#syncForm('', '');
-      this.#setGate(true);
-      this.#save('', '');
+    this.#disabledWeekdays.add(0); this.#disabledWeekdays.add(6);
+    this.#blackout = new Set([...parseBlackout(this.dataset.blackout), ...parseBlackout(this.dataset.transitBlackout)]);
+    if (this.lookupReady && state.selected && !this.#isAllowed(parseISO(state.selected) ?? new Date(0))) {
+      state.selected = ''; state.draft = false; this.#pending = null;
     }
-    return changed;
   }
 
+  deliveryAttributes() {
+    const name = this.dataset.attribute || 'Requested delivery date';
+    const estimate = state.estimate?.ok ? state.estimate : null;
+    const selected = state.mode === 'requested' ? parseISO(state.selected) : null;
+    return {
+      'Ship-to ZIP': normalizeDeliveryZip(state.zip),
+      'Delivery preference': state.mode === 'requested' ? 'Requested delivery date' : 'As soon as possible',
+      _delivery_mode: state.mode,
+      _delivery_estimate_origin: '11101',
+      _delivery_estimate_state: estimate?.state || '',
+      _delivery_estimate_from: estimate?.arrivalFrom || '',
+      _delivery_estimate_to: estimate?.arrivalTo || '',
+      _delivery_estimate_dispatch: estimate ? state.dispatchDate : '',
+      _delivery_estimate_basis: estimate ? DELIVERY_ESTIMATE_BASIS : '',
+      _delivery_date: selected ? toISO(selected) : '',
+      _delivery_date_type: selected ? 'requested' : '',
+      [name]: selected ? this.#format(selected) : '',
+      ...(name !== 'Delivery date' ? { 'Delivery date': '' } : {}),
+    };
+  }
+
+  paint() {
+    if (!state) return;
+    const estimate = state.estimate?.ok ? state.estimate : null;
+    data(this, 'zip', state.zip); data(this, 'mode', state.mode); data(this, 'selected', state.selected);
+    if (this.zipInput && document.activeElement !== this.zipInput && this.zipInput.value !== state.zip) this.zipInput.value = state.zip;
+    const status = this.querySelector('[data-estimate-status]');
+    let message = '';
+    if (state.zip && !normalizeDeliveryZip(state.zip)) message = 'Enter a five-digit ZIP code.';
+    else if (state.zip && this.#lookupLoading && !estimate) message = 'Checking your ZIP code…';
+    else if (state.zip && !estimate) message = 'Delivery options for this destination will be shown at checkout.';
+    if (state.failed) message = state.mode === 'requested' ? 'We couldn’t save your request. Try again or choose As soon as possible.' : 'We couldn’t save this estimate. You can still continue to checkout.';
+    text(status, message); hidden(status, !message);
+    if (this.zipInput) this.zipInput.setAttribute('aria-invalid', String(Boolean(state.zip && !normalizeDeliveryZip(state.zip))));
+    hidden(this.querySelector('[data-estimate-result]'), !estimate);
+    if (estimate) {
+      text(this.querySelector('[data-estimate-range]'), this.#formatRange(parseISO(estimate.arrivalFrom), parseISO(estimate.arrivalTo)));
+      text(this.querySelector('[data-estimate-destination]'), `To ${estimate.zip}`);
+    }
+    const requested = state.mode === 'requested';
+    text(this.querySelector('[data-delivery-mode-label]'), requested ? (state.selected ? 'Requested delivery date' : 'Choose a later date') : 'As soon as possible');
+    text(this.querySelector('.ui-cart-estimate__label'), requested ? 'Soonest estimated arrival' : 'Estimated arrival');
+    hidden(this.querySelector('[data-delivery-asap]'), !requested);
+    hidden(this.querySelector('[data-request-summary]'), !requested || !state.selected);
+    hidden(this.pill, !requested || !state.selected);
+    if (state.selected) text(this.pill, this.#format(parseISO(state.selected)));
+    if (this.toggleButton) {
+      const unavailable = !estimate || !this.picker;
+      if (this.toggleButton.disabled !== unavailable) this.toggleButton.disabled = unavailable;
+      text(this.toggleButton, requested && state.selected ? 'Change requested date' : 'Request a later delivery date');
+    }
+    hidden(this.error, !(requested && state.failed));
+    if (requested && state.failed) text(this.error, 'Your request was not saved. Try again or choose As soon as possible.');
+    if (!requested) hidden(this.picker, true);
+    if (this.picker && !this.picker.hidden) {
+      if (!this.weekdays?.childElementCount) this.#renderWeekdays();
+      this.#renderMonth();
+    }
+    const attributes = this.deliveryAttributes();
+    for (const input of document.querySelectorAll('[data-delivery-attribute]')) {
+      const value = attributes[input.dataset.deliveryAttribute];
+      if (value != null && input.value !== value) input.value = value;
+    }
+    this.#setGate(state.asapClearing || (requested && (!state.selected || !this.#timingValid || state.saving || state.failed || state.draft || state.savedSignature !== JSON.stringify(attributes))));
+  }
+
+  #setGate(gated) {
+    for (const button of document.querySelectorAll('[name="checkout"][data-delivery-date-gate]')) {
+      if (button.disabled !== gated) button.disabled = gated;
+      if (gated) button.setAttribute('aria-disabled', 'true'); else button.removeAttribute('aria-disabled');
+    }
+    for (const hint of document.querySelectorAll('[data-delivery-date-hint]')) hidden(hint, !gated);
+    for (const wallet of document.querySelectorAll('[data-delivery-accelerated]')) hidden(wallet, gated || state.failed || state.saving);
+    for (const hint of document.querySelectorAll('[data-delivery-date-hint]')) text(hint, state.asapClearing ? 'Saving your delivery preference…' : 'Save your requested date or choose As soon as possible.');
+  }
+
+  async #confirm() {
+    this.refresh();
+    const pending = this.#pending;
+    if (!pending || !this.#isAllowed(pending)) { this.#showError(true); return; }
+    state.selected = toISO(pending); state.mode = 'requested'; state.draft = false;
+    refreshAll();
+    const saved = await queueSave(this);
+    this.refresh();
+    if (saved && state.selected === toISO(pending) && this.#isAllowed(pending)) {
+      for (const field of fields) { field.#chosen = pending; field.#pending = pending; field.#setOpen(false); }
+    } else if (!state.selected) {
+      queueSave(this);
+    }
+    refreshAll();
+  }
   /**
    * The first allowed request date determines the month the calendar opens on.
    * It is not automatically selected or highlighted.
@@ -456,6 +526,7 @@ class CartDeliveryDate extends HTMLElement {
     const grid = this.grid;
     if (!grid) return;
 
+    const focusedDay = grid.contains(document.activeElement) ? document.activeElement.dataset.dateDay : '';
     const year = this.#view.getFullYear();
     const month = this.#view.getMonth();
 
@@ -493,6 +564,7 @@ class CartDeliveryDate extends HTMLElement {
     }
 
     grid.replaceChildren(...cells);
+    if (focusedDay) grid.querySelector(`[data-date-day="${focusedDay}"]:not(:disabled)`)?.focus({ preventScroll: true });
 
     const confirm = this.confirmButton;
     if (confirm instanceof HTMLButtonElement) {
@@ -523,259 +595,51 @@ class CartDeliveryDate extends HTMLElement {
     }).format(date);
   }
 
+  #formatRange(from, to) {
+    const format = new Intl.DateTimeFormat(this.locale, { month: 'short', day: 'numeric', ...(from.getFullYear() !== to.getFullYear() ? { year: 'numeric' } : {}) });
+    return format.formatRange ? format.formatRange(from, to) : `${format.format(from)} – ${format.format(to)}`;
+  }
+
   /** @param {boolean} show */
   #showError(show) {
     const error = this.error;
     if (error instanceof HTMLElement) error.hidden = !show;
   }
 
-  /**
-   * Queues a date write behind earlier writes from either calendar instance.
-   * A failed request does not prevent the next selection from being saved.
-   *
-   * @param {string} display
-   * @param {string} iso
-   * @returns {Promise<boolean>}
-   */
-  #save(display, iso) {
-    const write = () => this.#writeAttributes(display, iso);
-    const result = deliveryDateWrites.then(write, write);
-    deliveryDateWrites = result.catch(() => false);
-    return result;
-  }
-
-  /**
-   * Saves all three attributes to the cart and reports whether the cart took them.
-   *
-   * A 4xx/5xx from /cart/update.js does not throw, so `response.ok` is
-   * checked, and the returned cart is read back to confirm the ISO value is
-   * actually on it — the only proof the date will reach the order.
-   *
-   * @param {string} display
-   * @param {string} iso
-   * @returns {Promise<boolean>}
-   */
-  async #writeAttributes(display, iso) {
-    const name = this.dataset.attribute || 'Requested delivery date';
-
-    try {
-      const response = await fetch(window.Theme?.routes?.cart_update_url ?? '/cart/update.js', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          attributes: { [name]: display, _delivery_date: iso, _delivery_date_type: iso ? 'requested' : '', ...(name !== 'Delivery date' ? { 'Delivery date': '' } : {}) },
-        }),
-      });
-      if (!response.ok) return false;
-
-      const cart = await response.json().catch(() => null);
-      const saved = cart?.attributes?._delivery_date ?? '';
-      return String(saved) === iso && (cart?.attributes?._delivery_date_type ?? '') === (iso ? 'requested' : '') && (cart?.attributes?.[name] ?? '') === display;
-    } catch {
-      return false;
-    }
-  }
-
-  async #confirm() {
-    this.#refreshTiming();
-    const pending = this.#pending;
-    if (!pending || !this.#isAllowed(pending)) return;
-
-    const display = this.#format(pending);
-    const iso = toISO(pending);
-    const confirm = this.confirmButton;
-
-    if (confirm instanceof HTMLButtonElement) confirm.disabled = true;
-    this.#showError(false);
-
-    const saved = await this.#save(display, iso);
-
-    if (!saved) {
-      // The calendar stays open with the day still selected; the message says
-      // why, and the next confirm tries again.
-      this.#showError(true);
-      if (confirm instanceof HTMLButtonElement) confirm.disabled = false;
-      return;
-    }
-
-    // A write can cross 5pm while the network is pending. Recheck before
-    // displaying success or enabling checkout for a now-unavailable request.
-    this.#refreshTiming();
-    if (!this.#isAllowed(pending)) {
-      await this.#save('', '');
-      this.#setGate(true);
-      this.#renderMonth();
-      this.#showError(true);
-      return;
-    }
-
-    this.#chosen = pending;
-    this.dataset.selected = iso;
-    delete this.dataset.stale;
-    this.#renderRow(display);
-    this.#syncForm(display, iso);
-    this.#setGate(false);
-    this.#setOpen(false);
-    this.#rerender();
-  }
-
-  /**
-   * The Liquid side found a saved date that is no longer requestable. Post the
-   * attributes back empty so the order cannot carry it. Nothing is shown for
-   * this beyond the notice Liquid already rendered; failure is silent because
-   * the checkout gate is closed regardless.
-   */
-  async #clearStale() {
-    delete this.dataset.stale;
-    await this.#save('', '');
-  }
-
-  /**
-   * The optimistic half of a save: the row shows the date at once, and the
-   * server render that follows confirms it.
-   *
-   * @param {string} display
-   */
-  #renderRow(display) {
-    const pill = this.pill;
-    if (pill) {
-      pill.textContent = display;
-      pill.hidden = false;
-    }
-
-    const toggle = this.toggleButton;
-    if (toggle) toggle.textContent = this.dataset.changeLabel || 'Change';
-  }
-
-  /**
-   * Keeps the cart form's hidden inputs in step, so a native submit that
-   * happens before the section re-render posts the date just saved.
-   *
-   * @param {string} display
-   * @param {string} iso
-   */
-  #syncForm(display, iso) {
-    const form = document.getElementById('cart-form');
-    if (!(form instanceof HTMLFormElement)) return;
-
-    const isoInput = form.querySelector('[data-delivery-date-iso]');
-    const displayInput = form.querySelector('[data-delivery-date-display]');
-    const typeInput = form.querySelector('[data-delivery-date-type]');
-    if (typeInput instanceof HTMLInputElement) typeInput.value = iso ? 'requested' : '';
-    if (isoInput instanceof HTMLInputElement) isoInput.value = iso;
-    if (displayInput instanceof HTMLInputElement) displayInput.value = display;
-  }
-
-  /**
-   * The checkout button in the same cart component, and the hint under it.
-   * Liquid renders both from cart state; this only bridges the moment between
-   * a save and the re-render.
-   *
-   * @param {boolean} gated
-   */
-  #setGate(gated) {
-    const scope = this.closest('cart-items-component') ?? document;
-    const button = scope.querySelector('[name="checkout"][data-delivery-date-gate]');
-    const hint = scope.querySelector('[data-delivery-date-hint]');
-
-    if (button instanceof HTMLButtonElement) {
-      button.disabled = gated;
-      if (gated) button.setAttribute('aria-disabled', 'true');
-      else button.removeAttribute('aria-disabled');
-    }
-    if (hint instanceof HTMLElement) hint.hidden = !gated;
-  }
-
-  /**
-   * Re-renders the section this field lives in from the server, the same way
-   * a quantity change does, so the pill, the link label, the hidden inputs and
-   * the checkout gate all come from cart state through one path. The drawer
-   * morphs only its keyed inner (`hydration`), which leaves the open dialog
-   * alone; the cart page morphs in full.
-   */
-  #rerender() {
-    const component = this.closest('cart-items-component');
-    const sectionId = component instanceof HTMLElement ? component.dataset.sectionId : undefined;
-    if (!sectionId) return;
-
-    const isDrawer = component.hasAttribute('data-drawer');
-    sectionRenderer
-      .renderSection(sectionId, { cache: false, mode: isDrawer ? 'hydration' : 'full' })
-      .catch(() => {
-        // The optimistic update above already shows the saved date; the next
-        // cart change renders the section again.
-      });
-  }
 }
 
-if (!customElements.get('cart-delivery-date')) {
-  customElements.define('cart-delivery-date', CartDeliveryDate);
-}
+if (!customElements.get('cart-delivery-date')) customElements.define('cart-delivery-date', CartDeliveryDate);
 
-/*
- * The checkout guard.
- *
- * Liquid renders the checkout button disabled while the date is missing, so
- * under normal conditions there is nothing to intercept. This is for the
- * moments in between: a section rendered from a stale cache, a button enabled
- * optimistically before a save was rejected, a merchant who turned the
- * requirement on after the page loaded. Capturing, on the document, so it runs
- * before Horizon's own handlers and survives the cart being re-rendered.
- *
- * A checkout button is any `[name="checkout"]` in a cart form (Horizon's is
- * `form="cart-form"`); the field it belongs to is the one in the same
- * `cart-items-component`, or the only one on the page.
- */
-
-/**
- * @param {Element} origin
- * @returns {CartDeliveryDate | null}
- */
-function fieldFor(origin) {
-  const scope = origin.closest('cart-items-component') ?? document;
-  const field = scope.querySelector('cart-delivery-date') ?? document.querySelector('cart-delivery-date');
-  return field instanceof CartDeliveryDate ? field : null;
-}
-
-/**
- * @param {Element} button
- * @returns {boolean} whether checkout must wait
- */
-function guard(button) {
-  const field = fieldFor(button);
+function guarded(origin) {
+  const field = (origin.closest('cart-items-component') ?? document).querySelector('cart-delivery-date') ?? fields.values().next().value;
   if (!field || !field.required || field.hasDate) return false;
-
-  field.prompt();
-  return true;
+  refreshAll(); field.prompt(); return true;
 }
+document.addEventListener('submit', event => {
+  if (!(event.target instanceof HTMLFormElement) || !event.target.classList.contains('cart-form')) return;
+  if (event.submitter?.getAttribute('name') === 'checkout' && guarded(event.submitter)) {
+    event.preventDefault(); event.stopImmediatePropagation();
+  }
+}, true);
+document.addEventListener('click', event => {
+  const target = event.target instanceof Element ? event.target.closest('[name="checkout"]') : null;
+  if (target && guarded(target)) { event.preventDefault(); event.stopImmediatePropagation(); }
+}, true);
 
-document.addEventListener(
-  'submit',
-  (event) => {
-    const form = event.target;
-    if (!(form instanceof HTMLFormElement) || !form.classList.contains('cart-form')) return;
-
-    const submitter = event.submitter;
-    if (!(submitter instanceof Element) || submitter.getAttribute('name') !== 'checkout') return;
-
-    if (guard(submitter)) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }
-  },
-  true
-);
-
-document.addEventListener(
-  'click',
-  (event) => {
-    const target = event.target instanceof Element ? event.target.closest('[name="checkout"]') : null;
-    if (!target) return;
-
-    if (guard(target)) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-    }
-  },
-  true
-);
+function scheduleRepaint() {
+  if (repaintQueued) return;
+  repaintQueued = true;
+  queueMicrotask(() => { repaintQueued = false; refreshAll(); });
+}
+document.addEventListener('cart:update', scheduleRepaint);
+// Horizon morphs vanilla custom elements without reconnecting them. Detect
+// replaced controls and server datasets; ignore our calendar cells/text paints.
+new MutationObserver(records => {
+  const controls = 'cart-delivery-date,.ui-cart-shipping,.ui-date-picker,[data-delivery-zip],[data-delivery-attribute],[name="checkout"]';
+  if (records.some(record => record.type === 'attributes'
+    ? record.target.matches?.(controls)
+    : [...record.addedNodes].some(node => node instanceof Element && (node.matches(controls) || node.querySelector(controls))))) scheduleRepaint();
+}).observe(document.documentElement, {
+  childList: true, subtree: true, attributes: true,
+  attributeFilter: ['data-server-now', 'data-zip', 'data-mode', 'data-selected', 'data-production-days', 'data-cutoff-hour', 'data-production-blackout', 'data-transit-blackout', 'data-window-days', 'data-blackout', 'data-disabled-weekdays', 'value', 'disabled'],
+});

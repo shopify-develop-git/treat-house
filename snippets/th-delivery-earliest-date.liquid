@@ -1,0 +1,106 @@
+{%- doc -%}
+  Returns the earliest requestable date from current production plus the
+  destination state's conservative maximum transit days. Mirrors the ZIP
+  estimator's approved ranges. Cart attributes are UI state, not carrier proof
+  or a server-side checkout validation rule. No output for unsupported rules.
+{%- enddoc -%}
+{%- liquid
+  assign state = cart.attributes['_delivery_estimate_state'] | default: ''
+  assign zip = cart.attributes['Ship-to ZIP'] | default: ''
+  assign non_digits = zip | remove: '0' | remove: '1' | remove: '2' | remove: '3' | remove: '4' | remove: '5' | remove: '6' | remove: '7' | remove: '8' | remove: '9'
+  assign valid = false
+  if zip.size == 5 and non_digits == blank and cart.attributes['_delivery_estimate_basis'] == 'th-ground-2026-09-v1' and cart.attributes['_delivery_estimate_origin'] == '11101'
+    assign valid = true
+  endif
+  assign transit_days = 0
+  case state
+    when 'CT', 'DC', 'DE', 'MA', 'MD', 'NH', 'NJ', 'NY', 'PA', 'RI', 'VT'
+      assign transit_days = 2
+    when 'GA', 'IN', 'KY', 'ME', 'MI', 'NC', 'OH', 'SC', 'TN', 'VA', 'WV'
+      assign transit_days = 3
+    when 'IL', 'AL', 'AR', 'AZ', 'FL', 'IA', 'KS', 'LA', 'MN', 'MO', 'MS', 'ND', 'NE', 'NM', 'OK', 'SD', 'WI'
+      assign transit_days = 4
+    when 'CO', 'TX', 'MT', 'UT', 'WA', 'WY'
+      assign transit_days = 5
+    when 'CA', 'ID', 'NV', 'OR'
+      assign transit_days = 6
+    else
+      assign valid = false
+  endcase
+  assign closure_raw = settings.cart_transit_blackout_dates | default: '' | strip | newline_to_br | replace: '<br />', ',' | replace: '<br>', ','
+  assign closures = closure_raw | split: ','
+  assign closure_list = '|'
+  assign closure_count = 0
+  assign current_offset = 'now' | date: '%z'
+  # Batch raw entries so repeated/blank dates do not consume the unique-date
+  # limit, and the 51st distinct closure cannot be silently skipped by Liquid.
+  assign closure_batches = closures.size | divided_by: 50 | plus: 1
+  if closure_batches > 50
+    assign valid = false
+  else
+    for closure_batch in (1..closure_batches)
+      assign closure_offset = closure_batch | minus: 1 | times: 50
+      for closure in closures offset: closure_offset limit: 50
+        assign clean = closure | strip
+        if clean != blank
+          assign closure_anchor = clean | append: ' 12:00:00 ' | append: current_offset
+          assign normalized = closure_anchor | date: '%Y-%m-%d'
+          assign day_number = closure_anchor | date: '%w'
+          if clean.size != 10 or normalized != clean or day_number.size != 1
+            assign valid = false
+            break
+          endif
+          assign closure_token = clean | prepend: '|' | append: '|'
+          unless closure_list contains closure_token
+            assign closure_count = closure_count | plus: 1
+            assign closure_list = closure_list | append: clean | append: '|'
+          endunless
+          if closure_count > 50
+            assign valid = false
+            break
+          endif
+        endif
+      endfor
+      unless valid
+        break
+      endunless
+    endfor
+  endif
+  capture dispatch
+    render 'th-production-dispatch-date'
+  endcapture
+  assign dispatch = dispatch | strip
+  if dispatch == blank
+    assign valid = false
+  endif
+  if valid
+    assign remaining = transit_days
+    assign current = dispatch | append: ' 12:00:00 ' | append: current_offset | date: '%s' | plus: 0
+    assign earliest_iso = ''
+    # Keep each date-search loop within Shopify Liquid's 50-iteration limit.
+    for search_batch in (1..2)
+      for step in (1..50)
+        assign current = current | plus: 86400
+        assign anchor_hour = current | date: '%H' | plus: 0
+        assign noon_correction = 12 | minus: anchor_hour | times: 3600
+        assign current = current | plus: noon_correction
+        assign day_iso = current | date: '%Y-%m-%d'
+        assign weekday = current | date: '%w'
+        assign token = day_iso | prepend: '|' | append: '|'
+        if weekday != '0' and weekday != '6'
+          unless closure_list contains token
+            assign remaining = remaining | minus: 1
+          endunless
+        endif
+        if remaining == 0
+          assign earliest_iso = day_iso
+          break
+        endif
+      endfor
+      if earliest_iso != blank
+        break
+      endif
+    endfor
+    echo earliest_iso
+  endif
+-%}

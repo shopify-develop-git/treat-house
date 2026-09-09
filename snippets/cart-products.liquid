@@ -89,7 +89,7 @@
         so a native submit then clears the stale value instead of re-posting
         it. Rendered whenever the delivery panel is on, drawer or page.
       {%- endcomment -%}
-      {%- if settings.show_cart_shipping_estimate and settings.show_cart_delivery_date -%}
+      {%- if settings.show_cart_shipping_estimate -%}
         {%- capture delivery_iso -%}{% render 'cart-delivery-date-valid' %}{%- endcapture -%}
         {%- liquid
           assign delivery_iso = delivery_iso | strip
@@ -102,9 +102,16 @@
             endif
           endif
         -%}
-        <input type="hidden" name="attributes[_delivery_date_type]" value="{% if delivery_iso != blank %}requested{% endif %}" data-delivery-date-type>
-        <input type="hidden" name="attributes[_delivery_date]" value="{{ delivery_iso }}" data-delivery-date-iso>
-        <input type="hidden" name="attributes[{{ delivery_attribute | escape }}]" value="{{ delivery_display | escape }}" data-delivery-date-display>
+        <input type="hidden" name="attributes[_delivery_date_type]" value="{% if delivery_iso != blank %}requested{% endif %}" data-delivery-date-type data-delivery-attribute="_delivery_date_type">
+        <input type="hidden" name="attributes[_delivery_date]" value="{{ delivery_iso }}" data-delivery-date-iso data-delivery-attribute="_delivery_date">
+        <input type="hidden" name="attributes[{{ delivery_attribute | escape }}]" value="{{ delivery_display | escape }}" data-delivery-date-display data-delivery-attribute="{{ delivery_attribute | escape }}">
+        {%- assign delivery_keys = 'Ship-to ZIP,Delivery preference,_delivery_mode,_delivery_estimate_origin,_delivery_estimate_state,_delivery_estimate_from,_delivery_estimate_to,_delivery_estimate_dispatch,_delivery_estimate_basis' | split: ',' -%}
+        {%- for key in delivery_keys -%}
+          <input type="hidden" name="attributes[{{ key }}]" value="{{ cart.attributes[key] | escape }}" data-delivery-attribute="{{ key }}">
+        {%- endfor -%}
+        {%- unless delivery_attribute == 'Delivery date' -%}
+          <input type="hidden" name="attributes[Delivery date]" value="" data-delivery-attribute="Delivery date">
+        {%- endunless -%}
       {%- endif -%}
       <div
         class="cart-items spacing-style{% if block_settings.dividers %} cart-items--dividers{% endif %}"

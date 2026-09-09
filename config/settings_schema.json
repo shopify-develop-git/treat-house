@@ -2122,13 +2122,13 @@
         "type": "text",
         "id": "cart_shipping_from",
         "label": "Ships from",
-        "info": "Optional row above the delivery date. Leave empty to hide it. Do not promise a dispatch time here unless it is guaranteed."
+        "info": "Shown in the expandable estimate details. The directional ZIP estimator uses the confirmed origin 11101."
       },
       {
         "type": "text",
         "id": "cart_shipping_method",
         "label": "Shipping method",
-        "info": "Optional row below the delivery date. Leave empty to hide it."
+        "info": "Shown in the expandable estimate details. Checkout determines available services."
       },
       {
         "type": "range",
@@ -2158,29 +2158,17 @@
         "info": "One YYYY-MM-DD date per line. These dates are excluded from production and dispatch estimates, separately from unavailable delivery dates."
       },
       {
+        "type": "textarea",
+        "id": "cart_transit_blackout_dates",
+        "label": "Ground transit closures",
+        "info": "One YYYY-MM-DD date per line. These dates do not count toward transit estimates and cannot be requested for arrival. Production closures are managed separately."
+      },
+      {
         "type": "checkbox",
         "id": "show_cart_delivery_date",
         "label": "Let the customer request a delivery date",
-        "info": "Turned off, the delivery row says shipping options are shown at checkout instead of opening a calendar.",
+        "info": "The ZIP estimate remains visible when the optional later-date calendar is turned off.",
         "default": true
-      },
-      {
-        "type": "checkbox",
-        "id": "require_cart_delivery_date",
-        "label": "Require a requested date before checkout",
-        "info": "The checkout button stays disabled until a requested date is saved. This does not confirm delivery availability. Only applies while the delivery panel and the date picker are both shown.",
-        "default": true
-      },
-      {
-        "type": "range",
-        "id": "cart_delivery_min_days",
-        "label": "Minimum request buffer after dispatch",
-        "info": "Calendar days after estimated dispatch before a date can be requested. This does not confirm carrier availability or arrival.",
-        "min": 1,
-        "max": 21,
-        "step": 1,
-        "unit": "d",
-        "default": 1
       },
       {
         "type": "range",
@@ -2197,7 +2185,7 @@
         "type": "text",
         "id": "cart_delivery_disabled_weekdays",
         "label": "Weekdays that cannot be chosen",
-        "info": "Comma-separated day numbers, 0 = Sunday through 6 = Saturday. Example: 0,6 blocks weekends. Leave empty to allow every weekday."
+        "info": "Optional additional unavailable weekdays: 1 = Monday through 5 = Friday. Weekends are always unavailable for requested dates."
       },
       {
         "type": "textarea",
@@ -2216,7 +2204,7 @@
         "type": "text",
         "id": "cart_delivery_choose_label",
         "label": "Delivery date link, before a date is picked",
-        "default": "Choose a date"
+        "default": "Request a later delivery date"
       },
       {
         "type": "text",

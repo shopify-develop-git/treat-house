@@ -282,7 +282,7 @@
   assign season_hint_id = 'cart-season-hint-' | append: section_id
 
   assign date_gate = false
-  if settings.require_cart_delivery_date and settings.show_cart_shipping_estimate and settings.show_cart_delivery_date
+  if cart.attributes['_delivery_mode'] == 'requested' and settings.show_cart_shipping_estimate and settings.show_cart_delivery_date
     capture delivery_iso
       render 'cart-delivery-date-valid'
     endcapture
@@ -315,7 +315,7 @@
       aria-disabled="true"
       aria-describedby="{{ describedby }}"
     {% endif %}
-    {% if date_gate and season_gate == false %}
+    {% if season_gate == false and cart != empty and settings.show_cart_shipping_estimate %}
       data-delivery-date-gate
     {% endif %}
     form="cart-form"
@@ -341,14 +341,15 @@
       {{- 'cart.seasonal_blocked' | t -}}
     </p>
   {%- endif -%}
-  {%- if date_gate -%}
+  {%- if settings.show_cart_shipping_estimate -%}
     <p
+      {% unless date_gate %}hidden{% endunless %}
       id="{{ hint_id }}"
       class="cart__checkout-hint cart-primary-typography"
       role="status"
       {% if season_gate == false %}data-delivery-date-hint{% endif %}
     >
-      {{- 'cart.delivery_date_required' | t -}}
+      Save your requested date or choose As soon as possible.
     </p>
   {%- endif -%}
 
@@ -366,12 +367,14 @@
     {%- endif -%}
   </div>
 
-  {% if additional_checkout_buttons and settings.show_accelerated_checkout_buttons and date_gate == false and season_gate == false %}
+  {% if additional_checkout_buttons and settings.show_accelerated_checkout_buttons and season_gate == false %}
     <div
       class="
         additional-checkout-buttons
         {% if accelerated_checkout_buttons_layout == 'vertical' %}additional-checkout-buttons--vertical{% endif %}
       "
+      data-delivery-accelerated
+      {% if date_gate %}hidden{% endif %}
     >
       {{ content_for_additional_checkout_buttons }}
     </div>
@@ -580,6 +583,7 @@
     color: var(--ui-color-primary, var(--color-primary));
   }
 
+  [data-delivery-accelerated][hidden],
   .cart__checkout-hint[hidden] {
     display: none;
   }

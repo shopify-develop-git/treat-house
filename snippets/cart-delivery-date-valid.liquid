@@ -1,75 +1,53 @@
 {%- doc -%}
-  Echoes the cart's chosen delivery date (`cart.attributes['_delivery_date']`,
-  ISO `YYYY-MM-DD`) if it is within the request window, and nothing at all if it is not.
-
-  One place decides what "within the request window" means, so the drawer panel, the
-  checkout gate and the hidden form inputs cannot disagree:
-
-  - not before estimated dispatch + `cart_delivery_min_days` (default 1) and
-    not after today + `cart_delivery_max_days` (default 60), in the shop's
-    timezone. Dispatch applies production business days, cutoff and closures;
-  - not on a weekday listed in `cart_delivery_disabled_weekdays` ("0,6");
-  - not on a date listed in `cart_delivery_blackout_dates` (one per line).
-
-  A stale value is therefore treated as blank by every consumer, which
-  re-prompts a returning visitor rather than carrying a past date onto an
-  order. ISO strings compare lexically, which is why no date maths is needed.
-
-  Use with capture, because `render` cannot hand a variable back:
-
-  @example
-  {%- capture delivery_iso -%}{% render 'cart-delivery-date-valid' %}{%- endcapture -%}
-  {%- assign delivery_iso = delivery_iso | strip -%}
+  Echoes an explicitly requested, still-eligible delivery date. ASAP has no
+  date requirement. The shared minimum uses destination transit after current
+  production; weekends, transit closures and unavailable arrival dates are
+  excluded. Used by the panel, cart form and checkout gate after every morph.
 {%- enddoc -%}
-
 {%- liquid
-  assign lead_days = settings.cart_delivery_min_days | default: 1
   assign window_days = settings.cart_delivery_max_days | default: 60
-  if window_days < lead_days
-    assign window_days = lead_days
-  endif
-
-  assign now_seconds = 'now' | date: '%s'
-  assign today_noon = 'now' | date: '%Y-%m-%d' | append: ' 12:00:00' | date: '%s'
-  capture dispatch_iso
-    render 'th-production-dispatch-date'
-  endcapture
-  assign dispatch_iso = dispatch_iso | strip
-  assign earliest = '9999-12-31'
-  if dispatch_iso != blank
-    assign dispatch_noon = dispatch_iso | append: ' 12:00:00' | date: '%s'
-    assign earliest = lead_days | times: 86400 | plus: dispatch_noon | date: '%Y-%m-%d'
-  endif
+  assign current_offset = 'now' | date: '%z'
+  assign today_noon = 'now' | date: '%Y-%m-%d' | append: ' 12:00:00 ' | append: current_offset | date: '%s'
   assign latest = window_days | times: 86400 | plus: today_noon | date: '%Y-%m-%d'
-
+  capture earliest
+    render 'th-delivery-earliest-date'
+  endcapture
+  assign earliest = earliest | strip
   assign iso = cart.attributes['_delivery_date'] | default: '' | strip
   assign valid = false
-
-  if cart.attributes['_delivery_date_type'] == 'requested' and iso.size == 10 and iso >= earliest and iso <= latest
+  if cart.attributes['_delivery_mode'] == 'requested' and cart.attributes['_delivery_date_type'] == 'requested' and earliest != blank and iso.size == 10 and iso >= earliest and iso <= latest
     assign valid = true
-
-    assign weekday = iso | date: '%w'
-    assign normalized_iso = iso | date: '%Y-%m-%d'
-    # `date` hands an unparsable string back unchanged, so anything but a single
-    # digit here is not a date and must not reach the cart as one.
-    if weekday.size != 1 or normalized_iso != iso
+    assign date_anchor = iso | append: ' 12:00:00 ' | append: current_offset
+    assign weekday = date_anchor | date: '%w'
+    assign normalized_iso = date_anchor | date: '%Y-%m-%d'
+    if weekday.size != 1 or normalized_iso != iso or weekday == '0' or weekday == '6'
       assign valid = false
     endif
     assign disabled_weekdays = settings.cart_delivery_disabled_weekdays | default: '' | replace: ' ', '' | split: ','
     if disabled_weekdays contains weekday
       assign valid = false
     endif
-
-    assign blackout_raw = settings.cart_delivery_blackout_dates | default: '' | strip | newline_to_br | replace: '<br />', ',' | replace: '<br>', ','
+    assign blackout_raw = settings.cart_delivery_blackout_dates | default: '' | append: ',' | append: settings.cart_transit_blackout_dates | strip | newline_to_br | replace: '<br />', ',' | replace: '<br>', ','
     assign blackout = blackout_raw | split: ','
-    for day in blackout
-      assign clean = day | strip
-      if clean == iso
-        assign valid = false
-      endif
-    endfor
+    assign blackout_batches = blackout.size | divided_by: 50 | plus: 1
+    if blackout_batches > 50
+      assign valid = false
+    else
+      for blackout_batch in (1..blackout_batches)
+        assign blackout_offset = blackout_batch | minus: 1 | times: 50
+        for day in blackout offset: blackout_offset limit: 50
+          assign clean = day | strip
+          if clean == iso
+            assign valid = false
+            break
+          endif
+        endfor
+        unless valid
+          break
+        endunless
+      endfor
+    endif
   endif
-
   if valid
     echo iso
   endif

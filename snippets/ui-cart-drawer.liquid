@@ -609,7 +609,7 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    gap: 10px;
+    gap: 12px;
     margin-inline: var(--ui-cart-drawer-gutter, 0);
     padding: 12px 16px;
     border: 1px solid var(--ui-color-light-blue);
@@ -620,14 +620,13 @@
   .ui-cart-shipping__heading {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 7px;
     margin: 0;
     color: var(--ui-color-primary);
     font-family: var(--ui-font-accent);
-    font-size: 12px;
+    font-size: 15px;
     font-weight: var(--font-accent--weight-semibold, 600);
     line-height: 1.35;
-    text-transform: uppercase;
   }
 
   .ui-cart-shipping__icon {
@@ -666,6 +665,151 @@
     font-weight: 500;
     line-height: 1.3;
     text-align: end;
+  }
+
+  .ui-cart-estimate__zip-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 8px;
+  }
+
+  .ui-cart-estimate__zip {
+    min-width: 0;
+  }
+
+  .ui-cart-estimate__zip .ui-input__label {
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .ui-cart-estimate__zip .ui-input__control {
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .ui-cart-estimate__submit {
+    height: var(--ui-input-height, 44px);
+    min-width: 0;
+    padding-inline: 12px;
+    font-size: 12px;
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+
+  .ui-cart-estimate__status,
+  .ui-cart-estimate__caveat {
+    margin: 0;
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+
+  .ui-cart-estimate__status {
+    color: var(--ui-color-primary);
+  }
+
+  .ui-cart-estimate__status:empty {
+    display: none;
+  }
+
+  .ui-cart-estimate__caveat {
+    color: var(--ui-color-gray);
+  }
+
+  .ui-cart-estimate__result {
+    display: grid;
+    gap: 3px;
+    padding: 12px;
+    border-radius: var(--ui-radius-sm);
+    background: var(--ui-color-light-blue);
+  }
+
+  .ui-cart-estimate__label {
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-accent);
+    font-size: 11px;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .ui-cart-estimate__range {
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-emphasis);
+    font-weight: var(--ui-font-emphasis-weight);
+    font-size: 20px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  .ui-cart-estimate__destination {
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .ui-cart-estimate__delivery {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .ui-cart-estimate__mode {
+    margin: 0;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-emphasis);
+    font-weight: var(--ui-font-emphasis-weight);
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  .ui-cart-date [data-estimate-result][hidden],
+  .ui-cart-date [data-request-summary][hidden],
+  .ui-cart-date [data-delivery-asap][hidden] {
+    display: none;
+  }
+
+  .ui-cart-transit-map {
+    min-width: 0;
+    font-family: var(--ui-font-body);
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--ui-color-gray);
+  }
+
+  .ui-cart-transit-map > summary {
+    color: var(--ui-color-primary);
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .ui-cart-transit-map > summary:hover {
+    color: var(--ui-color-primary);
+  }
+
+  .ui-cart-transit-map > p {
+    margin-block: 10px 0;
+  }
+
+  .ui-cart-transit-map img {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-block-start: 10px;
+    border: 1px solid var(--ui-color-light-blue);
+    border-radius: var(--ui-radius-sm);
+  }
+
+  .ui-cart-transit-map a {
+    color: var(--ui-color-primary);
+  }
+
+  .ui-cart-transit-map .ui-cart-estimate__attribution {
+    font-size: 11px;
   }
 
   /* ---------- Delivery date ---------- */
@@ -707,11 +851,13 @@
    * `:has()` takes the weight of its argument, so these land at (0,4,0) and
    * clear both Horizon's rules and the kit's own.
    */
-  .cart-drawer__dialog:has(.ui-cart-date__picker:not([hidden])) .cart-drawer__items {
+  .cart-drawer__dialog:has(.ui-cart-date__picker:not([hidden])) .cart-drawer__items,
+  .cart-drawer__dialog:has(.ui-cart-transit-map[open]) .cart-drawer__items {
     overflow: visible;
   }
 
-  .cart-drawer__dialog:has(.ui-cart-date__picker:not([hidden])) .cart-drawer__summary {
+  .cart-drawer__dialog:has(.ui-cart-date__picker:not([hidden])) .cart-drawer__summary,
+  .cart-drawer__dialog:has(.ui-cart-transit-map[open]) .cart-drawer__summary {
     position: static;
     mask-image: none;
   }
@@ -724,6 +870,9 @@
    */
   .ui-cart-shipping__row--date {
     align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
     min-height: 18px;
   }
 
@@ -760,9 +909,12 @@
    * for this row (537:22748). Nothing to resize — only to stop it wrapping and
    * to keep it from being the thing that gives way when the row is tight.
    */
-  .ui-cart-date__toggle {
+  .ui-cart-date__toggle,
+  .ui-cart-date__asap {
     flex: 0 0 auto;
-    white-space: nowrap;
+    max-width: 100%;
+    white-space: normal;
+    text-align: start;
   }
 
   /* The lead-time rule under the date row, and the two messages the row can
@@ -788,7 +940,7 @@
   .ui-cart-date__error {
     margin-block-start: 8px;
     margin-inline: var(--ui-cart-drawer-gutter, 0);
-    color: var(--ui-color-error, #b3261e);
+    color: var(--ui-color-error);
   }
 
   .ui-cart-date__error[hidden] {
