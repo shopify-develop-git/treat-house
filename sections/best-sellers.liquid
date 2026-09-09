@@ -157,6 +157,7 @@
 {%- endcase -%}
 <div class="section-background color-{{ section.settings.color_scheme }} best-sellers-bg best-sellers-bg--{{ section.settings.background }}"></div>
 <div
+  {% if section.settings.anchor_id != blank %}id="{{ section.settings.anchor_id | handleize }}"{% endif %}
   class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
   style="{% render 'spacing-style', settings: section.settings %}"
   data-testid="best-sellers-{{ section.id }}"
@@ -573,7 +574,7 @@
     },
     {
       "type": "paragraph",
-      "content": "A badge comes from the product's tags, matched against the list in Theme settings \u2192 Product badges. The line under the title is the start of the product's description."
+      "content": "A badge comes from the product's tags, matched against the list in Theme settings → Product badges. The line under the title is the start of the product's description."
     },
     {
       "type": "header",
@@ -733,6 +734,12 @@
       "step": 1,
       "unit": "px",
       "default": 80
+    },
+    {
+      "type": "text",
+      "id": "anchor_id",
+      "label": "Link anchor",
+      "info": "Optional link destination within the page. Use letters and dashes without a #."
     }
   ],
   "presets": [

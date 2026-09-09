@@ -12,9 +12,14 @@
 {% assign image_sizes = sizes | default: 'auto' %}
 
 {% if link.type == 'collection_link' %}
-  {% if link.object.featured_image %}
+  {%- capture collection_asset -%}{% render 'collection-thumbnail-asset', collection: link.object %}{%- endcapture -%}
+  {%- assign collection_asset = collection_asset | strip -%}
+  {%- assign collection_image = link.object.metafields.custom.card_image.value | default: link.object.featured_image -%}
+  {% if collection_asset != blank %}
+    <img src="{{ collection_asset | asset_url }}" width="600" height="660" alt="{{ link.title | escape }} treats" class="{{ class }}" loading="lazy">
+  {% elsif collection_image %}
     {{
-      link.object.featured_image
+      collection_image
       | image_url: width: 800
       | image_tag: loading: 'lazy', class: class, sizes: image_sizes
     }}

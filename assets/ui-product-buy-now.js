@@ -3,8 +3,9 @@
  *
  * The file draws a plain secondary button beside Add to cart, which is not what
  * Shopify's accelerated checkout renders — that one brings its own wallet buttons
- * and its own styling. So this is the honest reading of the button's own words: it
- * adds the current selection to the cart and then goes to checkout.
+ * and its own styling. It adds the current selection, then opens the cart so
+ * delivery-date requirements and seasonal restrictions on existing cart lines
+ * are checked before the shopper proceeds to checkout.
  *
  * It does that by clicking the Add to cart button rather than posting itself, so
  * quantity, line item properties and the variant all come from the one form the
@@ -57,7 +58,11 @@ class UiBuyNow extends HTMLElement {
 
   #onAdded = () => {
     this.#disarm();
-    window.location.assign(this.dataset.checkoutUrl || '/checkout');
+    // A currently available product can be added to a cart containing an older,
+    // closed seasonal item. Always let the cart check the complete order.
+    // Shopify supplies a localized cart route when the storefront uses one.
+    const cartUrl = typeof Theme !== 'undefined' ? Theme.routes?.cart_url : undefined;
+    window.location.assign(cartUrl || '/cart');
   };
 
   #onFailed = () => {

@@ -36,10 +36,18 @@
             class="menu-list__list list-unstyled"
             role="list"
           >
-            {% for link in block_settings.menu.links %}
+            {%- capture link_indices -%}{%- render 'ui-navigation-indices', links: block_settings.menu.links -%}{%- endcapture -%}
+            {%- assign link_indices = link_indices | split: ',' -%}
+            {%- for link_index in link_indices -%}
+              {%- assign link_index_number = link_index | plus: 0 -%}
+              {%- assign link = block_settings.menu.links[link_index_number] -%}
+              {%- capture link_url -%}{%- render 'ui-navigation-url', link: link -%}{%- endcapture -%}
               <li>
+                {%- if link_url == blank -%}
+                  <span class="menu-list__item">{{ link.title }}</span>
+                {%- else -%}
                 <a
-                  href="{{ link.url }}"
+                  href="{{ link_url }}"
                   id="MenuItem-{{ link.handle }}"
                   class="menu-list__item"
                   {% if link.current %}
@@ -48,6 +56,7 @@
                 >
                   {{- link.title -}}
                 </a>
+                {%- endif -%}
               </li>
             {% endfor %}
           </ul>
@@ -103,7 +112,12 @@
     %}
 
     {% capture children %}
-      {% for link in block_settings.menu.links %}
+      {%- capture link_indices -%}{%- render 'ui-navigation-indices', links: block_settings.menu.links -%}{%- endcapture -%}
+      {%- assign link_indices = link_indices | split: ',' -%}
+      {%- for link_index in link_indices -%}
+        {%- assign link_index_number = link_index | plus: 0 -%}
+        {%- assign link = block_settings.menu.links[link_index_number] -%}
+        {%- capture link_url -%}{%- render 'ui-navigation-url', link: link -%}{%- endcapture -%}
         <li
           role="presentation"
           class="menu-list__list-item"
@@ -117,7 +131,7 @@
             # heading for its panel, not a page. It is drawn as a button, the way
             # the overflow "More" item is, so nothing navigates to "#".
             assign parent_is_placeholder = false
-            if link.url == blank or link.url == '#'
+            if link_url == blank
               assign parent_is_placeholder = true
             endif
           -%}
@@ -135,7 +149,7 @@
             </button>
           {%- else -%}
           <a
-            href="{{ link.url }}"
+            href="{{ link_url }}"
             data-skip-node-update="true"
             class="menu-list__link{% if link.active %} menu-list__link--active{% endif %}"
             {%- if link.links != blank -%}

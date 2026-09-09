@@ -14,7 +14,7 @@
   drawn around two columns of them and a quote needs the answers it needs — so
   they are the section's, with their labels as the file writes them: Name, Email,
   Company, Phone, Number of gifts, Requested delivery date, Customization,
-  Delivery location, Notes. Every `contact[Label]` field is echoed
+  Shipping addresses, Delivery location, Notes. Every `contact[Label]` field is echoed
   into Shopify's notification email as a "Label: value" line, and a hidden
   `contact[Inquiry type]` marks the mail as corporate so it can be told apart
   from the general contact page, which posts to the same inbox.
@@ -47,6 +47,8 @@
   assign submit_label = section.settings.submit_label | default: 'Submit inquiry'
 -%}
 
+{%- capture form_intro -%}{% content_for 'blocks' %}{%- endcapture -%}
+
 <div
   class="section section--page-width spacing-style color-{{ section.settings.color_scheme }}"
   style="{% render 'spacing-style', settings: section.settings %}"
@@ -54,6 +56,36 @@
   data-corporate-quote
   {{ section.shopify_attributes }}
 >
+  {%- if section.settings.hulk_form_id != blank -%}
+    <div id="contact_form" class="corporate-quote corporate-quote--app">
+      {{ form_intro }}
+      <p class="corporate-quote__app-note">A rough quantity is fine. We confirm delivery timing with your quote.</p>
+      {%- if section.settings.shipping_template_url != blank -%}
+        <div class="corporate-quote__template">
+          <div class="corporate-quote__template-copy">
+            <p class="corporate-quote__template-title">Shipping to several addresses?</p>
+            <p class="corporate-quote__template-note">Download the template, add one row per recipient, and attach it to your inquiry below.</p>
+          </div>
+          {% render 'ui-button',
+            variant: 'secondary',
+            label: section.settings.shipping_template_prompt,
+            link: section.settings.shipping_template_url,
+            class: 'corporate-quote__template-button'
+          %}
+        </div>
+      {%- endif -%}
+      {%- comment -%}
+        Hulk's published shortcode mount. The app embed is enabled only in this
+        draft theme. Hulk owns file storage, submission and confirmation; do not
+        wrap this mount in Shopify's contact form, which discards attachments.
+        Clearing the form ID restores the native inquiry form below.
+      {%- endcomment -%}
+      <div class="pxFormGenerator" id="{{ section.settings.hulk_form_id | escape }}"></div>
+      <noscript>
+        <p>Please enable JavaScript to attach files, or <a href="{{ pages.contact.url }}">contact our team</a>.</p>
+      </noscript>
+    </div>
+  {%- else -%}
   {%- form 'contact', class: 'corporate-quote' -%}
     {%- if form.posted_successfully? -%}
       <div class="corporate-quote__confirmation" data-corporate-quote-sent tabindex="-1">
@@ -68,7 +100,7 @@
         </div>
       </div>
     {%- else -%}
-      {% content_for 'blocks' %}
+      {{ form_intro }}
 
       {%- comment -%}
         Shopify reports a failed post through `form.errors`, and the only field it
@@ -147,11 +179,6 @@
           attributes: date_attributes
         %}
 
-        {%- comment -%}
-          Full width, not half. Take Budget range out and the half-width fields
-          come to an odd number, which leaves this one alone in the left column
-          with a hole beside it. Six paired fields and then the wide ones.
-        {%- endcomment -%}
         <div class="corporate-quote__wide">
           {% render 'ui-select',
             label: 'Customization',
@@ -162,10 +189,20 @@
         </div>
 
         <div class="corporate-quote__wide">
+          {% render 'ui-select',
+            label: 'Shipping addresses',
+            name: 'contact[Shipping addresses]',
+            placeholder: 'Choose where to send your gifts...',
+            options: 'One address, Multiple addresses',
+            required: true
+          %}
+        </div>
+
+        <div class="corporate-quote__wide">
           {% render 'ui-input',
             label: 'Delivery location',
             name: 'contact[Delivery location]',
-            placeholder: "City and state, or 'multiple addresses'"
+            placeholder: 'City and state, or the destinations for your gifts'
           %}
         </div>
 
@@ -235,6 +272,7 @@
       %}
     {%- endif -%}
   {%- endform -%}
+  {%- endif -%}
 </div>
 
 <script>
@@ -309,6 +347,24 @@
      * navigation.
      */
     scroll-margin-block-start: calc(var(--header-height, 60px) + 40px);
+  }
+
+  .corporate-quote--app .corporate-quote__app-note {
+    margin-block: 0 24px;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .corporate-quote--app .corporate-quote__template {
+    margin-block-end: 24px;
+  }
+
+  .corporate-quote--app .pxFormGenerator {
+    width: 100%;
+    margin-inline: auto;
   }
 
   /* The file leaves 48 between the heading and the first row of fields. */
@@ -575,6 +631,12 @@
   "tag": "section",
   "blocks": [{ "type": "_ui-heading" }, { "type": "_ui-text" }, { "type": "_ui-link-row" }],
   "settings": [
+    {
+      "type": "text",
+      "id": "hulk_form_id",
+      "label": "Hulk form ID",
+      "info": "Use the corporate inquiry form from Hulk Form Builder for file attachments. The Hulk app embed must be enabled on this theme. Leave blank to use the native contact form without uploads."
+    },
     {
       "type": "text",
       "id": "customization_options",

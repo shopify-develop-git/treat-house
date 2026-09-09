@@ -38,21 +38,40 @@
 {%- liquid
   assign season_status = 'available'
   assign season_label = ''
+  assign has_product_rule = false
 
   assign meta_status = product.metafields.custom.season_status.value | default: product.metafields.custom.season_status | default: ''
   assign meta_status = meta_status | append: '' | strip | downcase | replace: '-', '_' | replace: ' ', '_'
 
   if meta_status == 'coming_soon' or meta_status == 'closed' or meta_status == 'available'
     assign season_status = meta_status
+    assign has_product_rule = true
   else
     for tag in product.tags
       assign candidate = tag | strip | downcase | replace: '_', '-'
       if candidate == 'season:coming-soon'
         assign season_status = 'coming_soon'
+        assign has_product_rule = true
         break
       elsif candidate == 'season:closed'
         assign season_status = 'closed'
+        assign has_product_rule = true
         break
+      endif
+    endfor
+  endif
+
+  # Theme collection defaults apply to retail products only. Explicit product
+  # rules above win; channel catalogs retain their separate ordering workflows.
+  if has_product_rule == false and product.metafields.custom.internal_vendor == blank
+    assign closed_handles = settings.season_closed_collections | map: 'handle'
+    assign upcoming_handles = settings.season_upcoming_collections | map: 'handle'
+    for product_collection in product.collections
+      if closed_handles contains product_collection.handle
+        assign season_status = 'closed'
+        break
+      elsif upcoming_handles contains product_collection.handle
+        assign season_status = 'coming_soon'
       endif
     endfor
   endif

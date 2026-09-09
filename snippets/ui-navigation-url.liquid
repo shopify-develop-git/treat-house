@@ -1,0 +1,81 @@
+{%- doc -%}
+  Resolves the draft theme's navigation placeholders without editing shared Shopify menus.
+  A real configured URL wins. Gift cards are excluded until the business offers them.
+  Blank output means a group heading; __hidden__ means an unresolved leaf or inactive offer.
+  Keep these fallbacks until the native menus have been reviewed before launch.
+
+  @param {object} link - A Shopify navigation link.
+{%- enddoc -%}
+{%- liquid
+  assign key = link.title | handleize
+  assign configured_url = link.url | default: '' | strip
+  assign local_url = configured_url | remove_first: shop.url | remove_first: shop.secure_url
+  assign root_url = routes.root_url | default: '/'
+  assign normalized_path = local_url | split: '?' | first | split: '#' | first
+  assign gift_card_path = normalized_path | split: '/' | last
+  assign result = configured_url
+
+  if link.gift_card or link['gift_card?'] or key == 'gift-cards' or key == 'gift-card' or key == 'e-gift-cards' or key == 'e-gift-card' or gift_card_path == 'gift-card' or gift_card_path == 'gift-cards'
+    assign result = '__hidden__'
+  elsif configured_url == blank or configured_url == '#' or local_url == '/' or local_url == root_url
+    assign collection_handle = ''
+    assign result = ''
+    case key
+      when 'home'
+        assign result = root_url
+      when 'our-story', 'about-us'
+        assign result = root_url | append: '#our-story'
+      when 'best-sellers', 'bestsellers'
+        assign result = root_url | append: '#best-sellers'
+      when 'build-a-gift-box', 'build-your-gift-box', 'build-a-box', 'build-your-box', 'add-a-message', 'gift-wrap', 'customize'
+        assign result = root_url | append: 'pages/customize'
+      when 'shop-treats', 'shop-all', 'shop-all-treats', 'all-treats'
+        assign result = root_url | append: 'collections/all'
+      when 'rice-krispie-treats', 'classic-treat-packs'
+        assign collection_handle = 'classic-treat-packs'
+      when 'gift-boxes', 'deluxe-gift-boxes'
+        assign collection_handle = 'deluxe-gift-box'
+      when 'custom-treats'
+        assign collection_handle = 'custom-treats'
+      when 'treat-bars'
+        assign collection_handle = 'treat-bars'
+      when 'birthday', 'birthdays'
+        assign collection_handle = 'birthday'
+      when 'baby-shower', 'baby-showers'
+        assign collection_handle = 'baby-shower'
+      when 'congratulations'
+        assign collection_handle = 'congratulations'
+      when 'get-well'
+        assign collection_handle = 'get-well'
+      when 'graduation'
+        assign collection_handle = 'graduation'
+      when 'halloween'
+        assign collection_handle = 'halloween'
+      when 'thanksgiving'
+        assign collection_handle = 'thanksgiving'
+      when 'winter', 'winter-season', 'winter-treats'
+        assign collection_handle = 'winter-treats'
+      when 'christmas', 'christmas-treats'
+        assign collection_handle = 'christmas-treats'
+      when 'hanukkah'
+        assign collection_handle = 'hanukkah'
+      when 'valentines', 'valentines-day', 'valentine-s-day'
+        assign collection_handle = 'valentines-day'
+      when 'spring', 'spring-holidays'
+        assign collection_handle = 'spring-holidays'
+      when 'mothers-day', 'mother-s-day'
+        assign collection_handle = 'mothers-day-1'
+      when 'fathers-day', 'father-s-day'
+        assign collection_handle = 'fathers-day-1'
+      when 'seasonal-collection', 'seasonal-collections', 'all-seasonal', 'all-occasions', 'seasonal-specialty', 'occasions'
+        assign collection_handle = 'holidays'
+    endcase
+    if collection_handle != blank and collections[collection_handle] != blank
+      assign result = collections[collection_handle].url
+    endif
+    if result == blank and link.links == blank
+      assign result = '__hidden__'
+    endif
+  endif
+  echo result
+-%}

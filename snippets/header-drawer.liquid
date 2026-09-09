@@ -100,7 +100,12 @@
           {% if linklist.levels < 3 %}
             {% assign first_accordion_open = false %}
             {% assign animation_index = 0 %}
-            {%- for link in linklist.links -%}
+            {%- capture link_indices -%}{%- render 'ui-navigation-indices', links: linklist.links -%}{%- endcapture -%}
+            {%- assign link_indices = link_indices | split: ',' -%}
+            {%- for link_index in link_indices -%}
+              {%- assign link_index_number = link_index | plus: 0 -%}
+              {%- assign link = linklist.links[link_index_number] -%}
+              {%- capture link_url -%}{%- render 'ui-navigation-url', link: link -%}{%- endcapture -%}
               {% assign animation_index = animation_index | plus: 1 %}
               <li
                 style="--menu-drawer-animation-index: {{ animation_index }};"
@@ -146,14 +151,19 @@
                         role="list"
                         tabindex="-1"
                       >
-                        {%- for childlink in link.links -%}
+                        {%- capture childlink_indices -%}{%- render 'ui-navigation-indices', links: link.links -%}{%- endcapture -%}
+                        {%- assign childlink_indices = childlink_indices | split: ',' -%}
+                        {%- for childlink_index in childlink_indices -%}
+                          {%- assign childlink_index_number = childlink_index | plus: 0 -%}
+                          {%- assign childlink = link.links[childlink_index_number] -%}
+                          {%- capture childlink_url -%}{%- render 'ui-navigation-url', link: childlink -%}{%- endcapture -%}
                           <li
                             class="menu-drawer__list-item"
                             style="--menu-drawer-animation-index: {{ forloop.index }};"
                           >
                             <a
                               id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
-                              href="{{ childlink.url }}"
+                              href="{{ childlink_url }}"
                               class="menu-drawer__menu-item menu-drawer__menu-item--child focus-inset{% if childlink.current %} menu-drawer__menu-item--active{% endif %}"
                               {% if childlink.current %}
                                 aria-current="page"
@@ -181,7 +191,7 @@
                     # A parent saved with "#" (or no URL) is a heading for the rows
                     # under it, so it is drawn as text rather than a dead link.
                     assign parent_is_placeholder = false
-                    if link.url == blank or link.url == '#'
+                    if link_url == blank
                       assign parent_is_placeholder = true
                     endif
                   -%}
@@ -195,7 +205,7 @@
                   {%- else -%}
                   <a
                     id="HeaderDrawer-{{ link.handle }}"
-                    href="{{ link.url }}"
+                    href="{{ link_url }}"
                     class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset{% if link.current %} menu-drawer__menu-item--active{% endif %}"
                     {% if link.current %}
                       aria-current="page"
@@ -220,13 +230,18 @@
                     role="list"
                     tabindex="-1"
                   >
-                    {%- for childlink in link.links -%}
+                    {%- capture childlink_indices -%}{%- render 'ui-navigation-indices', links: link.links -%}{%- endcapture -%}
+                    {%- assign childlink_indices = childlink_indices | split: ',' -%}
+                    {%- for childlink_index in childlink_indices -%}
+                      {%- assign childlink_index_number = childlink_index | plus: 0 -%}
+                      {%- assign childlink = link.links[childlink_index_number] -%}
+                      {%- capture childlink_url -%}{%- render 'ui-navigation-url', link: childlink -%}{%- endcapture -%}
                       <li
                         class="menu-drawer__list-item"
                         style="--menu-drawer-animation-index: {{ animation_index }};"
                       >
                         <a
-                          href="{{ childlink.url }}"
+                          href="{{ childlink_url }}"
                           class="menu-drawer__menu-item menu-drawer__menu-item--child menu-drawer__animated-element focus-inset{% if childlink.current %} menu-drawer__menu-item--active{% endif %}"
                         >
                           {% if render_link_image %}
@@ -249,7 +264,7 @@
                     # A parent saved with "#" (or no URL) is a heading for the rows
                     # under it, so it is drawn as text rather than a dead link.
                     assign parent_is_placeholder = false
-                    if link.url == blank or link.url == '#'
+                    if link_url == blank
                       assign parent_is_placeholder = true
                     endif
                   -%}
@@ -263,7 +278,7 @@
                   {%- else -%}
                   <a
                     id="HeaderDrawer-{{ link.handle }}"
-                    href="{{ link.url }}"
+                    href="{{ link_url }}"
                     class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset{% if link.current %} menu-drawer__menu-item--active{% endif %}"
                     {% if link.current %}
                       aria-current="page"
@@ -280,7 +295,12 @@
               Handle menus with 3 levels of links
             {%- endcomment -%}
             {% assign animation_index = 0 %}
-            {%- for link in linklist.links -%}
+            {%- capture link_indices -%}{%- render 'ui-navigation-indices', links: linklist.links -%}{%- endcapture -%}
+            {%- assign link_indices = link_indices | split: ',' -%}
+            {%- for link_index in link_indices -%}
+              {%- assign link_index_number = link_index | plus: 0 -%}
+              {%- assign link = linklist.links[link_index_number] -%}
+              {%- capture link_url -%}{%- render 'ui-navigation-url', link: link -%}{%- endcapture -%}
               {% assign animation_index = animation_index | plus: 1 %}
               <li
                 class="menu-drawer__list-item"
@@ -351,7 +371,12 @@
                           tabindex="-1"
                         >
                           {% assign first_accordion_open = false -%}
-                          {%- for childlink in link.links -%}
+                          {%- capture childlink_indices -%}{%- render 'ui-navigation-indices', links: link.links -%}{%- endcapture -%}
+                          {%- assign childlink_indices = childlink_indices | split: ',' -%}
+                          {%- for childlink_index in childlink_indices -%}
+                            {%- assign childlink_index_number = childlink_index | plus: 0 -%}
+                            {%- assign childlink = link.links[childlink_index_number] -%}
+                            {%- capture childlink_url -%}{%- render 'ui-navigation-url', link: childlink -%}{%- endcapture -%}
                             <li
                               class="
                                 menu-drawer__list-item
@@ -368,7 +393,7 @@
                                 {%- endcomment -%}
                                 <a
                                   id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}"
-                                  href="{{ childlink.url }}"
+                                  href="{{ childlink_url }}"
                                   class="menu-drawer__menu-item menu-drawer__menu-item--parent focus-inset{% if childlink.current %} menu-drawer__menu-item--active{% endif %}"
                                   {% if childlink.current %}
                                     aria-current="page"
@@ -428,14 +453,19 @@
                                         role="list"
                                         tabindex="-1"
                                       >
-                                        {%- for grandchildlink in childlink.links -%}
+                                        {%- capture grandchildlink_indices -%}{%- render 'ui-navigation-indices', links: childlink.links -%}{%- endcapture -%}
+                                        {%- assign grandchildlink_indices = grandchildlink_indices | split: ',' -%}
+                                        {%- for grandchildlink_index in grandchildlink_indices -%}
+                                          {%- assign grandchildlink_index_number = grandchildlink_index | plus: 0 -%}
+                                          {%- assign grandchildlink = childlink.links[grandchildlink_index_number] -%}
+                                          {%- capture grandchildlink_url -%}{%- render 'ui-navigation-url', link: grandchildlink -%}{%- endcapture -%}
                                           <li
                                             class="menu-drawer__list-item"
                                             style="--menu-drawer-animation-index: {{ forloop.index }};"
                                           >
                                             <a
                                               id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
-                                              href="{{ grandchildlink.url }}"
+                                              href="{{ grandchildlink_url }}"
                                               class="menu-drawer__menu-item menu-drawer__menu-item--child focus-inset{% if grandchildlink.current %} menu-drawer__menu-item--active{% endif %}"
                                               {% if grandchildlink.current %}
                                                 aria-current="page"
@@ -486,14 +516,19 @@
                                     role="list"
                                     tabindex="-1"
                                   >
-                                    {%- for grandchildlink in childlink.links -%}
+                                    {%- capture grandchildlink_indices -%}{%- render 'ui-navigation-indices', links: childlink.links -%}{%- endcapture -%}
+                                    {%- assign grandchildlink_indices = grandchildlink_indices | split: ',' -%}
+                                    {%- for grandchildlink_index in grandchildlink_indices -%}
+                                      {%- assign grandchildlink_index_number = grandchildlink_index | plus: 0 -%}
+                                      {%- assign grandchildlink = childlink.links[grandchildlink_index_number] -%}
+                                      {%- capture grandchildlink_url -%}{%- render 'ui-navigation-url', link: grandchildlink -%}{%- endcapture -%}
                                       <li
                                         class="menu-drawer__list-item"
                                         style="--menu-drawer-animation-index: {{ forloop.index }};"
                                       >
                                         <a
                                           id="HeaderDrawer-{{ link.handle }}-{{ childlink.handle }}-{{ grandchildlink.handle }}"
-                                          href="{{ grandchildlink.url }}"
+                                          href="{{ grandchildlink_url }}"
                                           class="menu-drawer__menu-item menu-drawer__menu-item--child focus-inset{% if grandchildlink.current %} menu-drawer__menu-item--active{% endif %}"
                                           {% if grandchildlink.current %}
                                             aria-current="page"
@@ -542,6 +577,8 @@
                             <ul class="menu-drawer__featured-content-list list-unstyled">
                               {% if featured_collections.size > 0 %}
                                 {%- for collection in featured_collections limit: max_featured_items -%}
+                                  {%- capture featured_url -%}{%- render 'ui-navigation-url', link: collection -%}{%- endcapture -%}
+                                  {%- if featured_url == '__hidden__' -%}{%- continue -%}{%- endif -%}
                                   <li class="menu-drawer__featured-content-list-item menu-drawer__featured-content-list-item--collection">
                                     {% render 'resource-card',
                                       resource: collection.object,
@@ -555,6 +592,8 @@
                               {% else %}
                                 {% paginate featured_products_collection.products by max_featured_items %}
                                   {%- for product in featured_products_collection.products limit: max_featured_items -%}
+                                    {%- capture featured_url -%}{%- render 'ui-navigation-url', link: product -%}{%- endcapture -%}
+                                    {%- if featured_url == '__hidden__' -%}{%- continue -%}{%- endif -%}
                                     <li class="menu-drawer__featured-content-list-item menu-drawer__featured-content-list-item--product">
                                       {% render 'resource-card',
                                         resource: product,
@@ -580,7 +619,7 @@
                     # A parent saved with "#" (or no URL) is a heading for the rows
                     # under it, so it is drawn as text rather than a dead link.
                     assign parent_is_placeholder = false
-                    if link.url == blank or link.url == '#'
+                    if link_url == blank
                       assign parent_is_placeholder = true
                     endif
                   -%}
@@ -594,7 +633,7 @@
                   {%- else -%}
                   <a
                     id="HeaderDrawer-{{ link.handle }}"
-                    href="{{ link.url }}"
+                    href="{{ link_url }}"
                     class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset{% if link.current %} menu-drawer__menu-item--active{% endif %}"
                     {% if link.current %}
                       aria-current="page"
@@ -774,6 +813,8 @@
           <ul class="menu-drawer__featured-content-list menu-drawer__animated-element list-unstyled">
             {% if top_level_featured_collections.size > 0 %}
               {%- for collection in top_level_featured_collections limit: max_featured_items -%}
+                {%- capture featured_url -%}{%- render 'ui-navigation-url', link: collection -%}{%- endcapture -%}
+                {%- if featured_url == '__hidden__' -%}{%- continue -%}{%- endif -%}
                 <li class="menu-drawer__featured-content-list-item menu-drawer__featured-content-list-item--collection">
                   {% render 'resource-card',
                     resource: collection.object,
@@ -787,6 +828,8 @@
             {% elsif top_level_featured_products_collection.products_count > 0 %}
               {% paginate top_level_featured_products_collection.products by max_featured_items %}
                 {%- for product in top_level_featured_products_collection.products limit: max_featured_items -%}
+                  {%- capture featured_url -%}{%- render 'ui-navigation-url', link: product -%}{%- endcapture -%}
+                  {%- if featured_url == '__hidden__' -%}{%- continue -%}{%- endif -%}
                   <li class="menu-drawer__featured-content-list-item menu-drawer__featured-content-list-item--product">
                     {% render 'resource-card',
                       resource: product,

@@ -399,7 +399,25 @@
           "selected_variant_hover_border_color": "#505050"
         }
       }
-    }
+    },
+    "season_closed_collections": [
+      "graduation",
+      "mothers-day-1",
+      "fathers-day-1",
+      "spring-holidays"
+    ],
+    "retail_hidden_collections": [
+      "box-flavours"
+    ],
+    "seasonal_hub_collections": [
+      "halloween",
+      "thanksgiving",
+      "winter-treats",
+      "christmas-treats",
+      "hanukkah",
+      "valentines-day"
+    ],
+    "ui_light_blue": "#acd9f0"
   },
   "presets": {
     "Horizon": {

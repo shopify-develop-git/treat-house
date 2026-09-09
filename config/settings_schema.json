@@ -4,8 +4,8 @@
     "theme_name": "Horizon",
     "theme_version": "3.3.1",
     "theme_author": "Shopify",
-    "theme_documentation_url": "https:\/\/help.shopify.com\/manual\/online-store\/themes",
-    "theme_support_url": "https:\/\/support.shopify.com\/"
+    "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
+    "theme_support_url": "https://support.shopify.com/"
   },
   {
     "name": "t:names.logo_and_favicon",
@@ -53,6 +53,17 @@
         "type": "image_picker",
         "id": "favicon",
         "label": "t:settings.favicon"
+      }
+    ]
+  },
+  {
+    "name": "UI kit colors",
+    "settings": [
+      {
+        "type": "color",
+        "id": "ui_light_blue",
+        "label": "Light blue panels",
+        "default": "#acd9f0"
       }
     ]
   },
@@ -132,6 +143,46 @@
         "label": "Words to hide",
         "default": "RD",
         "info": "Comma separated, whole words only. Site only — orders and emails keep the full name."
+      }
+    ]
+  },
+  {
+    "name": "Retail catalog and seasons",
+    "settings": [
+      {
+        "type": "collection_list",
+        "id": "seasonal_hub_collections",
+        "label": "Seasonal landing page collections",
+        "info": "Shown in this order on /collections/holidays. Include collections when they are ready for the seasonal menu.",
+        "limit": 20
+      },
+      {
+        "type": "collection_list",
+        "id": "season_closed_collections",
+        "label": "Closed seasonal collections",
+        "info": "Retail products in these collections cannot be ordered and are hidden from browsing. A product season_status metafield overrides this default.",
+        "limit": 50
+      },
+      {
+        "type": "collection_list",
+        "id": "season_upcoming_collections",
+        "label": "Coming soon collections",
+        "info": "Show products with Coming soon and disable ordering until opened. Closed takes priority.",
+        "limit": 50
+      },
+      {
+        "type": "collection_list",
+        "id": "retail_hidden_collections",
+        "label": "Collections to exclude from retail browsing",
+        "info": "For builder-only flavors or other supporting products. Direct links still work.",
+        "limit": 50
+      },
+      {
+        "type": "product_list",
+        "id": "retail_hidden_products",
+        "label": "Products to exclude from retail browsing",
+        "info": "Keeps product URLs and channel integrations available.",
+        "limit": 50
       }
     ]
   },
@@ -1941,7 +1992,7 @@
         "type": "url",
         "id": "empty_cart_button_link",
         "label": "t:settings.empty_cart_button_link",
-        "default": "\/collections\/all"
+        "default": "/collections/all"
       },
       {
         "type": "text",

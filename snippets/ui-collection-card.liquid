@@ -15,6 +15,7 @@
   @param {string} title - The collection name.
   @param {string} [description] - The supporting copy.
   @param {object} [image] - A Shopify image object for the media box.
+  @param {string} [image_asset] - Optional bundled theme image filename.
   @param {string} [link] - The collection URL.
   @param {string} [media_fit] - `contain` (the default) fits the whole picture in
     the media box; `cover` fills the box and crops. See the note on the box's
@@ -65,7 +66,9 @@
 
 {%- capture card_media -%}
   <div class="ui-collection-card__media">
-    {%- if image != blank -%}
+    {%- if image_asset != blank -%}
+      <img src="{{ image_asset | asset_url }}" width="600" height="660" alt="{{ title | escape }} treats" class="{{ card_image_classes }}" loading="lazy">
+    {%- elsif image != blank -%}
       {% render 'image', image: image, height: media_height, class: card_image_classes %}
     {%- else -%}
       {{ 'collection-1' | placeholder_svg_tag: 'ui-collection-card__image ui-collection-card__image--placeholder' }}

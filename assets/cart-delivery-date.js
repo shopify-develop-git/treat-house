@@ -83,7 +83,7 @@ function parseISO(value) {
   if (!match) return null;
 
   const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
-  return Number.isNaN(date.getTime()) ? null : date;
+  return Number.isNaN(date.getTime()) || toISO(date) !== value.trim() ? null : date;
 }
 
 /**
@@ -112,6 +112,7 @@ const startOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1).
 function parseWeekdays(value) {
   const days = new Set();
   for (const part of (value ?? '').split(',')) {
+    if (part.trim() === '') continue;
     const day = Number(part.trim());
     if (Number.isInteger(day) && day >= 0 && day <= 6) days.add(day);
   }

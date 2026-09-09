@@ -27,6 +27,7 @@
 {% endcomment %}
 
 <div
+  {% if section.settings.anchor_id != blank %}id="{{ section.settings.anchor_id | handleize }}"{% endif %}
   class="our-story our-story--on-{{ section.settings.background }} our-story--media-{{ section.settings.media_position }} our-story--{{ section.settings.media_style }}"
   style="
     --our-story-block-padding: {{ section.settings.vertical_padding_mobile }}px;
@@ -366,6 +367,12 @@
       "step": 4,
       "unit": "px",
       "default": 64
+    },
+    {
+      "type": "text",
+      "id": "anchor_id",
+      "label": "Link anchor",
+      "info": "Optional link destination within the page. Use letters and dashes without a #."
     }
   ],
   "presets": [

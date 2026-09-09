@@ -1,0 +1,63 @@
+{%- doc -%}
+  Emits comma-separated visible link indices for every header/footer menu layout.
+  Seasonal sibling lists follow Jen's September 2 sequence, starting with fall.
+  Other lists retain their native order. Nonseasonal links (including View All)
+  follow the named seasons only when at least two seasons share the same list.
+
+  @param {object} links - Shopify navigation links.
+{%- enddoc -%}
+{%- liquid
+  assign original_order = ''
+  assign ranked_order = ''
+  assign seasonal_count = 0
+-%}
+{%- for candidate in links -%}
+  {%- capture candidate_url -%}{%- render 'ui-navigation-url', link: candidate -%}{%- endcapture -%}
+  {%- if candidate_url == '__hidden__' -%}{%- continue -%}{%- endif -%}
+  {%- liquid
+    assign key = candidate.title | handleize
+    assign rank = 900
+    case key
+      when 'fall', 'fall-season', 'fall-treats'
+        assign rank = 100
+      when 'halloween'
+        assign rank = 110
+      when 'thanksgiving'
+        assign rank = 120
+      when 'winter', 'winter-season', 'winter-treats'
+        assign rank = 130
+      when 'christmas', 'christmas-treats'
+        assign rank = 140
+      when 'hanukkah'
+        assign rank = 150
+      when 'new-year', 'new-years', 'new-years-eve'
+        assign rank = 160
+      when 'the-big-game', 'big-game', 'super-bowl'
+        assign rank = 170
+      when 'valentines', 'valentines-day', 'valentine-s-day'
+        assign rank = 180
+      when 'st-patricks', 'st-patricks-day', 'st-patrick-s-day'
+        assign rank = 190
+      when 'spring', 'spring-holidays', 'easter'
+        assign rank = 200
+      when 'mothers-day', 'mother-s-day'
+        assign rank = 210
+      when 'graduation'
+        assign rank = 220
+      when 'fathers-day', 'father-s-day'
+        assign rank = 230
+    endcase
+    if rank < 900
+      assign seasonal_count = seasonal_count | plus: 1
+    endif
+    assign stable_index = forloop.index0 | plus: 1000
+    assign original_order = original_order | append: forloop.index0 | append: ','
+    assign ranked_order = ranked_order | append: rank | append: '-' | append: stable_index | append: ':' | append: forloop.index0 | append: ','
+  -%}
+{%- endfor -%}
+{%- if seasonal_count > 1 -%}
+  {%- assign ranked_items = ranked_order | split: ',' | sort -%}
+  {%- for item in ranked_items -%}{{- item | split: ':' | last -}},{%- endfor -%}
+{%- else -%}
+  {{- original_order -}}
+{%- endif -%}

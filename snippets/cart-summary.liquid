@@ -261,9 +261,11 @@
 {%- liquid
   # The seasonal gate. Every line's product is re-read through [season-status]
   # at render time, so a treat that closed after it was added — or one posted
-  # straight to /cart/add around the theme's buttons — still holds checkout
-  # until the line is removed. Server-rendered like the date gate, so it
-  # survives every morph and JavaScript off. The delivery-date script only
+  # straight to /cart/add — disables this cart's checkout controls until removed.
+  # This is a storefront gate, not server-side checkout validation: a direct
+  # /checkout request requires a Shopify validation rule to enforce the same rule.
+  # Server-rendered like the date gate, it survives morphs and JavaScript off.
+  # The delivery-date script only
   # touches a button carrying `data-delivery-date-gate`, which is withheld while
   # this gate is closed so a saved date cannot re-enable the button.
   assign season_gate = false
@@ -364,7 +366,7 @@
     {%- endif -%}
   </div>
 
-  {% if additional_checkout_buttons and settings.show_accelerated_checkout_buttons %}
+  {% if additional_checkout_buttons and settings.show_accelerated_checkout_buttons and date_gate == false and season_gate == false %}
     <div
       class="
         additional-checkout-buttons

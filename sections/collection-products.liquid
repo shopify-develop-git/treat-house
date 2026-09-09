@@ -78,6 +78,9 @@
   endfor
 -%}
 
+{%- if collection.handle == 'holidays' and settings.seasonal_hub_collections.size > 0 -%}
+  {% render 'ui-seasonal-hub', collections: settings.seasonal_hub_collections %}
+{%- else -%}
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
 <div
   class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
@@ -287,10 +290,20 @@
 
       {%- if paginate.pages > 1 -%}
         <nav class="collection-products__pagination" aria-label="Pagination">
+          {%- liquid
+            assign previous_disabled = true
+            assign next_disabled = true
+            if paginate.previous.is_link
+              assign previous_disabled = false
+            endif
+            if paginate.next.is_link
+              assign next_disabled = false
+            endif
+          -%}
           {% render 'ui-pagination-arrow',
             direction: 'left',
             link: paginate.previous.url,
-            disabled: paginate.previous.is_link == false
+            disabled: previous_disabled
           %}
           {%- for part in paginate.parts -%}
             {%- if part.is_link -%}
@@ -304,7 +317,7 @@
           {% render 'ui-pagination-arrow',
             direction: 'right',
             link: paginate.next.url,
-            disabled: paginate.next.is_link == false
+            disabled: next_disabled
           %}
         </nav>
       {%- endif -%}
@@ -312,6 +325,7 @@
   </div>
 </div>
 
+{%- endif -%}
 {% stylesheet %}
   /* Collection products. Mobile first; the drawn four columns arrive at 1200px. */
   .collection-products {

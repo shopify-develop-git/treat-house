@@ -3,6 +3,12 @@
 {% liquid
   assign items_in_cart = cart | line_items_for: product
   assign quick_order_form_id = 'QuickOrder-ProductForm-' | append: product.id | append: '-' | append: section.id
+  capture season
+    render 'season-status', product: product
+  endcapture
+  assign season_parts = season | strip | split: '|'
+  assign season_status = season_parts[0] | default: 'available'
+  assign season_label = season_parts[1]
 %}
 
 <script
@@ -27,6 +33,7 @@
     {%- render 'gap-style', value: section.settings.gap -%}
   "
 >
+  {%- if season_status == 'available' -%}
   <quick-order-list-component
     class="quick-order-list"
     data-section-id="{{ section.id }}"
@@ -458,6 +465,12 @@
       </div>
     </div>
   </quick-order-list-component>
+  {%- else -%}
+    <p role="status">{{ 'products.product.seasonal_notice' | t: label: season_label }}</p>
+    {%- if items_in_cart.size > 0 -%}
+      <a href="{{ routes.cart_url }}" class="button-secondary">{{ 'content.view_cart' | t }}</a>
+    {%- endif -%}
+  {%- endif -%}
 </div>
 
 {% stylesheet %}

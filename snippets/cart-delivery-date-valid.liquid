@@ -40,9 +40,10 @@
     assign valid = true
 
     assign weekday = iso | date: '%w'
+    assign normalized_iso = iso | date: '%Y-%m-%d'
     # `date` hands an unparsable string back unchanged, so anything but a single
     # digit here is not a date and must not reach the cart as one.
-    if weekday.size != 1
+    if weekday.size != 1 or normalized_iso != iso
       assign valid = false
     endif
     assign disabled_weekdays = settings.cart_delivery_disabled_weekdays | default: '' | replace: ' ', '' | split: ','

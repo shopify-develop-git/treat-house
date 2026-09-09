@@ -59,6 +59,30 @@
   # touched is nil, and nil here has to mean on.
   assign hiding = settings.channel_hide_enabled | default: true, allow_false: true
 
+  # Retail merchandising exclusions preserve direct product URLs and builder
+  # inputs. Closed seasonal products retain their pages, but are not promoted.
+  if channel == blank
+    assign hidden_collection_handles = settings.retail_hidden_collections | map: 'handle'
+    assign hidden_product_handles = settings.retail_hidden_products | map: 'handle'
+    assign retail_hidden = false
+    if hidden_product_handles contains product.handle
+      assign retail_hidden = true
+    endif
+    for product_collection in product.collections
+      if hidden_collection_handles contains product_collection.handle
+        assign retail_hidden = true
+        break
+      endif
+    endfor
+    capture retail_season
+      render 'season-status', product: product
+    endcapture
+    assign retail_status = retail_season | strip | split: '|' | first
+    if retail_hidden or retail_status == 'closed'
+      echo 'hidden'
+    endif
+  endif
+
   if channel != blank and hiding
     # `render` gives a snippet no globals, so the collection being listed is the
     # one the caller passed and nothing else. Search, recommendations and the home

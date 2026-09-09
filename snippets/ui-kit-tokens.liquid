@@ -1,7 +1,9 @@
 {%- doc -%}
   Shared tokens for the Treat House UI kit.
 
-  Rendered once from layout/theme.liquid. It emits no markup — the `{% stylesheet %}`
+  Rendered once from layout/theme.liquid. It emits no markup — the `<style>:root { --ui-color-panel-blue: {{ settings.ui_light_blue | default: '#acd9f0' }}; }</style>
+
+{% stylesheet %}`
   block below is collected into the theme's bundled CSS, which is what makes these
   custom properties available to every kit component.
 
@@ -25,21 +27,8 @@
     --ui-color-sky-blue: #a3d8f6;
     --ui-color-orange: #ea6f36;
     --ui-color-yellow: #ffbd42;
-    /*
-     * The logo's blue, #017dbc, tinted to a background: the same hue and
-     * saturation carried up to 88% lightness, so it reads as the mark's own
-     * colour rather than as a second blue beside it. It was #ddf2ff, four
-     * degrees cooler and five points lighter — enough of both to look like a
-     * different blue on a page that also carries the logo.
-     *
-     * 88 is as far up as it goes before it stops being a tint of anything: at 94
-     * the hue is right but the colour is so close to white that the match cannot
-     * be seen, and at 80 it has arrived at [--ui-color-sky-blue], which is a
-     * different job. It clears AA on the body grey — 5.86:1 against #555 — which
-     * is the floor this has to hold, since the grey sits on it in the promo card
-     * and the hero panel.
-     */
-    --ui-color-light-blue: #c2eaff;
+    /* Client revision: a stronger tint of the logo blue, adjustable in the editor. */
+    --ui-color-light-blue: var(--ui-color-panel-blue, #acd9f0);
     --ui-color-border-gray: #d1d1d1;
     --ui-color-gray: #555555;
 

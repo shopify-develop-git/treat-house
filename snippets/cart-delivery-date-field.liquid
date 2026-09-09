@@ -136,6 +136,13 @@
         <span class="ui-cart-shipping__value">{{ settings.cart_shipping_method }}</span>
       </p>
     {%- endif -%}
+    <details class="ui-cart-transit-map">
+      <summary>View ground transit estimates</summary>
+      <p>Transit time varies by destination and excludes preparation time. Shipping options are confirmed at checkout.</p>
+      <a href="{{ 'th-ground-delivery-map.webp' | asset_url }}" target="_blank" rel="noopener" aria-label="Open the ground transit map at full size">
+        <img src="{{ 'th-ground-delivery-map.webp' | asset_url }}" width="1977" height="1111" loading="lazy" alt="Treat House ground transit map showing estimated transit zones from one to six days across the United States" style="width:100%;height:auto;">
+      </a>
+    </details>
   </div>
 
   {%- if settings.show_cart_delivery_date -%}

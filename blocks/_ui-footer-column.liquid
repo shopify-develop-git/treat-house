@@ -19,9 +19,18 @@
 
   {%- if menu.links.size > 0 -%}
     <ul class="ui-footer-column__links" role="list">
-      {%- for link in menu.links -%}
+      {%- capture link_indices -%}{%- render 'ui-navigation-indices', links: menu.links -%}{%- endcapture -%}
+      {%- assign link_indices = link_indices | split: ',' -%}
+      {%- for link_index in link_indices -%}
+        {%- assign link_index_number = link_index | plus: 0 -%}
+        {%- assign link = menu.links[link_index_number] -%}
+        {%- capture link_url -%}{%- render 'ui-navigation-url', link: link -%}{%- endcapture -%}
         <li>
-          <a class="ui-footer-column__link" href="{{ link.url }}">{{ link.title }}</a>
+          {%- if link_url != blank -%}
+            <a class="ui-footer-column__link" href="{{ link_url }}">{{ link.title }}</a>
+          {%- else -%}
+            <span class="ui-footer-column__link">{{ link.title }}</span>
+          {%- endif -%}
         </li>
       {%- endfor -%}
     </ul>
