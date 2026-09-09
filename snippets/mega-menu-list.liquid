@@ -181,6 +181,10 @@
             style="column-count: {{ column_span }};"
           {% endif %}
         >
+          {%- capture seasonal_links -%}{%- render 'ui-seasonal-navigation', group: link, variant: 'mega', id_prefix: id -%}{%- endcapture -%}
+          {%- if seasonal_links != blank -%}
+            {{ seasonal_links }}
+          {%- else -%}
           {%- capture child_link_indices -%}{%- render 'ui-navigation-indices', links: link.links -%}{%- endcapture -%}
           {%- assign child_link_indices = child_link_indices | split: ',' -%}
           {%- for child_link_index in child_link_indices -%}
@@ -212,6 +216,7 @@
               {% endif %}
             </li>
           {% endfor %}
+          {%- endif -%}
         </ul>
       {% endif %}
     </div>

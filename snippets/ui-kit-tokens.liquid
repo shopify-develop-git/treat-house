@@ -1,11 +1,8 @@
 {%- doc -%}
   Shared tokens for the Treat House UI kit.
 
-  Rendered once from layout/theme.liquid. It emits no markup — the `<style>:root { --ui-color-panel-blue: {{ settings.ui_light_blue | default: '#acd9f0' }}; }</style>
-
-{% stylesheet %}`
-  block below is collected into the theme's bundled CSS, which is what makes these
-  custom properties available to every kit component.
+  Rendered once from layout/theme.liquid. The inline style supplies the merchant's
+  panel color; the remaining tokens are collected into the theme's bundled CSS.
 
   Colours carry the names used in the Figma file, so a value can be traced back to
   the design without a lookup table. Typography maps onto the theme's own font
@@ -17,6 +14,8 @@
   @example
   {%- render 'ui-kit-tokens' -%}
 {%- enddoc -%}
+
+<style>:root { --ui-color-panel-blue: {{ settings.ui_light_blue | default: '#acd9f0' }}; }</style>
 
 {% stylesheet %}
   :root {

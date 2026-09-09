@@ -151,6 +151,10 @@
                         role="list"
                         tabindex="-1"
                       >
+                        {%- capture seasonal_links -%}{%- render 'ui-seasonal-navigation', group: link, variant: 'drawer', id_prefix: link.handle -%}{%- endcapture -%}
+                        {%- if seasonal_links != blank -%}
+                          {{ seasonal_links }}
+                        {%- else -%}
                         {%- capture childlink_indices -%}{%- render 'ui-navigation-indices', links: link.links -%}{%- endcapture -%}
                         {%- assign childlink_indices = childlink_indices | split: ',' -%}
                         {%- for childlink_index in childlink_indices -%}
@@ -180,6 +184,7 @@
                             </a>
                           </li>
                         {%- endfor -%}
+                        {%- endif -%}
                       </ul>
                     </details>
                   </accordion-custom>
@@ -230,6 +235,10 @@
                     role="list"
                     tabindex="-1"
                   >
+                    {%- capture seasonal_links -%}{%- render 'ui-seasonal-navigation', group: link, variant: 'drawer', id_prefix: link.handle -%}{%- endcapture -%}
+                    {%- if seasonal_links != blank -%}
+                      {{ seasonal_links }}
+                    {%- else -%}
                     {%- capture childlink_indices -%}{%- render 'ui-navigation-indices', links: link.links -%}{%- endcapture -%}
                     {%- assign childlink_indices = childlink_indices | split: ',' -%}
                     {%- for childlink_index in childlink_indices -%}
@@ -255,6 +264,7 @@
                         </a>
                       </li>
                     {%- endfor -%}
+                    {%- endif -%}
                   </ul>
                 {% else %}
                   {%- comment -%}
@@ -371,6 +381,10 @@
                           tabindex="-1"
                         >
                           {% assign first_accordion_open = false -%}
+                          {%- capture seasonal_links -%}{%- render 'ui-seasonal-navigation', group: link, variant: 'drawer', id_prefix: link.handle -%}{%- endcapture -%}
+                          {%- if seasonal_links != blank -%}
+                            {{ seasonal_links }}
+                          {%- else -%}
                           {%- capture childlink_indices -%}{%- render 'ui-navigation-indices', links: link.links -%}{%- endcapture -%}
                           {%- assign childlink_indices = childlink_indices | split: ',' -%}
                           {%- for childlink_index in childlink_indices -%}
@@ -453,6 +467,10 @@
                                         role="list"
                                         tabindex="-1"
                                       >
+                                        {%- capture seasonal_links -%}{%- render 'ui-seasonal-navigation', group: childlink, variant: 'drawer', id_prefix: childlink.handle -%}{%- endcapture -%}
+                                        {%- if seasonal_links != blank -%}
+                                          {{ seasonal_links }}
+                                        {%- else -%}
                                         {%- capture grandchildlink_indices -%}{%- render 'ui-navigation-indices', links: childlink.links -%}{%- endcapture -%}
                                         {%- assign grandchildlink_indices = grandchildlink_indices | split: ',' -%}
                                         {%- for grandchildlink_index in grandchildlink_indices -%}
@@ -484,6 +502,7 @@
                                             </a>
                                           </li>
                                         {%- endfor -%}
+                                        {%- endif -%}
                                       </ul>
                                     </details>
                                   </accordion-custom>
@@ -516,6 +535,10 @@
                                     role="list"
                                     tabindex="-1"
                                   >
+                                    {%- capture seasonal_links -%}{%- render 'ui-seasonal-navigation', group: childlink, variant: 'drawer', id_prefix: childlink.handle -%}{%- endcapture -%}
+                                    {%- if seasonal_links != blank -%}
+                                      {{ seasonal_links }}
+                                    {%- else -%}
                                     {%- capture grandchildlink_indices -%}{%- render 'ui-navigation-indices', links: childlink.links -%}{%- endcapture -%}
                                     {%- assign grandchildlink_indices = grandchildlink_indices | split: ',' -%}
                                     {%- for grandchildlink_index in grandchildlink_indices -%}
@@ -547,11 +570,13 @@
                                         </a>
                                       </li>
                                     {%- endfor -%}
+                                    {%- endif -%}
                                   </ul>
                                 {%- endif -%}
                               {%- endif -%}
                             </li>
                           {%- endfor -%}
+                          {%- endif -%}
                         </ul>
                         {% liquid
                           if eager_loading

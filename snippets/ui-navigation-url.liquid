@@ -1,6 +1,8 @@
 {%- doc -%}
   Resolves the draft theme's navigation placeholders without editing shared Shopify menus.
-  A real configured URL wins. Gift cards are excluded until the business offers them.
+  Configured URLs win except known misroutes: All Seasonal uses the seasonal hub,
+  and Best Sellers pointing to the full catalog uses the curated homepage section.
+  Gift cards are excluded until the business offers them.
   Blank output means a group heading; __hidden__ means an unresolved leaf or inactive offer.
   Keep these fallbacks until the native menus have been reviewed before launch.
 
@@ -14,9 +16,16 @@
   assign normalized_path = local_url | split: '?' | first | split: '#' | first
   assign gift_card_path = normalized_path | split: '/' | last
   assign result = configured_url
+  assign catalog_url = root_url | append: 'collections/all'
 
   if link.gift_card or link['gift_card?'] or key == 'gift-cards' or key == 'gift-card' or key == 'e-gift-cards' or key == 'e-gift-card' or gift_card_path == 'gift-card' or gift_card_path == 'gift-cards'
     assign result = '__hidden__'
+  elsif key == 'all-seasonal'
+    assign result = root_url | append: 'collections/holidays'
+  elsif normalized_path == '/collections/all' or normalized_path == catalog_url
+    if key == 'best-sellers' or key == 'bestsellers'
+      assign result = root_url | append: '#best-sellers'
+    endif
   elsif configured_url == blank or configured_url == '#' or local_url == '/' or local_url == root_url
     assign collection_handle = ''
     assign result = ''
@@ -53,7 +62,7 @@
         assign collection_handle = 'halloween'
       when 'thanksgiving'
         assign collection_handle = 'thanksgiving'
-      when 'winter', 'winter-season', 'winter-treats'
+      when 'winter', 'winter-season', 'winter-treats', 'winter-holidays'
         assign collection_handle = 'winter-treats'
       when 'christmas', 'christmas-treats'
         assign collection_handle = 'christmas-treats'

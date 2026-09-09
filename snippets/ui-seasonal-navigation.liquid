@@ -1,0 +1,62 @@
+{%- doc -%}
+  Renders the seasonal group's links from the same collection list as the hub.
+  Returns blank for other groups or an unconfigured hub, retaining native menus.
+  Collection-list order is merchant-controlled; no global Navigation edits needed.
+
+  @param {object} group - Native menu group to replace when it is seasonal.
+  @param {string} variant - 'mega' or 'drawer'.
+  @param {string} [id_prefix] - Unique drawer group prefix.
+{%- enddoc -%}
+{%- liquid
+  assign group_key = group.title | handleize
+  assign use_hub = false
+  if settings.seasonal_hub_collections != blank
+    if group_key == 'by-season' or group_key == 'by-holiday' or group_key == 'by-holidays'
+      assign use_hub = true
+    elsif group_key == 'seasonal-specialty' and group.links.first.links == blank
+      assign use_hub = true
+    endif
+  endif
+  assign all_seasonal_url = routes.root_url | default: '/' | append: 'collections/holidays'
+-%}
+{%- if use_hub -%}
+  {%- for seasonal_collection in settings.seasonal_hub_collections -%}
+    {%- if seasonal_collection.url == blank -%}{%- continue -%}{%- endif -%}
+    {%- capture seasonal_url -%}{%- render 'ui-navigation-url', link: seasonal_collection -%}{%- endcapture -%}
+    {%- if seasonal_url == '__hidden__' -%}{%- continue -%}{%- endif -%}
+    {%- liquid
+      assign title = seasonal_collection.title
+      case seasonal_collection.handle
+        when 'halloween'
+          assign title = 'Halloween'
+        when 'thanksgiving'
+          assign title = 'Thanksgiving'
+        when 'winter-treats'
+          assign title = 'Winter Season'
+        when 'christmas-treats'
+          assign title = 'Christmas'
+        when 'hanukkah'
+          assign title = 'Hanukkah'
+        when 'valentines-day'
+          assign title = "Valentine's Day"
+      endcase
+    -%}
+    <li{% if variant == 'drawer' %} class="menu-drawer__list-item" style="--menu-drawer-animation-index: {{ forloop.index }};"{% endif %}>
+      <a
+        href="{{ seasonal_collection.url }}"
+        class="{% if variant == 'drawer' %}menu-drawer__menu-item menu-drawer__menu-item--child focus-inset{% else %}mega-menu__link{% endif %}"
+        {% if variant == 'drawer' and id_prefix != blank %}id="{{ id_prefix }}-{{ seasonal_collection.handle }}"{% endif %}
+        {% if request.path == seasonal_collection.url %}aria-current="page"{% endif %}
+      >
+        <span class="{% if variant == 'drawer' %}menu-drawer__menu-item-text {% endif %}wrap-text">{{ title | escape }}</span>
+      </a>
+    </li>
+  {%- endfor -%}
+  <li class="{% if variant == 'drawer' %}menu-drawer__list-item{% else %}mega-menu__view-all{% endif %}">
+    {%- if variant == 'drawer' -%}
+      <a class="menu-drawer__menu-item menu-drawer__menu-item--child focus-inset" href="{{ all_seasonal_url }}"><span class="menu-drawer__menu-item-text wrap-text">All Seasonal</span></a>
+    {%- else -%}
+      {%- render 'ui-button', variant: 'underline', label: 'All Seasonal', link: all_seasonal_url -%}
+    {%- endif -%}
+  </li>
+{%- endif -%}

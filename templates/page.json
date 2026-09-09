@@ -16,7 +16,7 @@
           "type": "text",
           "name": "Title",
           "settings": {
-            "text": "<h1>{{ closest.page.title }}<\/h1>",
+            "text": "<h1>{{ closest.page.title }}</h1>",
             "width": "100%",
             "max_width": "normal",
             "alignment": "left",
@@ -42,11 +42,74 @@
           "type": "page-content",
           "settings": {},
           "blocks": {}
+        },
+        "faq-page": {
+          "type": "_ui-faq-page",
+          "settings": {},
+          "blocks": {
+            "mix": {
+              "type": "_ui-faq-item",
+              "settings": {
+                "question": "Can I choose my own mix of treats?",
+                "answer": "<p>Yes. <a href=\"/pages/customize\">Build your own box</a> by choosing a 12, 24 or 36-pack, then selecting your flavors and packaging.</p>",
+                "open": false
+              }
+            },
+            "artwork": {
+              "type": "_ui-faq-item",
+              "settings": {
+                "question": "Where do I upload a photo or logo?",
+                "answer": "<p>On a custom treat product page, use the artwork upload field before adding the product to your cart. You can upload a JPG, PNG, WEBP or PDF file up to 10 MB.</p>",
+                "open": false
+              }
+            },
+            "corporate": {
+              "type": "_ui-faq-item",
+              "settings": {
+                "question": "Can I send corporate gifts to multiple addresses?",
+                "answer": "<p>Yes. Use our <a href=\"/pages/corporate-gifting-interim-draft\">corporate gifting form</a> to share your order details. Select multiple shipping addresses and upload the completed shipping template so our team can review your request.</p>",
+                "open": false
+              }
+            },
+            "delivery": {
+              "type": "_ui-faq-item",
+              "settings": {
+                "question": "How do I choose a delivery date?",
+                "answer": "<p>Select a requested delivery date in your cart. The ground transit map provides estimates; available shipping services and timing are shown at checkout. For an order tied to an event, <a href=\"/pages/contact\">contact our team</a> before ordering to confirm timing.</p>",
+                "open": false
+              }
+            },
+            "allergens": {
+              "type": "_ui-faq-item",
+              "settings": {
+                "question": "Where can I confirm ingredient and allergen details?",
+                "answer": "<p>Check the label for your specific product. If you have a dietary restriction or an ingredient question, contact <a href=\"mailto:info@treathouse.com\">info@treathouse.com</a> before ordering.</p>",
+                "open": false
+              }
+            },
+            "help": {
+              "type": "_ui-faq-item",
+              "settings": {
+                "question": "How can I contact Treat House?",
+                "answer": "<p>Email <a href=\"mailto:info@treathouse.com\">info@treathouse.com</a>, call <a href=\"tel:2127997779\">212-799-7779</a>, or use our <a href=\"/pages/contact\">contact form</a>.</p>",
+                "open": false
+              }
+            }
+          },
+          "block_order": [
+            "mix",
+            "artwork",
+            "corporate",
+            "delivery",
+            "allergens",
+            "help"
+          ]
         }
       },
       "block_order": [
         "heading",
-        "page-content"
+        "page-content",
+        "faq-page"
       ],
       "settings": {
         "content_direction": "column",

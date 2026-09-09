@@ -1,0 +1,26 @@
+{% comment %}Editable FAQ content for the existing empty FAQ page. Merchant page content takes precedence.{% endcomment %}
+{% if page.handle == 'faqs' and page.content == blank %}
+  <div class="ui-faq-page" {{ block.shopify_attributes }}>
+    {% content_for 'blocks' %}
+  </div>
+{% endif %}
+
+{% stylesheet %}
+  .ui-faq-page {
+    display: grid;
+    gap: var(--faq-row-gap, 16px);
+    inline-size: 100%;
+    max-inline-size: var(--faq-width, 846px);
+    margin-inline: auto;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "FAQ page questions",
+  "tag": null,
+  "blocks": [{ "type": "_ui-faq-item" }],
+  "settings": [],
+  "presets": [{ "name": "FAQ page questions" }]
+}
+{% endschema %}

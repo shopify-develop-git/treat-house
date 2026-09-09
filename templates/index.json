@@ -166,7 +166,7 @@
       "name": "Home hero",
       "settings": {
         "color_scheme": "",
-        "image": "shopify://shop_images/th-home-hero.jpg",
+        "image": "",
         "show_badge": true,
         "badge_figure": "Certified",
         "badge_text": "gluten-free",
@@ -284,7 +284,8 @@
         "background": "light-blue",
         "color_scheme": "",
         "padding-block-start": 80,
-        "padding-block-end": 80
+        "padding-block-end": 80,
+        "anchor_id": "best-sellers"
       }
     },
     "custom_treats_banner": {
@@ -397,7 +398,8 @@
         "text_gap": 32,
         "background": "light-blue",
         "vertical_padding": 32,
-        "vertical_padding_mobile": 64
+        "vertical_padding_mobile": 64,
+        "anchor_id": "our-story"
       }
     },
     "corporate_gifts_preview": {
@@ -495,7 +497,8 @@
       "settings": {
         "image_top_left": "shopify://shop_images/corporate-gifts-top-left.webp",
         "image_top_right": "shopify://shop_images/corporate-gifts-top-right.webp",
-        "image_bottom_left": "shopify://shop_images/corporate-gifts-bottom-left.webp",
+        "image_bottom_left": "",
+        "image_bottom_left_asset": "th-approved-corporate-kay.webp",
         "image_bottom_right": "shopify://shop_images/corporate-gifts-bottom-right.webp",
         "media_position": "left",
         "show_star": true,
@@ -528,7 +531,7 @@
           "settings": {
             "source": "custom",
             "max_words": 0,
-            "text": "<p>The Andrew McDonough B+ Foundation honors the life of Andrew McDonough. Andrew battled leukemia, septic shock, and complications of childhood cancer for 167 days before passing away on July 14, 2007, at the age of 14.</p><p>Andrew's B+ blood type became his family's and friends' motto throughout his fight against childhood cancer — to “Be Positive”. The B+ Foundation is the largest provider of financial assistance to families of kids with cancer nationwide.</p><p>Additionally, The B+ Foundation funds cutting-edge childhood cancer research and advocates on behalf of kids with cancer.</p>",
+            "text": "<p>The Andrew McDonough B+ Foundation honors the life of Andrew McDonough. Andrew battled leukemia, septic shock, and complications of childhood cancer for 167 days before passing away on July 14, 2007, at the age of 14.</p><p>Andrew's B+ blood type became his family's and friends' motto throughout his fight against childhood cancer \u2014 to \u201cBe Positive\u201d. The B+ Foundation is the largest provider of financial assistance to families of kids with cancer nationwide.</p><p>Additionally, The B+ Foundation funds cutting-edge childhood cancer research and advocates on behalf of kids with cancer.</p>",
             "text_size": 16,
             "text_size_mobile": 16,
             "max_width": 0,
@@ -556,7 +559,7 @@
         "one": {
           "type": "_ui-testimonial",
           "settings": {
-            "quote": "<p>“Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.”</p>",
+            "quote": "<p>\u201cJen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.\u201d</p>",
             "rating": 5,
             "name": "Jazmine D",
             "role": "ServiceNow"
@@ -566,7 +569,7 @@
         "two": {
           "type": "_ui-testimonial",
           "settings": {
-            "quote": "<p>“We use Treat House for many corporate occasions because it’s a great way to showcase our logos. The print quality is excellent, and you are providing tasty, delicious treats! The owners are incredibly attentive and very pleasant to work with. Highly recommend!”</p>",
+            "quote": "<p>\u201cWe use Treat House for many corporate occasions because it\u2019s a great way to showcase our logos. The print quality is excellent, and you are providing tasty, delicious treats! The owners are incredibly attentive and very pleasant to work with. Highly recommend!\u201d</p>",
             "rating": 5,
             "name": "",
             "role": "NBC"
@@ -576,7 +579,7 @@
         "three": {
           "type": "_ui-testimonial",
           "settings": {
-            "quote": "<p>“I’ve worked with Treat House for years, and they have been nothing short of exceptional. Whether it’s a last-minute request for a few hundred treats or a large-scale order of thousands shipped nationwide, they always deliver with consistency and care. Their branding and quality are unmatched (logo’d treats are so hard to find!), with endless flavor options that never fail to impress. Most importantly, Jen and Chris are so accommodating, reliable, and truly committed to making it work every single time. They always meet you where you’re at and will try anything you need to make it happen—they’re simply the best. Working in the hospitality industry myself, I deeply value their dedication to their customers—it’s what makes them the best in the business.”</p>",
+            "quote": "<p>\u201cI\u2019ve worked with Treat House for years, and they have been nothing short of exceptional. Whether it\u2019s a last-minute request for a few hundred treats or a large-scale order of thousands shipped nationwide, they always deliver with consistency and care. Their branding and quality are unmatched (logo\u2019d treats are so hard to find!), with endless flavor options that never fail to impress. Most importantly, Jen and Chris are so accommodating, reliable, and truly committed to making it work every single time. They always meet you where you\u2019re at and will try anything you need to make it happen\u2014they\u2019re simply the best. Working in the hospitality industry myself, I deeply value their dedication to their customers\u2014it\u2019s what makes them the best in the business.\u201d</p>",
             "rating": 5,
             "name": "Julia W",
             "role": "Restaurant Associates"
@@ -586,7 +589,7 @@
         "four": {
           "type": "_ui-testimonial",
           "settings": {
-            "quote": "<p>“I’ve been working with the Treat House team for over two years and they have been amazing to work with. Their treats are always a hit with our clients- they’re very tasty, and our custom logos look great every time. Orders are always delivered quickly and reliably, which makes my life a lot easier. Highly recommend it if you're looking for a fun, unique treat that leaves a great impression!”</p>",
+            "quote": "<p>\u201cI\u2019ve been working with the Treat House team for over two years and they have been amazing to work with. Their treats are always a hit with our clients- they\u2019re very tasty, and our custom logos look great every time. Orders are always delivered quickly and reliably, which makes my life a lot easier. Highly recommend it if you're looking for a fun, unique treat that leaves a great impression!\u201d</p>",
             "rating": 5,
             "name": "Alexa H",
             "role": "VML"
@@ -596,7 +599,7 @@
         "five": {
           "type": "_ui-testimonial",
           "settings": {
-            "quote": "<p>“I have been a loyal customer to the Treat House team for several years now and cannot applaud the team enough for their incredible customer service, ease of use ordering, and incredibly tasty treats! I frequently select these gourmet treats not just for family but as a high tech professional, I select these for thoughtful and unique client gifting! I am often given incredible feedback from my clients on the delicious taste, unique thought, and beautiful presentation. Treathouse never fails to impress with their exceptional quality and delightful flavor - red velvet being my favorite! Treat House has set a new standard for confectionery excellence, making their Rice Krispie Treats an ideal choice for premium gifting. I could not endorse them more!”</p>",
+            "quote": "<p>\u201cI have been a loyal customer to the Treat House team for several years now and cannot applaud the team enough for their incredible customer service, ease of use ordering, and incredibly tasty treats! I frequently select these gourmet treats not just for family but as a high tech professional, I select these for thoughtful and unique client gifting! I am often given incredible feedback from my clients on the delicious taste, unique thought, and beautiful presentation. Treathouse never fails to impress with their exceptional quality and delightful flavor - red velvet being my favorite! Treat House has set a new standard for confectionery excellence, making their Rice Krispie Treats an ideal choice for premium gifting. I could not endorse them more!\u201d</p>",
             "rating": 5,
             "name": "Larissa F.",
             "role": "Large Software Company"
