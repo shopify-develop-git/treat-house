@@ -86,5 +86,16 @@
       assign result = '__hidden__'
     endif
   endif
+  # Closed seasonal collections stay published but must not be promoted in menus.
+  assign closed_handles = settings.season_closed_collections | map: 'handle'
+  assign result_path = result | remove_first: shop.url | remove_first: shop.secure_url | split: '?' | first | split: '#' | first
+  assign collection_prefix = root_url | append: 'collections/'
+  assign result_prefix = result_path | slice: 0, collection_prefix.size
+  if result_prefix == collection_prefix
+    assign result_handle = result_path | remove_first: collection_prefix | split: '/' | first
+    if closed_handles contains result_handle
+      assign result = '__hidden__'
+    endif
+  endif
   echo result
 -%}

@@ -1,0 +1,11 @@
+{%- doc -%}
+  Approved client photography for collections without a selected hero image.
+  Called only after the section image pickers and collection metafields resolve.
+  @param {object} collection - The collection being pictured.
+{%- enddoc -%}
+{%- case collection.handle -%}
+  {%- when 'birthday' -%}th-approved-birthday-hero.webp
+  {%- when 'christmas-treats' -%}th-approved-christmas-hero.webp
+  {%- when 'halloween' -%}th-approved-halloween-hero.webp
+  {%- when 'thanksgiving' -%}th-approved-thanksgiving-hero.webp
+{%- endcase -%}

@@ -62,6 +62,10 @@
 {%- liquid
   assign source = section.settings.source
   assign card_limit = section.settings.max_products
+  assign seasonal_hub_row = false
+  if collection.handle == 'holidays' and settings.seasonal_hub_collections != blank and source == 'collection' and section.settings.collection == blank
+    assign seasonal_hub_row = true
+  endif
 
   # `related` has nothing to be related to off a product page. The second half keeps
   # the Section Rendering request working, where the recommendations are in hand but
@@ -133,6 +137,7 @@
   The element wraps the band as well as the row: when there is nothing to show it is
   the whole section that has to go, not a row inside a heading.
 {%- endcomment -%}
+{% unless seasonal_hub_row %}
 {%- case source -%}
   {%- when 'related' -%}
     <product-recommendations
@@ -272,6 +277,8 @@
   {%- when 'recently_viewed' -%}
     {% render 'ui-recently-viewed' %}
 {%- endcase -%}
+
+{% endunless %}
 
 {% stylesheet %}
   /*

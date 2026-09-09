@@ -495,7 +495,8 @@
         "button"
       ],
       "settings": {
-        "image_top_left": "shopify://shop_images/corporate-gifts-top-left.webp",
+        "image_top_left": "",
+        "image_top_left_asset": "th-approved-corporate-pinnacle.webp",
         "image_top_right": "shopify://shop_images/corporate-gifts-top-right.webp",
         "image_bottom_left": "",
         "image_bottom_left_asset": "th-approved-corporate-kay.webp",

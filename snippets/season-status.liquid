@@ -16,7 +16,8 @@
      (`Coming-Soon` reads as `coming_soon`).
   2. Product tags `season:coming-soon` or `season:closed` (any casing), for a
      shop working without the metafield definition.
-  3. Otherwise `available`.
+  3. Draft theme closed-product and closed/upcoming-collection settings.
+  4. Otherwise `available`.
 
   The label is `product.metafields.custom.season_label` when filled (e.g. "Back
   for Halloween"), else the locale's `products.product.coming_soon` or
@@ -66,14 +67,19 @@
   if has_product_rule == false and product.metafields.custom.internal_vendor == blank
     assign closed_handles = settings.season_closed_collections | map: 'handle'
     assign upcoming_handles = settings.season_upcoming_collections | map: 'handle'
-    for product_collection in product.collections
-      if closed_handles contains product_collection.handle
-        assign season_status = 'closed'
-        break
-      elsif upcoming_handles contains product_collection.handle
-        assign season_status = 'coming_soon'
-      endif
-    endfor
+    assign closed_product_handles = settings.season_closed_products | map: 'handle'
+    if closed_product_handles contains product.handle
+      assign season_status = 'closed'
+    else
+      for product_collection in product.collections
+        if closed_handles contains product_collection.handle
+          assign season_status = 'closed'
+          break
+        elsif upcoming_handles contains product_collection.handle
+          assign season_status = 'coming_soon'
+        endif
+      endfor
+    endif
   endif
 
   if season_status != 'available'

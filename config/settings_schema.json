@@ -117,7 +117,7 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "Set Internal vendor on a product to mark it as another channel's. Today: RD (ReachDesk), WS (wholesale), OVERTURE, PNC. Any value works — a new channel needs no code change."
+        "content": "Set Internal vendor on a product to mark it as another channel's. Today: RD (ReachDesk), WS (wholesale), OVERTURE, PNC. Any value works \u2014 a new channel needs no code change."
       },
       {
         "type": "checkbox",
@@ -142,7 +142,7 @@
         "id": "title_hidden_words",
         "label": "Words to hide",
         "default": "RD",
-        "info": "Comma separated, whole words only. Site only — orders and emails keep the full name."
+        "info": "Comma separated, whole words only. Site only \u2014 orders and emails keep the full name."
       }
     ]
   },
@@ -161,6 +161,13 @@
         "id": "season_closed_collections",
         "label": "Closed seasonal collections",
         "info": "Retail products in these collections cannot be ordered and are hidden from browsing. A product season_status metafield overrides this default.",
+        "limit": 50
+      },
+      {
+        "type": "product_list",
+        "id": "season_closed_products",
+        "label": "Closed seasonal products",
+        "info": "Use for seasonal products without a dedicated collection. Product-level season_status still takes priority.",
         "limit": 50
       },
       {
@@ -191,7 +198,7 @@
     "settings": [
       {
         "type": "paragraph",
-        "content": "A product wears a badge by carrying the tag — nothing to fill in on the product itself. Match title is both the tag looked for and the words printed on the card, so a product tagged “bestsellers” still reads “Bestsellers”. Tags match whatever their casing. A product carrying several of these takes the first filled slot below, so the order is the priority. Leave a title empty to switch that slot off."
+        "content": "A product wears a badge by carrying the tag \u2014 nothing to fill in on the product itself. Match title is both the tag looked for and the words printed on the card, so a product tagged \u201cbestsellers\u201d still reads \u201cBestsellers\u201d. Tags match whatever their casing. A product carrying several of these takes the first filled slot below, so the order is the priority. Leave a title empty to switch that slot off."
       },
       {
         "type": "header",
@@ -199,7 +206,7 @@
       },
       {
         "type": "paragraph",
-        "content": "Seasonal treats stay published but stop selling outside their window. Mark a product on the product itself: set the metafield custom.season_status to “coming_soon” or “closed” (and, optionally, custom.season_label to the words shown, e.g. “Back for Halloween”), or add the tag season:coming-soon or season:closed. Cards, quick-add, the product page and the cart then show the label instead of Add to cart, and checkout waits until the item is removed. Set the metafield back to “available” (or remove the tag) to reopen it."
+        "content": "Seasonal treats stay published but stop selling outside their window. Mark a product on the product itself: set the metafield custom.season_status to \u201ccoming_soon\u201d or \u201cclosed\u201d (and, optionally, custom.season_label to the words shown, e.g. \u201cBack for Halloween\u201d), or add the tag season:coming-soon or season:closed. Cards, quick-add, the product page and the cart then show the label instead of Add to cart, and checkout waits until the item is removed. Set the metafield back to \u201cavailable\u201d (or remove the tag) to reopen it."
       },
       {
         "type": "header",

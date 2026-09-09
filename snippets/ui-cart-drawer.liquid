@@ -107,7 +107,7 @@
       message existed was to open the box again, which is what "it does not show
       anything" meant.
     {%- endcomment -%}
-    <p class="ui-gift-note__message" data-gift-note-message>{{ cart.note }}</p>
+    <p class="ui-gift-note__message" data-gift-note-message>{{ cart.note | escape }}</p>
 
     {%- comment -%} Errors only — a save that worked is reported by the message above. {%- endcomment -%}
     <p class="ui-gift-note__status" role="status" data-gift-note-status></p>
@@ -476,6 +476,10 @@
     padding: 14px;
     border-radius: var(--ui-radius-sm);
     background-color: var(--ui-color-light-blue);
+  }
+
+  .ui-gift-note[hidden] {
+    display: none;
   }
 
   .ui-gift-note__heading {

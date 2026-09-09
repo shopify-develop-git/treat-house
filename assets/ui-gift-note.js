@@ -30,7 +30,10 @@ const TOGGLE = '[data-gift-note-toggle]';
  * typing in it: a shopper mid-sentence when someone else's request lands should
  * not have their words replaced by the server's copy.
  */
-const render = (panel, note) => {
+const render = (panel, note, items = []) => {
+  // Match the Liquid rule after an asynchronous cart refresh as well: a message
+  // already attached to a box does not need a second order-level message.
+  panel.hidden = !note && items.some((item) => String(item.properties?.['Gift message'] ?? '').trim());
   const message = panel.querySelector(MESSAGE);
   if (message) message.textContent = note;
 
@@ -46,26 +49,29 @@ const save = async (panel, button) => {
   const details = panel.querySelector('details');
   if (!field) return;
 
+  const submittedNote = field.value.trim();
   button.disabled = true;
 
   try {
-    await fetch(window.Theme?.routes?.cart_update_url ?? '/cart/update.js', {
+    const response = await fetch(window.Theme?.routes?.cart_update_url ?? '/cart/update.js', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ note: field.value }),
+      body: JSON.stringify({ note: submittedNote }),
     });
+    if (!response.ok) throw new Error('Gift message did not save');
+    const cart = await response.json();
+    const note = String(cart.note ?? '').trim();
+    if (note !== submittedNote) throw new Error('Gift message was not confirmed');
 
-    const note = field.value.trim();
-
-    if (details) details.open = false;
+    // Keep later edits open; only the value acknowledged by Shopify is saved.
+    if (details && field.value.trim() === note) details.open = false;
     if (status) status.textContent = '';
 
     // Brought up to date here rather than waiting for the next render. A cart
     // with no message offers to add one; a cart with one offers to change it.
-    render(panel, note);
+    render(panel, note, cart.items);
   } catch (error) {
-    // The note is not lost — the autosave above has it, or will on the next
-    // keystroke — so the line says to try again rather than reporting a loss.
+    // Keep the draft text and disclosure available for a retry.
     if (status) status.textContent = panel.dataset.errorLabel ?? '';
   } finally {
     button.disabled = false;
@@ -98,11 +104,13 @@ document.addEventListener('cart:update', async () => {
   if (!panels.length) return;
 
   try {
-    const cart = await fetch(window.Theme?.routes?.cart_url ? `${window.Theme.routes.cart_url}.js` : '/cart.js', {
+    const response = await fetch(window.Theme?.routes?.cart_url ? `${window.Theme.routes.cart_url}.js` : '/cart.js', {
       headers: { Accept: 'application/json' },
-    }).then((response) => response.json());
+    });
+    if (!response.ok) return;
+    const cart = await response.json();
 
-    for (const panel of panels) render(panel, (cart.note ?? '').trim());
+    for (const panel of panels) render(panel, String(cart.note ?? '').trim(), cart.items);
   } catch (error) {
     // Leave what the server drew. It is right far more often than not.
   }

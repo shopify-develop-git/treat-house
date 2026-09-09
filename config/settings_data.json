@@ -417,7 +417,10 @@
       "hanukkah",
       "valentines-day"
     ],
-    "ui_light_blue": "#acd9f0"
+    "ui_light_blue": "#acd9f0",
+    "season_closed_products": [
+      "st-patricks-day-12-pack"
+    ]
   },
   "presets": {
     "Horizon": {

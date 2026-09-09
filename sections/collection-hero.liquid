@@ -68,7 +68,16 @@
   if image_key != blank
     assign from_collection = hero_collection.metafields.custom[image_key].value
     if from_collection != blank
-      assign hero_image = from_collection
+      assign from_collection_url = from_collection | image_url: width: 1
+      assign from_collection_filename = from_collection_url | split: '?' | first | split: '/' | last
+      assign from_collection_version = from_collection_url | split: 'v=' | last | split: '&' | first
+      # The approved birthday banner is already selected in the template. Retire
+      # only the observed old cake image; future metafield images still win.
+      if hero_collection.handle == 'birthday' and from_collection_filename == 'collection-hero-birthday.webp' and from_collection_version == '1787214844'
+        assign birthday_banner_replaced = true
+      else
+        assign hero_image = from_collection
+      endif
     endif
   endif
 
@@ -83,6 +92,30 @@
   # Either picker on its own is a whole banner. Only both empty holds the frame.
   if hero_image == blank
     assign hero_image = hero_image_mobile
+  endif
+
+  # Use the supplied WebP version of the approved birthday template photo while
+  # retiring the old cake banner. A different image-picker choice remains valid.
+  if birthday_banner_replaced and hero_image != blank
+    assign selected_image_url = hero_image | image_url: width: 1
+    if selected_image_url contains '/th-birthday-hero.jpg'
+      assign hero_image = ''
+    endif
+  endif
+
+  if hero_image == blank
+    capture hero_image_asset
+      render 'collection-hero-asset', collection: hero_collection
+    endcapture
+    assign hero_image_asset = hero_image_asset | strip
+  endif
+
+  assign hero_asset_width = 1200
+  assign hero_asset_height = 1200
+  if hero_image_asset == 'th-approved-birthday-hero.webp'
+    assign hero_asset_width = 1800
+    assign hero_asset_height = 466
+    assign birthday_banner_replaced = true
   endif
 -%}
 
@@ -108,7 +141,7 @@
       %}
     {%- endif -%}
 
-    <div class="collection-hero__card">
+    <div class="collection-hero__card{% if birthday_banner_replaced %} collection-hero__card--approved-banner{% elsif hero_image_asset != blank %} collection-hero__card--photo-panel{% endif %}">
       <div class="collection-hero__media" aria-hidden="true">
         {%- if hero_image != blank -%}
           <picture>
@@ -123,6 +156,15 @@
             {%- endif -%}
             {% render 'image', image: hero_image, height: 760, class: 'collection-hero__image', loading: 'eager' %}
           </picture>
+        {%- elsif hero_image_asset != blank -%}
+          <img
+            src="{{ hero_image_asset | asset_url }}"
+            width="{{ hero_asset_width }}"
+            height="{{ hero_asset_height }}"
+            class="collection-hero__image"
+            loading="eager"
+            alt=""
+          >
         {%- else -%}
           {%- comment -%} Photography is not in yet; hold the frame so the band reads true. {%- endcomment -%}
           <span class="collection-hero__image collection-hero__image--placeholder"></span>
@@ -266,6 +308,38 @@
     text-align: center;
   }
 
+  /* Keep the supplied square photographs intact, with readable copy beside
+     them. These rules apply only when a bundled seasonal fallback is used. */
+  .collection-hero__card--photo-panel {
+    padding: 0;
+    background-color: var(--ui-color-light-blue);
+  }
+
+  .collection-hero__card--photo-panel .collection-hero__media {
+    position: relative;
+    order: 2;
+    inline-size: 100%;
+    aspect-ratio: 1;
+    background: #fff;
+  }
+
+  .collection-hero__card--photo-panel .collection-hero__image {
+    object-fit: contain;
+  }
+
+  .collection-hero__card--photo-panel .collection-hero__content {
+    box-sizing: border-box;
+    padding: 32px 24px;
+  }
+
+  .collection-hero__card--approved-banner .collection-hero__content {
+    box-sizing: border-box;
+    max-inline-size: 520px;
+    padding: 24px;
+    border-radius: 16px;
+    background: rgb(255 255 255 / 0.94);
+  }
+
   @media screen and (min-width: 750px) {
     .collection-hero {
       gap: 24px;
@@ -276,6 +350,24 @@
 
       min-block-size: var(--collection-hero-height-desktop, 380px);
       padding-block: 24px 64px;
+    }
+
+    .collection-hero__card--photo-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      padding: 0;
+    }
+
+    .collection-hero__card--photo-panel .collection-hero__media {
+      grid-column: 2;
+      grid-row: 1;
+      aspect-ratio: auto;
+      block-size: var(--collection-hero-height-desktop, 380px);
+    }
+
+    .collection-hero__card--photo-panel .collection-hero__content {
+      grid-column: 1;
+      grid-row: 1;
     }
   }
 {% endstylesheet %}
