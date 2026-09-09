@@ -50,7 +50,19 @@
     <ul class="shop-by-occasion__grid" role="list">
       {%- if chosen.size > 0 -%}
         {%- for collection in chosen limit: card_limit -%}
+          {%- capture collection_asset -%}{% render 'collection-thumbnail-asset', collection: collection %}{%- endcapture -%}
           {%- liquid
+            assign collection_asset = collection_asset | strip
+            assign collection_image = collection.metafields.custom.card_image.value | default: collection.featured_image
+            assign card_title = collection.title
+            case collection.handle
+              when 'halloween'
+                assign card_title = 'Halloween'
+              when 'christmas-treats'
+                assign card_title = 'Christmas Treats'
+              when 'valentines-day'
+                assign card_title = 'Valentine’s Day'
+            endcase
             assign card_copy = section.settings.description
             if card_copy == blank
               assign card_copy = collection.description | strip_html | truncatewords: 14
@@ -58,9 +70,10 @@
           -%}
           <li class="shop-by-occasion__item">
             {% render 'ui-collection-card',
-              title: collection.title,
+              title: card_title,
               description: card_copy,
-              image: collection.featured_image,
+              image: collection_image,
+              image_asset: collection_asset,
               link: collection.url
             %}
           </li>

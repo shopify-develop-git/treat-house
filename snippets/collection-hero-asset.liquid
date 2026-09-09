@@ -1,11 +1,15 @@
 {%- doc -%}
-  Approved client photography for collections without a selected hero image.
-  Called only after the section image pickers and collection metafields resolve.
+  Real product cutouts from approved client photography and current product
+  galleries. All use transparent 600x660 canvases and a common product baseline.
   @param {object} collection - The collection being pictured.
 {%- enddoc -%}
 {%- case collection.handle -%}
-  {%- when 'birthday' -%}th-approved-birthday-hero.webp
-  {%- when 'christmas-treats' -%}th-approved-christmas-hero.webp
-  {%- when 'halloween' -%}th-approved-halloween-hero.webp
-  {%- when 'thanksgiving' -%}th-approved-thanksgiving-hero.webp
+  {%- when 'birthday' -%}th-moment-birthday-cutout.webp
+  {%- when 'get-well' -%}th-moment-get-well-cutout.webp
+  {%- when 'congratulations' -%}th-moment-congratulations-cutout.webp
+  {%- when 'baby-shower' -%}th-moment-baby-shower-cutout.webp
+  {%- when 'halloween' -%}th-moment-halloween-cutout.webp
+  {%- when 'thanksgiving' -%}th-moment-thanksgiving-cutout.webp
+  {%- when 'christmas-treats' -%}th-moment-christmas-treats-cutout.webp
+  {%- when 'valentines-day' -%}th-moment-valentines-day-cutout.webp
 {%- endcase -%}

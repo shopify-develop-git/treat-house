@@ -1,14 +1,18 @@
 {%- doc -%}
-  Approved September 4 client photography bundled with this draft, without
-  changing shared collection images on the live store. A collection's
+  Real single-treat photographs with deterministic transparent masks, normalized
+  subject height and baseline. Originals remain untouched. A collection's
   custom.card_image file metafield overrides these defaults for future updates.
   @param {object} collection - The collection being pictured.
 {%- enddoc -%}
 {%- if collection.metafields.custom.card_image.value == blank -%}
   {%- case collection.handle -%}
-    {%- when 'get-well' -%}th-get-well-single-treat.webp
-    {%- when 'congratulations' -%}th-congrats-single-treat.webp
-    {%- when 'thanksgiving' -%}th-thanksgiving-four-treats.webp
-    {%- when 'halloween' -%}th-halloween-eyeball-single-treat.webp
+    {%- when 'birthday' -%}th-moment-birthday-cutout.webp
+    {%- when 'get-well' -%}th-moment-get-well-cutout.webp
+    {%- when 'congratulations' -%}th-moment-congratulations-cutout.webp
+    {%- when 'baby-shower' -%}th-moment-baby-shower-cutout.webp
+    {%- when 'halloween' -%}th-moment-halloween-cutout.webp
+    {%- when 'thanksgiving' -%}th-moment-thanksgiving-cutout.webp
+    {%- when 'christmas-treats' -%}th-moment-christmas-treats-cutout.webp
+    {%- when 'valentines-day' -%}th-moment-valentines-day-cutout.webp
   {%- endcase -%}
 {%- endif -%}

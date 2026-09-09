@@ -139,22 +139,22 @@
     }
   },
   "cart": {
-    "delivery_heading": "Delivery",
-    "delivery_date_label": "Delivery date",
-    "delivery_date_choose": "Pick a delivery date",
-    "delivery_date_required": "Pick a delivery date to continue.",
+    "delivery_heading": "Delivery request",
+    "delivery_date_label": "Requested date",
+    "delivery_date_choose": "Choose a requested date",
+    "delivery_date_required": "Choose your requested date to continue.",
     "seasonal_blocked": "A seasonal treat in your cart is not available right now. Remove it to continue.",
     "seasonal_remove_hint": "Remove this treat to continue.",
     "delivery_date_error": "We could not save that date. Please try once more.",
-    "delivery_date_cleared": "That delivery date is no longer available. Please pick a new one.",
+    "delivery_date_cleared": "Please choose a requested date. Arrival timing depends on your address and shipping method.",
     "delivery_date_lead": {
-      "one": "Pick a delivery date at least {{ count }} day out.",
-      "other": "Pick a delivery date at least {{ count }} days out."
+      "one": "This is a request, not a guaranteed arrival date. Timing depends on your delivery address, shipping method and preparation time. Enter your full address at checkout to see shipping options.",
+      "other": "This is a request, not a guaranteed arrival date. Timing depends on your delivery address, shipping method and preparation time. Enter your full address at checkout to see shipping options."
     },
-    "shipping_at_checkout": "Shipping timing and options are shown at checkout.",
+    "shipping_at_checkout": "Shipping options appear after you enter your address at checkout.",
     "ships_from": "Ships from",
     "shipping_method": "Shipping method",
-    "confirm_delivery_date": "Confirm delivery date"
+    "confirm_delivery_date": "Save requested date"
   },
   "content": {
     "added": "Added",

@@ -1,22 +1,7 @@
 {% comment %}
-  Testimonials (Figma: Testimonials, desktop and mobile).
-
-  A heading with a rating line under it, and a row of review cards that runs past
-  both edges of the page. The reviews are the merchant's list, so they are the
-  section's block region; the heading and the rating line sit above it and never
-  move, so they are static blocks.
-
-  The row is a carousel at every width — the file draws it mid-scroll on both, with
-  cards cut off at the edges. Cards keep the width they are drawn at rather than
-  dividing the container, which is why the row overflows: three and a bit of them
-  at 1440, one and two halves on a phone.
-
-  Where a card lands differs, though. On a phone it centres, so the neighbours peek
-  evenly; on a wide screen it lines up with the page column, so the row starts where
-  the heading does.
-
-  Controls show on the phone layout only, which is what the file draws — a wide row
-  says it scrolls by cutting a card at the edge.
+  Customer reviews stay within the centered page column. The carousel shows
+  three complete cards on desktop, two on tablet and one on mobile. Its kit
+  arrows remain visible at every width; full quotes expand within their cards.
 {% endcomment %}
 
 {%- liquid
@@ -54,8 +39,8 @@
     {%- endif -%}
   </div>
 
-  <ui-carousel class="testimonials__viewport">
-    <div class="testimonials__track" data-carousel-track>
+  <ui-carousel class="testimonials__viewport" role="region" aria-roledescription="carousel" aria-label="Customer reviews">
+    <div class="testimonials__track" data-carousel-track tabindex="0" aria-label="Scroll customer reviews">
       {% content_for 'blocks' %}
     </div>
 
@@ -63,12 +48,14 @@
       <div class="testimonials__controls">
         {% render 'ui-pagination-arrow',
           direction: 'left',
+          label: 'Previous reviews',
           class: 'testimonials__arrow',
           attributes: 'data-carousel-prev'
         %}
-        <div class="ui-carousel__dots" data-carousel-dots></div>
+        <span class="testimonials__controls-label">Browse reviews</span>
         {% render 'ui-pagination-arrow',
           direction: 'right',
+          label: 'Next reviews',
           class: 'testimonials__arrow',
           attributes: 'data-carousel-next'
         %}
@@ -78,31 +65,30 @@
 </div>
 
 {% render 'ui-carousel' %}
+<script src="{{ 'ui-testimonial.js' | asset_url }}" type="module"></script>
 
 {% stylesheet %}
   .testimonials {
-    --testimonials-card-width: 295px;
+    --testimonials-columns: 1;
     --testimonials-gap: 16px;
-    --testimonials-header-gap: 32px;
+    --ui-carousel-start: 1;
 
     display: flex;
     flex-direction: column;
-    gap: var(--testimonials-header-gap);
+    gap: 32px;
+    min-width: 0;
     padding-block: var(--testimonials-block-padding, 64px);
-
-    /* Opens on the second card: the file draws the row already moved along, and a
-       first card flush to the edge hides that it scrolls. */
-    --ui-carousel-start: 2;
   }
 
-  /* One card has nothing to scroll to: open on it, and let it sit in the track
-     without the offset that would otherwise centre a second card. */
-  .testimonials--single {
-    --ui-carousel-start: 1;
-  }
-
-  .testimonials--single .testimonials__track {
-    overflow-x: hidden;
+  .testimonials__header,
+  .testimonials__viewport {
+    box-sizing: border-box;
+    width: min(
+      var(--page-content-width, 1280px),
+      calc(100% - var(--page-margin, var(--ui-page-margin)) * 2)
+    );
+    min-width: 0;
+    margin-inline: auto;
   }
 
   .testimonials__header {
@@ -110,15 +96,6 @@
     flex-direction: column;
     align-items: center;
     gap: 16px;
-    box-sizing: border-box;
-
-    /* The auto margins that centre this also stop it stretching to the column, so the
-       width has to be asked for. Without it the header shrinks to the heading's
-       longest line and the rating line centres on that instead of on the page. */
-    width: 100%;
-    max-width: var(--page-width, 90rem);
-    margin-inline: auto;
-    padding-inline: var(--ui-page-margin);
     text-align: center;
   }
 
@@ -126,19 +103,22 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 24px;
   }
 
   .testimonials__track {
-    display: flex;
-    align-items: stretch;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc(
+      (100% - (var(--testimonials-columns) - 1) * var(--testimonials-gap)) /
+        var(--testimonials-columns)
+    );
+    align-items: start;
     gap: var(--testimonials-gap);
+    min-width: 0;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
-
-    /* Half a viewport either side centres a card, so its neighbours peek evenly. */
-    padding-inline: calc((100% - var(--testimonials-card-width)) / 2);
   }
 
   .testimonials__track::-webkit-scrollbar {
@@ -146,8 +126,8 @@
   }
 
   .testimonials__track > * {
-    flex: 0 0 var(--testimonials-card-width);
-    scroll-snap-align: center;
+    min-width: 0;
+    scroll-snap-align: start;
   }
 
   .testimonials__controls {
@@ -157,45 +137,39 @@
     gap: 16px;
   }
 
+  .testimonials__controls-label {
+    font-family: var(--ui-font-body);
+    font-size: 14px;
+    color: var(--ui-color-primary);
+  }
+
+  .testimonials__track:focus-visible {
+    outline: 2px solid var(--ui-color-primary);
+    outline-offset: 4px;
+  }
+
   @media screen and (min-width: 750px) {
     .testimonials {
-      --testimonials-card-width: 413px;
+      --testimonials-columns: 2;
       --testimonials-gap: 20px;
-      --testimonials-header-gap: 48px;
 
+      gap: 40px;
       padding-block: var(--testimonials-block-padding-desktop, 80px);
-
-      /* The row lines up with the page column here, so the first card is already
-         where the heading starts and there is nothing to reveal. */
-      --ui-carousel-start: 1;
     }
+  }
 
-    .testimonials__track {
-      /* Aligned to the page column rather than centred, which is what puts the row's
-         first card under the start of the heading. */
-      padding-inline: max(
-        var(--ui-page-margin),
-        calc((100% - var(--page-width, 90rem)) / 2 + var(--ui-page-margin))
-      );
-
-      /* Snapping measures from the scrollport edge, not from the padding, so without
-         this the first card snaps flush to the window and the row loses the page
-         margin it is supposed to start at. */
-      scroll-padding-inline: max(
-        var(--ui-page-margin),
-        calc((100% - var(--page-width, 90rem)) / 2 + var(--ui-page-margin))
-      );
+  @media screen and (min-width: 1200px) {
+    .testimonials {
+      --testimonials-columns: 3;
     }
+  }
 
-    .testimonials__track > * {
-      scroll-snap-align: start;
-    }
+  .testimonials--single {
+    --testimonials-columns: 1;
+  }
 
-    /* The file gives a wide row no controls: a card cut off at the edge says it
-       scrolls without them. */
-    .testimonials__controls {
-      display: none;
-    }
+  .testimonials--single .testimonials__viewport {
+    max-width: 420px;
   }
 {% endstylesheet %}
 

@@ -2133,22 +2133,22 @@
       {
         "type": "checkbox",
         "id": "show_cart_delivery_date",
-        "label": "Let the customer pick a delivery date",
+        "label": "Let the customer request a delivery date",
         "info": "Turned off, the delivery row says shipping options are shown at checkout instead of opening a calendar.",
         "default": true
       },
       {
         "type": "checkbox",
         "id": "require_cart_delivery_date",
-        "label": "Require a delivery date before checkout",
-        "info": "The checkout button stays disabled until a date is confirmed. Only applies while the delivery panel and the date picker are both shown.",
+        "label": "Require a requested date before checkout",
+        "info": "The checkout button stays disabled until a requested date is saved. This does not confirm delivery availability. Only applies while the delivery panel and the date picker are both shown.",
         "default": true
       },
       {
         "type": "range",
         "id": "cart_delivery_min_days",
-        "label": "Delivery, earliest",
-        "info": "Days from today. The drawer works the dates out rather than showing a figure somebody has to remember to change. The calendar rings this day and greys out everything before it.",
+        "label": "Earliest date request",
+        "info": "Calendar days from today before a date may be requested. This is a request window, not a transit or delivery estimate.",
         "min": 1,
         "max": 21,
         "step": 1,
@@ -2158,8 +2158,8 @@
       {
         "type": "range",
         "id": "cart_delivery_max_days",
-        "label": "Delivery, latest",
-        "info": "How far ahead the calendar lets a date be booked.",
+        "label": "Latest date request",
+        "info": "How far ahead a customer can request a date.",
         "min": 8,
         "max": 180,
         "step": 2,
@@ -2182,8 +2182,8 @@
         "type": "text",
         "id": "cart_delivery_attribute",
         "label": "Order field for the date",
-        "info": "What the chosen date is called on the order. Left empty, \"Delivery date\" is used.",
-        "default": "Delivery date"
+        "info": "What the chosen date is called on the order. Left empty, \"Requested delivery date\" is used.",
+        "default": "Requested delivery date"
       },
       {
         "type": "text",

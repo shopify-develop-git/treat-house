@@ -1,8 +1,8 @@
 {%- doc -%}
   Echoes the cart's chosen delivery date (`cart.attributes['_delivery_date']`,
-  ISO `YYYY-MM-DD`) if it is still bookable, and nothing at all if it is not.
+  ISO `YYYY-MM-DD`) if it is within the request window, and nothing at all if it is not.
 
-  One place decides what "still bookable" means, so the drawer panel, the
+  One place decides what "within the request window" means, so the drawer panel, the
   checkout gate and the hidden form inputs cannot disagree:
 
   - not before today + `cart_delivery_min_days` (default 3) and not after
@@ -36,7 +36,7 @@
   assign iso = cart.attributes['_delivery_date'] | default: '' | strip
   assign valid = false
 
-  if iso.size == 10 and iso >= earliest and iso <= latest
+  if cart.attributes['_delivery_date_type'] == 'requested' and iso.size == 10 and iso >= earliest and iso <= latest
     assign valid = true
 
     assign weekday = iso | date: '%w'

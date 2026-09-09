@@ -1,5 +1,5 @@
 /**
- * The delivery date the cart books (Figma: 537:22547 → 538:23485).
+ * A requested delivery date. No destination or carrier service is known before checkout.
  *
  * WHAT THE CALENDAR SUPPORTS — and what it does not. Every rule below is
  * enforced twice: here in the browser, and in Liquid (`cart-delivery-date-valid`)
@@ -8,20 +8,20 @@
  *
  *   Supported
  *   - Minimum lead time: today + `cart_delivery_min_days` calendar days
- *     (default 3). Days before it are greyed out; the first bookable day is
- *     ringed. Counted from the moment the cart was rendered, in the shop's
+ *     (default 3). Earlier days are greyed out; no date is automatically selected.
+ *     Counted from the moment the cart was rendered, in the shop's
  *     timezone; there is no same-day cut-off hour.
  *   - Maximum window: today + `cart_delivery_max_days` calendar days (default
- *     60). Month navigation stops at the last bookable month.
+ *     60). Month navigation stops at the last requestable month.
  *   - Disabled weekdays: `cart_delivery_disabled_weekdays`, a comma list of
  *     0 (Sunday) … 6 (Saturday). Empty means every weekday is allowed.
  *   - Blackout dates: `cart_delivery_blackout_dates`, one YYYY-MM-DD per line.
  *     Single dates only — no ranges, no recurring holidays.
- *   - One date per cart, saved as two cart attributes (see below), carried by
+ *   - One date per cart, saved as three cart attributes (see below), carried by
  *     the cart form as hidden inputs as well, and copied onto the order as
  *     "Additional details".
  *   - Required before checkout (`require_cart_delivery_date`): the checkout
- *     button is rendered disabled by Liquid until a date is confirmed, and a
+ *     button is rendered disabled by Liquid until a request is saved, and a
  *     capturing guard here opens the calendar instead of submitting if the
  *     button is ever clicked without one.
  *
@@ -36,12 +36,14 @@
  *     not know the address or the rate before checkout.
  *   - Capacity per day (a maximum number of orders on one date).
  *
- * Two attributes are written. The named one (`cart_delivery_attribute`,
- * default "Delivery date") carries the date the way the drawer printed it,
+ * Three attributes are written. The named one (`cart_delivery_attribute`,
+ * default "Requested delivery date") carries the date the way the drawer printed it,
  * with the year, so the order shows the customer what they picked.
  * `_delivery_date` carries the ISO date, which is what the drawer reads back to
  * reopen the calendar on the right month — "Thu, Sep 10, 2026" parses
  * differently in every locale, so the display string cannot do that job.
+ * `_delivery_date_type` is "requested"; legacy dates without it require a new
+ * selection. The old "Delivery date" display attribute is cleared on each save.
  *
  * The underscore is not a hiding mechanism here. That convention is a line
  * item property one; a cart attribute called `_delivery_date` is still a cart
@@ -66,6 +68,10 @@
 import { sectionRenderer } from '@theme/section-renderer';
 
 const ISO = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+// The drawer and cart page may both clear a legacy date. Serialize their writes
+// so a slow clear cannot arrive after a shopper's newer requested-date save.
+let deliveryDateWrites = Promise.resolve();
 
 /**
  * Parses `YYYY-MM-DD` as a local date.
@@ -198,7 +204,7 @@ class CartDeliveryDate extends HTMLElement {
 
     this.addEventListener('click', this.#onClick);
 
-    // Liquid found a saved date that is no longer bookable and showed the row
+    // Liquid found a saved date that is no longer requestable and showed the row
     // as unset. Clear it from the cart too, so it cannot reach the order.
     if (this.dataset.stale === 'true') this.#clearStale();
   }
@@ -207,9 +213,10 @@ class CartDeliveryDate extends HTMLElement {
     this.removeEventListener('click', this.#onClick);
   }
 
-  /** Whether the cart has a confirmed, still-bookable date. */
+  /** Whether the cart has a saved, still-requestable date. */
   get hasDate() {
-    return this.#chosen != null && this.#isAllowed(this.#chosen);
+    const selected = parseISO(this.dataset.selected);
+    return selected != null && this.#isAllowed(selected);
   }
 
   /** Whether checkout is meant to wait for a date. */
@@ -274,7 +281,13 @@ class CartDeliveryDate extends HTMLElement {
       // again on the next open instead.
       if (!this.weekdays?.childElementCount) this.#renderWeekdays();
 
-      // Reopening after a confirm starts from the booked date, not last month.
+      // A server morph or the other calendar may have changed the saved date.
+      // Reconcile only when opening, so an unrelated morph does not replace a
+      // shopper's pending selection while the calendar is already open.
+      const selected = parseISO(this.dataset.selected);
+      this.#chosen = selected && this.#isAllowed(selected) ? selected : null;
+
+      // Reopening after a confirm starts from the requested date, not last month.
       this.#pending = this.#chosen;
       this.#view = new Date(this.#chosen ?? this.#firstAllowed);
       this.#renderMonth();
@@ -282,7 +295,7 @@ class CartDeliveryDate extends HTMLElement {
   }
 
   /**
-   * Whether the shop can deliver on a day: inside the window, not a blocked
+   * Whether a date falls within the configured request window: inside the window, not a blocked
    * weekday, not a blackout date.
    *
    * @param {Date} date
@@ -295,9 +308,8 @@ class CartDeliveryDate extends HTMLElement {
   }
 
   /**
-   * The first day that can actually be booked. With weekends blocked, that is
-   * not always the earliest day of the window — and it is the one the file
-   * rings and the one the calendar opens on.
+   * The first allowed request date determines the month the calendar opens on.
+   * It is not automatically selected or highlighted.
    */
   #findFirstAllowed() {
     const date = new Date(this.earliest);
@@ -404,8 +416,6 @@ class CartDeliveryDate extends HTMLElement {
       button.textContent = String(day);
       button.disabled = !this.#isAllowed(date);
 
-      // The file rings the first day the shop can actually deliver on.
-      if (sameDay(date, this.#firstAllowed)) button.classList.add('ui-date-picker__day--first');
       if (this.#pending && sameDay(date, this.#pending)) button.setAttribute('aria-selected', 'true');
 
       cells.push(button);
@@ -449,7 +459,22 @@ class CartDeliveryDate extends HTMLElement {
   }
 
   /**
-   * Saves both attributes to the cart and reports whether the cart took them.
+   * Queues a date write behind earlier writes from either calendar instance.
+   * A failed request does not prevent the next selection from being saved.
+   *
+   * @param {string} display
+   * @param {string} iso
+   * @returns {Promise<boolean>}
+   */
+  #save(display, iso) {
+    const write = () => this.#writeAttributes(display, iso);
+    const result = deliveryDateWrites.then(write, write);
+    deliveryDateWrites = result.catch(() => false);
+    return result;
+  }
+
+  /**
+   * Saves all three attributes to the cart and reports whether the cart took them.
    *
    * A 4xx/5xx from /cart/update.js does not throw, so `response.ok` is
    * checked, and the returned cart is read back to confirm the ISO value is
@@ -459,22 +484,22 @@ class CartDeliveryDate extends HTMLElement {
    * @param {string} iso
    * @returns {Promise<boolean>}
    */
-  async #save(display, iso) {
-    const name = this.dataset.attribute || 'Delivery date';
+  async #writeAttributes(display, iso) {
+    const name = this.dataset.attribute || 'Requested delivery date';
 
     try {
       const response = await fetch(window.Theme?.routes?.cart_update_url ?? '/cart/update.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
-          attributes: { [name]: display, _delivery_date: iso },
+          attributes: { [name]: display, _delivery_date: iso, _delivery_date_type: iso ? 'requested' : '', ...(name !== 'Delivery date' ? { 'Delivery date': '' } : {}) },
         }),
       });
       if (!response.ok) return false;
 
       const cart = await response.json().catch(() => null);
       const saved = cart?.attributes?._delivery_date ?? '';
-      return String(saved) === iso;
+      return String(saved) === iso && (cart?.attributes?._delivery_date_type ?? '') === (iso ? 'requested' : '') && (cart?.attributes?.[name] ?? '') === display;
     } catch {
       return false;
     }
@@ -512,7 +537,7 @@ class CartDeliveryDate extends HTMLElement {
   }
 
   /**
-   * The Liquid side found a saved date that is no longer bookable. Post the
+   * The Liquid side found a saved date that is no longer requestable. Post the
    * attributes back empty so the order cannot carry it. Nothing is shown for
    * this beyond the notice Liquid already rendered; failure is silent because
    * the checkout gate is closed regardless.
@@ -552,6 +577,8 @@ class CartDeliveryDate extends HTMLElement {
 
     const isoInput = form.querySelector('[data-delivery-date-iso]');
     const displayInput = form.querySelector('[data-delivery-date-display]');
+    const typeInput = form.querySelector('[data-delivery-date-type]');
+    if (typeInput instanceof HTMLInputElement) typeInput.value = iso ? 'requested' : '';
     if (isoInput instanceof HTMLInputElement) isoInput.value = iso;
     if (displayInput instanceof HTMLInputElement) displayInput.value = display;
   }

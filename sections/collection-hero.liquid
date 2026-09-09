@@ -1,55 +1,9 @@
 {% comment %}
-  Collection hero (Figma: V2 Birthday Treats Occasion collection page → Hero,
-  491:19940, with the trail above it at 491:19971).
-
-  A rounded banner inset by the page gutter: the collection's photograph behind, a
-  star, the collection's name in two tones and the sentence under it. The card sits
-  inside the page column rather than running to the window edge, which is what the
-  20px radius is for.
-
-  The words are the template's, not the collection's. The heading and the copy are
-  ordinary [_ui-heading] and [_ui-text] blocks a merchant types into — this is a
-  banner laid out per template, the way any other section is.
-
-  The picture is the collection's, but through a metafield of its own and not through
-  `collection.image`. That field is spoken for in production, and a banner and a
-  thumbnail are not the same picture anyway: one is 3.37:1 with room in the middle for
-  a heading, the other is whatever the catalogue needs.
-
-  So `custom.hero_image` on the collection, with the section's picker behind it — the
-  metafield is the per-collection answer and the picker is the floor for a template
-  eight collections share. That is the bargain `docs/section-settings.md` describes for
-  the product page, and a blank metafield leaves the section's own picture standing.
-  The key is a setting rather than a constant, so the name is the merchant's and this
-  file is not the only place it is written down.
-
-  Both blocks can read the collection instead: their `source` setting offers
-  `collection_title` and `collection_description`, and on that path the two-tone accent
-  comes from the collection's `custom.title_accent` metafield. That is what one shared
-  `templates/collection.json` would want if the shop ever fills those fields in. It is
-  a switch, not the default, because a banner is editorial: the words that sell a
-  Birthday page are rarely the words in its collection description, and the picture
-  filed against a collection is a product shot rather than a banner.
-
-  A phone gets its own picker, as `docs/section-settings.md` asks for every image.
-  The banner is drawn 3.37:1 and a phone's card is nearer 1.3:1, so `cover` throws
-  away about three fifths of the width — on this one that is the box of treats at one
-  end and the cake at the other, leaving the pale middle the words sit on. Legible,
-  and empty. A crop cut for the shape belongs in the second picker rather than in a
-  rule that squeezes the first.
-
-  The two are one `<picture>` and not two `<img>`s behind a media query: a browser
-  picks one source and downloads one file, where the display-toggle version fetches
-  both and shows one.
-
-  The file draws no scrim, and the default is no scrim — the banner it draws is a pale
-  purpose-made photograph the black heading sits on happily. The switch is there for a
-  shop that hangs a busier picture behind the same words.
-
-  The trail's middle step is written out rather than taken from a resource. A
-  collection's parent here is a nav item — "Shop Treats" — which is not a thing with
-  a `.title` and a `.url` that Liquid will hand over, so [ui-breadcrumb] takes the
-  two strings instead.
+  Rounded collection banner using real transparent product photography on one
+  continuous brand-blue background. Known approved cutouts replace the older
+  generated banner images; a custom.hero_cutout collection file can override
+  them for future merchant updates. Other collection imagery retains its normal
+  image-picker/metafield behavior. Title and body remain editable theme blocks.
 {% endcomment %}
 
 {%- liquid
@@ -68,16 +22,7 @@
   if image_key != blank
     assign from_collection = hero_collection.metafields.custom[image_key].value
     if from_collection != blank
-      assign from_collection_url = from_collection | image_url: width: 1
-      assign from_collection_filename = from_collection_url | split: '?' | first | split: '/' | last
-      assign from_collection_version = from_collection_url | split: 'v=' | last | split: '&' | first
-      # The approved birthday banner is already selected in the template. Retire
-      # only the observed old cake image; future metafield images still win.
-      if hero_collection.handle == 'birthday' and from_collection_filename == 'collection-hero-birthday.webp' and from_collection_version == '1787214844'
-        assign birthday_banner_replaced = true
-      else
-        assign hero_image = from_collection
-      endif
+      assign hero_image = from_collection
     endif
   endif
 
@@ -94,29 +39,19 @@
     assign hero_image = hero_image_mobile
   endif
 
-  # Use the supplied WebP version of the approved birthday template photo while
-  # retiring the old cake banner. A different image-picker choice remains valid.
-  if birthday_banner_replaced and hero_image != blank
-    assign selected_image_url = hero_image | image_url: width: 1
-    if selected_image_url contains '/th-birthday-hero.jpg'
-      assign hero_image = ''
-    endif
+  capture hero_image_asset
+    render 'collection-hero-asset', collection: hero_collection
+  endcapture
+  assign hero_image_asset = hero_image_asset | strip
+  assign hero_cutout = hero_collection.metafields.custom.hero_cutout.value
+  assign is_cutout_banner = false
+  if hero_image_asset != blank or hero_cutout != blank
+    assign is_cutout_banner = true
+    assign hero_image = hero_cutout
+    assign hero_image_mobile = ''
   endif
-
-  if hero_image == blank
-    capture hero_image_asset
-      render 'collection-hero-asset', collection: hero_collection
-    endcapture
-    assign hero_image_asset = hero_image_asset | strip
-  endif
-
-  assign hero_asset_width = 1200
-  assign hero_asset_height = 1200
-  if hero_image_asset == 'th-approved-birthday-hero.webp'
-    assign hero_asset_width = 1800
-    assign hero_asset_height = 466
-    assign birthday_banner_replaced = true
-  endif
+  assign hero_asset_width = 600
+  assign hero_asset_height = 660
 -%}
 
 <div
@@ -141,7 +76,7 @@
       %}
     {%- endif -%}
 
-    <div class="collection-hero__card{% if birthday_banner_replaced %} collection-hero__card--approved-banner{% elsif hero_image_asset != blank %} collection-hero__card--photo-panel{% endif %}">
+    <div class="collection-hero__card{% if is_cutout_banner %} collection-hero__card--cutout{% endif %}">
       <div class="collection-hero__media" aria-hidden="true">
         {%- if hero_image != blank -%}
           <picture>
@@ -171,7 +106,7 @@
         {%- endif -%}
       </div>
 
-      {%- if section.settings.show_scrim -%}
+      {%- if section.settings.show_scrim and is_cutout_banner == false -%}
         <span
           class="collection-hero__scrim"
           style="--collection-hero-scrim: {{ section.settings.scrim_opacity | divided_by: 100.0 }};"
@@ -308,66 +243,55 @@
     text-align: center;
   }
 
-  /* Keep the supplied square photographs intact, with readable copy beside
-     them. These rules apply only when a bundled seasonal fallback is used. */
-  .collection-hero__card--photo-panel {
-    padding: 0;
-    background-color: var(--ui-color-light-blue);
+  .collection-hero__card--cutout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    padding: 28px 24px 20px;
+    background: var(--ui-color-light-blue);
   }
 
-  .collection-hero__card--photo-panel .collection-hero__media {
+  .collection-hero__card--cutout .collection-hero__content {
+    grid-row: 1;
+    gap: 16px;
+    box-sizing: border-box;
+  }
+
+  .collection-hero__card--cutout .collection-hero__media {
     position: relative;
-    order: 2;
-    inline-size: 100%;
-    aspect-ratio: 1;
-    background: #fff;
+    inset: auto;
+    grid-row: 2;
+    justify-self: center;
+    inline-size: min(100%, 240px);
+    block-size: 220px;
   }
 
-  .collection-hero__card--photo-panel .collection-hero__image {
+  .collection-hero__card--cutout .collection-hero__image {
     object-fit: contain;
   }
 
-  .collection-hero__card--photo-panel .collection-hero__content {
-    box-sizing: border-box;
-    padding: 32px 24px;
-  }
-
-  .collection-hero__card--approved-banner .collection-hero__content {
-    box-sizing: border-box;
-    max-inline-size: 520px;
-    padding: 24px;
-    border-radius: 16px;
-    background: rgb(255 255 255 / 0.94);
-  }
-
-  @media screen and (min-width: 750px) {
-    .collection-hero {
-      gap: 24px;
-    }
-
+  @media screen and (min-width: 1000px) {
+    .collection-hero { gap: 24px; }
     .collection-hero__card {
       --collection-hero-gap: 48px;
-
       min-block-size: var(--collection-hero-height-desktop, 380px);
       padding-block: 24px 64px;
     }
-
-    .collection-hero__card--photo-panel {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      padding: 0;
+    .collection-hero__card--cutout {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 24px;
+      padding: 24px clamp(32px, 5vw, 80px);
     }
-
-    .collection-hero__card--photo-panel .collection-hero__media {
-      grid-column: 2;
-      grid-row: 1;
-      aspect-ratio: auto;
-      block-size: var(--collection-hero-height-desktop, 380px);
-    }
-
-    .collection-hero__card--photo-panel .collection-hero__content {
+    .collection-hero__card--cutout .collection-hero__content {
       grid-column: 1;
       grid-row: 1;
+      gap: 24px;
+    }
+    .collection-hero__card--cutout .collection-hero__media {
+      grid-column: 2;
+      grid-row: 1;
+      inline-size: min(100%, 360px);
+      block-size: calc(var(--collection-hero-height-desktop, 380px) - 48px);
     }
   }
 {% endstylesheet %}
@@ -393,7 +317,7 @@
       "type": "image_picker",
       "id": "image",
       "label": "Banner, every collection",
-      "info": "The floor for a template every collection shares. A collection that fills in its own metafield below wins over this. With neither, the frame is held with a placeholder."
+      "info": "Fallback for collections without an approved cutout. For a cutout replacement, set the collection file metafield custom.hero_cutout."
     },
     {
       "type": "image_picker",
@@ -407,7 +331,7 @@
     },
     {
       "type": "paragraph",
-      "content": "Add these under Settings → Custom data → Collections as File metafields that accept images, then fill them in per collection. A collection that leaves one blank falls back to the pictures above."
+      "content": "Use the collection File metafield custom.hero_cutout for transparent product photography. The banner metafields below apply to collections without approved cutouts."
     },
     {
       "type": "text",

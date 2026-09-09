@@ -41,6 +41,8 @@
     upgrade value (the second value of the first option). Matched on position
     rather than wording, since the value strings differ per pack. Used only when
     that value's variant has no featured media of its own.
+  @param {string} [hide_option_name] - Keep a native option wired but visually hidden
+    when another control selects it (the custom-treat flavor property selector).
 
   @example
   {% render 'ui-product-variant-picker', product_resource: closest.product, label_prefix: 'Choose your' %}
@@ -121,7 +123,7 @@
         {%- endif -%}
       {%- endfor -%}
 
-      <fieldset class="ui-product-variant-picker__option" ref="fieldsets[]">
+      <fieldset class="ui-product-variant-picker__option" ref="fieldsets[]"{% if hide_option_name != blank and product_option.name == hide_option_name %} hidden{% endif %}>
         <legend class="ui-product-variant-picker__legend">{{ legend }}</legend>
         {% render 'ui-variant-select',
           label: trigger_label,
@@ -159,6 +161,10 @@
     margin: 0;
     padding: 0;
     border: 0;
+  }
+
+  .ui-product-variant-picker__option[hidden] {
+    display: none;
   }
 
   .ui-product-variant-picker__legend {

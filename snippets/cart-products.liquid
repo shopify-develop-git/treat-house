@@ -93,7 +93,7 @@
         {%- capture delivery_iso -%}{% render 'cart-delivery-date-valid' %}{%- endcapture -%}
         {%- liquid
           assign delivery_iso = delivery_iso | strip
-          assign delivery_attribute = settings.cart_delivery_attribute | default: 'Delivery date'
+          assign delivery_attribute = settings.cart_delivery_attribute | default: 'Requested delivery date'
           assign delivery_display = ''
           if delivery_iso != blank
             assign delivery_display = cart.attributes[delivery_attribute] | default: ''
@@ -102,6 +102,7 @@
             endif
           endif
         -%}
+        <input type="hidden" name="attributes[_delivery_date_type]" value="{% if delivery_iso != blank %}requested{% endif %}" data-delivery-date-type>
         <input type="hidden" name="attributes[_delivery_date]" value="{{ delivery_iso }}" data-delivery-date-iso>
         <input type="hidden" name="attributes[{{ delivery_attribute | escape }}]" value="{{ delivery_display | escape }}" data-delivery-date-display>
       {%- endif -%}

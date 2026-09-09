@@ -21,6 +21,7 @@
 
   @param {string} [label] - The field label, rendered above the control in caps.
   @param {string} [options] - Comma-separated option labels.
+  @param {string} [option_delimiter] - Optional separator when labels contain commas.
   @param {string} [placeholder] - The empty first option. Without it the field starts on the first real option.
   @param {string} [selected] - The option label to preselect.
   @param {string} [error] - The error message. Its presence puts the field in the error state.
@@ -47,7 +48,8 @@
   if ui_id == blank
     assign ui_id = ui_label | handleize | prepend: 'ui-select-'
   endif
-  assign ui_options = options | split: ','
+  assign ui_option_delimiter = option_delimiter | default: ','
+  assign ui_options = options | split: ui_option_delimiter
 -%}
 
 <div class="ui-select{% if error != blank %} ui-select--error{% endif %}{% if class != blank %} {{ class }}{% endif %}">

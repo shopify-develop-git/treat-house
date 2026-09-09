@@ -1,5 +1,5 @@
 {%- doc -%}
-  The delivery panel: the date the order is booked for, and the calendar it is
+  The delivery panel: the date the customer requests, and the calendar it is
   picked in. One control — the panel's date row is the trigger and the readout,
   the calendar under it is what it opens — driven by `cart-delivery-date.js`.
 
@@ -12,7 +12,7 @@
   The date is saved as two cart attributes: the one named in
   `cart_delivery_attribute` carries the human string ("Thu, Sep 10, 2026"),
   `_delivery_date` carries ISO `YYYY-MM-DD`. A stored date that is no longer
-  bookable (see `cart-delivery-date-valid`) is shown as unset, flagged
+  within the request window (see `cart-delivery-date-valid`) is shown as unset, flagged
   `data-stale` so the script clears it from the cart, and the checkout gate in
   `cart-summary` re-engages.
 
@@ -39,7 +39,7 @@
   assign earliest = lead_days | times: 86400 | plus: now_seconds | date: '%Y-%m-%d'
   assign latest = window_days | times: 86400 | plus: now_seconds | date: '%Y-%m-%d'
 
-  assign date_attribute = settings.cart_delivery_attribute | default: 'Delivery date'
+  assign date_attribute = settings.cart_delivery_attribute | default: 'Requested delivery date'
   assign stored_iso = cart.attributes['_delivery_date'] | default: '' | strip
 -%}
 {%- capture chosen_iso -%}{% render 'cart-delivery-date-valid' %}{%- endcapture -%}
