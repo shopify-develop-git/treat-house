@@ -407,6 +407,11 @@ class CartDeliveryDate extends HTMLElement {
   paint() {
     if (!state) return;
     const estimate = state.estimate?.ok ? state.estimate : null;
+    const requested = state.mode === 'requested';
+    const hasRequest = requested && Boolean(state.selected);
+    const attributes = this.deliveryAttributes();
+    const requestSaved = hasRequest && this.#timingValid && !state.saving && !state.failed &&
+      !state.draft && state.savedSignature === JSON.stringify(attributes);
     data(this, 'zip', state.zip); data(this, 'mode', state.mode); data(this, 'selected', state.selected);
     if (this.zipInput && document.activeElement !== this.zipInput && this.zipInput.value !== state.zip) this.zipInput.value = state.zip;
     const status = this.querySelector('[data-estimate-status]');
@@ -417,17 +422,23 @@ class CartDeliveryDate extends HTMLElement {
     if (state.failed) message = state.mode === 'requested' ? 'We couldn’t save your request. Try again or choose As soon as possible.' : 'We couldn’t save this estimate. You can still continue to checkout.';
     text(status, message); hidden(status, !message);
     if (this.zipInput) this.zipInput.setAttribute('aria-invalid', String(Boolean(state.zip && !normalizeDeliveryZip(state.zip))));
-    hidden(this.querySelector('[data-estimate-result]'), !estimate);
+    hidden(this.querySelector('[data-estimate-result]'), !estimate || hasRequest);
     if (estimate) {
       text(this.querySelector('[data-estimate-range]'), this.#formatRange(parseISO(estimate.arrivalFrom), parseISO(estimate.arrivalTo)));
       text(this.querySelector('[data-estimate-destination]'), `To ${estimate.zip}`);
     }
-    const requested = state.mode === 'requested';
     text(this.querySelector('[data-delivery-mode-label]'), requested ? (state.selected ? 'Requested delivery date' : 'Choose a later date') : 'As soon as possible');
+    hidden(this.querySelector('[data-delivery-mode-label]'), hasRequest);
     text(this.querySelector('.ui-cart-estimate__label'), requested ? 'Soonest estimated arrival' : 'Estimated arrival');
     hidden(this.querySelector('[data-delivery-asap]'), !requested);
-    hidden(this.querySelector('[data-request-summary]'), !requested || !state.selected);
-    hidden(this.pill, !requested || !state.selected);
+    const summary = this.querySelector('[data-request-summary]');
+    hidden(summary, !hasRequest);
+    if (summary) summary.dataset.requestState = requestSaved ? 'saved' : 'pending';
+    text(this.querySelector('[data-request-label]'), state.draft ? 'Previous requested date' : 'Requested delivery date');
+    text(this.querySelector('[data-request-status]'), state.draft ? 'Save your new date below to update this request.' :
+      state.failed ? 'Request not saved. Please try again below.' :
+      requestSaved ? `Request saved for delivery to ${state.zip}.` : 'Saving your request…');
+    hidden(this.pill, !hasRequest);
     if (state.selected) text(this.pill, this.#format(parseISO(state.selected)));
     if (this.toggleButton) {
       const unavailable = !estimate || !this.picker;
@@ -448,7 +459,6 @@ class CartDeliveryDate extends HTMLElement {
     } else {
       this.#calendarInitialized = false;
     }
-    const attributes = this.deliveryAttributes();
     for (const input of document.querySelectorAll('[data-delivery-attribute]')) {
       const value = attributes[input.dataset.deliveryAttribute];
       if (value != null && input.value !== value) input.value = value;

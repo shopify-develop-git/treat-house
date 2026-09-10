@@ -151,18 +151,11 @@
 
     <div class="ui-cart-estimate__delivery">
       <p class="ui-cart-estimate__mode" data-delivery-mode-label>{% if delivery_mode == 'requested' %}Requested delivery date{% else %}As soon as possible{% endif %}</p>
-      <p class="ui-cart-shipping__row ui-cart-shipping__row--date" data-request-summary{% unless delivery_mode == 'requested' %} hidden{% endunless %}>
-        <span class="ui-cart-shipping__label">Requested date</span>
-        <span class="ui-cart-date__pill" data-date-pill{% if delivery_mode != 'requested' or chosen == blank %} hidden{% endif %}>{{ chosen | escape }}</span>
-      </p>
-      {% render 'ui-button',
-        variant: 'secondary-alt',
-        label: 'Ship as soon as possible',
-        full_width: true,
-        type: 'button',
-        class: 'ui-cart-date__asap',
-        attributes: asap_attributes
-      %}
+      <div class="ui-cart-request" data-request-summary role="status" aria-live="polite" aria-atomic="true"{% if delivery_mode != 'requested' or chosen == blank %} hidden{% endif %}>
+        <span class="ui-cart-request__label" data-request-label>Requested delivery date</span>
+        <strong class="ui-cart-request__date" data-date-pill{% if delivery_mode != 'requested' or chosen == blank %} hidden{% endif %}>{{ chosen | escape }}</strong>
+        <span class="ui-cart-request__status" data-request-status>Checking your saved request…</span>
+      </div>
       {%- if settings.show_cart_delivery_date -%}
         {% render 'ui-button',
           variant: 'secondary',
@@ -185,6 +178,14 @@
           {{- 'cart.delivery_date_error' | t -}}
         </p>
       {%- endif -%}
+      {% render 'ui-button',
+        variant: 'secondary-alt',
+        label: 'Ship as soon as possible',
+        full_width: true,
+        type: 'button',
+        class: 'ui-cart-date__asap',
+        attributes: asap_attributes
+      %}
     </div>
 
     <p class="ui-cart-estimate__caveat">Estimated ground delivery. Final timing depends on your address and shipping method.</p>

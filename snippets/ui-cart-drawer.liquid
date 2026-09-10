@@ -217,6 +217,14 @@
     padding-inline: 0;
   }
 
+  /* The outer scroll hint includes checkout, so its inline gradient fades the
+     button as well as the scrolled content. Keep the hint on the item list only.
+     Important is required because ScrollHint rewrites the inline mask on scroll. */
+  .cart-drawer__dialog .cart-drawer__content {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+
   /* ---------- Lines ---------- */
 
   /* The file leaves 24 between the header's rule and the first line. */
@@ -758,6 +766,43 @@
     min-width: 0;
   }
 
+  .ui-cart-request {
+    display: grid;
+    gap: 8px;
+    padding: 16px;
+    border: 2px solid var(--ui-color-primary);
+    border-radius: var(--ui-radius-sm);
+    background: var(--ui-color-light-blue);
+    color: var(--ui-color-primary);
+  }
+
+  .ui-cart-request__label {
+    font-family: var(--ui-font-accent);
+    font-size: 12px;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+
+  .ui-cart-request__date {
+    font-family: var(--ui-font-emphasis);
+    font-weight: var(--ui-font-emphasis-weight);
+    font-size: clamp(20px, 5vw, 26px);
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  .ui-cart-request__status {
+    font-family: var(--ui-font-body);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .ui-cart-request[data-request-state='saved'] .ui-cart-request__status::before {
+    content: '\2713';
+    margin-inline-end: 6px;
+    font-weight: 700;
+  }
+
   .ui-cart-estimate__delivery .ui-cart-date__toggle,
   .ui-cart-estimate__delivery .ui-cart-date__asap {
     flex: 0 0 auto;
@@ -787,6 +832,7 @@
   }
 
   .ui-cart-date [data-estimate-result][hidden],
+  .ui-cart-date [data-delivery-mode-label][hidden],
   .ui-cart-date [data-request-summary][hidden],
   .ui-cart-date [data-delivery-asap][hidden] {
     display: none;
@@ -956,6 +1002,9 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    /* The summary starts with delivery controls, not a decorative scroll edge. */
+    -webkit-mask-image: none;
+    mask-image: none;
 
     /* The file leaves 24 between the shipping panel and the rule, and another 24
        between the subtotal row and the button. One gap does both. */
