@@ -1,0 +1,21 @@
+{%- doc -%}
+  Draft copy for the two supplied 2026 holiday assortments. Exact legacy-copy
+  guards allow later merchant description updates to take precedence.
+  @param {object} product - Product whose description is displayed.
+{%- enddoc -%}
+{%- liquid
+  assign description = product.description
+  case product.handle
+    when 'deluxe-assortment-of-winter-wonderland-treats'
+      assign legacy_copy = '<p>This deluxe gift box features two 12-packs of Winter-Themed Rice Krispie Treats with flavors like cinnamon hot cocoa, speculoos sugar cookie, caramel french toast, and M&amp;M. This sampler also includes and assortment of some of our favorite candies including birthday cake malt balls, festive gummy bears, blue and white M&amp;Ms, silver gumballs, and vanilla Jelly Bellys.</p>'
+      if description == legacy_copy
+        assign description = '<p>A festive assortment of winter-themed treats, presented in a deluxe gift box.</p>'
+      endif
+    when 'deluxe-christmas-assortment'
+      assign legacy_copy = '<p>One of our most festive holiday boxes!!! Two 12-packs of Christmas-themed Rice Krispie Treats, including flavors like Cinnamon Hot Cocoa, Speculoos Sugar Cookies, Gingerbread, Peppermint Bark. This deluxe gift box also comes with some our our favorite festive candy. The assortment includes Silver Gumballs, Vanilla Jelly Bellys, Creamy Mint Chocolate Wafers, Christmas colored M&amp;Ms, and Mint Chocolate Malt Balls.</p>'
+      if description == legacy_copy
+        assign description = '<p>A festive assortment of Christmas-themed treats, presented in a deluxe gift box.</p>'
+      endif
+  endcase
+  echo description
+-%}

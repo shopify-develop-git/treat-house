@@ -23,7 +23,9 @@
   assign copy = block.settings.text
   assign pulled = false
   if block.settings.source == 'product_description'
-    assign copy = closest.product.description
+    capture copy
+      render 'product-description-copy', product: closest.product
+    endcapture
     assign pulled = true
   elsif block.settings.source == 'collection_description'
     assign source_collection = closest.collection | default: collection

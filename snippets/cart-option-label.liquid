@@ -1,0 +1,24 @@
+{%- doc -%}
+  Customer-facing option labels preserve the selected configuration without
+  repeating legacy customization surcharges already included in the line price.
+  Native variant values are unchanged for fulfillment and checkout.
+  @param {object} option - Cart line option name and value.
+{%- enddoc -%}
+{%- liquid
+  assign option_name = option.name | downcase
+  assign label = option.value
+  assign value_lower = option.value | downcase
+  if option_name contains 'how many custom treats'
+    if value_lower contains 'half of my treats'
+      assign label = 'Half of the treats custom'
+    elsif value_lower contains 'all of my treats'
+      assign label = 'All of the treats custom'
+    endif
+    if label != option.value and value_lower contains 'individual'
+      unless value_lower contains 'no individual'
+        assign label = label | append: ' · Individually boxed'
+      endunless
+    endif
+  endif
+  echo label | escape
+-%}

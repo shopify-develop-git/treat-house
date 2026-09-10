@@ -1,0 +1,64 @@
+{%- doc -%}
+  Hide only obsolete gallery photographs replaced by the September 2026
+  client-supplied complete assortment photographs. New merchant photos remain.
+  @param {string} handle - Exact product handle.
+  @param {object} image - Native image or source string.
+{%- enddoc -%}
+{%- liquid
+  assign image_source = image.src | default: image
+  assign image_filename = image_source | split: '?' | first | split: '/' | last
+  case handle
+    when '12-pack-of-winter-wonderland-treats'
+      case image_filename
+        when 'WINTER_TREAT_121223025_WP.jpg'
+          echo 'true'
+        when 'WINTER_COCOA_WP.jpg'
+          echo 'true'
+        when 'WINTER_TREAT__3_12122025_WP.jpg'
+          echo 'true'
+        when 'WINTER_TREAT__2_12122025_WP.jpg'
+          echo 'true'
+      endcase
+    when 'deluxe-assortment-of-winter-wonderland-treats'
+      case image_filename
+        when 'WINTER_TREAT_121223025_WP.jpg'
+          echo 'true'
+        when 'WINTER_TREAT__2_12122025_WP.jpg'
+          echo 'true'
+        when 'winter_candy_12122025_WP.jpg'
+          echo 'true'
+        when 'WINTER_COCOA_WP.jpg'
+          echo 'true'
+        when 'WINTER_DAIGONOL_12122025_WP.jpg'
+          echo 'true'
+        when 'WINTER_TREAT__3_12122025_WP.jpg'
+          echo 'true'
+      endcase
+    when '12-pack-of-christmas-themed-rice-krispie-treats'
+      case image_filename
+        when 'GINGERBREAD_FLAT_2025_10272025_WP.jpg'
+          echo 'true'
+        when 'SANTA_HAT_2025_10272025_WP.jpg'
+          echo 'true'
+        when 'SNOWFLAK_FLAT_2025_10282025_WP.jpg'
+          echo 'true'
+      endcase
+    when 'deluxe-christmas-assortment'
+      case image_filename
+        when 'CHRISTMAS_TREATS_2025_WP2.jpg'
+          echo 'true'
+        when 'cfe7f6ec-CHRISTMAS-DELUXE-WITH-LID-2024-WP.jpg'
+          echo 'true'
+        when 'CHRISTMAS_CANDY_2024_11072025_wp.jpg'
+          echo 'true'
+        when 'SANTA_HAT_2025_10272025_WP.jpg'
+          echo 'true'
+        when 'GINGERBREAD_FLAT_2025_10272025_WP.jpg'
+          echo 'true'
+        when '4624f923-CHRISTMAS-DELUXE-2024-WP.jpg'
+          echo 'true'
+        when 'SNOWFLAK_FLAT_2025_10282025_WP.jpg'
+          echo 'true'
+      endcase
+  endcase
+-%}

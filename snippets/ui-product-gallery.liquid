@@ -38,11 +38,39 @@
 {%- enddoc -%}
 
 {%- liquid
-  assign gallery_media = product.media
+  assign gallery_media = '' | split: ','
+  for media in product.media
+    capture retired_image
+      render 'product-image-retired', handle: product.handle, image: media.preview_image
+    endcapture
+    assign retired_image = retired_image | strip
+    unless retired_image == 'true'
+      assign one_media = product.media | where: 'id', media.id
+      assign gallery_media = gallery_media | concat: one_media
+    endunless
+  endfor
   assign selected_media = product.selected_or_first_available_variant.featured_media
   if selected_media == blank
     assign selected_media = product.featured_media
   endif
+  assign selected_media_id = selected_media.id | append: ''
+  capture selected_override
+    render 'product-variant-media-id', product: product, variant: product.selected_or_first_available_variant
+  endcapture
+  assign selected_override = selected_override | strip
+  if selected_override != blank
+    assign selected_media_id = selected_override
+  endif
+  assign selected_is_visible = false
+  for media in gallery_media
+    assign media_id = media.id | append: ''
+    if media_id == selected_media_id
+      assign selected_is_visible = true
+    endif
+  endfor
+  unless selected_is_visible
+    assign selected_media_id = gallery_media.first.id | append: ''
+  endunless
   assign badge_background = badge_color | default: '#6c276a'
   assign badge_on_white = badge_background | color_contrast: '#ffffff'
   assign badge_on_black = badge_background | color_contrast: '#000000'
@@ -54,12 +82,19 @@
   assign previous_label = 'accessibility.slideshow_previous' | t
   assign next_label = 'accessibility.slideshow_next' | t
 -%}
-{%- capture featured_image_asset -%}{% render 'product-image-asset', handle: product.handle, image: product.featured_media.preview_image %}{%- endcapture -%}
-{%- assign featured_image_asset = featured_image_asset | strip -%}
+{%- capture variant_media_map -%}
+  {%- if product.handle == 'baby-shower-2' -%}
+    {%- for variant in product.variants -%}
+      {%- capture variant_media_id -%}{% render 'product-variant-media-id', product: product, variant: variant %}{%- endcapture -%}
+      {%- assign variant_media_id = variant_media_id | strip -%}
+      {%- if variant_media_id != blank -%}"{{ variant.id }}":"{{ variant_media_id }}",{%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endcapture -%}
 
 <script src="{{ 'ui-product-gallery.js' | asset_url }}" type="module" fetchpriority="low"></script>
 
-<ui-product-gallery class="ui-product-gallery{% if class != blank %} {{ class }}{% endif %}">
+<ui-product-gallery class="ui-product-gallery{% if class != blank %} {{ class }}{% endif %}"{% if variant_media_map != blank %} data-ui-gallery-variant-media="{ {{ variant_media_map | escape }} &quot;_&quot;:null }"{% endif %}>
   <div class="ui-product-gallery__stage">
     {%- if gallery_media.size > 0 -%}
       {%- for media in gallery_media -%}
@@ -71,9 +106,12 @@
         {%- endcomment -%}
         {%- capture media_alt -%}{% render 'strip-hidden-words', title: media.alt %}{%- endcapture -%}
         {%- assign media_alt = media_alt | strip -%}
+        {%- capture image_asset -%}{% render 'product-image-asset', handle: product.handle, image: media.preview_image %}{%- endcapture -%}
+        {%- assign image_asset = image_asset | strip -%}
         {%- liquid
           assign is_selected = false
-          if media.id == selected_media.id
+          assign media_id = media.id | append: ''
+          if media_id == selected_media_id
             assign is_selected = true
           endif
           assign loading = 'lazy'
@@ -86,9 +124,9 @@
           data-ui-gallery-media="{{ media.id }}"
           {% unless is_selected %}hidden{% endunless %}
         >
-          {%- if featured_image_asset != blank and media.id == product.featured_media.id -%}
+          {%- if image_asset != blank -%}
             <img
-              src="{{ featured_image_asset | asset_url }}"
+              src="{{ image_asset | asset_url }}"
               width="1200"
               height="1200"
               class="ui-product-gallery__image"
@@ -143,17 +181,20 @@
       {%- for media in gallery_media -%}
         {%- capture media_alt -%}{% render 'strip-hidden-words', title: media.alt %}{%- endcapture -%}
         {%- assign media_alt = media_alt | strip -%}
+        {%- capture image_asset -%}{% render 'product-image-asset', handle: product.handle, image: media.preview_image %}{%- endcapture -%}
+        {%- assign image_asset = image_asset | strip -%}
         {%- assign is_selected = false -%}
-        {%- if media.id == selected_media.id -%}{%- assign is_selected = true -%}{%- endif -%}
+        {%- assign media_id = media.id | append: '' -%}
+        {%- if media_id == selected_media_id -%}{%- assign is_selected = true -%}{%- endif -%}
         <button
           type="button"
           class="ui-product-gallery__thumb"
           data-ui-gallery-thumb="{{ media.id }}"
           aria-pressed="{{ is_selected }}"
         >
-          {%- if featured_image_asset != blank and media.id == product.featured_media.id -%}
+          {%- if image_asset != blank -%}
             <img
-              src="{{ featured_image_asset | asset_url }}"
+              src="{{ image_asset | asset_url }}"
               width="1200"
               height="1200"
               class="ui-product-gallery__thumb-image"

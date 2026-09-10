@@ -1,0 +1,28 @@
+{%- doc -%}
+  Correct the legacy Baby Shower gallery association using the chosen pack.
+  Only the exact old pair is eligible; replacing either merchant photo restores
+  Shopify's native variant association. Return a media ID or blank.
+  @param {object} product - Product containing the native media.
+  @param {object} variant - Selected native variant.
+{%- enddoc -%}
+{%- if product.handle == 'baby-shower-2' -%}
+  {%- liquid
+    assign boys_media_id = ''
+    assign girls_media_id = ''
+    for media in product.media
+      assign filename = media.preview_image.src | split: '?' | first | split: '/' | last
+      if filename == 'baby-e1548099730457_57400763-eb3e-4a58-9b44-0192f6544d51.jpg'
+        assign boys_media_id = media.id
+      elsif filename == 'baby-girl_e39f096b-4ff2-44fd-9313-d220e04434ff.jpg'
+        assign girls_media_id = media.id
+      endif
+    endfor
+    if boys_media_id != blank and girls_media_id != blank
+      if variant.option1 == 'Boys'
+        echo boys_media_id
+      elsif variant.option1 == 'Girls'
+        echo girls_media_id
+      endif
+    endif
+  -%}
+{%- endif -%}

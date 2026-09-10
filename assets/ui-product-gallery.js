@@ -60,7 +60,19 @@ class UiProductGallery extends HTMLElement {
   };
 
   #onVariantUpdate = (event) => {
-    const mediaId = event.detail?.resource?.featured_media?.id;
+    const variant = event.detail?.resource;
+    let mediaId = variant?.featured_media?.id;
+    // The exact legacy Baby Shower media pair has a draft-only correction.
+    // Read the current attribute so a section morph or merchant photo update
+    // cannot leave a stale variant association in this component.
+    if (variant?.id != null && this.dataset.uiGalleryVariantMedia) {
+      try {
+        const overrides = JSON.parse(this.dataset.uiGalleryVariantMedia);
+        mediaId = overrides[String(variant.id)] ?? mediaId;
+      } catch {
+        // Native Shopify media remains usable if an editor leaves invalid data.
+      }
+    }
     if (mediaId == null) return;
 
     this.select(String(mediaId));

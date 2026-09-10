@@ -1,22 +1,56 @@
 {%- doc -%}
-  Draft photo replacements for exact supplied product/legacy-image pairs.
-  Return blank when the merchant supplies another image or for any other SKU.
-  The native media ID remains unchanged for gallery and variant selection.
-
-  @param {string} handle - Exact Shopify product handle.
-  @param {object} image - Native Shopify image whose source is checked.
+  Draft replacements for client-approved exact product/legacy-image pairs.
+  New merchant photo filenames use Shopify's native image immediately.
+  Native media and variant IDs remain unchanged.
+  @param {string} handle - Exact product handle.
+  @param {object} image - Native image or source string.
 {%- enddoc -%}
 {%- liquid
   assign image_source = image.src | default: image
   assign image_filename = image_source | split: '?' | first | split: '/' | last
   case handle
     when 'baby-shower-12-pack-boys'
-      if image_filename == 'BABY-SHOWER-BOY_112022-WP_8716301e-90df-457a-b92f-469ba75fcb12.jpg'
-        echo 'th-baby-shower-12-pack-boys-20260904.webp'
-      endif
+      case image_filename
+        when 'BABY-SHOWER-BOY_112022-WP_8716301e-90df-457a-b92f-469ba75fcb12.jpg'
+          echo 'th-baby-shower-12-pack-boys-20260904.webp'
+      endcase
     when 'baby-shower-12-pack-girls'
-      if image_filename == 'BABY-SHOWER-GIRL-12-PACK_112022-WP_ea4d864e-7816-497a-bfc0-348f2e17b964.jpg'
-        echo 'th-baby-shower-12-pack-girls-20260904.webp'
-      endif
+      case image_filename
+        when 'BABY-SHOWER-GIRL-12-PACK_112022-WP_ea4d864e-7816-497a-bfc0-348f2e17b964.jpg'
+          echo 'th-baby-shower-12-pack-girls-20260904.webp'
+      endcase
+    when 'baby-shower-2'
+      case image_filename
+        when 'girl-and-boy-baby_40f70735-6247-44a9-a1c3-646455b02ab3.jpg'
+          echo 'th-baby-shower-mixed-20260904.webp'
+        when 'baby-e1548099730457_57400763-eb3e-4a58-9b44-0192f6544d51.jpg'
+          echo 'th-baby-shower-12-pack-boys-20260904.webp'
+        when 'baby-girl_e39f096b-4ff2-44fd-9313-d220e04434ff.jpg'
+          echo 'th-baby-shower-12-pack-girls-20260904.webp'
+      endcase
+    when '12-pack-of-winter-wonderland-treats'
+      case image_filename
+        when 'WINTER_12_PACK_2025_WP_1ecc160c-96ea-4424-86c6-5777a0c68339.jpg'
+          echo 'th-winter-12-pack-2026.webp'
+      endcase
+    when 'deluxe-assortment-of-winter-wonderland-treats'
+      case image_filename
+        when 'WINTER_DELUXE_TOP_12122025_wp.jpg'
+          echo 'th-winter-deluxe-2026.webp'
+        when 'WINTER_12_PACK_2025_WP_1ecc160c-96ea-4424-86c6-5777a0c68339.jpg'
+          echo 'th-winter-12-pack-2026.webp'
+      endcase
+    when '12-pack-of-christmas-themed-rice-krispie-treats'
+      case image_filename
+        when 'CHRISTMAS_12_PACK_12032025_WP.jpg'
+          echo 'th-christmas-12-pack-2026.webp'
+      endcase
+    when 'deluxe-christmas-assortment'
+      case image_filename
+        when 'CHRISTMAS_DELUXE_TOP_2024_WP.jpg'
+          echo 'th-christmas-deluxe-2026.webp'
+        when 'CHRISTMAS_12_PACK_12032025_WP.jpg'
+          echo 'th-christmas-12-pack-2026.webp'
+      endcase
   endcase
 -%}

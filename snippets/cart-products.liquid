@@ -291,7 +291,7 @@
                           <div class="cart-items__variant">
                             <dt class="visually-hidden">{{ option.name }}:</dt>
                             <dd>
-                              {{- option.value -}}
+                              {%- render 'cart-option-label', option: option -%}
                               {%- if forloop.last != true %},&nbsp;{% endif -%}
                             </dd>
                           </div>
