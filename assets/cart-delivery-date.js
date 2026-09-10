@@ -437,7 +437,8 @@ class CartDeliveryDate extends HTMLElement {
     text(this.querySelector('[data-request-label]'), state.draft ? 'Previous requested date' : 'Requested delivery date');
     text(this.querySelector('[data-request-status]'), state.draft ? 'Save your new date below to update this request.' :
       state.failed ? 'Request not saved. Please try again below.' :
-      requestSaved ? `Request saved for delivery to ${state.zip}.` : 'Saving your request…');
+      requestSaved ? `Request saved for delivery to ${state.zip}.` :
+      state.saving ? 'Saving your request…' : 'Checking your saved request…');
     hidden(this.pill, !hasRequest);
     if (state.selected) text(this.pill, this.#format(parseISO(state.selected)));
     if (this.toggleButton) {
