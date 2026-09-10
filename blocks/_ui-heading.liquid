@@ -52,8 +52,17 @@
     # The marking is [ui-title-accent]'s, because the cart reads the same rule and a
     # title must not come out purple in one place and black in the other.
     assign title_accent = source_resource.metafields.custom.title_accent
+    assign display_title = source_resource.title
+    # Give the generic catalog a useful automatic label. A custom heading still
+    # uses the merchant's copy; occasion and product titles keep their own names.
+    if block.settings.source == 'collection_title'
+      if source_resource.handle == 'all' or source_resource.handle == 'shop-all'
+        assign display_title = 'Shop all treats'
+        assign title_accent = ''
+      endif
+    endif
     capture title_text
-      render 'ui-title-accent', title: source_resource.title, accent: title_accent
+      render 'ui-title-accent', title: display_title, accent: title_accent
     endcapture
 
     capture heading_html

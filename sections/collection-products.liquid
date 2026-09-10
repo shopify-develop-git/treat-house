@@ -125,7 +125,7 @@
   {%- endif -%}
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
 <div
-  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}{% if collection.handle == 'all' or collection.handle == 'shop-all' %} collection-products-section--catalog{% endif %}"
   style="{% render 'spacing-style', settings: section.settings %}"
   data-testid="collection-products-{{ section.id }}"
   {{ section.shopify_attributes }}
@@ -290,6 +290,10 @@
 
 {%- endif -%}
 {% stylesheet %}
+  .section.collection-products-section--catalog {
+    padding-block-start: 24px;
+  }
+
   .collection-products__grid[hidden],
   .collection-products__progress[hidden],
   .collection-products__item[hidden],

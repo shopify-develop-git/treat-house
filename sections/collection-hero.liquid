@@ -11,6 +11,10 @@
   if request.visual_preview_mode and hero_collection == blank
     assign hero_collection = collections.all
   endif
+  assign is_catalog_header = false
+  if hero_collection.handle == 'all' or hero_collection.handle == 'shop-all'
+    assign is_catalog_header = true
+  endif
 
   assign hero_image = section.settings.image
   assign hero_image_mobile = section.settings.image_mobile
@@ -55,19 +59,19 @@
 -%}
 
 <div
-  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
+  class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}{% if is_catalog_header %} collection-hero-section--catalog{% endif %}"
   style="{% render 'spacing-style', settings: section.settings %}"
   data-testid="collection-hero-{{ section.id }}"
   {{ section.shopify_attributes }}
 >
   <div
-    class="collection-hero"
+    class="collection-hero{% if is_catalog_header %} collection-hero--catalog{% endif %}"
     style="
       --collection-hero-height: {{ section.settings.height_mobile }}px;
       --collection-hero-height-desktop: {{ section.settings.height }}px;
     "
   >
-    {%- if section.settings.show_breadcrumb -%}
+    {%- if section.settings.show_breadcrumb and is_catalog_header == false -%}
       {% render 'ui-breadcrumb',
         parent_title: section.settings.parent_title,
         parent_url: section.settings.parent_link,
@@ -76,7 +80,8 @@
       %}
     {%- endif -%}
 
-    <div class="collection-hero__card{% if is_cutout_banner %} collection-hero__card--cutout{% endif %}">
+    <div class="collection-hero__card{% if is_cutout_banner and is_catalog_header == false %} collection-hero__card--cutout{% endif %}">
+      {%- unless is_catalog_header -%}
       <div class="collection-hero__media" aria-hidden="true">
         {%- if hero_image != blank -%}
           <picture>
@@ -113,9 +118,10 @@
           aria-hidden="true"
         ></span>
       {%- endif -%}
+      {%- endunless -%}
 
       <div class="collection-hero__content">
-        {%- if section.settings.show_star -%}
+        {%- if section.settings.show_star and is_catalog_header == false -%}
           <span class="collection-hero__star" aria-hidden="true">
             {{- 'icon-ui-sparkle.svg' | inline_asset_content -}}
           </span>
@@ -130,6 +136,24 @@
 </div>
 
 {% stylesheet %}
+  /* Catalog browsing starts with the products, without an empty image frame. */
+  .section.collection-hero-section--catalog {
+    padding-block: 16px 0;
+  }
+
+  .collection-hero--catalog .collection-hero__card {
+    min-block-size: 0;
+    padding: 0;
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .collection-hero--catalog .collection-hero__content,
+  .collection-hero--catalog .collection-hero__text {
+    align-items: flex-start;
+    text-align: start;
+  }
+
   /* Collection hero. Mobile first; the drawn height arrives at 750px. */
   .collection-hero {
     display: flex;
