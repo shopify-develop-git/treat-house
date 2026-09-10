@@ -155,7 +155,7 @@
                         {%- if seasonal_links != blank -%}
                           {{ seasonal_links }}
                         {%- else -%}
-                        {%- capture childlink_indices -%}{%- render 'ui-navigation-indices', links: link.links -%}{%- endcapture -%}
+                        {%- capture childlink_indices -%}{%- render 'ui-navigation-indices', links: link.links, menu_parent: link.title -%}{%- endcapture -%}
                         {%- assign childlink_indices = childlink_indices | split: ',' -%}
                         {%- for childlink_index in childlink_indices -%}
                           {%- assign childlink_index_number = childlink_index | plus: 0 -%}
@@ -239,7 +239,7 @@
                     {%- if seasonal_links != blank -%}
                       {{ seasonal_links }}
                     {%- else -%}
-                    {%- capture childlink_indices -%}{%- render 'ui-navigation-indices', links: link.links -%}{%- endcapture -%}
+                    {%- capture childlink_indices -%}{%- render 'ui-navigation-indices', links: link.links, menu_parent: link.title -%}{%- endcapture -%}
                     {%- assign childlink_indices = childlink_indices | split: ',' -%}
                     {%- for childlink_index in childlink_indices -%}
                       {%- assign childlink_index_number = childlink_index | plus: 0 -%}
@@ -385,7 +385,7 @@
                           {%- if seasonal_links != blank -%}
                             {{ seasonal_links }}
                           {%- else -%}
-                          {%- capture childlink_indices -%}{%- render 'ui-navigation-indices', links: link.links -%}{%- endcapture -%}
+                          {%- capture childlink_indices -%}{%- render 'ui-navigation-indices', links: link.links, menu_parent: link.title -%}{%- endcapture -%}
                           {%- assign childlink_indices = childlink_indices | split: ',' -%}
                           {%- for childlink_index in childlink_indices -%}
                             {%- assign childlink_index_number = childlink_index | plus: 0 -%}
@@ -471,7 +471,7 @@
                                         {%- if seasonal_links != blank -%}
                                           {{ seasonal_links }}
                                         {%- else -%}
-                                        {%- capture grandchildlink_indices -%}{%- render 'ui-navigation-indices', links: childlink.links -%}{%- endcapture -%}
+                                        {%- capture grandchildlink_indices -%}{%- render 'ui-navigation-indices', links: childlink.links, menu_parent: link.title -%}{%- endcapture -%}
                                         {%- assign grandchildlink_indices = grandchildlink_indices | split: ',' -%}
                                         {%- for grandchildlink_index in grandchildlink_indices -%}
                                           {%- assign grandchildlink_index_number = grandchildlink_index | plus: 0 -%}
@@ -539,7 +539,7 @@
                                     {%- if seasonal_links != blank -%}
                                       {{ seasonal_links }}
                                     {%- else -%}
-                                    {%- capture grandchildlink_indices -%}{%- render 'ui-navigation-indices', links: childlink.links -%}{%- endcapture -%}
+                                    {%- capture grandchildlink_indices -%}{%- render 'ui-navigation-indices', links: childlink.links, menu_parent: link.title -%}{%- endcapture -%}
                                     {%- assign grandchildlink_indices = grandchildlink_indices | split: ',' -%}
                                     {%- for grandchildlink_index in grandchildlink_indices -%}
                                       {%- assign grandchildlink_index_number = grandchildlink_index | plus: 0 -%}

@@ -7,6 +7,7 @@
   Keep these fallbacks until the native menus have been reviewed before launch.
 
   @param {object} link - A Shopify navigation link.
+  @param {string} [menu_parent] - Top-level menu title for draft navigation grouping.
 {%- enddoc -%}
 {%- liquid
   assign key = link.title | handleize
@@ -17,9 +18,16 @@
   assign gift_card_path = normalized_path | split: '/' | last
   assign result = configured_url
   assign catalog_url = root_url | append: 'collections/all'
+  assign parent_key = menu_parent | handleize
 
   if link.gift_card or link['gift_card?'] or key == 'gift-cards' or key == 'gift-card' or key == 'e-gift-cards' or key == 'e-gift-card' or gift_card_path == 'gift-card' or gift_card_path == 'gift-cards'
     assign result = '__hidden__'
+  elsif parent_key == 'shop-treats' and key == 'custom-treats'
+    assign result = '__hidden__'
+  elsif key == 'customize' or key == 'custom-logo-treats'
+    assign result = root_url | append: 'collections/custom-treats'
+  elsif key == 'choose-your-own' or key == 'choose-your-own-treat' or key == 'choose-your-own-treats'
+    assign result = root_url | append: 'pages/customize'
   elsif key == 'all-seasonal'
     assign result = root_url | append: 'collections/holidays'
   elsif normalized_path == '/collections/all' or normalized_path == catalog_url
@@ -36,7 +44,7 @@
         assign result = root_url | append: '#our-story'
       when 'best-sellers', 'bestsellers'
         assign result = root_url | append: '#best-sellers'
-      when 'build-a-gift-box', 'build-your-gift-box', 'build-a-box', 'build-your-box', 'add-a-message', 'gift-wrap', 'customize'
+      when 'build-a-gift-box', 'build-your-gift-box', 'build-a-box', 'build-your-box', 'add-a-message', 'gift-wrap'
         assign result = root_url | append: 'pages/customize'
       when 'shop-treats', 'shop-all', 'shop-all-treats', 'all-treats'
         assign result = root_url | append: 'collections/all'

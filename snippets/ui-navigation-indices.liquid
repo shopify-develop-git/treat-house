@@ -5,6 +5,7 @@
   follow the named seasons only when at least two seasons share the same list.
 
   @param {object} links - Shopify navigation links.
+  @param {string} [menu_parent] - Top-level menu title passed to the shared resolver.
 {%- enddoc -%}
 {%- liquid
   assign original_order = ''
@@ -12,7 +13,7 @@
   assign seasonal_count = 0
 -%}
 {%- for candidate in links -%}
-  {%- capture candidate_url -%}{%- render 'ui-navigation-url', link: candidate -%}{%- endcapture -%}
+  {%- capture candidate_url -%}{%- render 'ui-navigation-url', link: candidate, menu_parent: menu_parent -%}{%- endcapture -%}
   {%- if candidate_url == '__hidden__' -%}{%- continue -%}{%- endif -%}
   {%- liquid
     assign key = candidate.title | handleize

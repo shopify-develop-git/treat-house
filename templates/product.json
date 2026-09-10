@@ -77,7 +77,7 @@
             "gift_ready": {
               "type": "_ui-product-chip",
               "settings": {
-                "label": "Arrives gift-ready",
+                "label": "Gift message available",
                 "icon": "gift"
               },
               "blocks": {}
@@ -314,9 +314,9 @@
             "packaging": {
               "type": "_ui-inclusion-card",
               "settings": {
-                "title": "Gift-Ready Packaging",
+                "title": "Gift box option",
                 "link": "",
-                "body": "<p>Arranged in our gift box and ready to hand over. No extra wrapping needed.</p>"
+                "body": "<p>Add a gift box to your order for $6.</p>"
               },
               "blocks": {}
             }

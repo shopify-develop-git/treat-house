@@ -76,7 +76,7 @@
   class="mega-menu__list list-unstyled"
   style="--menu-image-border-radius: {{ image_border_radius }}px;"
 >
-  {%- capture link_indices -%}{%- render 'ui-navigation-indices', links: parent_link.links -%}{%- endcapture -%}
+  {%- capture link_indices -%}{%- render 'ui-navigation-indices', links: parent_link.links, menu_parent: parent_link.title -%}{%- endcapture -%}
   {%- assign link_indices = link_indices | split: ',' -%}
   {%- for link_index in link_indices -%}
     {%- assign link_index_number = link_index | plus: 0 -%}
@@ -185,7 +185,7 @@
           {%- if seasonal_links != blank -%}
             {{ seasonal_links }}
           {%- else -%}
-          {%- capture child_link_indices -%}{%- render 'ui-navigation-indices', links: link.links -%}{%- endcapture -%}
+          {%- capture child_link_indices -%}{%- render 'ui-navigation-indices', links: link.links, menu_parent: parent_link.title -%}{%- endcapture -%}
           {%- assign child_link_indices = child_link_indices | split: ',' -%}
           {%- for child_link_index in child_link_indices -%}
             {%- assign child_link_index_number = child_link_index | plus: 0 -%}
