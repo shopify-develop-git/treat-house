@@ -2,7 +2,7 @@ import { Component } from '@theme/component';
 import { fetchConfig, preloadImage, onAnimationEnd, yieldToMainThread } from '@theme/utilities';
 import { ThemeEvents, CartAddEvent, CartErrorEvent, CartUpdateEvent, VariantUpdateEvent } from '@theme/events';
 import { cartPerformance } from '@theme/performance';
-import { morph } from '@theme/morph';
+import { morph, MORPH_OPTIONS } from '@theme/morph';
 
 // Error message display duration - gives users time to read the message
 const ERROR_MESSAGE_DISPLAY_DURATION = 10000;
@@ -517,24 +517,30 @@ class ProductFormComponent extends Component {
     // Update state and text for add-to-cart button
     if (!currentAddToCartButtonContainer || (!currentAddToCartButton && !acceleratedCheckoutButtonContainer)) return;
 
-    // Update the button state
-    if (event.detail.resource == null || event.detail.resource.available == false) {
-      currentAddToCartButtonContainer.disable();
-    } else {
-      currentAddToCartButtonContainer.enable();
-    }
-
     const newAddToCartButton = event.detail.data.html.querySelector('product-form-component [ref="addToCartButton"]');
+    // Inventory availability alone cannot reopen a seasonal or otherwise gated
+    // product. The server-rendered button carries the current purchase decision.
+    // An incomplete response must not enable a button without that decision.
+    const canAddToCart = Boolean(
+      event.detail.resource &&
+      event.detail.resource.available !== false &&
+      newAddToCartButton &&
+      !newAddToCartButton.disabled &&
+      newAddToCartButton.getAttribute('aria-disabled') !== 'true'
+    );
+
     if (newAddToCartButton && currentAddToCartButton) {
-      morph(currentAddToCartButton, newAddToCartButton);
+      // The default morph updates children only; disabled/ARIA live on the button.
+      morph(currentAddToCartButton, newAddToCartButton, { ...MORPH_OPTIONS, childrenOnly: false });
+    }
+    if (currentAddToCartButton) {
+      if (canAddToCart) currentAddToCartButtonContainer.enable();
+      else currentAddToCartButtonContainer.disable();
     }
 
     if (acceleratedCheckoutButtonContainer) {
-      if (event.detail.resource == null || event.detail.resource.available == false) {
-        acceleratedCheckoutButtonContainer?.setAttribute('hidden', 'true');
-      } else {
-        acceleratedCheckoutButtonContainer?.removeAttribute('hidden');
-      }
+      if (canAddToCart) acceleratedCheckoutButtonContainer.removeAttribute('hidden');
+      else acceleratedCheckoutButtonContainer.setAttribute('hidden', 'true');
     }
 
     // Set the data attribute for the product variant media if it exists
