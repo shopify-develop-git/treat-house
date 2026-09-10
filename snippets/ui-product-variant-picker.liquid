@@ -107,6 +107,13 @@
         elsif option_name_lower contains 'flavor' or option_name_lower contains 'flavour'
           assign legend = 'Choose your flavor'
         endif
+        if product_resource.handle == 'custom-school-deluxe' or product_resource.handle == 'custom-college-deluxe'
+          if option_name_lower == 'what color sprinkles do you want?'
+            assign legend = 'Sprinkle color'
+          elsif option_name_lower == 'pick your crinkle paper color'
+            assign legend = 'Crinkle paper color'
+          endif
+        endif
       -%}
 
       {%- capture option_rows -%}
