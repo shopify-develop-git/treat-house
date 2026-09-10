@@ -31,9 +31,22 @@
       {%- for position in positions -%}
         {%- assign key = 'image_' | append: position -%}
         {%- assign image = section.settings[key] -%}
-        <div class="corporate-gifts__tile">
+        {%- assign asset_key = key | append: '_asset' -%}
+        {%- assign image_asset = section.settings[asset_key] -%}
+        {%- assign fit_key = key | append: '_fit' -%}
+        {%- assign image_fit = section.settings[fit_key] | default: 'cover' -%}
+        <div class="corporate-gifts__tile{% if image_fit == 'contain' %} corporate-gifts__tile--contain{% endif %}">
           {%- if image != blank -%}
             {% render 'image', image: image, class: 'corporate-gifts__image' %}
+          {%- elsif image_asset != blank -%}
+            <img
+              src="{{ image_asset | asset_url }}"
+              class="corporate-gifts__image"
+              width="720"
+              height="720"
+              loading="lazy"
+              alt=""
+            >
           {%- else -%}
             {{ 'lifestyle-1' | placeholder_svg_tag: 'corporate-gifts__image corporate-gifts__image--placeholder' }}
           {%- endif -%}
@@ -90,6 +103,14 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--corporate-gifts-tile-gap);
+  }
+
+  .corporate-gifts__tile--contain {
+    background: #fff;
+  }
+
+  .corporate-gifts__tile--contain .corporate-gifts__image {
+    object-fit: contain;
   }
 
   .corporate-gifts__tile {
@@ -256,9 +277,35 @@
       "label": "Top left"
     },
     {
+      "type": "text",
+      "id": "image_top_left_asset",
+      "label": "Top left fallback asset",
+      "info": "Theme asset filename. Used only when no image is selected."
+    },
+    {
+      "type": "select",
+      "id": "image_top_left_fit",
+      "label": "Top left photo fit",
+      "options": [{"value":"cover","label":"Fill frame"},{"value":"contain","label":"Show complete photo"}],
+      "default": "cover"
+    },
+    {
       "type": "image_picker",
       "id": "image_top_right",
       "label": "Top right"
+    },
+    {
+      "type": "text",
+      "id": "image_top_right_asset",
+      "label": "Top right fallback asset",
+      "info": "Theme asset filename. Used only when no image is selected."
+    },
+    {
+      "type": "select",
+      "id": "image_top_right_fit",
+      "label": "Top right photo fit",
+      "options": [{"value":"cover","label":"Fill frame"},{"value":"contain","label":"Show complete photo"}],
+      "default": "cover"
     },
     {
       "type": "image_picker",
@@ -266,9 +313,35 @@
       "label": "Bottom left"
     },
     {
+      "type": "text",
+      "id": "image_bottom_left_asset",
+      "label": "Bottom left fallback asset",
+      "info": "Theme asset filename. Used only when no image is selected."
+    },
+    {
+      "type": "select",
+      "id": "image_bottom_left_fit",
+      "label": "Bottom left photo fit",
+      "options": [{"value":"cover","label":"Fill frame"},{"value":"contain","label":"Show complete photo"}],
+      "default": "cover"
+    },
+    {
       "type": "image_picker",
       "id": "image_bottom_right",
       "label": "Bottom right"
+    },
+    {
+      "type": "text",
+      "id": "image_bottom_right_asset",
+      "label": "Bottom right fallback asset",
+      "info": "Theme asset filename. Used only when no image is selected."
+    },
+    {
+      "type": "select",
+      "id": "image_bottom_right_fit",
+      "label": "Bottom right photo fit",
+      "options": [{"value":"cover","label":"Fill frame"},{"value":"contain","label":"Show complete photo"}],
+      "default": "cover"
     },
     {
       "type": "header",

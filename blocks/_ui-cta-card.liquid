@@ -17,6 +17,7 @@
   title: block.settings.title,
   description: block.settings.description,
   image: block.settings.image,
+  image_asset: block.settings.image_asset,
   link: block.settings.link,
   button_label: block.settings.button_label,
   attributes: block.shopify_attributes
@@ -31,6 +32,12 @@
       "type": "image_picker",
       "id": "image",
       "label": "t:settings.image"
+    },
+    {
+      "type": "text",
+      "id": "image_asset",
+      "label": "Approved theme image",
+      "info": "Bundled photography filename. Clear this to use the image picker."
     },
     {
       "type": "text",
