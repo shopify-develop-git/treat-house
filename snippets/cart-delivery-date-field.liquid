@@ -58,7 +58,7 @@
     assign stale = true
   endif
 
-  assign choose_label = 'Request a later delivery date'
+  assign choose_label = 'Choose a later delivery date'
   assign change_label = settings.cart_delivery_change_label | default: 'Change'
   assign delivery_mode = cart.attributes['_delivery_mode'] | default: 'asap'
   unless delivery_mode == 'requested'
@@ -81,7 +81,7 @@
   assign disabled_weekdays = settings.cart_delivery_disabled_weekdays | default: '' | replace: ' ', ''
   assign blackout_dates = settings.cart_delivery_blackout_dates | default: '' | strip | newline_to_br | replace: '<br />', ',' | replace: '<br>', ',' | replace: ' ', '' | strip_newlines
 
-  assign confirm_label = 'cart.confirm_delivery_date' | t
+  assign confirm_label = 'Save requested date'
   assign cutoff_hour = settings.cart_order_cutoff_hour | default: 17
   assign cutoff_display = cutoff_hour | modulo: 12
   if cutoff_display == 0
@@ -156,21 +156,34 @@
         <span class="ui-cart-date__pill" data-date-pill{% if delivery_mode != 'requested' or chosen == blank %} hidden{% endif %}>{{ chosen | escape }}</span>
       </p>
       {% render 'ui-button',
-        variant: 'underline',
-        label: 'As soon as possible',
+        variant: 'secondary-alt',
+        label: 'Ship as soon as possible',
+        full_width: true,
         type: 'button',
         class: 'ui-cart-date__asap',
         attributes: asap_attributes
       %}
       {%- if settings.show_cart_delivery_date -%}
         {% render 'ui-button',
-          variant: 'underline',
+          variant: 'secondary',
           label: toggle_label,
+          full_width: true,
           type: 'button',
           disabled: true,
           class: 'ui-cart-date__toggle',
           attributes: toggle_attributes
         %}
+        {% render 'ui-date-picker',
+          id: picker_id,
+          class: 'ui-cart-date__picker',
+          heading: 'Choose a delivery date',
+          description: 'Select a day below, then save your request.',
+          confirm_label: confirm_label,
+          attributes: 'hidden'
+        %}
+        <p class="ui-cart-date__error" data-date-error role="alert" hidden>
+          {{- 'cart.delivery_date_error' | t -}}
+        </p>
       {%- endif -%}
     </div>
 
@@ -197,16 +210,4 @@
     </details>
   </div>
 
-  {%- if settings.show_cart_delivery_date -%}
-    {% render 'ui-date-picker',
-      id: picker_id,
-      class: 'ui-cart-date__picker',
-      confirm_label: confirm_label,
-      attributes: 'hidden'
-    %}
-
-    <p class="ui-cart-date__error" data-date-error role="alert" hidden>
-      {{- 'cart.delivery_date_error' | t -}}
-    </p>
-  {%- endif -%}
 </cart-delivery-date>

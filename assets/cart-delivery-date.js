@@ -166,6 +166,8 @@ class CartDeliveryDate extends HTMLElement {
   #postal = null;
   #lookupLoading = false;
   #lookupFailed = false;
+  #calendarOpen = false;
+  #calendarInitialized = false;
 
   get picker() { return this.querySelector('.ui-date-picker'); }
   get grid() { return this.querySelector('[data-date-grid]'); }
@@ -230,9 +232,21 @@ class CartDeliveryDate extends HTMLElement {
   }
 
   prompt() {
-    if (state.mode === 'requested' && state.estimate?.ok) this.#setOpen(true);
-    this.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    const target = this.grid?.querySelector('[data-date-day]:not(:disabled)') ?? this.zipInput;
+    if (state.mode === 'requested' && state.estimate?.ok) {
+      this.#setOpen(true);
+      this.#focusCalendar();
+    } else {
+      this.zipInput?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      this.zipInput?.focus({ preventScroll: true });
+    }
+  }
+
+  #focusCalendar() {
+    if (!this.picker || this.picker.hidden) return;
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+    this.picker.scrollIntoView({ block: 'start', behavior: reducedMotion ? 'auto' : 'smooth' });
+    const target = this.grid?.querySelector('[data-date-day][aria-selected="true"]:not(:disabled)') ??
+      this.grid?.querySelector('[data-date-day]:not(:disabled)');
     target?.focus({ preventScroll: true });
   }
 
@@ -265,7 +279,10 @@ class CartDeliveryDate extends HTMLElement {
         state.mode = 'requested'; state.selected = ''; state.draft = false;
         refreshAll(); queueSave(this);
       }
-      this.#setOpen(this.picker.hidden);
+      // This action always reveals the calendar. An unfinished request must
+      // never become a hidden requirement for checkout.
+      this.#setOpen(true);
+      this.#focusCalendar();
       return;
     }
     const nav = target.closest('[data-date-nav]');
@@ -300,17 +317,26 @@ class CartDeliveryDate extends HTMLElement {
   }
 
   #setOpen(open) {
+    this.#calendarOpen = open;
     if (!this.picker) return;
     hidden(this.picker, !open);
     this.toggleButton?.setAttribute('aria-expanded', String(open));
     if (open) {
       this.refresh();
-      this.#firstAllowed = this.#findFirstAllowed();
-      this.#chosen = parseISO(state.selected);
-      this.#pending = this.#chosen;
-      this.#view = new Date(this.#chosen ?? this.#firstAllowed);
+      this.#prepareCalendar();
       this.#renderWeekdays(); this.#renderMonth();
+    } else {
+      this.#calendarInitialized = false;
     }
+  }
+
+  #prepareCalendar() {
+    if (this.#calendarInitialized) return;
+    this.#firstAllowed = this.#findFirstAllowed();
+    this.#chosen = parseISO(state.selected);
+    this.#pending = this.#chosen;
+    this.#view = new Date(this.#chosen ?? this.#firstAllowed);
+    this.#calendarInitialized = true;
   }
 
   #isAllowed(date) {
@@ -406,14 +432,21 @@ class CartDeliveryDate extends HTMLElement {
     if (this.toggleButton) {
       const unavailable = !estimate || !this.picker;
       if (this.toggleButton.disabled !== unavailable) this.toggleButton.disabled = unavailable;
-      text(this.toggleButton, requested && state.selected ? 'Change requested date' : 'Request a later delivery date');
+      text(this.toggleButton, requested ? (state.selected ? 'Change requested date' : 'Choose a date below') : 'Choose a later delivery date');
     }
     hidden(this.error, !(requested && state.failed));
     if (requested && state.failed) text(this.error, 'Your request was not saved. Try again or choose As soon as possible.');
-    if (!requested) hidden(this.picker, true);
-    if (this.picker && !this.picker.hidden) {
+    if (!requested) this.#calendarOpen = false;
+    const showCalendar = Boolean(requested && estimate &&
+      (this.#calendarOpen || !state.selected || state.draft || state.failed));
+    hidden(this.picker, !showCalendar);
+    this.toggleButton?.setAttribute('aria-expanded', String(showCalendar));
+    if (showCalendar) {
+      this.#prepareCalendar();
       if (!this.weekdays?.childElementCount) this.#renderWeekdays();
       this.#renderMonth();
+    } else {
+      this.#calendarInitialized = false;
     }
     const attributes = this.deliveryAttributes();
     for (const input of document.querySelectorAll('[data-delivery-attribute]')) {
@@ -437,6 +470,7 @@ class CartDeliveryDate extends HTMLElement {
     this.refresh();
     const pending = this.#pending;
     if (!pending || !this.#isAllowed(pending)) { this.#showError(true); return; }
+    this.#calendarOpen = true;
     state.selected = toISO(pending); state.mode = 'requested'; state.draft = false;
     refreshAll();
     const saved = await queueSave(this);

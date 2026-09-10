@@ -753,8 +753,28 @@
   .ui-cart-estimate__delivery {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    align-items: stretch;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .ui-cart-estimate__delivery .ui-cart-date__toggle,
+  .ui-cart-estimate__delivery .ui-cart-date__asap {
+    flex: 0 0 auto;
+    max-width: 100%;
+    min-height: 44px;
+    height: auto;
+    padding: 12px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.35;
+  }
+
+  .ui-cart-estimate__delivery .ui-cart-date__picker {
+    width: 100%;
+    min-width: 0;
+    scroll-margin-block-start: 16px;
+    border-color: var(--ui-color-primary);
   }
 
   .ui-cart-estimate__mode {
@@ -814,20 +834,13 @@
 
   /* ---------- Delivery date ---------- */
 
-  /*
-   * The wrapper is the summary's flex item now, so the 24 the summary leaves
-   * between its panels no longer falls between the shipping panel and the
-   * calendar — they are inside one item. The calendar carries it instead, which
-   * is also the 24 the file draws between the two boxes (537:22858 sits 24
-   * under Frame 241).
-   */
+  /* The calendar belongs to the delivery panel and uses its existing padding. */
   .ui-cart-date {
     display: block;
   }
 
   .ui-cart-date__picker {
-    margin-block-start: var(--ui-cart-drawer-gutter, 24px);
-    margin-inline: var(--ui-cart-drawer-gutter, 0);
+    margin: 0;
   }
 
   /*
@@ -901,20 +914,6 @@
 
   .ui-cart-date__pill[hidden] {
     display: none;
-  }
-
-  /*
-   * The kit's underline button as it comes: its own 12px over a 1.3 line, plus
-   * the 2 under the label and the rule, already measures the 18 the file draws
-   * for this row (537:22748). Nothing to resize — only to stop it wrapping and
-   * to keep it from being the thing that gives way when the row is tight.
-   */
-  .ui-cart-date__toggle,
-  .ui-cart-date__asap {
-    flex: 0 0 auto;
-    max-width: 100%;
-    white-space: normal;
-    text-align: start;
   }
 
   /* The lead-time rule under the date row, and the two messages the row can

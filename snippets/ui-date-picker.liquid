@@ -13,6 +13,8 @@
 
   @param {string} [class] - Extra classes on the root.
   @param {string} [id] - Id for the root, so a trigger can point `aria-controls` at it.
+  @param {string} [heading] - Optional heading above the calendar.
+  @param {string} [description] - Optional selection instructions.
   @param {string} [confirm_label] - The button under the grid.
   @param {string} [previous_label] - Accessible name for the back arrow.
   @param {string} [next_label] - Accessible name for the forward arrow.
@@ -33,6 +35,12 @@
   {% if id != blank %}id="{{ id }}"{% endif %}
   {{ attributes }}
 >
+  {%- if heading != blank -%}
+    <div class="ui-date-picker__intro">
+      <p class="ui-date-picker__heading">{{ heading | escape }}</p>
+      {%- if description != blank -%}<p class="ui-date-picker__description">{{ description | escape }}</p>{%- endif -%}
+    </div>
+  {%- endif -%}
   <div class="ui-date-picker__top">
     <button
       type="button"
@@ -82,6 +90,28 @@
 
   .ui-date-picker[hidden] {
     display: none;
+  }
+
+  .ui-date-picker__intro {
+    display: grid;
+    gap: 6px;
+  }
+
+  .ui-date-picker__heading {
+    margin: 0;
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-emphasis);
+    font-weight: var(--ui-font-emphasis-weight);
+    font-size: 16px;
+    line-height: 1.3;
+  }
+
+  .ui-date-picker__description {
+    margin: 0;
+    color: var(--ui-color-gray);
+    font-family: var(--ui-font-body);
+    font-size: 13px;
+    line-height: 1.4;
   }
 
   /* ---------- Month row ---------- */
