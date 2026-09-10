@@ -69,6 +69,19 @@
       assign retail_hidden = true
     endif
     for product_collection in product.collections
+      comment
+        <locksmith:e9e6> Code added automatically by the Locksmith app. Do not modify or remove.
+      endcomment
+      capture var
+        render 'locksmith-variables', scope: 'subject', subject: product_collection, subject_parent: product, variable: 'transparent'
+      endcapture
+      if var == "true"
+      else
+        continue
+      endif
+      comment
+        </locksmith:e9e6> End Locksmith code block.
+      endcomment
       if hidden_collection_handles contains product_collection.handle
         assign retail_hidden = true
         break
@@ -92,6 +105,19 @@
 
     assign open_list = settings.channel_open_collections | split: ','
     for entry in open_list
+      comment
+        <locksmith:44c0> Code added automatically by the Locksmith app. Do not modify or remove.
+      endcomment
+      capture var
+        render 'locksmith-variables', scope: 'subject', subject: entry, variable: 'transparent'
+      endcapture
+      if var == "true"
+      else
+        continue
+      endif
+      comment
+        </locksmith:44c0> End Locksmith code block.
+      endcomment
       assign entry_handle = entry | strip | downcase
       if entry_handle != blank and entry_handle == here
         assign open_here = true

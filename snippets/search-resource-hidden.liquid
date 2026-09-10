@@ -20,6 +20,19 @@
     if hiding
       assign channel_collections = settings.channel_open_collections | split: ','
       for channel_collection in channel_collections
+        comment
+          <locksmith:db33> Code added automatically by the Locksmith app. Do not modify or remove.
+        endcomment
+        capture var
+          render 'locksmith-variables', scope: 'subject', subject: channel_collection, variable: 'transparent'
+        endcapture
+        if var == "true"
+        else
+          continue
+        endif
+        comment
+          </locksmith:db33> End Locksmith code block.
+        endcomment
         assign channel_handle = channel_collection | strip | downcase
         if channel_handle == handle
           assign hide = true

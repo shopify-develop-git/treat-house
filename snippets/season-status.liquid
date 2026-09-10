@@ -76,6 +76,19 @@
       assign season_status = 'available'
     else
       for product_collection in product.collections
+        comment
+          <locksmith:524d> Code added automatically by the Locksmith app. Do not modify or remove.
+        endcomment
+        capture var
+          render 'locksmith-variables', scope: 'subject', subject: product_collection, subject_parent: product, variable: 'transparent'
+        endcapture
+        if var == "true"
+        else
+          continue
+        endif
+        comment
+          </locksmith:524d> End Locksmith code block.
+        endcomment
         if closed_handles contains product_collection.handle
           assign season_status = 'closed'
           break

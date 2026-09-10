@@ -50,6 +50,9 @@
     <ul class="shop-by-occasion__grid" role="list">
       {%- if chosen.size > 0 -%}
         {%- for collection in chosen limit: card_limit -%}
+          {%- comment %}<locksmith:cda6>{% endcomment -%}
+            {%- capture var %}{% render 'locksmith-variables', scope: 'subject', subject: collection, variable: 'transparent' %}{% endcapture %}{% if var == "true" %}{% else %}{% continue %}{% endif -%}
+          {%- comment %}</locksmith:cda6>{% endcomment -%}
           {%- capture collection_asset -%}{% render 'collection-thumbnail-asset', collection: collection %}{%- endcapture -%}
           {%- liquid
             assign collection_asset = collection_asset | strip
