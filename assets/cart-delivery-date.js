@@ -18,6 +18,10 @@ let revision = 0;
 let queuedSignature = '';
 let serverClockOffset = 0;
 let repaintQueued = false;
+let cartRevision = 0;
+const REQUEST_PROPERTY = 'Requested delivery date';
+const SYNC_SOURCE = 'delivery-request-sync';
+const lockedRows = new Set();
 
 function hidden(node, value) { if (node && node.hidden !== value) node.hidden = value; }
 function text(node, value) { if (node && node.textContent !== value) node.textContent = value; }
@@ -39,39 +43,101 @@ async function loadPostal(url) {
 }
 
 function refreshAll(persist = false) {
+  if (state?.saving) {
+    for (const row of document.querySelectorAll('.cart-items__table-row')) {
+      if (!row.hasAttribute('inert')) { row.setAttribute('inert', ''); lockedRows.add(row); }
+    }
+  } else {
+    for (const row of lockedRows) row.removeAttribute('inert');
+    lockedRows.clear();
+  }
   for (const field of fields) field.refresh();
   for (const field of fields) field.paint();
   const source = fields.values().next().value;
   if (persist && source && source.lookupReady) queueSave(source);
 }
 
+async function syncRequestProperties(cart, attributes, isCurrent, onChanged) {
+  if (!Array.isArray(cart?.items)) throw new Error('Missing cart lines');
+  const value = attributes._delivery_mode === 'requested' && attributes._delivery_date
+    ? attributes[REQUEST_PROPERTY] || attributes._delivery_date : '';
+  let changed = false;
+  let remaining = cart.items.length + 5;
+  while (isCurrent()) {
+    const pending = cart.items.filter(line => String(line.properties?.[REQUEST_PROPERTY] || '') !== value);
+    const item = pending[0];
+    if (!item) return { cart, changed };
+    if (!remaining--) throw new Error('Cart changed during delivery save');
+    if (!value) state.lineClearRequired = true;
+    const properties = { ...(item.properties || {}) };
+    delete properties[REQUEST_PROPERTY];
+    delete properties._delivery_preference;
+    if (value) properties[REQUEST_PROPERTY] = value;
+    // Shopify cannot replace properties with an empty object. Keep a private
+    // preference marker when removing the only public property.
+    if (!Object.keys(properties).length) properties._delivery_preference = 'asap';
+    const sections = pending.length === 1 ? [...new Set([...document.querySelectorAll('cart-items-component[data-section-id]')].map(node => node.dataset.sectionId))].slice(0, 5) : [];
+    const response = await fetch(window.Theme?.routes?.cart_change_url ?? `${window.Shopify?.routes?.root || '/'}cart/change.js`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ id: item.key, quantity: item.quantity, properties, ...(sections.length ? { sections, sections_url: window.location.pathname } : {}) }),
+    });
+    if (!response.ok) throw new Error('Could not update delivery request');
+    const updated = await response.json();
+    if (!Array.isArray(updated?.items)) throw new Error('Missing cart line acknowledgement');
+    const acknowledged = updated.items.some(line => line.variant_id === item.variant_id &&
+      Object.entries(properties).every(([key, value]) => String(line.properties?.[key] ?? '') === String(value)) &&
+      String(line.properties?.[REQUEST_PROPERTY] || '') === value);
+    if (!acknowledged) throw new Error('Delivery line property was not saved');
+    cart = updated;
+    changed = true;
+    onChanged(cart);
+  }
+  return { cart, changed };
+}
+
 function queueSave(source) {
   const attributes = source.deliveryAttributes();
   const signature = JSON.stringify(attributes);
+  const queueKey = `${cartRevision}:${signature}`;
   if (signature === state.savedSignature && !state.saving && !state.failed) return Promise.resolve(true);
-  if (signature === queuedSignature && state.saving) return latestWrite;
+  if (queueKey === queuedSignature && state.saving) return latestWrite;
   const current = ++revision;
-  queuedSignature = signature;
+  queuedSignature = queueKey;
   state.saving = true;
   state.failed = false;
   refreshAll();
   const write = async () => {
     if (current !== revision) return false;
     let saved = false;
+    let changedCart = null;
     try {
       const response = await fetch(window.Theme?.routes?.cart_update_url ?? '/cart/update.js', {
         method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({ attributes }),
       });
-      const cart = response.ok ? await response.json() : null;
-      saved = Boolean(cart && Object.entries(attributes).every(([key, value]) => String(cart.attributes?.[key] ?? '') === value));
+      let cart = response.ok ? await response.json() : null;
+      if (cart && Object.entries(attributes).every(([key, value]) => String(cart.attributes?.[key] ?? '') === value)) {
+        const result = await syncRequestProperties(cart, attributes, () => current === revision, cart => { changedCart = cart; });
+        cart = result.cart;
+        if (result.changed) changedCart = cart;
+        saved = current === revision && Object.entries(attributes).every(([key, value]) => String(cart.attributes?.[key] ?? '') === value) && cart.items.every(item =>
+          String(item.properties?.[REQUEST_PROPERTY] || '') ===
+          (attributes._delivery_mode === 'requested' && attributes._delivery_date ? attributes[REQUEST_PROPERTY] || attributes._delivery_date : ''));
+      }
     } catch { /* The active request remains retryable. */ }
     if (current === revision) {
       state.saving = false;
       state.failed = !saved;
-      if (saved) state.savedSignature = signature;
+      if (saved) {
+        state.savedSignature = signature;
+        state.lineClearRequired = false;
+      }
       refreshAll();
     }
+    if (changedCart) document.dispatchEvent(new CustomEvent('cart:update', {
+      bubbles: true,
+      detail: { resource: changedCart, sourceId: SYNC_SOURCE, data: { source: SYNC_SOURCE, sections: changedCart.sections } },
+    }));
     return saved && current === revision;
   };
   latestWrite = writes.then(write, write);
@@ -188,7 +254,7 @@ class CartDeliveryDate extends HTMLElement {
       state = {
         zip: this.dataset.zip || '', mode: this.dataset.mode === 'requested' ? 'requested' : 'asap',
         selected: this.dataset.selected || '', estimate: null, dispatchDate: '',
-        saving: false, failed: false, savedSignature: '', draft: false, asapClearing: false,
+        saving: false, failed: false, savedSignature: '', draft: false, asapClearing: false, lineClearRequired: false,
       };
       if (state.mode === 'asap') state.selected = '';
     }
@@ -219,13 +285,13 @@ class CartDeliveryDate extends HTMLElement {
     catch { this.#lookupFailed = true; }
     this.#lookupLoading = false;
     if (!this.isConnected) return;
-    refreshAll(Boolean(state.zip || state.mode === 'requested' || this.dataset.storedDate));
+    refreshAll(true);
   }
 
-  get required() { return state.mode === 'requested' || state.asapClearing; }
+  get required() { return state.mode === 'requested' || state.asapClearing || state.lineClearRequired; }
   get hasDate() {
     this.refresh();
-    if (state.asapClearing) return false;
+    if (state.asapClearing || state.lineClearRequired) return false;
     const selected = parseISO(state.selected);
     return Boolean(selected && this.#isAllowed(selected) && !state.saving && !state.failed && !state.draft &&
       state.savedSignature === JSON.stringify(this.deliveryAttributes()));
@@ -307,7 +373,8 @@ class CartDeliveryDate extends HTMLElement {
   }
 
   async #asap() {
-    state.asapClearing = state.mode === 'requested';
+    state.asapClearing = state.mode === 'requested' || state.lineClearRequired;
+    if (state.mode === 'requested' && state.selected) state.lineClearRequired = true;
     state.mode = 'asap'; state.selected = ''; state.draft = false;
     for (const field of fields) { field.#pending = null; field.#setOpen(false); }
     refreshAll();
@@ -419,7 +486,7 @@ class CartDeliveryDate extends HTMLElement {
     if (state.zip && !normalizeDeliveryZip(state.zip)) message = 'Enter a five-digit ZIP code.';
     else if (state.zip && this.#lookupLoading && !estimate) message = 'Checking your ZIP code…';
     else if (state.zip && !estimate) message = 'Delivery options for this destination will be shown at checkout.';
-    if (state.failed) message = state.mode === 'requested' ? 'We couldn’t save your request. Try again or choose As soon as possible.' : 'We couldn’t save this estimate. You can still continue to checkout.';
+    if (state.failed) message = state.lineClearRequired && state.mode === 'asap' ? 'We couldn’t clear your delivery request. Choose Ship as soon as possible to retry.' : state.mode === 'requested' ? 'We couldn’t save your request. Try again or choose As soon as possible.' : 'We couldn’t save this estimate. You can still continue to checkout.';
     text(status, message); hidden(status, !message);
     if (this.zipInput) this.zipInput.setAttribute('aria-invalid', String(Boolean(state.zip && !normalizeDeliveryZip(state.zip))));
     hidden(this.querySelector('[data-estimate-result]'), !estimate || hasRequest);
@@ -430,7 +497,7 @@ class CartDeliveryDate extends HTMLElement {
     text(this.querySelector('[data-delivery-mode-label]'), requested ? (state.selected ? 'Requested delivery date' : 'Choose a later date') : 'As soon as possible');
     hidden(this.querySelector('[data-delivery-mode-label]'), hasRequest);
     text(this.querySelector('.ui-cart-estimate__label'), requested ? 'Soonest estimated arrival' : 'Estimated arrival');
-    hidden(this.querySelector('[data-delivery-asap]'), !requested);
+    hidden(this.querySelector('[data-delivery-asap]'), !requested && !state.lineClearRequired);
     const summary = this.querySelector('[data-request-summary]');
     hidden(summary, !hasRequest);
     if (summary) summary.dataset.requestState = requestSaved ? 'saved' : 'pending';
@@ -464,7 +531,7 @@ class CartDeliveryDate extends HTMLElement {
       const value = attributes[input.dataset.deliveryAttribute];
       if (value != null && input.value !== value) input.value = value;
     }
-    this.#setGate(state.asapClearing || (requested && (!state.selected || !this.#timingValid || state.saving || state.failed || state.draft || state.savedSignature !== JSON.stringify(attributes))));
+    this.#setGate(state.asapClearing || state.lineClearRequired || (requested && (!state.selected || !this.#timingValid || state.saving || state.failed || state.draft || state.savedSignature !== JSON.stringify(attributes))));
   }
 
   #setGate(gated) {
@@ -678,7 +745,14 @@ function scheduleRepaint() {
   repaintQueued = true;
   queueMicrotask(() => { repaintQueued = false; refreshAll(); });
 }
-document.addEventListener('cart:update', scheduleRepaint);
+document.addEventListener('cart:update', event => {
+  if (event.detail?.sourceId !== SYNC_SOURCE && event.detail?.data?.source !== SYNC_SOURCE) {
+    cartRevision++;
+    if (state) state.savedSignature = '';
+    refreshAll(true);
+  }
+  scheduleRepaint();
+});
 // Horizon morphs vanilla custom elements without reconnecting them. Detect
 // Replaced controls and server datasets can arrive without a cart:update event.
 // Repair hidden/emptied calendars too, while ignoring our completed cell paints.
