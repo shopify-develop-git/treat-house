@@ -414,6 +414,14 @@
       "fathers-day-1",
       "spring-holidays"
     ],
+    "season_upcoming_collections": [
+      "halloween",
+      "thanksgiving",
+      "winter-treats",
+      "christmas-treats",
+      "hanukkah",
+      "valentines-day"
+    ],
     "retail_hidden_collections": [
       "box-flavours"
     ],
@@ -436,7 +444,8 @@
     "cart_delivery_choose_label": "Request a later delivery date",
     "season_evergreen_products": [
       "congratulations-12-pack",
-      "congratulations-deluxe-gift-box"
+      "congratulations-deluxe-gift-box",
+      "12-pack-of-fall-themed-treats"
     ],
     "get_well_retail_products": [
       "get-well-soon-pack",
