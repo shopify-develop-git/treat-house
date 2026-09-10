@@ -2,7 +2,7 @@
   Resolves the draft theme's navigation placeholders without editing shared Shopify menus.
   Configured URLs win except known misroutes: All Seasonal uses the seasonal hub,
   and Best Sellers pointing to the full catalog uses the curated homepage section.
-  Gift cards are excluded until the business offers them.
+  Gift cards and gift wrapping are excluded because the business does not offer them.
   Blank output means a group heading; __hidden__ means an unresolved leaf or inactive offer.
   Keep these fallbacks until the native menus have been reviewed before launch.
 
@@ -21,6 +21,8 @@
   assign parent_key = menu_parent | handleize
 
   if link.gift_card or link['gift_card?'] or key == 'gift-cards' or key == 'gift-card' or key == 'e-gift-cards' or key == 'e-gift-card' or gift_card_path == 'gift-card' or gift_card_path == 'gift-cards'
+    assign result = '__hidden__'
+  elsif key == 'gift-wrap' or key == 'gift-wrapping' or key == 'wrapping'
     assign result = '__hidden__'
   elsif parent_key == 'shop-treats' and key == 'custom-treats'
     assign result = '__hidden__'
@@ -44,7 +46,7 @@
         assign result = root_url | append: '#our-story'
       when 'best-sellers', 'bestsellers'
         assign result = root_url | append: '#best-sellers'
-      when 'build-a-gift-box', 'build-your-gift-box', 'build-a-box', 'build-your-box', 'add-a-message', 'gift-wrap'
+      when 'build-a-gift-box', 'build-your-gift-box', 'build-a-box', 'build-your-box', 'add-a-message'
         assign result = root_url | append: 'pages/customize'
       when 'shop-treats', 'shop-all', 'shop-all-treats', 'all-treats'
         assign result = root_url | append: 'collections/all'
