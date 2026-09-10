@@ -1,0 +1,61 @@
+{%- doc -%}
+  Add curated retail cards to Shopify's product lookup before its window-load
+  form listener runs. Native collection metadata describes catalog membership,
+  so products selected only in draft settings are otherwise missing. Keep the
+  native entries and page context; this does not publish a collection event.
+  @param {product[]} products - The curated products displayed by this section.
+  @param {object} collection - Collection used for the same retail visibility rule.
+{%- enddoc -%}
+{%- capture escaped_less_than -%}\u003c{%- endcapture -%}
+<script>
+  (() => {
+    const nativeProducts = window.ShopifyAnalytics?.meta?.products;
+    if (!Array.isArray(nativeProducts)) return;
+    const curatedProducts = [
+      {%- assign needs_comma = false -%}
+      {%- for product in products -%}
+        {%- capture off_channel -%}{% render 'channel-hidden', product: product, collection: collection %}{%- endcapture -%}
+        {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
+        {%- if needs_comma -%},{%- endif -%}
+        {%- assign needs_comma = true -%}
+        {
+          id: {{ product.id | json }},
+          gid: {{ product.id | prepend: 'gid://shopify/Product/' | json }},
+          vendor: {{ product.vendor | json | replace: '<', escaped_less_than }},
+          type: {{ product.type | json | replace: '<', escaped_less_than }},
+          handle: {{ product.handle | json | replace: '<', escaped_less_than }},
+          remote: false,
+          variants: [
+            {%- for variant in product.variants -%}
+              {%- unless forloop.first -%},{%- endunless -%}
+              {%- assign variant_name = product.title -%}
+              {%- unless product.has_only_default_variant -%}
+                {%- assign variant_name = variant.title | prepend: ' - ' | prepend: product.title -%}
+              {%- endunless -%}
+              {
+                id: {{ variant.id | json }},
+                price: {{ variant.price | json }},
+                name: {{ variant_name | json | replace: '<', escaped_less_than }},
+                public_title: {% if product.has_only_default_variant %}null{% else %}{{ variant.title | json | replace: '<', escaped_less_than }}{% endif %},
+                sku: {{ variant.sku | json | replace: '<', escaped_less_than }}
+              }
+            {%- endfor -%}
+          ]
+        }
+      {%- endfor -%}
+    ];
+    for (const product of curatedProducts) {
+      const existing = nativeProducts.find((entry) => String(entry.id) === String(product.id));
+      if (!existing) {
+        nativeProducts.push(product);
+        continue;
+      }
+      if (!Array.isArray(existing.variants)) continue;
+      for (const variant of product.variants) {
+        if (!existing.variants.some((entry) => String(entry.id) === String(variant.id))) {
+          existing.variants.push(variant);
+        }
+      }
+    }
+  })();
+</script>

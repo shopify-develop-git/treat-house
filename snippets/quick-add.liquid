@@ -10,11 +10,15 @@
 {%- capture season -%}{% render 'season-status', product: product %}{%- endcapture -%}
 {%- assign season_parts = season | strip | split: '|' -%}
 {%- assign season_status = season_parts[0] | default: 'available' -%}
+{%- capture purchase_path -%}{% render 'product-purchase-path', product: product %}{%- endcapture -%}
+{%- assign purchase_path = purchase_path | strip -%}
 {%- comment -%}
   A seasonal product that is closed or not yet open gets no quick-add form at
   all (see [season-status]); its card badge carries the season label instead.
+  Products requiring a builder or personalization use their normal card link
+  to the product page, where that complete purchase path is available.
 {%- endcomment -%}
-{%- if season_status == 'available' -%}
+{%- if season_status == 'available' and purchase_path == 'direct' -%}
 {% liquid
   assign product_form_id = 'QuickAdd-ProductForm-' | append: product.id | append: '-' | append: block.id
   assign add_to_cart_text = 'actions.add' | t

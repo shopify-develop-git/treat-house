@@ -151,6 +151,9 @@
       </li>
     {%- endfor -%}
   {%- endcapture -%}
+  {%- if has_curated_products -%}
+    {% render 'curated-product-analytics', products: grid_products, collection: collection %}
+  {%- endif -%}
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
 <div
   class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"

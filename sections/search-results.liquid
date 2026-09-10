@@ -5,6 +5,7 @@
   type="module"
   fetchpriority="low"
 ></script>
+<script src="{{ 'th-search-results.js' | asset_url }}" type="module"></script>
 
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
 
@@ -12,39 +13,46 @@
   class="section product-grid-container spacing-style color-{{ section.settings.color_scheme }}"
   style="--padding-block-start: {{ section.settings.padding-block-start }}px; --padding-block-end: {{ section.settings.padding-block-end }}px;"
   section-id="{{ section.id }}"
-  infinite-scroll="{{ section.settings.enable_infinite_scroll }}"
+  infinite-scroll="false"
 >
   {% render 'skip-to-content-link', href: '#ResultsList', text: 'accessibility.skip_to_results_list' %}
 
   <div
     class="collection-wrapper grid gap-style"
   >
-    {% assign products_per_page = 24 %}
-
-    {% if section.settings.enable_infinite_scroll == false %}
-      {% assign products_per_page = section.settings.products_per_page %}
-    {% endif %}
-
-    {% paginate search.results by products_per_page %}
-      {% if search.results_count > 0 %}
-        {% content_for 'block', type: 'filters', id: 'filters', results: search, results_size: search.results_count %}
-        {% assign products = search.results | where: 'object_type', 'product' %}
-      {% else %}
-        {% assign collection = settings.empty_state_collection | default: collections.all %}
-        {% assign default_title = 'content.search_results_resource_products' | t %}
-        {% assign title = settings.empty_state_collection.title | default: default_title %}
-        {% assign products = collection.products %}
-      {% endif %}
+    {%- comment -%}
+      Native search counts include off-channel products and non-product resources.
+      Read a full Shopify batch before applying the same retail rule as browsing.
+      The count, grid and empty state all use the resulting eligible array.
+    {%- endcomment -%}
+    {% paginate search.results by 250 %}
+      {%- liquid
+        assign products = search.results | where: 'object_type', 'product'
+        if search.performed == false
+          assign fallback_collection = settings.empty_state_collection | default: collections.all
+          assign title = settings.empty_state_collection.title | default: 'Products'
+          assign products = fallback_collection.products
+        endif
+        assign retail_products = products | where: 'id', 0
+        for candidate in products
+          capture off_channel
+            render 'search-resource-hidden', resource: candidate, resource_type: 'product'
+          endcapture
+          if off_channel == blank
+            assign single_product = products | where: 'id', candidate.id
+            assign retail_products = retail_products | concat: single_product
+          endif
+        endfor
+      -%}
+      {%- if search.performed -%}
+        {% content_for 'block', type: 'filters', id: 'filters', results: search, results_size: retail_products.size, suppress_filters: true %}
+        {%- if paginate.pages > 1 -%}
+          <p class="search-results__batch-note">Product count applies to this page. More results are available on the following pages.</p>
+        {%- endif -%}
+      {%- endif -%}
 
       {% capture children %}
-        {% for product in products %}
-          {%- comment -%}
-            Another channel's product is not a search result for a shopper — see
-            [channel-hidden]. No collection is passed: a search is nobody's
-            collection, so nothing is open here.
-          {%- endcomment -%}
-          {%- capture off_channel -%}{% render 'channel-hidden', product: product %}{%- endcapture -%}
-          {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
+        {% for product in retail_products %}
           <li
             id="{{ section.id }}-{{ product.id }}"
             class="product-grid__item product-grid__item--{{ forloop.index0 }}"
@@ -60,11 +68,15 @@
       {% render 'product-grid',
         section: section,
         children: children,
-        products: products,
+        products: retail_products,
         paginate: paginate,
-        enable_infinite_scroll: section.settings.enable_infinite_scroll,
-        title: title
+        enable_infinite_scroll: false,
+        title: title,
+        search_empty: search.performed
       %}
+      {%- if retail_products.size == 0 and paginate.pages > 1 -%}
+        {% render 'pagination-controls', paginate: paginate %}
+      {%- endif -%}
     {% endpaginate %}
   </div>
 </results-list>

@@ -32,7 +32,7 @@
           "type": "_ui-text",
           "settings": {
             "source": "custom",
-            "text": "<p>Handcrafted Krispie treats, certified gluten-free and ready for retail and café shelves. Send us a wholesale application. A real person reviews it and follows up by email with pricing and ordering details.</p>",
+            "text": "<p>Handcrafted Krispie treats for retail and café shelves. Send us a wholesale application. A real person reviews it and follows up by email with pricing and ordering details.</p>",
             "text_size": 16,
             "text_size_mobile": 16,
             "max_width": 0,
@@ -124,7 +124,7 @@
             "icon": "sparkles",
             "badge": "",
             "title": "Seasonal flavors",
-            "body": "<p>New flavors each season, every one certified gluten-free.</p>"
+            "body": "<p>New flavors each season. Ask us about the current selection.</p>"
           },
           "blocks": {}
         },

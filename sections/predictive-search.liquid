@@ -15,10 +15,34 @@
       data-search-results
     >
       {% if predictive_search.performed %}
-        {% assign search_results_count = predictive_search.resources.products.size
+        {%- liquid
+          assign retail_products = predictive_search.resources.products | where: 'id', 0
+          for candidate in predictive_search.resources.products
+            capture hidden_resource
+              render 'search-resource-hidden', resource: candidate, resource_type: 'product'
+            endcapture
+            if hidden_resource == blank
+              assign single_product = predictive_search.resources.products | where: 'id', candidate.id
+              assign retail_products = retail_products | concat: single_product
+            endif
+          endfor
+          # The product-list snippet displays at most eight predictive cards.
+          assign retail_products = retail_products | slice: 0, 8
+          assign retail_collections = predictive_search.resources.collections | where: 'id', 0
+          for candidate in predictive_search.resources.collections
+            capture hidden_resource
+              render 'search-resource-hidden', resource: candidate, resource_type: 'collection'
+            endcapture
+            if hidden_resource == blank
+              assign single_collection = predictive_search.resources.collections | where: 'id', candidate.id
+              assign retail_collections = retail_collections | concat: single_collection
+            endif
+          endfor
+        -%}
+        {% assign search_results_count = retail_products.size
           | plus: predictive_search.resources.pages.size
           | plus: predictive_search.resources.articles.size
-          | plus: predictive_search.resources.collections.size
+          | plus: retail_collections.size
           | plus: predictive_search.resources.queries.size
         %}
       {% else %}
@@ -42,7 +66,7 @@
           {% assign shared_results_index = 0 %}
           {% if predictive_search.resources.queries.size > 0 %}
             {% assign shared_results_index = shared_results_index
-              | plus: predictive_search.resources.collections.size
+              | plus: retail_collections.size
             %}
             <ul
               class="predictive-search-results__list predictive-search-results__wrapper predictive-search-results__wrapper-queries list-unstyled"
@@ -70,27 +94,27 @@
               {% endfor %}
             </ul>
           {% endif %}
-          {% if predictive_search.resources.products.size > 0 %}
+          {% if retail_products.size > 0 %}
             {%- liquid
               assign title = 'content.search_results_resource_products' | t
-              assign products = predictive_search.resources.products
+              assign products = retail_products
               render 'predictive-search-products-list', title: title, products: products
             -%}
           {% endif %}
 
-          {% if predictive_search.resources.collections.size > 0 %}
+          {% if retail_collections.size > 0 %}
             {% assign shared_results_index = shared_results_index | plus: predictive_search.resources.articles.size %}
             {% assign resource_title = 'content.search_results_resource_collections' | t %}
 
             {% render 'predictive-search-resource-carousel',
               title: resource_title,
               resource_type: 'collection',
-              resources: predictive_search.resources.collections
+              resources: retail_collections
             %}
           {% endif %}
 
           {% if predictive_search.resources.pages.size > 0 %}
-            {% assign shared_results_index = shared_results_index | plus: predictive_search.resources.products.size %}
+            {% assign shared_results_index = shared_results_index | plus: retail_products.size %}
             {% assign resource_title = 'content.search_results_resource_pages' | t %}
 
             {% render 'predictive-search-resource-carousel',
@@ -134,17 +158,17 @@
 
       {% if predictive_search.performed %}
         {%- if search_results_count > 0 -%}
-          {% assign total_results = predictive_search.resources.products.size
-            | plus: predictive_search.resources.collections.size
+          {% assign total_results = retail_products.size
+            | plus: retail_collections.size
             | plus: predictive_search.resources.pages.size
             | plus: predictive_search.resources.articles.size
           %}
           {% assign single_result_url = null %}
           {% if total_results == 1 %}
-            {% if predictive_search.resources.products.size == 1 %}
-              {% assign single_result_url = predictive_search.resources.products.first.url %}
-            {% elsif predictive_search.resources.collections.size == 1 %}
-              {% assign single_result_url = predictive_search.resources.collections.first.url %}
+            {% if retail_products.size == 1 %}
+              {% assign single_result_url = retail_products.first.url %}
+            {% elsif retail_collections.size == 1 %}
+              {% assign single_result_url = retail_collections.first.url %}
             {% elsif predictive_search.resources.pages.size == 1 %}
               {% assign single_result_url = predictive_search.resources.pages.first.url %}
             {% elsif predictive_search.resources.articles.size == 1 %}

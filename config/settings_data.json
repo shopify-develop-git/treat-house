@@ -19,6 +19,11 @@
     "social_x_url": "",
     "social_pinterest_url": "",
     "channel_hide_enabled": true,
+    "retail_hidden_products": [
+      "12-pack-of-custom-treats-2",
+      "mnmdonut",
+      "donate-to-andrew-mcdonough-b-foundation"
+    ],
     "channel_open_collections": "reachdesk, reachdesk-copy, wholesale-page, wholesale, overture-catalog, for-overture",
     "title_hidden_words": "RD",
     "type_body_font": "nunito_n4",

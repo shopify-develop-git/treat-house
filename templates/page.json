@@ -75,7 +75,7 @@
               "type": "_ui-faq-item",
               "settings": {
                 "question": "How do I choose a delivery date?",
-                "answer": "<p>Select a requested delivery date in your cart. The ground transit map provides estimates; available shipping services and timing are shown at checkout. For an order tied to an event, <a href=\"/pages/contact\">contact our team</a> before ordering to confirm timing.</p>",
+                "answer": "<p>Orders ship as soon as possible by default. Enter your destination ZIP code in the cart for an estimated ground arrival range. If you need a later date, choose an available day and save your request. Final timing depends on your address and shipping method. For an event or larger order, contact our team before ordering to confirm timing.</p>",
                 "open": false
               }
             },

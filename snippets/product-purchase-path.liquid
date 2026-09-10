@@ -1,0 +1,26 @@
+{%- doc -%}
+  Returns builder, personalize, or direct for the existing customer purchase path.
+  Exact choose-your-own packs require the box builder. Artwork uses the same
+  handle fallback and explicit override as [_ui-product-artwork]. The custom
+  twelve-pack separately requires a flavor choice on its product page.
+
+  @param {object} product - Product whose purchase path is being rendered.
+{%- enddoc -%}
+{%- liquid
+  assign purchase_path = 'direct'
+  assign needs_artwork = false
+  if product.handle contains 'custom'
+    assign needs_artwork = true
+  endif
+  if product.metafields.custom.requires_artwork != blank
+    assign needs_artwork = product.metafields.custom.requires_artwork.value
+  endif
+  if needs_artwork or product.handle == '12-pack-of-custom-treats'
+    assign purchase_path = 'personalize'
+  endif
+  case product.handle
+    when '12-pack-choose-your-own', '24-pack-choose-your-own', '36-pack-choose-your-own'
+      assign purchase_path = 'builder'
+  endcase
+  echo purchase_path
+-%}

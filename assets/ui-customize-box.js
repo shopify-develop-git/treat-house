@@ -414,20 +414,26 @@ class CustomizeBox extends HTMLElement {
    * first flavour rather than existing only in the attribute Shopify is about to
    * overwrite.
    */
-  /** How many boxes the cart already holds, so the next one can be numbered. */
-  async #boxCount() {
+  /** Continue after the highest surviving box number, even when earlier boxes were removed. */
+  async #nextBoxNumber() {
     try {
       const cart = await fetch('/cart.js', { headers: { Accept: 'application/json' } }).then((r) => r.json());
       const seen = new Set();
+      let highestNumber = 0;
       for (const line of cart.items ?? []) {
         const id = line.properties?._box;
-        if (id) seen.add(id);
+        if (!id) continue;
+        seen.add(id);
+        const match = String(line.properties?.Box ?? '').match(/^Custom \d+-Pack #([1-9]\d*)$/);
+        const number = Number(match?.[1]);
+        if (Number.isSafeInteger(number)) highestNumber = Math.max(highestNumber, number);
       }
-      return seen.size;
+      // Legacy boxes without a readable number still occupy a place in the cart.
+      return Math.max(seen.size, highestNumber) + 1;
     } catch {
       // A cart that cannot be read is not a reason to refuse the box. One is the
       // honest guess: most carts hold no box at all.
-      return 0;
+      return 1;
     }
   }
 
@@ -464,7 +470,7 @@ class CustomizeBox extends HTMLElement {
      * when an order carries two of them. An id would have done neither: nobody
      * reads `bx-k3f9a` and thinks "the first box".
      *
-     * The number is the count of boxes already in the cart plus one, so the
+     * The number follows the highest box number already in the cart, so the
      * second box a shopper builds is #2. Remove the first afterwards and the
      * second stays #2 — the labels are the order they were built in, which is
      * the order the kitchen packs them in, and renumbering the survivor would
@@ -506,10 +512,11 @@ class CustomizeBox extends HTMLElement {
     this.#setAddError('');
 
     try {
-      const boxNumber = (await this.#boxCount()) + 1;
+      const boxNumber = await this.#nextBoxNumber();
       // The shopper can edit the mix while the existing cart is being read.
       this.#render();
       if (!this.#sellable) return;
+      const message = this.#message();
       const items = this.#cartItems(boxNumber);
       if (!items.length) return;
       const response = await fetch(Theme?.routes?.cart_add_url ?? '/cart/add.js', {
@@ -529,13 +536,18 @@ class CustomizeBox extends HTMLElement {
       // Attributes are not part of /cart/add, so the note is a second request.
       // It follows the add: a note left on a cart that never received the box
       // would outlive the attempt.
-      const message = this.#message();
       if (message) {
-        await fetch('/cart/update.js', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-          body: JSON.stringify({ attributes: { 'Gift message': message } }),
-        });
+        try {
+          await fetch('/cart/update.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ attributes: { 'Gift message': message } }),
+          });
+        } catch (error) {
+          // The confirmed add already stores the note on its box line. A failed
+          // optional order-level copy must not invite the shopper to add twice.
+          console.warn('Box added; the gift message remains on its cart line.', error);
+        }
       }
 
       this.#announce(Theme?.translations?.added ?? '');

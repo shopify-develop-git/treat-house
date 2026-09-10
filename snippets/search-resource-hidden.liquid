@@ -1,0 +1,34 @@
+{%- doc -%}
+  Retail visibility for a search resource. Products share channel-hidden; collection
+  suggestions must also exclude channel shops, closed seasons and internal lists.
+  This does not change the collections or their direct channel-shopping URLs.
+  @param {object} resource
+  @param {string} resource_type - product or collection
+{%- enddoc -%}
+{%- liquid
+  if resource_type == 'product'
+    render 'channel-hidden', product: resource
+  elsif resource_type == 'collection'
+    assign handle = resource.handle | downcase
+    assign closed = settings.season_closed_collections | map: 'handle'
+    assign internal = settings.retail_hidden_collections | map: 'handle'
+    assign hide = false
+    if closed contains handle or internal contains handle
+      assign hide = true
+    endif
+    assign hiding = settings.channel_hide_enabled | default: true, allow_false: true
+    if hiding
+      assign channel_collections = settings.channel_open_collections | split: ','
+      for channel_collection in channel_collections
+        assign channel_handle = channel_collection | strip | downcase
+        if channel_handle == handle
+          assign hide = true
+          break
+        endif
+      endfor
+    endif
+    if hide
+      echo 'hidden'
+    endif
+  endif
+-%}

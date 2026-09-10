@@ -353,7 +353,7 @@
           "type": "_ui-faq-item",
           "settings": {
             "question": "What types of treats do you offer?",
-            "answer": "<p>Handcrafted Krispie treats in twelve-packs, gift boxes and party bars, plus custom photo treats. Everything is certified gluten-free and made to order.</p>"
+            "answer": "<p>Handcrafted Krispie treats in twelve-packs, gift boxes and party bars, plus custom photo treats. Made to order and packed with care.</p>"
           }
         },
         "customize": {
@@ -367,21 +367,21 @@
           "type": "_ui-faq-item",
           "settings": {
             "question": "Do you accommodate food allergies or dietary restrictions?",
-            "answer": "<p>Our treats are certified gluten-free. Full ingredient and allergen details are printed on every package. Have a question about another allergen? Write to info@treathouse.com before you order.</p>"
+            "answer": "<p>Check the ingredient and allergen information on your specific product label. If you have a dietary restriction, contact <a href=\"mailto:info@treathouse.com\">info@treathouse.com</a> before ordering.</p>"
           }
         },
         "lead_time": {
           "type": "_ui-faq-item",
           "settings": {
             "question": "How far in advance should I place my order?",
-            "answer": "<p>Every box is made to order. Choose a delivery date at least 3 days out in your cart; shipping options and timing are shown at checkout. Planning a larger order? Send a note to our team and we will work around your date.</p>"
+            "answer": "<p>Orders ship as soon as possible by default. Enter your destination ZIP code in the cart for an estimated ground arrival range. If you need a later date, choose an available day and save your request. Final timing depends on your address and shipping method. For an event or larger order, contact our team before ordering to confirm timing.</p>"
           }
         },
         "storage": {
           "type": "_ui-faq-item",
           "settings": {
             "question": "How do I store my treats after receiving them?",
-            "answer": "<p>Keep sealed at room temperature away from heat and direct sun. Best enjoyed within two weeks of arrival.</p>"
+            "answer": "<p>Follow the storage instructions on your package. Contact <a href=\"mailto:info@treathouse.com\">info@treathouse.com</a> for guidance on a specific treat.</p>"
           }
         }
       },

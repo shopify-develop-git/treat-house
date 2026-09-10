@@ -32,6 +32,10 @@
   no form at all: the square holds an inert pill carrying the season label,
   so there is nothing on the card that can post to the cart.
 
+  Personalized products open their product page instead of adding from a card.
+  The artwork condition matches [_ui-product-artwork]; the custom twelve-pack
+  also requires a flavor selection even when artwork is explicitly switched off.
+
   @param {object} product - The product to add.
   @param {string} section_id - The id of the section drawing the card. Keeps one page's forms apart.
   @param {string} [class] - Additional CSS classes for the host element.
@@ -44,7 +48,9 @@
 {%- enddoc -%}
 
 {%- capture season -%}{% render 'season-status', product: product %}{%- endcapture -%}
+{%- capture purchase_path -%}{% render 'product-purchase-path', product: product %}{%- endcapture -%}
 {%- liquid
+  assign purchase_path = purchase_path | strip
   assign season_parts = season | strip | split: '|'
   assign season_status = season_parts[0] | default: 'available'
   assign season_label = season_parts[1]
@@ -90,6 +96,20 @@
     disabled: true,
     class: host_classes,
     attributes: 'aria-disabled="true"'
+  %}
+{%- elsif purchase_path == 'builder' -%}
+  {% render 'ui-button',
+    variant: 'basket',
+    label: 'Build your box',
+    link: '/pages/customize',
+    class: host_classes
+  %}
+{%- elsif purchase_path == 'personalize' -%}
+  {% render 'ui-button',
+    variant: 'basket',
+    label: 'Customize these treats',
+    link: product.url,
+    class: host_classes
   %}
 {%- else -%}
   <product-form-component

@@ -115,7 +115,12 @@
       data-product-transition="{{ settings.transition_to_main_product }}"
       data-template="{{ template }}"
     >
-      {{ content_for_layout }}
+      {% assign th_policy_handle = request.path | split: '/' | last %}
+      {% if th_policy_handle == 'terms-of-service' and request.path contains '/policies/' %}
+        {% render 'th-policy-presentation', content: content_for_layout %}
+      {% else %}
+        {{ content_for_layout }}
+      {% endif %}
     </main>
 
     {% sections 'footer-group' %}

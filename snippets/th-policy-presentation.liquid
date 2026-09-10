@@ -1,0 +1,15 @@
+{%- doc -%}
+  Completes exact editorial placeholders in the existing Terms presentation.
+  The underlying Admin policy is preserved. All other policy copy passes through.
+
+  @param {string} content - Shopify's rendered Terms of Service page.
+{%- enddoc -%}
+{%- liquid
+  assign displayed_content = content
+  assign displayed_content = displayed_content | replace: 'our Privacy Policy [LINK]', 'our <a href="/policies/privacy-policy">Privacy Policy</a>'
+  assign displayed_content = displayed_content | replace: 'our Refund Policy [LINK]', 'our <a href="/policies/refund-policy">Refund Policy</a>'
+  assign displayed_content = displayed_content | replace: 'our Privacy Policy, which can be viewed here [LINK]', 'our Privacy Policy, which can be viewed <a href="/policies/privacy-policy">here</a>'
+  assign displayed_content = displayed_content | replace: 'our privacy policy [LINK]', 'our <a href="/policies/privacy-policy">privacy policy</a>'
+  assign displayed_content = displayed_content | remove: '[NOTE TO MERCHANT: This section accurately characterizes Shopify’s relationship with your store and should not be removed or modified.]'
+  echo displayed_content
+-%}

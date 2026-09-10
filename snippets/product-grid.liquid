@@ -7,6 +7,7 @@
   @param {string} [title] - Header of the collection or search results
   @param {string} children - List or grid of product cards
   @param {boolean} [enable_infinite_scroll] - Whether to enable infinite scroll (default: true)
+  @param {boolean} [search_empty] - Use search-specific guidance for an empty retail result.
 {%- enddoc -%}
 
 {% capture product_card_size %}
@@ -106,7 +107,11 @@
           {{ 'content.no_products_found' | t }}
         </h2>
         <p>
-          {{ 'content.use_fewer_filters_html' | t: link: collection.url, class: 'main-collection-grid__empty-link' }}
+          {%- if search_empty -%}
+            Try another search or <a href="{{ routes.all_products_collection_url }}" class="main-collection-grid__empty-link">shop all treats</a>.
+          {%- else -%}
+            {{ 'content.use_fewer_filters_html' | t: link: collection.url, class: 'main-collection-grid__empty-link' }}
+          {%- endif -%}
         </p>
       </div>
     {% else %}
