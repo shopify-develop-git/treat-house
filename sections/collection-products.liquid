@@ -1,39 +1,8 @@
 {% comment %}
-  Collection products (Figma: V2 Birthday Treats Occasion collection page →
-  Product Grid, 491:19972).
-
-  The filter row, the sort control, the count, the grid and the pagination. This is
-  the section that ends the note in `CLAUDE.md` about the kit's filters not
-  filtering: the components were always real inputs and real disclosures, and what
-  was missing was a form around them and a caller that hands them Shopify's facets.
-
-  Filtering uses a `<form method="get">` posting to the
-  collection: every choice row is a real checkbox named for its facet, Apply is a
-  real submit, and Clear all, the sort rows, the chips and the pagination are real
-  links. The open state of a group is `<details>`, and the outside click is the
-  theme's own `auto-close-details.js`. That is the same bargain the rest of the kit
-  takes, and it means the page works before the first byte of script arrives.
-
-  Two things the form has to carry that are not filters:
-
-  - **The current sort**, as a hidden field. A GET form replaces the query string
-    outright, so a shopper who sorts by price and then filters would otherwise be
-    put back on Featured without asking.
-  - **Nothing else.** An unchecked box posts nothing at all, which is exactly what a
-    facet URL wants — but an empty number field still posts its name. So the price
-    group's two fields belong to a second form through HTML's own `form` attribute,
-    and `&filter.v.price.gte=` does not ride along every time somebody ticks a box in
-    another group. That second form carries the other groups' applied values as
-    hidden fields, so setting a price keeps whatever else was on.
-
-  The sort links are built here rather than in [ui-sort-dropdown], because a sort
-  link has to keep the facets already applied and only the caller knows what those
-  are. They are reassembled from `filter.active_values` rather than read off the
-  request: Liquid is given the parsed facets and not the query string it came from.
-
-  The grid is four across at the drawn 305px, and the cards are the kit's own — the
-  same [ui-product-card] the product rows use, basket and all, so a card here and a
-  card in Best Sellers cannot drift.
+  Shared retail collection grid. Shopify supplies native product order; the
+  controller filters the complete visible batch by explicit pack titles and
+  starting price before progressively revealing cards. Unfinished Search &
+  Discovery metafields are not presented as customer filters.
 {% endcomment %}
 
 {%- liquid
@@ -57,15 +26,15 @@
     assign show_filters = false
     assign show_sort = false
   endif
-  if collection.filters.size == 0
-    assign show_filters = false
-  endif
 
   # The facets already applied, rebuilt as a query fragment so a sort link can carry
   # them. `url_to_add`/`url_to_remove` answer a different question — they each move
   # one value — and there is no filter that gives back the current query string.
   capture applied_params
     for group in collection.filters
+      if group.param_name contains 'filter.p.m.custom.'
+        continue
+      endif
       for value in group.active_values
         echo '&'
         echo value.param_name
@@ -87,10 +56,11 @@
     endfor
   endcapture
 
-  assign price_form_id = 'price-' | append: section.id
-
   assign active_count = 0
   for group in collection.filters
+    if group.param_name contains 'filter.p.m.custom.'
+      continue
+    endif
     assign active_count = active_count | plus: group.active_values.size
   endfor
 -%}
@@ -112,6 +82,7 @@
       assign grid_products = curated_products
     endif
     assign visible_count = 0
+    assign pack_sizes = ''
     assign count_is_partial = false
     assign out_of_range = false
     if has_curated_products == false and paginate.current_page > 1 and paginate.current_page > paginate.pages
@@ -135,6 +106,17 @@
         assign visible_count = visible_count | plus: 1
         assign tagline = product.description | strip_html | truncatewords: 15, ''
         assign price = product.price | money
+        assign pack_size = ''
+        assign pack_title = product.title | downcase | replace: '-', ' ' | replace: '–', ' ' | replace: '—', ' ' | prepend: ' '
+        assign sizes = '6,12,24,36' | split: ','
+        for size in sizes
+          assign size_pattern = size | prepend: ' ' | append: ' pack'
+          if pack_title contains size_pattern
+            assign pack_size = size
+            assign pack_sizes = pack_sizes | append: size | append: ','
+            break
+          endif
+        endfor
         assign card_loading = 'lazy'
         if visible_count <= 4
           assign card_loading = 'eager'
@@ -153,7 +135,7 @@
       {%- capture add_control -%}
         {% render 'ui-product-card-add', product: product, section_id: section.id %}
       {%- endcapture -%}
-      <li class="collection-products__item" data-product-id="{{ product.id }}">
+      <li class="collection-products__item" data-product-id="{{ product.id }}" data-product-pack="{{ pack_size }}" data-product-price="{{ product.price }}">
         {% render 'ui-product-card',
           title: product.title,
           subtitle: tagline,
@@ -190,56 +172,8 @@
       <div class="collection-products__top">
         {%- if show_filters or show_sort -%}
         <div class="collection-products__controls">
-          {%- if show_filters -%}
-            <form
-              class="collection-products__filters"
-              method="get"
-              action="{{ collection.url }}"
-            >
-              {%- comment -%}
-                A GET form throws away the query string it was loaded with, so the
-                sort has to travel inside the form or it is lost on every Apply.
-              {%- endcomment -%}
-              {%- if collection.sort_by != blank -%}
-                <input type="hidden" name="sort_by" value="{{ collection.sort_by | escape }}">
-              {%- endif -%}
-
-              <span class="collection-products__filters-label" aria-hidden="true">
-                <span class="collection-products__filters-icon">
-                  {{- 'icon-ui-sliders.svg' | inline_asset_content -}}
-                </span>
-                {{ section.settings.filters_label }}
-              </span>
-
-              {% render 'ui-filter-bar',
-                groups: collection.filters,
-                clear_link: collection.url,
-                range_prefix: cart.currency.symbol,
-                range_form_id: price_form_id,
-                class: 'collection-products__bar'
-              %}
-            </form>
-
-            {%- comment -%}
-              The price group's own form. Empty and outside the one above — a form
-              cannot nest — with the fields inside that markup pointing at it by id.
-            {%- endcomment -%}
-            <form
-              class="collection-products__price-form"
-              id="{{ price_form_id }}"
-              method="get"
-              action="{{ collection.url }}"
-            >
-              {%- if collection.sort_by != blank -%}
-                <input type="hidden" name="sort_by" value="{{ collection.sort_by | escape }}">
-              {%- endif -%}
-              {%- for group in collection.filters -%}
-                {%- if group.type == 'price_range' -%}{% continue %}{%- endif -%}
-                {%- for value in group.active_values -%}
-                  <input type="hidden" name="{{ value.param_name }}" value="{{ value.value | escape }}">
-                {%- endfor -%}
-              {%- endfor -%}
-            </form>
+          {%- if show_filters and count_is_partial == false and visible_count > 4 -%}
+            {% render 'ui-catalog-filters', section_id: section.id, pack_sizes: pack_sizes %}
           {%- endif -%}
 
           {%- if show_sort and collection.sort_options.size > 0 -%}
@@ -284,6 +218,7 @@
         {%- if active_count > 0 and has_curated_products == false -%}
           <div class="collection-products__applied">
             {%- for group in collection.filters -%}
+              {%- if group.param_name contains 'filter.p.m.custom.' -%}{% continue %}{%- endif -%}
               {%- for value in group.active_values -%}
                 {% render 'ui-filter-chip',
                   label: value.label,
@@ -297,7 +232,7 @@
         {%- endif -%}
 
         {%- if section.settings.show_count and out_of_range == false -%}
-          <p class="collection-products__count">
+          <p class="collection-products__count" data-collection-count aria-live="polite">
             {{- visible_count }}
             {% if visible_count == 1 %}product{% else %}products{% endif %}
             {%- if count_is_partial %} on this page{% endif -%}
@@ -310,6 +245,7 @@
         <ul class="collection-products__grid" role="list" data-collection-grid>
           {{ product_cards }}
         </ul>
+        <p class="collection-products__empty" data-collection-filter-empty hidden>No treats match these filters. Try another pack size or price.</p>
         <p class="collection-products__progress" data-collection-progress aria-live="polite"></p>
         <div class="collection-products__more" data-collection-more hidden>
           {% render 'ui-button', variant: 'secondary', label: 'Show more treats', type: 'button', attributes: 'data-collection-more-button' %}
@@ -374,6 +310,8 @@
 {% stylesheet %}
   .collection-products__item[hidden],
   .collection-products__more[hidden],
+  .collection-products__empty[hidden],
+  .collection-products__catalog-filters[hidden],
   .collection-products__progress:empty {
     display: none;
   }
@@ -502,66 +440,6 @@
   .collection-products__ellipsis {
     color: var(--ui-color-gray);
     font-family: var(--ui-font-body);
-  }
-
-  /*
-   * On a phone the controls are one row that scrolls sideways rather than a block
-   * of wrapped chips — eight filters wrap to four lines and push the grid off the
-   * screen. The row scrolls inside the page column: the section sits in the
-   * `.section` grid and CLAUDE.md forbids fighting that gutter with a negative
-   * margin, so it does not bleed to the window edge.
-   */
-  @media screen and (max-width: 749px) {
-    .collection-products__filters {
-      flex-wrap: nowrap;
-      align-items: center;
-    }
-
-    .collection-products__filters-label {
-      flex: 0 0 auto;
-    }
-
-    .ui-filter-bar.collection-products__bar {
-      /* `.ui-filter-bar` wraps at the same weight, and its stylesheet is collected
-         after this one, so the class has to be doubled up to win. */
-      flex-wrap: nowrap;
-      /* A flex item will not shrink below its content unless told to, and without
-         this the row lays itself out at full width and the page scrolls instead. */
-      min-inline-size: 0;
-      overflow-x: auto;
-      scrollbar-width: none;
-      /* The trigger's focus ring sits outside its box, and a scroller clips it. */
-      padding-block: 2px;
-    }
-
-    .ui-filter-bar.collection-products__bar::-webkit-scrollbar {
-      display: none;
-    }
-
-    .ui-filter-bar.collection-products__bar > * {
-      flex: 0 0 auto;
-    }
-
-    /*
-     * A scroller clips on both axes — asking for `overflow-x: auto` computes
-     * `overflow-y` to `auto` as well, so there is no way to scroll sideways and
-     * still let a panel hang below the row. On a phone the panel therefore stops
-     * being a dropdown and becomes a sheet against the foot of the window:
-     * `fixed` is laid out against the viewport, so the scroller cannot reach it.
-     */
-    .ui-filter-bar.collection-products__bar .ui-filter-dropdown__panel {
-      position: fixed;
-      inset: auto 0 0;
-      z-index: var(--layer-menu-drawer, 3);
-      max-block-size: 70vh;
-      overflow-y: auto;
-    }
-
-    .ui-filter-bar.collection-products__bar .ui-filter-dropdown__panel .ui-filter-panel {
-      /* The kit sizes the panel for a dropdown; a sheet takes the window. */
-      inline-size: 100%;
-      border-radius: var(--ui-radius-sm) var(--ui-radius-sm) 0 0;
-    }
   }
 
   /*

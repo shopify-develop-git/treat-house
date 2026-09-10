@@ -26,6 +26,12 @@
     render 'strip-hidden-words', title: page_title
   endcapture
   assign page_title_shown = page_title_shown | strip
+  if request.page_type == 'search'
+    assign page_title_shown = 'Search results'
+    if search.terms != blank
+      assign page_title_shown = page_title_shown | append: ' for ' | append: search.terms | escape
+    endif
+  endif
 
   assign og_title = page_title_shown | default: shop.name
   assign og_url = canonical_url | default: request.origin

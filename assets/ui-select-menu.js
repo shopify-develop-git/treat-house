@@ -41,6 +41,7 @@ class UISelectMenu extends HTMLElement {
     this.#list.addEventListener('click', this.#onListClick);
     this.#list.addEventListener('keydown', this.#onListKey);
     this.#list.addEventListener('pointermove', this.#onListPointer);
+    this.#select.addEventListener('change', this.#onNativeChange);
     document.addEventListener('pointerdown', this.#onOutside);
 
     this.#sync();
@@ -48,7 +49,10 @@ class UISelectMenu extends HTMLElement {
 
   disconnectedCallback() {
     document.removeEventListener('pointerdown', this.#onOutside);
+    this.#select?.removeEventListener('change', this.#onNativeChange);
   }
+
+  #onNativeChange = () => this.#sync();
 
   get #isOpen() {
     return this.#trigger.getAttribute('aria-expanded') === 'true';
@@ -96,7 +100,7 @@ class UISelectMenu extends HTMLElement {
   }
 
   #sync() {
-    const picked = this.#select.selectedOptions[0];
+    const picked = this.#select.options[this.#select.selectedIndex];
     const isPlaceholder = !picked || picked.value === '';
     if (this.#value) this.#value.textContent = picked ? picked.textContent.trim() : '';
     this.classList.toggle('is-placeholder', isPlaceholder);

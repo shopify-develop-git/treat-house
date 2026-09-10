@@ -1,0 +1,86 @@
+{%- doc -%}
+  Filters the complete rendered retail collection by explicit pack titles and
+  product starting prices. Hidden until the collection controller is ready so
+  shoppers never encounter inert filters when JavaScript is unavailable.
+
+  @param {string} section_id - Unique section identifier for field labels.
+  @param {string} pack_sizes - Comma-separated explicit pack sizes in visible products.
+{%- enddoc -%}
+
+{%- liquid
+  assign pack_id = 'catalog-pack-' | append: section_id
+  assign price_id = 'catalog-price-' | append: section_id
+  assign present_sizes = pack_sizes | split: ',' | uniq
+  assign ordered_sizes = '6,12,24,36' | split: ','
+  assign pack_options = 'All pack sizes'
+  for size in ordered_sizes
+    if present_sizes contains size
+      assign pack_options = pack_options | append: ',' | append: size | append: '-pack'
+    endif
+  endfor
+-%}
+<div class="collection-products__catalog-filters" data-collection-filters hidden>
+  {% if present_sizes.size > 0 %}
+    {% render 'ui-select', label: 'Pack size', options: pack_options, id: pack_id, attributes: 'data-collection-pack' %}
+  {% endif %}
+  {% render 'ui-select', label: 'Starting price', options: 'All prices,Under $25,$25 to $50,$50 to $100,$100 and up', id: price_id, attributes: 'data-collection-price' %}
+  {% render 'ui-button', variant: 'link', label: 'Clear filters', type: 'button', attributes: 'data-collection-filter-clear hidden' %}
+</div>
+
+{% stylesheet %}
+  .collection-products__catalog-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--gap-md);
+    flex: 1 1 380px;
+    min-width: 0;
+  }
+
+  .collection-products__catalog-filters > .ui-select {
+    flex: 1 1 160px;
+    min-width: 0;
+    max-width: 260px;
+  }
+
+  .collection-products__catalog-filters .ui-select__value,
+  .collection-products__catalog-filters .ui-select__option {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  .collection-products__catalog-filters .ui-select__list {
+    max-height: min(320px, 50vh);
+    overflow-y: auto;
+  }
+
+  .collection-products__catalog-filters [hidden] {
+    display: none;
+  }
+
+  .collection-products__controls > .ui-sort-dropdown {
+    align-self: flex-end;
+    width: min(100%, 280px);
+  }
+
+  .collection-products__controls .ui-sort-dropdown__label {
+    white-space: normal;
+    overflow: visible;
+  }
+
+  @media screen and (max-width: 749px) {
+    .collection-products__catalog-filters {
+      flex-basis: 100%;
+    }
+
+    .collection-products__catalog-filters > .ui-select {
+      max-width: none;
+      flex-basis: calc(50% - var(--gap-md));
+    }
+
+    .collection-products__controls > .ui-sort-dropdown {
+      width: 100%;
+    }
+  }
+{% endstylesheet %}
