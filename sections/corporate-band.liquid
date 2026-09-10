@@ -1,17 +1,6 @@
 {% comment %}
-  The purple strip that offers a person instead of a form (Figma: 535:22503).
-
-  A full-bleed band with one line in it. The band reaches the window edges, so it
-  stands outside the `.section` grid and pads itself from `--page-margin` rather
-  than retyping the gutter — see the page geometry note in CLAUDE.md.
-
-  The line is a setting rather than a block. It is one link in a band drawn around
-  it, not a list a merchant would lengthen, and the same reasoning the four
-  photographs in `corporate-gifts` are settings applies: naming the thing by where
-  it sits is honest about there being exactly one of it.
-
-  Left empty, the whole section renders nothing. A band of colour with no offer in
-  it is worse than no band.
+  Direct email contact with a visible address and an optional inquiry-form link.
+  The form remains usable when a visitor has no email app configured.
 {% endcomment %}
 
 {%- liquid
@@ -33,8 +22,8 @@
     <div class="corporate-band">
       {%- if band_link != blank -%}
         <a class="corporate-band__link" href="{{ band_link | escape }}">
-          {{- band_label | escape -}}
-          {%- if email_address != blank -%}
+          {{ band_label | escape }}
+          {% if email_address != blank %}
             <span class="corporate-band__email">{{ email_address | escape }}</span>
           {%- endif -%}
         </a>

@@ -14,50 +14,7 @@
 {%- endcapture -%}
 {%- if collection_access == 'true' -%}
 {%- paginate collection.products by 250 -%}
-  {%- liquid
-    assign visible_count = 0
-    assign pack_sizes = ''
-    for product in collection.products
-      comment
-        <locksmith:a3e4> Code added automatically by the Locksmith app. Do not modify or remove.
-      endcomment
-      capture var
-        render 'locksmith-variables', scope: 'subject', subject: product, subject_parent: collection, variable: 'transparent'
-      endcapture
-      if var == "true"
-      else
-        continue
-      endif
-      comment
-        </locksmith:a3e4> End Locksmith code block.
-      endcomment
-      capture off_channel
-        render 'channel-hidden', product: product, collection: collection
-      endcapture
-      if off_channel != blank
-        continue
-      endif
-      assign visible_count = visible_count | plus: 1
-      assign pack_title = product.title | downcase | replace: '-', ' ' | replace: '–', ' ' | replace: '—', ' ' | prepend: ' '
-      assign sizes = '6,12,24,36' | split: ','
-      for size in sizes
-        assign size_pattern = size | prepend: ' ' | append: ' pack'
-        if pack_title contains size_pattern
-          assign pack_sizes = pack_sizes | append: size | append: ','
-          break
-        endif
-      endfor
-    endfor
-  -%}
-  <template data-collection-batch data-collection-handle="{{ collection.handle | escape }}" data-count="{{ visible_count }}" data-complete="{% if paginate.pages <= 1 %}true{% else %}false{% endif %}">
-    <ul data-collection-grid>
-      {% render 'collection-product-cards', products: collection.products, collection: collection, section_id: section.id %}
-    </ul>
-    {%- if visible_count > 4 -%}
-      {% render 'ui-catalog-filters', section_id: section.id, pack_sizes: pack_sizes %}
-    {%- endif -%}
-    <script type="application/json" data-collection-product-metadata>{% render 'collection-product-analytics-data', products: collection.products, collection: collection %}</script>
-  </template>
+  {% render 'collection-products-source', mode: 'batch', collection: collection, section: section, paginate: paginate %}
 {%- endpaginate -%}
 {%- else -%}
   <template data-collection-access-denied></template>
