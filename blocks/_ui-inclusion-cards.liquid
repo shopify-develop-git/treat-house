@@ -42,6 +42,9 @@
   {{ block.shopify_attributes }}
 >
   {%- for item in items -%}
+    {%- comment %}<locksmith:8562>{% endcomment -%}
+      {%- capture var %}{% render 'locksmith-variables', scope: 'subject', subject: item, variable: 'transparent' %}{% endcapture %}{% if var == "true" %}{% else %}{% continue %}{% endif -%}
+    {%- comment %}</locksmith:8562>{% endcomment -%}
     {%- liquid
       # The description doubles as the card's copy, cut to the couple of lines the
       # card can hold. The empty second argument drops truncatewords' ellipsis,

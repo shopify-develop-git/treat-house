@@ -99,6 +99,19 @@
   -%}
   {%- liquid
     for product in grid_products
+      comment
+        <locksmith:a745> Code added automatically by the Locksmith app. Do not modify or remove.
+      endcomment
+      capture var
+        render 'locksmith-variables', scope: 'subject', subject: product, variable: 'transparent'
+      endcapture
+      if var == "true"
+      else
+        continue
+      endif
+      comment
+        </locksmith:a745> End Locksmith code block.
+      endcomment
       capture off_channel
         render 'channel-hidden', product: product, collection: collection
       endcapture

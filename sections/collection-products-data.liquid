@@ -9,6 +9,19 @@
     assign visible_count = 0
     assign pack_sizes = ''
     for product in collection.products
+      comment
+        <locksmith:a3e4> Code added automatically by the Locksmith app. Do not modify or remove.
+      endcomment
+      capture var
+        render 'locksmith-variables', scope: 'subject', subject: product, subject_parent: collection, variable: 'transparent'
+      endcapture
+      if var == "true"
+      else
+        continue
+      endif
+      comment
+        </locksmith:a3e4> End Locksmith code block.
+      endcomment
       capture off_channel
         render 'channel-hidden', product: product, collection: collection
       endcapture

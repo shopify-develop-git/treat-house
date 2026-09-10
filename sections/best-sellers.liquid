@@ -200,6 +200,9 @@
             variable of the same name would shadow it for the rest of the file.
           {%- endcomment -%}
           {%- for card_product in row limit: card_limit -%}
+            {%- comment %}<locksmith:19b8>{% endcomment -%}
+              {%- capture var %}{% render 'locksmith-variables', scope: 'subject', subject: card_product, variable: 'transparent' %}{% endcapture %}{% if var == "true" %}{% else %}{% continue %}{% endif -%}
+            {%- comment %}</locksmith:19b8>{% endcomment -%}
             {%- liquid
               # The supporting line is the product's own description, cut to a length the
               # card can hold. The empty second argument drops truncatewords' ellipsis,

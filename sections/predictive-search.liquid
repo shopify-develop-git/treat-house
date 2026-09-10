@@ -1,5 +1,3 @@
-
-
 {%- if predictive_search.performed or search.performed -%}
   <div
     id="predictive-search-results"
@@ -18,6 +16,19 @@
         {%- liquid
           assign retail_products = predictive_search.resources.products | where: 'id', 0
           for candidate in predictive_search.resources.products
+            comment
+              <locksmith:93f4> Code added automatically by the Locksmith app. Do not modify or remove.
+            endcomment
+            capture var
+              render 'locksmith-variables', scope: 'subject', subject: candidate, subject_parent: predictive_search.resources, variable: 'transparent'
+            endcapture
+            if var == "true"
+            else
+              continue
+            endif
+            comment
+              </locksmith:93f4> End Locksmith code block.
+            endcomment
             capture hidden_resource
               render 'search-resource-hidden', resource: candidate, resource_type: 'product'
             endcapture

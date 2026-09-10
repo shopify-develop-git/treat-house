@@ -26,6 +26,9 @@
   {%- if menu.links.size > 0 -%}
     <ul class="ui-footer-legal__links" role="list">
       {%- for link in menu.links -%}
+        {%- comment %}<locksmith:d4d9>{% endcomment -%}
+          {%- capture var %}{% render 'locksmith-variables', scope: 'subject', subject: link, subject_parent: menu, variable: 'transparent' %}{% endcapture %}{% if var == "true" %}{% else %}{% continue %}{% endif -%}
+        {%- comment %}</locksmith:d4d9>{% endcomment -%}
         <li>
           <a class="ui-footer-legal__link" href="{{ link.url }}">{{ link.title }}</a>
         </li>

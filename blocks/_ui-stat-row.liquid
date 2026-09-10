@@ -41,6 +41,19 @@
   # merchant can find it and fill it.
   assign stat_count = 0
   for child in block.blocks
+    comment
+      <locksmith:055f> Code added automatically by the Locksmith app. Do not modify or remove.
+    endcomment
+    capture var
+      render 'locksmith-variables', scope: 'subject', subject: child, subject_parent: block, variable: 'transparent'
+    endcapture
+    if var == "true"
+    else
+      continue
+    endif
+    comment
+      </locksmith:055f> End Locksmith code block.
+    endcomment
     if child.type == '_ui-stat' and child.settings.value != blank
       assign stat_count = stat_count | plus: 1
     endif
