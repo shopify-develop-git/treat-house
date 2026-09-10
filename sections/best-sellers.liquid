@@ -88,6 +88,17 @@
         assign row_collection = collection
       endif
       assign row = row_collection.products
+      # The draft's retail curation also supplies collection recommendation rows.
+      case row_collection.handle
+        when 'get-well'
+          if settings.get_well_retail_products != blank
+            assign row = settings.get_well_retail_products
+          endif
+        when 'congratulations'
+          if settings.congratulations_retail_products != blank
+            assign row = settings.congratulations_retail_products
+          endif
+      endcase
       assign row_answered = true
     else
       assign row = section.settings.products

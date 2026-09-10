@@ -428,6 +428,14 @@
     "season_evergreen_products": [
       "congratulations-12-pack",
       "congratulations-deluxe-gift-box"
+    ],
+    "get_well_retail_products": [
+      "get-well-soon-pack",
+      "get-well-soon-deluxe-gift-box"
+    ],
+    "congratulations_retail_products": [
+      "congratulations-12-pack",
+      "congratulations-deluxe-gift-box"
     ]
   },
   "presets": {

@@ -1,124 +1,107 @@
 {%- doc -%}
-  Renders the predictive search products list for empty state and recently viewed products
+  Renders retail-visible products for predictive search and recently viewed rows.
+  The visible limit applies after exclusions; recently viewed ID order is retained.
 
   @param {string} title - title of the result list
   @param {object[]} products - array of products
   @param {string[]} [order_ids] - array of product ids
-  @param {number} [limit] - limit of products to display
-  @param {string} [products_test_id] - a playwright test id, used to differentiate empty state from 'real' search results
+  @param {number} [limit] - limit of visible products to display
+  @param {string} [products_test_id] - distinguishes empty state from search results
 {%- enddoc -%}
 {%- liquid
   assign recently_viewed_title_text = 'content.recently_viewed_products' | t
+  assign is_recently_viewed = false
+  assign ordered_products = false
+  assign card_ref = 'resultsItems[]'
+  assign candidates = products
+  assign card_limit = limit | default: 8 | plus: 0
+  assign visible_count = 0
+
+  if title == recently_viewed_title_text
+    assign is_recently_viewed = true
+    assign card_ref = 'recentlyViewedItems[]'
+    if order_ids != blank
+      assign ordered_products = true
+      assign candidates = order_ids
+    endif
+  endif
 -%}
+
+{%- capture product_cards -%}
+  {%- if card_limit > 0 -%}
+    {%- for candidate in candidates -%}
+      {%- liquid
+        assign product = candidate
+        if ordered_products
+          assign int_id = candidate | times: 1
+          assign product = products | find: 'id', int_id
+        endif
+      -%}
+      {%- if product == blank -%}{%- continue -%}{%- endif -%}
+      {%- comment -%}
+        Every branch uses the same retail rule, including recently viewed IDs.
+        Missing and hidden products do not consume visible slots.
+      {%- endcomment -%}
+      {%- capture off_channel -%}{% render 'channel-hidden', product: product %}{%- endcapture -%}
+      {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
+      <li
+        class="predictive-search-results__card predictive-search-results__card--product"
+        ref="{{ card_ref }}"
+      >
+        {% render 'resource-card',
+          resource_type: 'product',
+          resource: product,
+          image_width: 500,
+          image_hover: true,
+          image_aspect_ratio: '4 / 5'
+        %}
+      </li>
+      {%- assign visible_count = visible_count | plus: 1 -%}
+      {%- if visible_count >= card_limit -%}{%- break -%}{%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endcapture -%}
+
 <div
   id="predictive-search-products"
   class="predictive-search-results__products"
-  {% if products_test_id %}
-    data-testid="{{ products_test_id }}"
-  {% endif %}
+  data-visible-count="{{ visible_count }}"
+  {% if products_test_id %}data-testid="{{ products_test_id }}"{% endif %}
 >
-  {% if title == recently_viewed_title_text %}
-    <div
-      class="recently-viewed-wrapper"
-      ref="recentlyViewedWrapper"
-    >
-      <h4
-        class="predictive-search-results__title"
-        ref="recentlyViewedTitle[]"
-      >
-        {{ title }}
-        <button
-          class="predictive-search-results__clear button button-unstyled"
-          type="button"
-          on:click="/clearRecentlyViewedProducts"
+  {%- if is_recently_viewed -%}
+    {%- if visible_count > 0 -%}
+      <div class="recently-viewed-wrapper" ref="recentlyViewedWrapper">
+        <h4 class="predictive-search-results__title" ref="recentlyViewedTitle[]">
+          {{ title }}
+          <button
+            class="predictive-search-results__clear button button-unstyled"
+            type="button"
+            on:click="/clearRecentlyViewedProducts"
+          >
+            {{ 'actions.clear' | t }}
+          </button>
+        </h4>
+        <ul
+          class="predictive-search-results__list predictive-search-results__wrapper-products list-unstyled"
+          role="listbox"
+          aria-label="{{ title }}"
         >
-          {{ 'actions.clear' | t }}
-        </button>
-      </h4>
-      <ul
-        class="predictive-search-results__list predictive-search-results__wrapper-products list-unstyled"
-        role="listbox"
-        aria-label="{{ title }}"
-      >
-        {% liquid
-          assign limit = limit | default: 8
-        %}
-        {% comment %}
-          If we're searching for recently viewed products by id, we need to reorder the products.
-          The order here comes from the search terms, and we display the products in the order of the ids.
-        {% endcomment %}
-        {% if order_ids != blank %}
-          {% for _id in order_ids %}
-            {% assign int_id = _id | times: 1 %}
-            {% assign product = products | find: 'id', int_id %}
-            <li
-              class="predictive-search-results__card predictive-search-results__card--product"
-              ref="recentlyViewedItems[]"
-            >
-              {% render 'resource-card',
-                resource_type: 'product',
-                resource: product,
-                image_width: 500,
-                image_hover: true,
-                image_aspect_ratio: '4 / 5'
-              %}
-            </li>
-          {% endfor %}
-        {% else %}
-          {% for product in products limit: limit %}
-            {%- comment -%}
-              Another channel's product is no more a suggestion than it is a
-              result — see [channel-hidden]. This dropdown rides on every page,
-              so left alone it was the widest hole of the lot.
-            {%- endcomment -%}
-            {%- capture off_channel -%}{% render 'channel-hidden', product: product %}{%- endcapture -%}
-            {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
-            <li
-              class="predictive-search-results__card predictive-search-results__card--product"
-              ref="recentlyViewedItems[]"
-            >
-              {% render 'resource-card',
-                resource_type: 'product',
-                resource: product,
-                image_width: 500,
-                image_hover: true,
-                image_aspect_ratio: '4 / 5'
-              %}
-            </li>
-          {% endfor %}
-        {% endif %}
-      </ul>
-    </div>
-  {% else %}
-    <h4 class="predictive-search-results__title">
-      {{ title }}
-    </h4>
+          {{- product_cards -}}
+        </ul>
+      </div>
+    {%- endif -%}
+  {%- elsif visible_count > 0 -%}
+    <h4 class="predictive-search-results__title">{{ title }}</h4>
     <ul
       class="predictive-search-results__list predictive-search-results__wrapper-products list-unstyled"
       role="listbox"
       aria-label="{{ title }}"
     >
-      {% liquid
-        assign limit = limit | default: 8
-      %}
-      {% for product in products limit: limit %}
-        {%- capture off_channel -%}{% render 'channel-hidden', product: product %}{%- endcapture -%}
-        {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
-        <li
-          class="predictive-search-results__card predictive-search-results__card--product"
-          ref="resultsItems[]"
-        >
-          {% render 'resource-card',
-            resource_type: 'product',
-            resource: product,
-            image_width: 500,
-            image_hover: true,
-            image_aspect_ratio: '4 / 5'
-          %}
-        </li>
-      {% endfor %}
+      {{- product_cards -}}
     </ul>
-  {% endif %}
+  {%- else -%}
+    <p class="predictive-search-results__no-results">{{ 'content.no_products_found' | t }}</p>
+  {%- endif -%}
 </div>
 
 {% stylesheet %}

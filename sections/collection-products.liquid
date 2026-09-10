@@ -42,6 +42,14 @@
   assign show_filters = section.settings.show_filters
   assign show_sort = section.settings.show_sort
   assign curated_products = section.settings.retail_products
+  if curated_products == blank
+    case collection.handle
+      when 'get-well'
+        assign curated_products = settings.get_well_retail_products
+      when 'congratulations'
+        assign curated_products = settings.congratulations_retail_products
+    endcase
+  endif
   assign has_curated_products = false
   if curated_products.size > 0
     assign has_curated_products = true

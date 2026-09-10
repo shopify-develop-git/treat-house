@@ -197,6 +197,20 @@
         "label": "Products to exclude from retail browsing",
         "info": "Keeps product URLs and channel integrations available.",
         "limit": 50
+      },
+      {
+        "type": "product_list",
+        "id": "get_well_retail_products",
+        "label": "Get Well retail products",
+        "info": "Retail selection used by the Get Well grid and collection rows in this theme. Does not change the shared Shopify collection membership.",
+        "limit": 50
+      },
+      {
+        "type": "product_list",
+        "id": "congratulations_retail_products",
+        "label": "Congratulations retail products",
+        "info": "Retail selection used by the Congratulations grid and collection rows in this theme. Does not change the shared Shopify collection membership.",
+        "limit": 50
       }
     ]
   },
