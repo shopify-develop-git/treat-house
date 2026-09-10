@@ -37,6 +37,7 @@
     does an option already starting with the same word — a shop with an option
     called "Choose a Pack" does not want "Choose your Choose a Pack".
   @param {string} [class] - Additional CSS classes.
+  @param {object} [section] - The current section, used to scope native option IDs.
   @param {object} [gift_box_image] - A fallback image for the packaging option's
     upgrade value (the second value of the first option). Matched on position
     rather than wording, since the value strings differ per pack. Used only when
@@ -121,6 +122,7 @@
           {%- liquid
             assign row_label = value.name
             assign row_class = ''
+            assign row_restricted = false
             assign canonical_option_id = ''
             assign canonical_variant_id = ''
             assign custom_count_label = ''
@@ -207,6 +209,18 @@
             {%- endcapture -%}
             {%- if value.selected -%}{%- assign trigger_label = row_label -%}{%- endif -%}
           {%- endif -%}
+          {%- if custom_count_option -%}
+            {%- capture row_restriction -%}
+              {%- render 'variant-purchase-restriction', product: product_resource, option_value: value.name -%}
+            {%- endcapture -%}
+            {%- if row_restriction != blank -%}
+              {%- assign row_restricted = true -%}
+              {%- assign row_class = 'ui-product-variant-picker__duplicate' -%}
+              {%- if value.selected -%}
+                {%- assign trigger_label = 'products.product.choose_standard_pack' | t -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endif -%}
           {%- capture row_attributes -%}
             data-previous-checked="false"
             data-fieldset-index="{{ fieldset_index }}"
@@ -233,6 +247,7 @@
             value: value.name,
             image: row_image,
             checked: value.selected,
+            disabled: row_restricted,
             name: group_name,
             class: row_class,
             attributes: row_attributes

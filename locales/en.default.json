@@ -145,6 +145,8 @@
     "delivery_date_required": "Choose your requested date to continue.",
     "seasonal_blocked": "A seasonal treat in your cart is not available right now. Remove it to continue.",
     "seasonal_remove_hint": "Remove this treat to continue.",
+    "packaging_blocked": "An item uses packaging that is unavailable. Remove it and add a standard pack to continue.",
+    "packaging_remove_hint": "This packaging option is unavailable. Remove this item and choose a standard pack.",
     "delivery_date_error": "We could not save that date. Please try once more.",
     "delivery_date_cleared": "Please choose a requested date. Arrival timing depends on your address and shipping method.",
     "delivery_date_lead": {
@@ -232,6 +234,8 @@
     "localization_region_and_language": "Region and language",
     "no_products_found": "No products found.",
     "no_results_found": "No results found",
+    "wholesale_catalog_title": "Wholesale catalog",
+    "wholesale_catalog_description": "Shop wholesale treats. Payment is collected at checkout.",
     "page_placeholder_title": "Page title",
     "page_placeholder_content": "Select a page to display its content.",
     "pagination": {
@@ -372,6 +376,7 @@
       "quantity_error_max": "This item has a maximum of {{ maximum }}",
       "sold_out": "Sold out",
       "unavailable": "Unavailable",
+      "choose_standard_pack": "Choose a standard pack",
       "coming_soon": "Coming soon",
       "closed_season": "Back next season",
       "seasonal_notice": "This is a seasonal treat. {{ label }}.",

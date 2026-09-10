@@ -269,17 +269,28 @@
   # touches a button carrying `data-delivery-date-gate`, which is withheld while
   # this gate is closed so a saved date cannot re-enable the button.
   assign season_gate = false
+  assign variant_gate = false
   for line_item in cart.items
+    capture line_restriction
+      render 'variant-purchase-restriction', product: line_item.product, variant: line_item.variant
+    endcapture
+    if line_restriction != blank
+      assign variant_gate = true
+    endif
     capture line_season
       render 'season-status', product: line_item.product
     endcapture
     assign line_season_status = line_season | strip | split: '|' | first
     if line_season_status != blank and line_season_status != 'available'
       assign season_gate = true
-      break
     endif
   endfor
   assign season_hint_id = 'cart-season-hint-' | append: section_id
+  assign variant_hint_id = 'cart-packaging-hint-' | append: section_id
+  assign purchase_gate = false
+  if season_gate or variant_gate
+    assign purchase_gate = true
+  endif
 
   assign date_gate = false
   if cart.attributes['_delivery_mode'] == 'requested' and settings.show_cart_shipping_estimate and settings.show_cart_delivery_date
@@ -297,6 +308,9 @@
   if season_gate
     assign describedby = season_hint_id
   endif
+  if variant_gate
+    assign describedby = describedby | append: ' ' | append: variant_hint_id | strip
+  endif
   if date_gate
     assign describedby = describedby | append: ' ' | append: hint_id | strip
   endif
@@ -308,14 +322,14 @@
     id="checkout"
     class="cart__checkout-button button"
     name="checkout"
-    {% if cart == empty or date_gate or season_gate %}
+    {% if cart == empty or date_gate or purchase_gate %}
       disabled
     {% endif %}
-    {% if date_gate or season_gate %}
+    {% if date_gate or purchase_gate %}
       aria-disabled="true"
       aria-describedby="{{ describedby }}"
     {% endif %}
-    {% if season_gate == false and cart != empty and settings.show_cart_shipping_estimate %}
+    {% if purchase_gate == false and cart != empty and settings.show_cart_shipping_estimate %}
       data-delivery-date-gate
     {% endif %}
     form="cart-form"
@@ -341,13 +355,23 @@
       {{- 'cart.seasonal_blocked' | t -}}
     </p>
   {%- endif -%}
+  {%- if variant_gate -%}
+    <p
+      id="{{ variant_hint_id }}"
+      class="cart__checkout-hint cart-primary-typography"
+      role="status"
+      data-packaging-gate-hint
+    >
+      {{- 'cart.packaging_blocked' | t -}}
+    </p>
+  {%- endif -%}
   {%- if settings.show_cart_shipping_estimate -%}
     <p
       {% unless date_gate %}hidden{% endunless %}
       id="{{ hint_id }}"
       class="cart__checkout-hint cart-primary-typography"
       role="status"
-      {% if season_gate == false %}data-delivery-date-hint{% endif %}
+      {% if purchase_gate == false %}data-delivery-date-hint{% endif %}
     >
       Save your requested date or choose As soon as possible.
     </p>
@@ -367,7 +391,7 @@
     {%- endif -%}
   </div>
 
-  {% if additional_checkout_buttons and settings.show_accelerated_checkout_buttons and season_gate == false %}
+  {% if additional_checkout_buttons and settings.show_accelerated_checkout_buttons and purchase_gate == false %}
     <div
       class="
         additional-checkout-buttons

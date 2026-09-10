@@ -47,6 +47,9 @@
   endif
 
   assign variant = product_resource.selected_or_first_available_variant
+  capture purchase_restriction
+    render 'variant-purchase-restriction', product: product_resource, variant: variant
+  endcapture
 
   assign can_add_to_cart = false
   assign add_to_cart_text = 'products.product.unavailable' | t
@@ -54,6 +57,8 @@
   if variant
     if season_closed
       assign add_to_cart_text = season_label
+    elsif purchase_restriction != blank
+      assign add_to_cart_text = 'products.product.choose_standard_pack' | t
     elsif variant.available
       assign can_add_to_cart = true
       assign add_to_cart_text = block.settings.label
@@ -80,6 +85,11 @@
 
   assign form_id = 'ui-product-form-' | append: section.id
 
+  capture purchase_path
+    render 'product-purchase-path', product: product_resource
+  endcapture
+  assign purchase_path = purchase_path | strip
+
   assign variant_media = variant.featured_media.preview_image | image_url: width: 100
   if variant.featured_media.preview_image == blank
     assign variant_media = product_resource.featured_media.preview_image | image_url: width: 100
@@ -97,6 +107,17 @@
   {%- endif -%}
 {%- endcapture -%}
 
+{%- if purchase_path == 'builder' and can_add_to_cart -%}
+  <div class="ui-product-buy" {{ block.shopify_attributes }}>
+    {% render 'ui-button',
+      variant: 'primary',
+      label: 'Build your box',
+      link: '/pages/customize',
+      full_width: true,
+      class: 'ui-product-buy__add'
+    %}
+  </div>
+{%- else -%}
 <product-form-component
   class="ui-product-buy"
   data-section-id="{{ section.id }}"
@@ -160,7 +181,7 @@
       {%- endif -%}
 
       {%- if block.settings.show_accelerated_checkout and additional_checkout_buttons and season_closed == false -%}
-        <div class="ui-product-buy__accelerated" ref="acceleratedCheckoutButtonContainer">
+        <div class="ui-product-buy__accelerated" ref="acceleratedCheckoutButtonContainer"{% if purchase_restriction != blank %} hidden{% endif %}>
           {{ content_for_additional_checkout_buttons }}
         </div>
       {%- endif -%}
@@ -173,6 +194,7 @@
     </p>
   {%- endif -%}
 </product-form-component>
+{%- endif -%}
 
 <script src="{{ 'ui-product-buy-now.js' | asset_url }}" type="module" fetchpriority="low"></script>
 

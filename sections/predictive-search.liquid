@@ -14,6 +14,32 @@
     >
       {% if predictive_search.performed %}
         {%- liquid
+          assign can_view_wholesale_queries = false
+          assign wholesale_handles = 'wholesale-page,reachdesk-copy' | split: ','
+          for wholesale_handle in wholesale_handles
+            assign wholesale_collection = collections[wholesale_handle]
+            if wholesale_collection.id == blank
+              continue
+            endif
+            capture wholesale_access
+              render 'locksmith-variables', scope: 'subject', subject: wholesale_collection, variable: 'access_granted'
+            endcapture
+            if wholesale_access == 'true'
+              assign can_view_wholesale_queries = true
+              break
+            endif
+          endfor
+          assign retail_queries = predictive_search.resources.queries | slice: 0, 0
+          for candidate in predictive_search.resources.queries
+            assign query_words = candidate.text | handleize | split: '-'
+            if query_words contains 'ws'
+              unless can_view_wholesale_queries
+                continue
+              endunless
+            endif
+            assign single_query = predictive_search.resources.queries | slice: forloop.index0, 1
+            assign retail_queries = retail_queries | concat: single_query
+          endfor
           assign retail_products = predictive_search.resources.products | where: 'id', 0
           for candidate in predictive_search.resources.products
             comment
@@ -67,7 +93,7 @@
           | plus: predictive_search.resources.pages.size
           | plus: predictive_search.resources.articles.size
           | plus: retail_collections.size
-          | plus: predictive_search.resources.queries.size
+          | plus: retail_queries.size
         %}
       {% else %}
         {% assign search_results_count = search.results_count %}
@@ -88,7 +114,7 @@
       {% if predictive_search.performed %}
         {%- if search_results_count > 0 -%}
           {% assign shared_results_index = 0 %}
-          {% if predictive_search.resources.queries.size > 0 %}
+          {% if retail_queries.size > 0 %}
             {% assign shared_results_index = shared_results_index
               | plus: retail_collections.size
             %}
@@ -97,7 +123,7 @@
               role="listbox"
               aria-labelledby="predictive-search-queries"
             >
-              {%- for resource in predictive_search.resources.queries -%}
+              {%- for resource in retail_queries -%}
                 <li
                   class="predictive-search-results__card--query"
                   ref="resultsItems[]"

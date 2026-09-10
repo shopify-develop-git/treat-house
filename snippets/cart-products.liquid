@@ -4,6 +4,7 @@
   Renders the cart products list or empty cart state.
 
   @param {boolean} [force_empty] - Force render empty cart state
+  @param {object} [block] - Current cart block when rendered inside a theme block.
 
   @example
   {% render 'cart-products', force_empty: true %}
@@ -171,6 +172,7 @@
           <tbody role="rowgroup">
             {% for item in cart.items %}
               {%- capture line_season -%}{% render 'season-status', product: item.product %}{%- endcapture -%}
+              {%- capture line_restriction -%}{% render 'variant-purchase-restriction', product: item.product, variant: item.variant %}{%- endcapture -%}
               {%- liquid
                 # Seasonal availability, see [season-status]. A line whose product
                 # has closed since it was added is flagged here and holds checkout
@@ -260,6 +262,11 @@
                     <p class="cart-items__season" role="status">
                       <strong class="cart-items__season-label">{{ line_season_label }}</strong>
                       <span class="cart-items__season-hint">{{ 'cart.seasonal_remove_hint' | t }}</span>
+                    </p>
+                  {%- endif -%}
+                  {%- if line_restriction != blank -%}
+                    <p class="cart-items__season" role="status" data-packaging-line-hint>
+                      {{ 'cart.packaging_remove_hint' | t }}
                     </p>
                   {%- endif -%}
                   {% if item.product.vendor and block_settings.vendor %}

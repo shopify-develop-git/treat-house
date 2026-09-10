@@ -1,0 +1,25 @@
+{%- doc -%}
+  Returns a restriction for unconfirmed individually boxed Back-to-School packs.
+  Native variant IDs, options and prices remain unchanged.
+  @param {product} product
+  @param {variant} [variant]
+  @param {string} [option_value] - A single packaging/custom-count option to check.
+{%- enddoc -%}
+{%- liquid
+  assign product_id = product.id | append: ''
+  if product_id == '9268903248089'
+    assign option_values = variant.options
+    if option_value != blank
+      assign option_values = option_value | split: '|'
+    endif
+    for option in option_values
+      assign option_lower = option | downcase
+      if option_lower contains 'individual'
+        unless option_lower contains 'no individual'
+          echo 'unconfirmed_packaging'
+          break
+        endunless
+      endif
+    endfor
+  endif
+-%}

@@ -12,8 +12,12 @@
     assign hero_collection = collections.all
   endif
   assign is_catalog_header = false
+  assign is_wholesale_header = false
   if hero_collection.handle == 'all' or hero_collection.handle == 'shop-all'
     assign is_catalog_header = true
+  elsif hero_collection.handle == 'wholesale-page'
+    assign is_catalog_header = true
+    assign is_wholesale_header = true
   endif
 
   assign hero_image = section.settings.image
@@ -65,7 +69,7 @@
   {{ section.shopify_attributes }}
 >
   <div
-    class="collection-hero{% if is_catalog_header %} collection-hero--catalog{% endif %}"
+    class="collection-hero{% if is_catalog_header %} collection-hero--catalog{% endif %}{% if is_wholesale_header %} collection-hero--wholesale{% endif %}"
     style="
       --collection-hero-height: {{ section.settings.height_mobile }}px;
       --collection-hero-height-desktop: {{ section.settings.height }}px;
@@ -128,7 +132,12 @@
         {%- endif -%}
 
         <div class="collection-hero__text">
-          {% content_for 'blocks' %}
+          {%- if is_wholesale_header -%}
+            <h1 class="collection-hero__wholesale-heading">{{ 'content.wholesale_catalog_title' | t }}</h1>
+            <p class="collection-hero__wholesale-description">{{ 'content.wholesale_catalog_description' | t }}</p>
+          {%- else -%}
+            {% content_for 'blocks' %}
+          {%- endif -%}
         </div>
       </div>
     </div>
@@ -152,6 +161,28 @@
   .collection-hero--catalog .collection-hero__text {
     align-items: flex-start;
     text-align: start;
+  }
+
+  .collection-hero--wholesale .collection-hero__text {
+    gap: 8px;
+  }
+
+  .collection-hero__wholesale-heading {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 800;
+    line-height: 1.15;
+    color: var(--ui-color-black);
+  }
+
+  .collection-hero__wholesale-description {
+    max-inline-size: 60ch;
+    margin: 0;
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--ui-color-gray);
   }
 
   /* Collection hero. Mobile first; the drawn height arrives at 750px. */

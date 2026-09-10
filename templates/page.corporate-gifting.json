@@ -302,22 +302,22 @@
         "heading": {
           "type": "_ui-heading",
           "settings": {
-            "heading": "<h2>Our <br><em>corporate catalog</em></h2>"
+            "heading": "<h2>Custom gifts for <em>every occasion</em></h2>"
           }
         },
         "copy": {
           "type": "_ui-text",
           "settings": {
-            "text": "<p>Pack sizes, branding options and pricing, in one place. Every treat is made in our SQF-certified kitchen, and all but two are certified gluten-free.</p>"
+            "text": "<p>Explore logo treats, gift boxes and bulk orders. Tell us what you need and we’ll help you choose the right option.</p>"
           }
         },
         "button": {
           "type": "_ui-link",
           "settings": {
-            "label": "Download the brochure (PDF)",
-            "link": "https://drive.google.com/file/d/1__zsVfPiILH8a6eL4Lh_b2CJiy6xh2FI/view?usp=sharing",
+            "label": "Request a quote",
+            "link": "#contact_form",
             "variant": "primary",
-            "open_in_new_tab": true
+            "open_in_new_tab": false
           }
         },
         "stat-row": {
