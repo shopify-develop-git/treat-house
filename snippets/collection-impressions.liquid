@@ -1,0 +1,19 @@
+{%- doc -%}
+  Supplemental impressions for the retail cards actually visible in the viewport.
+  Reuses the existing Google tag; never installs, configures or replaces a pixel.
+  Destination matches the native Google app readback on 2026-09-09.
+  Native collection_viewed membership remains separate from this source.
+  @param {collection} collection
+  @param {string} [measurement_id] - Existing GA4 destination only.
+{%- enddoc -%}
+{%- unless request.design_mode -%}
+  {%- assign impression_destination = measurement_id | default: 'G-N1TFX0M3T8' -%}
+  <th-collection-impressions
+    hidden
+    data-measurement-id="{{ impression_destination | escape }}"
+    data-collection-id="{{ collection.id | default: collection.handle | escape }}"
+    data-collection-title="{{ collection.title | escape }}"
+    data-currency="{{ cart.currency.iso_code | default: shop.currency | escape }}"
+  ></th-collection-impressions>
+  <script src="{{ 'th-collection-impressions.js' | asset_url }}" defer></script>
+{%- endunless -%}

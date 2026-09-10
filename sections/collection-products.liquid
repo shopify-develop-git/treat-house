@@ -146,6 +146,7 @@
       --collection-products-columns-sm: {{ section.settings.columns_sm }};
     "
   >
+    {% render 'collection-impressions', collection: collection %}
     {%- if show_filters or show_sort or section.settings.show_count -%}
       <div class="collection-products__top">
         {%- if show_filters or show_sort -%}
