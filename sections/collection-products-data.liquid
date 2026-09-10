@@ -4,6 +4,15 @@
   document's native collection_viewed event. It uses shared retail/card rules;
   the configured main section keeps layout, sorting and visibility settings.
 {%- endcomment -%}
+{%- comment -%}
+  Section Rendering skips the page layout. Check access to the collection itself
+  before returning cards, counts or analytics; product transparency alone does
+  not enforce a collection's passcode requirement.
+{%- endcomment -%}
+{%- capture collection_access -%}
+  {%- render 'locksmith-variables', scope: 'subject', subject: collection, variable: 'access_granted' -%}
+{%- endcapture -%}
+{%- if collection_access == 'true' -%}
 {%- paginate collection.products by 250 -%}
   {%- liquid
     assign visible_count = 0
@@ -50,6 +59,9 @@
     <script type="application/json" data-collection-product-metadata>{% render 'collection-product-analytics-data', products: collection.products, collection: collection %}</script>
   </template>
 {%- endpaginate -%}
+{%- else -%}
+  <template data-collection-access-denied></template>
+{%- endif -%}
 
 {% schema %}
 {

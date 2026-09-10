@@ -58,6 +58,14 @@
 -%}
 
 {%- comment -%}
+  Variant updates render this section without the page layout. Keep the same
+  product access requirement on those requests as on the full product page.
+{%- endcomment -%}
+{%- capture product_access -%}
+  {%- render 'locksmith-variables', scope: 'subject', subject: product_resource, variable: 'access_granted' -%}
+{%- endcapture -%}
+{%- if product_access == 'true' -%}
+{%- comment -%}
   The gallery badge reads the same tag list the product cards read, so a product
   tagged Bestsellers says so on the card and again on its own page without the
   shop stating it twice. `show_badge` still decides whether this page shows it.
@@ -103,6 +111,9 @@
   </div>
 </div>
 
+{%- else -%}
+  <template data-product-access-denied></template>
+{%- endif -%}
 {% stylesheet %}
   .product-main {
     display: flex;

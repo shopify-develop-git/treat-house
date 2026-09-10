@@ -5,6 +5,14 @@
   Discovery metafields are not presented as customer filters.
 {% endcomment %}
 
+{%- comment -%}
+  This section can be requested without layout/theme.liquid. Enforce the
+  collection's own access decision before rendering its contents.
+{%- endcomment -%}
+{%- capture collection_access -%}
+  {%- render 'locksmith-variables', scope: 'subject', subject: collection, variable: 'access_granted' -%}
+{%- endcapture -%}
+{%- if collection_access == 'true' -%}
 {%- liquid
   assign products_per_page = section.settings.products_per_page
 
@@ -302,6 +310,9 @@
 </div>
 {% endpaginate %}
 
+{%- endif -%}
+{%- else -%}
+  <template data-collection-access-denied></template>
 {%- endif -%}
 {% stylesheet %}
   .section.collection-products-section--catalog {
