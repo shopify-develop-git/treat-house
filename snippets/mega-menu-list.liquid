@@ -349,10 +349,16 @@
       >
         {% if eager_loading %}
           {% paginate collection_object.products by max_featured_products %}
+            {%- comment %}<locksmith:fc12>{% endcomment -%}
+              {%- assign locksmith_0911_forloop__size = 0 %}{% for item in collection_object.products %}{% capture var %}{% render 'locksmith-variables', scope: 'subject', subject: item, subject_parent: collection_object, variable: 'transparent' %}{% endcapture %}{% if var == 'true' %}{% assign locksmith_0911_forloop__size = locksmith_0911_forloop__size | plus: 1 %}{% endif %}{% endfor %}{% assign locksmith_0911_forloop__index = nil -%}
+            {%- comment %}</locksmith:fc12>{% endcomment -%}
             {% for item in collection_object.products %}
+              {%- comment %}<locksmith:8a74>{% endcomment -%}
+                {%- capture var %}{% render 'locksmith-variables', scope: 'subject', subject: item, subject_parent: collection_object, variable: 'transparent' %}{% endcapture %}{% if var == "true" %}{% if locksmith_0911_forloop__index == nil %}{% assign locksmith_0911_forloop__index = 1 %}{% assign locksmith_0911_forloop__index0 = 0 %}{% else %}{% assign locksmith_0911_forloop__index = locksmith_0911_forloop__index | plus: 1 %}{% assign locksmith_0911_forloop__index0 = locksmith_0911_forloop__index0 | plus: 1 %}{% endif %}{% if locksmith_0911_forloop__index == 1 %}{% assign locksmith_0911_forloop__first = true %}{% else %}{% assign locksmith_0911_forloop__first = false %}{% endif %}{% if locksmith_0911_forloop__index == locksmith_0911_forloop__size %}{% assign locksmith_0911_forloop__last = true %}{% else %}{% assign locksmith_0911_forloop__last = false %}{% endif %}{% assign locksmith_0911_forloop__rindex = locksmith_0911_forloop__size | minus: locksmith_0911_forloop__index | minus: 1 %}{% assign locksmith_0911_forloop__rindex0 = locksmith_0911_forloop__size | minus: locksmith_0911_forloop__index0 | minus: 1 %}{% else %}{% continue %}{% endif -%}
+              {%- comment %}</locksmith:8a74>{% endcomment -%}
               {%- capture featured_url -%}{%- render 'ui-navigation-url', link: item -%}{%- endcapture -%}
               {%- if featured_url == '__hidden__' -%}{%- continue -%}{%- endif -%}
-              <li class="mega-menu__content-list-item {% if forloop.index > max_featured_products_tablet %} mega-menu__content-list-item--hidden-tablet{% endif %}">
+              <li class="mega-menu__content-list-item {% if locksmith_0911_forloop__index > max_featured_products_tablet %} mega-menu__content-list-item--hidden-tablet{% endif %}">
                 {% render 'resource-card',
                   resource: item,
                   resource_type: 'product',

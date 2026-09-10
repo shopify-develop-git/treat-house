@@ -617,6 +617,9 @@
                               {% else %}
                                 {% paginate featured_products_collection.products by max_featured_items %}
                                   {%- for product in featured_products_collection.products limit: max_featured_items -%}
+                                    {%- comment %}<locksmith:81c6>{% endcomment -%}
+                                      {%- capture var %}{% render 'locksmith-variables', scope: 'subject', subject: product, subject_parent: featured_products_collection, variable: 'transparent' %}{% endcapture %}{% if var == "true" %}{% else %}{% continue %}{% endif -%}
+                                    {%- comment %}</locksmith:81c6>{% endcomment -%}
                                     {%- capture featured_url -%}{%- render 'ui-navigation-url', link: product -%}{%- endcapture -%}
                                     {%- if featured_url == '__hidden__' -%}{%- continue -%}{%- endif -%}
                                     <li class="menu-drawer__featured-content-list-item menu-drawer__featured-content-list-item--product">
@@ -819,6 +822,19 @@
 
         if eager_loading and block_settings.menu_style == 'featured_products'
           for link in linklist.links
+            comment
+              <locksmith:5946> Code added automatically by the Locksmith app. Do not modify or remove.
+            endcomment
+            capture var
+              render 'locksmith-variables', scope: 'subject', subject: link, subject_parent: linklist, variable: 'transparent'
+            endcapture
+            if var == "true"
+            else
+              continue
+            endif
+            comment
+              </locksmith:5946> End Locksmith code block.
+            endcomment
             if link.type == 'collection_link'
               assign collection_linklist = link
               assign top_level_featured_products_collection = collection_linklist.object
@@ -853,6 +869,9 @@
             {% elsif top_level_featured_products_collection.products_count > 0 %}
               {% paginate top_level_featured_products_collection.products by max_featured_items %}
                 {%- for product in top_level_featured_products_collection.products limit: max_featured_items -%}
+                  {%- comment %}<locksmith:167a>{% endcomment -%}
+                    {%- capture var %}{% render 'locksmith-variables', scope: 'subject', subject: product, subject_parent: top_level_featured_products_collection, variable: 'transparent' %}{% endcapture %}{% if var == "true" %}{% else %}{% continue %}{% endif -%}
+                  {%- comment %}</locksmith:167a>{% endcomment -%}
                   {%- capture featured_url -%}{%- render 'ui-navigation-url', link: product -%}{%- endcapture -%}
                   {%- if featured_url == '__hidden__' -%}{%- continue -%}{%- endif -%}
                   <li class="menu-drawer__featured-content-list-item menu-drawer__featured-content-list-item--product">

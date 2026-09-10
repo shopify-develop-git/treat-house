@@ -30,6 +30,9 @@
 {%- capture product_cards -%}
   {%- if card_limit > 0 -%}
     {%- for candidate in candidates -%}
+      {%- comment %}<locksmith:6d72>{% endcomment -%}
+        {%- capture var %}{% render 'locksmith-variables', scope: 'subject', subject: candidate, variable: 'transparent' %}{% endcapture %}{% if var == "true" %}{% else %}{% continue %}{% endif -%}
+      {%- comment %}</locksmith:6d72>{% endcomment -%}
       {%- liquid
         assign product = candidate
         if ordered_products
