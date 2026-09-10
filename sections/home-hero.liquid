@@ -368,6 +368,19 @@
    * transparent fill, no ring and a rule under the words.
    */
   @media screen and (max-width: 749px) {
+    .home-hero__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .home-hero__grid > *,
+    .home-hero__body {
+      min-width: 0;
+    }
+
+    .home-hero__body .ui-link-row .ui-button {
+      white-space: normal;
+    }
+
     /*
      * The row's last item, not the last button: every button is an only child of
      * its own [_ui-link] wrapper, so `.ui-button:last-child` is true of all three
