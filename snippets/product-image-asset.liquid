@@ -4,7 +4,7 @@
   The native media ID remains unchanged for gallery and variant selection.
 
   @param {string} handle - Exact Shopify product handle.
-  @param {object|string} image - Native Shopify image or source URL.
+  @param {object} image - Native Shopify image whose source is checked.
 {%- enddoc -%}
 {%- liquid
   assign image_source = image.src | default: image
