@@ -113,6 +113,16 @@
     endif
     assign visible_count = 0
     assign count_is_partial = false
+    assign out_of_range = false
+    if has_curated_products == false and paginate.current_page > 1 and paginate.current_page > paginate.pages
+      assign out_of_range = true
+    endif
+    capture first_page_url
+      echo collection.url
+      echo '?sort_by='
+      echo collection.sort_by | default: collection.default_sort_by | url_encode
+      echo applied_params
+    endcapture
     if paginate.pages > 1 and has_curated_products == false
       assign count_is_partial = true
     endif
@@ -169,6 +179,7 @@
   <th-collection-products
     class="collection-products"
     data-page-size="{{ products_per_page }}"
+    {% if out_of_range %}data-first-page-url="{{ first_page_url | escape }}"{% endif %}
     style="
       --collection-products-columns: {{ section.settings.columns }};
       --collection-products-columns-md: {{ section.settings.columns_md }};
@@ -285,7 +296,7 @@
           </div>
         {%- endif -%}
 
-        {%- if section.settings.show_count -%}
+        {%- if section.settings.show_count and out_of_range == false -%}
           <p class="collection-products__count">
             {{- visible_count }}
             {% if visible_count == 1 %}product{% else %}products{% endif %}
@@ -305,7 +316,10 @@
         </div>
       {%- else -%}
         <p class="collection-products__empty">
-          {%- if active_count > 0 and has_curated_products == false -%}
+          {%- if out_of_range -%}
+            This page has moved. View the collection to keep shopping.
+            {% render 'ui-button', variant: 'link', label: 'View products', link: first_page_url %}
+          {%- elsif active_count > 0 and has_curated_products == false -%}
             {{ section.settings.empty_text }}
             {% render 'ui-button', variant: 'link', label: 'Clear all', link: collection.url %}
           {%- else -%}
