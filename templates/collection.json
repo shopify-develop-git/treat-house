@@ -49,6 +49,56 @@
         "padding-block-end": 0
       }
     },
+    "coming_soon": {
+      "type": "collection-coming-soon",
+      "blocks": {
+        "halloween_12_pack": {
+          "type": "assortment",
+          "settings": {
+            "collection_handle": "halloween",
+            "title": "Halloween 12-Pack",
+            "image_asset": "th-coming-soon-halloween-12-pack-2026.webp",
+            "product_handle": "12-pack-of-halloween-themed-treats"
+          }
+        },
+        "halloween_deluxe": {
+          "type": "assortment",
+          "settings": {
+            "collection_handle": "halloween",
+            "title": "Halloween Deluxe Assortment",
+            "image_asset": "th-coming-soon-halloween-deluxe-2026.webp",
+            "product_handle": "deluxe-assortment-of-halloween-themed-treats"
+          }
+        },
+        "thanksgiving_12_pack": {
+          "type": "assortment",
+          "settings": {
+            "collection_handle": "thanksgiving",
+            "title": "Thanksgiving 12-Pack",
+            "image_asset": "th-coming-soon-thanksgiving-12-pack-2026.jpg",
+            "product_handle": ""
+          }
+        },
+        "thanksgiving_deluxe": {
+          "type": "assortment",
+          "settings": {
+            "collection_handle": "thanksgiving",
+            "title": "Thanksgiving Deluxe Gift Box",
+            "image_asset": "th-coming-soon-thanksgiving-deluxe-2026.jpg",
+            "product_handle": "thanksgiving-deluxe-gift-box"
+          }
+        }
+      },
+      "block_order": [
+        "halloween_12_pack",
+        "halloween_deluxe",
+        "thanksgiving_12_pack",
+        "thanksgiving_deluxe"
+      ],
+      "settings": {
+        "description": "These seasonal assortments are not available to order yet."
+      }
+    },
     "products": {
       "type": "collection-products",
       "settings": {
@@ -433,6 +483,7 @@
   },
   "order": [
     "hero",
+    "coming_soon",
     "products",
     "customize",
     "why_choose_us",

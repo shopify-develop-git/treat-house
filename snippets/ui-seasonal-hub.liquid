@@ -8,11 +8,21 @@
     <h2>Shop seasonal treats</h2>
     <ul class="ui-seasonal-hub__grid" role="list">
       {%- for seasonal_collection in collections -%}
+        {%- comment %}<locksmith:a8b3>{% endcomment -%}
+          {%- capture var %}{% render 'locksmith-variables', scope: 'subject', subject: seasonal_collection, variable: 'transparent' %}{% endcapture %}{% if var == "true" %}{% else %}{% continue %}{% endif -%}
+        {%- comment %}</locksmith:a8b3>{% endcomment -%}
         {%- capture seasonal_asset -%}{% render 'collection-thumbnail-asset', collection: seasonal_collection %}{%- endcapture -%}
         {%- assign seasonal_asset = seasonal_asset | strip -%}
         {%- assign seasonal_image = seasonal_collection.metafields.custom.card_image.value | default: seasonal_collection.featured_image -%}
+        {%- assign seasonal_description = '' -%}
+        {%- for upcoming_collection in settings.season_upcoming_collections -%}
+          {%- if upcoming_collection.handle == seasonal_collection.handle -%}
+            {%- assign seasonal_description = 'products.product.coming_soon' | t -%}
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
         <li>
-          {% render 'ui-collection-card', title: seasonal_collection.title, image: seasonal_image, image_asset: seasonal_asset, link: seasonal_collection.url %}
+          {% render 'ui-collection-card', title: seasonal_collection.title, description: seasonal_description, image: seasonal_image, image_asset: seasonal_asset, link: seasonal_collection.url %}
         </li>
       {%- endfor -%}
     </ul>

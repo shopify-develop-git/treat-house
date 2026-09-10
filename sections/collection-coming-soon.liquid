@@ -1,0 +1,200 @@
+{%- capture collection_access -%}
+  {%- render 'locksmith-variables', scope: 'subject', subject: collection, variable: 'access_granted' -%}
+{%- endcapture -%}
+{%- if collection_access == 'true' -%}
+  {%- assign upcoming_handles = settings.season_upcoming_collections | map: 'handle' -%}
+  {%- if upcoming_handles contains collection.handle -%}
+    {%- assign teaser_count = 0 -%}
+    {%- capture teaser_cards -%}
+      {%- for block in section.blocks -%}
+        {%- liquid
+          if block.settings.collection_handle != collection.handle
+            continue
+          endif
+          if block.settings.collection_handle != 'halloween' and block.settings.collection_handle != 'thanksgiving'
+            continue
+          endif
+          assign product_handle = block.settings.product_handle | strip
+          if product_handle != blank
+            assign existing_product = all_products[product_handle]
+            if existing_product.id != blank
+              continue
+            endif
+          endif
+          if block.settings.title == blank
+            continue
+          endif
+          if block.settings.image == blank and block.settings.image_asset == blank
+            continue
+          endif
+          assign teaser_count = teaser_count | plus: 1
+        -%}
+        <li class="collection-coming-soon__card" data-seasonal-teaser="{{ block.id | escape }}" {{ block.shopify_attributes }}>
+          <div class="collection-coming-soon__image">
+            {%- if block.settings.image != blank -%}
+              {{ block.settings.image | image_url: width: 1000 | image_tag: widths: '320, 480, 640, 800, 1000', sizes: '(max-width: 749px) 50vw, 450px', loading: 'lazy', alt: block.settings.title }}
+            {%- else -%}
+              <img src="{{ block.settings.image_asset | asset_url }}" alt="{{ block.settings.title | escape }}" width="800" height="800" loading="lazy">
+            {%- endif -%}
+          </div>
+          <div class="collection-coming-soon__details">
+            <span class="collection-coming-soon__badge">{{ 'products.product.coming_soon' | t }}</span>
+            <h3>{{ block.settings.title | escape }}</h3>
+          </div>
+        </li>
+      {%- endfor -%}
+    {%- endcapture -%}
+    {%- if teaser_count > 0 -%}
+      <div class="section section--page-width collection-coming-soon" data-seasonal-preview>
+        <section class="collection-coming-soon__content" aria-labelledby="ComingSoon-{{ section.id }}">
+          <div class="collection-coming-soon__intro">
+            <h2 id="ComingSoon-{{ section.id }}">{{ 'products.product.coming_soon' | t }}</h2>
+            {%- if section.settings.description != blank -%}
+              <p>{{ section.settings.description | escape }}</p>
+            {%- endif -%}
+          </div>
+          <ul class="collection-coming-soon__grid{% if teaser_count <= 2 %} collection-coming-soon__grid--compact{% endif %}{% if teaser_count == 1 %} collection-coming-soon__grid--single{% endif %}" role="list">
+            {{ teaser_cards }}
+          </ul>
+        </section>
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+{%- endif -%}
+
+{% stylesheet %}
+  .collection-coming-soon {
+    padding-block: 48px 16px;
+  }
+  .collection-coming-soon__content {
+    grid-column: 2;
+    min-width: 0;
+  }
+  .collection-coming-soon__intro {
+    margin-block-end: 28px;
+    text-align: center;
+  }
+  .collection-coming-soon__intro h2 {
+    margin: 0 0 12px;
+    font-family: var(--ui-font-accent);
+    font-size: clamp(32px, 4vw, 44px);
+    line-height: 1.15;
+    color: var(--ui-color-black);
+  }
+  .collection-coming-soon__intro p {
+    margin: 0;
+    font-family: var(--ui-font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--ui-color-gray);
+  }
+  .collection-coming-soon__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+  .collection-coming-soon__grid--compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 900px;
+  }
+  .collection-coming-soon__grid.collection-coming-soon__grid--single {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 440px;
+  }
+  .collection-coming-soon__card {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    background: #fff;
+  }
+  .collection-coming-soon__image {
+    aspect-ratio: 1;
+    padding: 16px;
+  }
+  .collection-coming-soon__image img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .collection-coming-soon__details {
+    padding: 0 20px 24px;
+  }
+  .collection-coming-soon__badge {
+    display: inline-block;
+    margin-block-end: 12px;
+    padding: 6px 10px;
+    border-radius: 3px;
+    background: #abdaed;
+    color: #6c276a;
+    font-family: var(--ui-font-body);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .collection-coming-soon__details h3 {
+    margin: 0;
+    color: var(--ui-color-black);
+    font-family: var(--ui-font-body);
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 749px) {
+    .collection-coming-soon {
+      padding-block: 32px 0;
+    }
+    .collection-coming-soon__intro {
+      margin-block-end: 20px;
+    }
+    .collection-coming-soon__intro p {
+      font-size: 14px;
+    }
+    .collection-coming-soon__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .collection-coming-soon__image {
+      padding: 8px;
+    }
+    .collection-coming-soon__details {
+      padding: 0 12px 16px;
+    }
+    .collection-coming-soon__details h3 {
+      font-size: 16px;
+    }
+    .collection-coming-soon__badge {
+      padding: 5px 8px;
+      font-size: 12px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Seasonal previews",
+  "enabled_on": {"templates": ["collection"]},
+  "max_blocks": 4,
+  "settings": [
+    {"type": "text", "id": "description", "label": "Description", "default": "These seasonal assortments are not available to order yet."}
+  ],
+  "blocks": [
+    {
+      "type": "assortment",
+      "name": "Seasonal assortment",
+      "settings": [
+        {"type": "select", "id": "collection_handle", "label": "Collection", "options": [{"value": "halloween", "label": "Halloween"}, {"value": "thanksgiving", "label": "Thanksgiving"}], "default": "halloween"},
+        {"type": "text", "id": "title", "label": "Title"},
+        {"type": "image_picker", "id": "image", "label": "Image"},
+        {"type": "text", "id": "image_asset", "label": "Theme image filename", "info": "Used only when no image is selected above."},
+        {"type": "text", "id": "product_handle", "label": "Existing product handle", "info": "Optional. This preview hides when the associated product becomes published. Leave blank if no product exists."}
+      ]
+    }
+  ]
+}
+{% endschema %}
