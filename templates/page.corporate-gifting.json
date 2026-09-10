@@ -66,8 +66,39 @@
     },
     "banner": {
       "type": "corporate-banner",
+      "blocks": {
+        "winter-deluxe": {
+          "type": "gift_box",
+          "settings": {
+            "image_asset": "th-winter-deluxe-2026.webp",
+            "alt": "Winter Deluxe gift box"
+          }
+        },
+        "christmas-donuts": {
+          "type": "gift_box",
+          "settings": {
+            "image": "shopify://shop_images/CHRISTMASDONUTDELUXEABOVEWP.jpg",
+            "alt": "Christmas Donut Deluxe gift box"
+          }
+        },
+        "christmas-deluxe": {
+          "type": "gift_box",
+          "settings": {
+            "image_asset": "th-christmas-deluxe-2026.webp",
+            "alt": "Christmas Deluxe gift box"
+          }
+        },
+        "hanukkah-donuts": {
+          "type": "gift_box",
+          "settings": {
+            "image": "shopify://shop_images/DONUT_BOX_TOP_2025_WP_5f8f0f3b-9049-4743-b7dd-826aab074527.jpg",
+            "alt": "Hanukkah Deluxe Donut gift box"
+          }
+        }
+      },
+      "block_order": ["winter-deluxe", "christmas-donuts", "christmas-deluxe", "hanukkah-donuts"],
       "settings": {
-        "image": "shopify://shop_images/corporate-banner-image.webp"
+        "image": ""
       }
     },
     "reassurance": {
@@ -261,7 +292,8 @@
       "type": "corporate-band",
       "settings": {
         "label": "Email our client and team gifts specialist.",
-        "link": "mailto:jennifer@treathouse.com"
+        "link": "mailto:jennifer@treathouse.com",
+        "form_link": "#contact_form"
       }
     },
     "catalog": {

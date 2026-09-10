@@ -1,14 +1,6 @@
 {% comment %}
-  The photograph under the corporate hero (Figma: 535:21305 — Frame 267).
-
-  One image across the content column, 1280 wide against the 295 the file draws it
-  at. It is a single picture of four boxes rather than four pictures, so it is one
-  image_picker and not a list — cropping it into four would be inventing a
-  composition the file does not have.
-
-  Left empty the section renders nothing rather than a placeholder: it is a
-  decorative band, and a grey rectangle across the page is worse than the page
-  closing up.
+  Individually managed gift-box photographs replace the original composite.
+  The single-image setting remains available for existing section instances.
 {% endcomment %}
 
 <div
@@ -17,7 +9,28 @@
   data-testid="corporate-banner-{{ section.id }}"
   {{ section.shopify_attributes }}
 >
-  {%- if section.settings.image != blank -%}
+  {%- if section.blocks.size > 0 -%}
+    <div class="corporate-banner__grid">
+      {%- for block in section.blocks -%}
+        {%- if block.settings.image != blank or block.settings.image_asset != blank -%}
+          <div class="corporate-banner__tile" {{ block.shopify_attributes }}>
+            {%- if block.settings.image != blank -%}
+              {{ block.settings.image | image_url: width: 800 | image_tag: class: 'corporate-banner__box', loading: 'lazy', sizes: '(max-width: 749px) 50vw, 25vw', widths: '200, 400, 600, 800', alt: block.settings.alt }}
+            {%- else -%}
+              <img
+                class="corporate-banner__box"
+                src="{{ block.settings.image_asset | asset_url }}"
+                alt="{{ block.settings.alt | escape }}"
+                width="1200"
+                height="1200"
+                loading="lazy"
+              >
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  {%- elsif section.settings.image != blank -%}
     {% render 'image',
       image: section.settings.image,
       height: 295,
@@ -38,18 +51,55 @@
     aspect-ratio: 1280 / 295;
     object-fit: contain;
   }
+
+  .corporate-banner__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .corporate-banner__tile {
+    aspect-ratio: 1;
+    min-width: 0;
+  }
+
+  .corporate-banner__box {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  @media screen and (max-width: 749px) {
+    .corporate-banner__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+  }
 {% endstylesheet %}
 
 {% schema %}
 {
   "name": "Corporate banner",
   "tag": "section",
+  "max_blocks": 4,
+  "blocks": [
+    {
+      "type": "gift_box",
+      "name": "Gift-box photo",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Photo" },
+        { "type": "text", "id": "image_asset", "label": "Theme asset filename", "info": "Used when no photo is selected." },
+        { "type": "text", "id": "alt", "label": "Photo description" }
+      ]
+    }
+  ],
   "settings": [
     {
       "type": "image_picker",
       "id": "image",
       "label": "t:settings.image",
-      "info": "Left empty, the section does not render."
+      "info": "Used when no gift-box photo blocks are added."
     },
     {
       "type": "header",

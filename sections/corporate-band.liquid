@@ -17,6 +17,10 @@
 {%- liquid
   assign band_label = section.settings.label
   assign band_link = section.settings.link
+  assign link_protocol = band_link | split: ':' | first
+  if link_protocol == 'mailto'
+    assign email_address = band_link | remove_first: 'mailto:' | split: '?' | first
+  endif
 -%}
 
 {%- if band_label != blank -%}
@@ -28,9 +32,17 @@
   >
     <div class="corporate-band">
       {%- if band_link != blank -%}
-        <a class="corporate-band__link" href="{{ band_link }}">{{ band_label }}</a>
+        <a class="corporate-band__link" href="{{ band_link | escape }}">
+          {{- band_label | escape -}}
+          {%- if email_address != blank -%}
+            <span class="corporate-band__email">{{ email_address | escape }}</span>
+          {%- endif -%}
+        </a>
       {%- else -%}
-        <span class="corporate-band__link">{{ band_label }}</span>
+        <span class="corporate-band__link">{{ band_label | escape }}</span>
+      {%- endif -%}
+      {%- if section.settings.form_link != blank -%}
+        <a class="corporate-band__form" href="{{ section.settings.form_link | escape }}">Prefer a form? Tell us about your gift</a>
       {%- endif -%}
     </div>
   </div>
@@ -48,6 +60,8 @@
    */
   .corporate-band {
     display: flex;
+    flex-direction: column;
+    gap: 16px;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
@@ -93,6 +107,30 @@
   a.corporate-band__link:hover {
     color: var(--ui-color-sky-blue);
   }
+
+  .corporate-band__email {
+    display: block;
+    margin-top: 12px;
+    font-family: var(--font-body--family);
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .corporate-band__form {
+    color: var(--ui-color-white);
+    font-family: var(--font-body--family);
+    font-size: 16px;
+    line-height: 1.5;
+    padding-block: 10px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .corporate-band__form:hover {
+    color: var(--ui-color-sky-blue);
+  }
 {% endstylesheet %}
 
 {% schema %}
@@ -112,6 +150,12 @@
       "id": "link",
       "label": "t:settings.link",
       "info": "A mailto: address works here."
+    },
+    {
+      "type": "url",
+      "id": "form_link",
+      "label": "Inquiry form link",
+      "info": "An alternative for customers who do not use an email app."
     },
     {
       "type": "header",
