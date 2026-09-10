@@ -53,8 +53,21 @@
   nothing to pull in here.
 {%- endcomment -%}
 {%- unless product_resource.has_only_default_variant -%}
+  {%- liquid
+    assign normalize_custom_choices = false
+    if product_resource.handle == '12-pack-of-custom-treats' and product_resource.options_with_values.size == 3
+      assign normalize_custom_choices = true
+    endif
+    assign selected_custom_value = product_resource.options_with_values[2].selected_value | append: ''
+    assign canonical_custom_value = selected_custom_value | split: '/' | first | strip
+    assign canonical_selected_option = product_resource.options_with_values[2].values | find: 'name', canonical_custom_value
+    assign selected_custom_alias = false
+    if normalize_custom_choices and canonical_selected_option.id != blank and selected_custom_value contains 'No Individual Box'
+      assign selected_custom_alias = true
+    endif
+  -%}
   <variant-picker
-    class="ui-product-variant-picker{% if class != blank %} {{ class }}{% endif %}"
+    class="ui-product-variant-picker{% if normalize_custom_choices %} ui-product-variant-picker--custom{% endif %}{% if class != blank %} {{ class }}{% endif %}"
     data-section-id="{{ section.id }}"
     data-product-id="{{ product_resource.id }}"
     data-product-url="{{ product_resource.url }}"
@@ -79,10 +92,72 @@
 
         assign trigger_label = product_option.selected_value
         assign trigger_image = ''
+        if normalize_custom_choices and product_option.position == 3
+          assign legend = 'Custom treats & individual boxes'
+        endif
       -%}
 
       {%- capture option_rows -%}
         {%- for value in product_option.values -%}
+          {%- liquid
+            assign row_label = value.name
+            assign row_class = ''
+            assign canonical_option_id = ''
+            assign canonical_variant_id = ''
+            assign custom_count_label = ''
+            if value.name contains 'half of my treats'
+              assign custom_count_label = '6 custom treats'
+            elsif value.name contains 'all of my treats'
+              assign custom_count_label = '12 custom treats'
+            endif
+
+            if normalize_custom_choices
+              # Existing deep links keep their native variant on load. An input
+              # change can normalize a duplicate option without changing catalog data.
+              assign target_option_one = product_resource.selected_or_first_available_variant.options[0] | append: ''
+              assign target_option_two = product_resource.selected_or_first_available_variant.options[1] | append: ''
+              assign target_option_three = product_resource.selected_or_first_available_variant.options[2] | append: ''
+              if selected_custom_alias
+                assign target_option_three = canonical_custom_value
+              endif
+              case product_option.position
+                when 1
+                  assign target_option_one = value.name
+                when 2
+                  assign target_option_two = value.name
+                when 3
+                  assign target_option_three = value.name
+                  if value.name contains 'No Individual Box'
+                    assign target_option_three = value.name | split: '/' | first | strip
+                    assign canonical_option = product_option.values | find: 'name', target_option_three
+                    assign canonical_option_id = canonical_option.id
+                    if canonical_option_id != blank and value.selected == false
+                      assign row_class = 'ui-product-variant-picker__duplicate'
+                    endif
+                  elsif selected_custom_alias and value.name == canonical_custom_value
+                    # Show the selected alias in its equivalent row until the
+                    # shopper changes an option; keep exactly four visible choices.
+                    assign row_class = 'ui-product-variant-picker__duplicate'
+                  endif
+              endcase
+              for candidate_variant in product_resource.variants
+                assign candidate_one = candidate_variant.options[0] | append: ''
+                assign candidate_two = candidate_variant.options[1] | append: ''
+                assign candidate_three = candidate_variant.options[2] | append: ''
+                if candidate_one == target_option_one and candidate_two == target_option_two and candidate_three == target_option_three
+                  assign canonical_variant_id = candidate_variant.id
+                  break
+                endif
+              endfor
+            endif
+          -%}
+          {%- if normalize_custom_choices and product_option.position == 3 and custom_count_label != blank -%}
+            {%- capture row_label -%}
+              <span class="ui-product-variant-picker__choice-name">{{ custom_count_label }}</span>
+              <span class="ui-product-variant-picker__choice-detail">{% if value.name contains 'With Individual Box' %}Individually boxed{% else %}Standard pack{% endif %}{% if value.variant.price != blank %} · <span class="ui-product-variant-picker__choice-price">{{ value.variant.price | money }} total</span>{% endif %}</span>
+            {%- endcapture -%}
+            {%- if value.selected -%}{%- assign trigger_label = row_label -%}{%- endif -%}
+          {%- endif -%}
           {%- capture row_attributes -%}
             data-previous-checked="false"
             data-fieldset-index="{{ fieldset_index }}"
@@ -91,6 +166,8 @@
             data-option-value-id="{{ value.id }}"
             data-option-available="{{ value.available }}"
             data-connected-product-url="{{ value.product_url }}"
+            {%- if canonical_option_id != blank %} data-canonical-option-value-id="{{ canonical_option_id }}"{% endif -%}
+            {%- if canonical_variant_id != blank %} data-canonical-variant-id="{{ canonical_variant_id }}"{% endif -%}
             {%- if value.variant.id %} data-variant-id="{{ value.variant.id }}"{% endif -%}
             {%- if value.selected %} data-current-checked="true"{% else %} data-current-checked="false"{% endif -%}
             {%- unless value.available %} aria-disabled="true"{% endunless -%}
@@ -103,11 +180,12 @@
             endif
           -%}
           {% render 'ui-variant-item',
-            label: value.name,
+            label: row_label,
             value: value.name,
             image: row_image,
             checked: value.selected,
             name: group_name,
+            class: row_class,
             attributes: row_attributes
           %}
         {%- endfor -%}
@@ -183,5 +261,43 @@
    */
   .ui-product-variant-picker__select {
     margin-block-start: 10px;
+  }
+
+  .ui-product-variant-picker--custom .ui-product-variant-picker__duplicate {
+    display: none;
+  }
+
+  /* Product totals and packaging details must remain visible on narrow screens. */
+  .ui-product-variant-picker--custom .ui-variant-item,
+  .ui-product-variant-picker--custom .ui-variant-select__trigger {
+    height: auto;
+    min-height: var(--ui-variant-item-height);
+    padding-block: var(--padding-sm);
+  }
+
+  .ui-product-variant-picker--custom .ui-variant-item__content,
+  .ui-product-variant-picker--custom .ui-variant-select__content {
+    flex: 1 1 auto;
+  }
+
+  .ui-product-variant-picker--custom .ui-variant-item__label,
+  .ui-product-variant-picker--custom .ui-variant-select__label {
+    overflow: visible;
+    white-space: normal;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+  }
+
+  .ui-product-variant-picker__choice-name,
+  .ui-product-variant-picker__choice-detail {
+    display: block;
+  }
+
+  .ui-product-variant-picker__choice-detail {
+    color: var(--ui-color-gray);
+  }
+
+  .ui-product-variant-picker__choice-price {
+    white-space: nowrap;
   }
 {% endstylesheet %}

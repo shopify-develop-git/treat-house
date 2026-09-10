@@ -475,7 +475,9 @@ class CartDeliveryDate extends HTMLElement {
     refreshAll();
     const saved = await queueSave(this);
     this.refresh();
-    if (saved && state.selected === toISO(pending) && this.#isAllowed(pending)) {
+    // A save response must not replace a newer day chosen while it was in flight.
+    if (saved && !state.draft && this.#pending && sameDay(this.#pending, pending) &&
+      state.selected === toISO(pending) && this.#isAllowed(pending)) {
       for (const field of fields) { field.#chosen = pending; field.#pending = pending; field.#setOpen(false); }
     } else if (!state.selected) {
       queueSave(this);
@@ -667,13 +669,17 @@ function scheduleRepaint() {
 }
 document.addEventListener('cart:update', scheduleRepaint);
 // Horizon morphs vanilla custom elements without reconnecting them. Detect
-// replaced controls and server datasets; ignore our calendar cells/text paints.
+// Replaced controls and server datasets can arrive without a cart:update event.
+// Repair hidden/emptied calendars too, while ignoring our completed cell paints.
 new MutationObserver(records => {
   const controls = 'cart-delivery-date,.ui-cart-shipping,.ui-date-picker,[data-delivery-zip],[data-delivery-attribute],[name="checkout"]';
   if (records.some(record => record.type === 'attributes'
-    ? record.target.matches?.(controls)
-    : [...record.addedNodes].some(node => node instanceof Element && (node.matches(controls) || node.querySelector(controls))))) scheduleRepaint();
+    ? record.attributeName === 'hidden'
+      ? record.target.matches?.('.ui-date-picker')
+      : record.target.matches?.(controls)
+    : (record.target.matches?.('[data-date-grid],[data-date-weekdays]') && record.target.childElementCount === 0) ||
+      [...record.addedNodes].some(node => node instanceof Element && (node.matches(controls) || node.querySelector(controls))))) scheduleRepaint();
 }).observe(document.documentElement, {
   childList: true, subtree: true, attributes: true,
-  attributeFilter: ['data-server-now', 'data-zip', 'data-mode', 'data-selected', 'data-production-days', 'data-cutoff-hour', 'data-production-blackout', 'data-transit-blackout', 'data-window-days', 'data-blackout', 'data-disabled-weekdays', 'value', 'disabled'],
+  attributeFilter: ['data-server-now', 'data-zip', 'data-mode', 'data-selected', 'data-production-days', 'data-cutoff-hour', 'data-production-blackout', 'data-transit-blackout', 'data-window-days', 'data-blackout', 'data-disabled-weekdays', 'value', 'disabled', 'hidden'],
 });

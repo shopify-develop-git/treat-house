@@ -59,12 +59,25 @@ export default class VariantPicker extends Component {
   variantChanged(event) {
     if (!(event.target instanceof HTMLElement)) return;
 
-    const selectedOption =
+    let selectedOption =
       event.target instanceof HTMLSelectElement ? event.target.options[event.target.selectedIndex] : event.target;
 
     if (!selectedOption) return;
 
     this.updateSelectedOption(event.target);
+    // Some catalogs retain duplicate option values for older product links.
+    // Preserve their selected variant on load, then use the declared canonical
+    // option on the next user change. Every radio and its native index remains.
+    let canonicalized = false;
+    for (const alias of this.querySelectorAll('input:checked[data-canonical-option-value-id]')) {
+      const canonical = [...this.querySelectorAll('input[data-option-value-id]')].find(
+        (input) => input.dataset.optionValueId === alias.dataset.canonicalOptionValueId
+      );
+      if (!(canonical instanceof HTMLInputElement) || canonical === alias) continue;
+      this.updateSelectedOption(canonical);
+      if (selectedOption === alias) selectedOption = canonical;
+      canonicalized = true;
+    }
     this.dispatchEvent(new VariantSelectedEvent({ id: selectedOption.dataset.optionValueId ?? '' }));
 
     const isOnProductPage =
@@ -89,7 +102,7 @@ export default class VariantPicker extends Component {
 
     const url = new URL(window.location.href);
 
-    const variantId = selectedOption.dataset.variantId || null;
+    const variantId = (canonicalized ? selectedOption.dataset.canonicalVariantId : '') || selectedOption.dataset.variantId || null;
 
     if (isOnProductPage) {
       if (variantId) {
