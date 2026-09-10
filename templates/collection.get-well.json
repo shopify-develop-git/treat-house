@@ -63,7 +63,11 @@
         "section_width": "page-width",
         "color_scheme": "scheme-1",
         "padding-block-start": 80,
-        "padding-block-end": 80
+        "padding-block-end": 80,
+        "retail_products": [
+          "get-well-soon-pack",
+          "get-well-soon-deluxe-gift-box"
+        ]
       }
     },
     "customize": {
@@ -322,7 +326,7 @@
         }
       },
       "settings": {
-        "source": "collection",
+        "source": "chosen",
         "max_products": 5,
         "heading_alignment": "start",
         "cta_position": "heading",
@@ -334,7 +338,11 @@
         "background": "light-blue",
         "color_scheme": "scheme-1",
         "padding-block-start": 80,
-        "padding-block-end": 80
+        "padding-block-end": 80,
+        "products": [
+          "get-well-soon-pack",
+          "get-well-soon-deluxe-gift-box"
+        ]
       }
     },
     "faq": {

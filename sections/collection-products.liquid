@@ -7,7 +7,7 @@
   filtering: the components were always real inputs and real disclosures, and what
   was missing was a form around them and a caller that hands them Shopify's facets.
 
-  **No new JavaScript.** The whole thing is a `<form method="get">` posting to the
+  Filtering uses a `<form method="get">` posting to the
   collection: every choice row is a real checkbox named for its facet, Apply is a
   real submit, and Clear all, the sort rows, the chips and the pagination are real
   links. The open state of a group is `<details>`, and the outside click is the
@@ -40,6 +40,15 @@
   assign products_per_page = section.settings.products_per_page
 
   assign show_filters = section.settings.show_filters
+  assign show_sort = section.settings.show_sort
+  assign curated_products = section.settings.retail_products
+  assign has_curated_products = false
+  if curated_products.size > 0
+    assign has_curated_products = true
+    # Native facets and sort describe collection membership, not the curated list.
+    assign show_filters = false
+    assign show_sort = false
+  endif
   if collection.filters.size == 0
     assign show_filters = false
   endif
@@ -81,6 +90,67 @@
 {%- if collection.handle == 'holidays' and settings.seasonal_hub_collections.size > 0 -%}
   {% render 'ui-seasonal-hub', collections: settings.seasonal_hub_collections %}
 {%- else -%}
+<script src="{{ 'th-collection-products.js' | asset_url }}" defer></script>
+{% comment %}
+  Fetch a complete native batch before retail exclusions. Count and render the
+  same cards, then progressively reveal the configured number. All current
+  collections fit one batch. For catalogs above Shopify's 250-item limit, keep
+  native batch navigation and explicitly scope the count to the current page.
+{% endcomment %}
+{% paginate collection.products by 250 %}
+  {%- liquid
+    assign grid_products = collection.products
+    if has_curated_products
+      assign grid_products = curated_products
+    endif
+    assign visible_count = 0
+    assign count_is_partial = false
+    if paginate.pages > 1 and has_curated_products == false
+      assign count_is_partial = true
+    endif
+  -%}
+  {%- capture product_cards -%}
+    {%- for product in grid_products -%}
+      {%- capture off_channel -%}{% render 'channel-hidden', product: product, collection: collection %}{%- endcapture -%}
+      {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
+      {%- liquid
+        assign visible_count = visible_count | plus: 1
+        assign tagline = product.description | strip_html | truncatewords: 15, ''
+        assign price = product.price | money
+        assign card_loading = 'lazy'
+        if visible_count <= 4
+          assign card_loading = 'eager'
+        endif
+      -%}
+      {%- capture grid_badge -%}{% render 'ui-product-badge', product: product %}{%- endcapture -%}
+      {%- assign grid_badge_parts = grid_badge | strip | split: '|' -%}
+      {%- capture grid_season -%}{% render 'season-status', product: product %}{%- endcapture -%}
+      {%- liquid
+        assign grid_season_parts = grid_season | strip | split: '|'
+        assign grid_season_label = ''
+        if grid_season_parts[0] != 'available'
+          assign grid_season_label = grid_season_parts[1]
+        endif
+      -%}
+      {%- capture add_control -%}
+        {% render 'ui-product-card-add', product: product, section_id: section.id %}
+      {%- endcapture -%}
+      <li class="collection-products__item" data-product-id="{{ product.id }}">
+        {% render 'ui-product-card',
+          title: product.title,
+          subtitle: tagline,
+          price: price,
+          image: product.featured_image,
+          link: product.url,
+          badge: grid_badge_parts[0],
+          badge_color: grid_badge_parts[1],
+          season_label: grid_season_label,
+          add_content: add_control,
+          loading: card_loading
+        %}
+      </li>
+    {%- endfor -%}
+  {%- endcapture -%}
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
 <div
   class="section section--{{ section.settings.section_width }} spacing-style color-{{ section.settings.color_scheme }}"
@@ -88,16 +158,18 @@
   data-testid="collection-products-{{ section.id }}"
   {{ section.shopify_attributes }}
 >
-  <div
+  <th-collection-products
     class="collection-products"
+    data-page-size="{{ products_per_page }}"
     style="
       --collection-products-columns: {{ section.settings.columns }};
       --collection-products-columns-md: {{ section.settings.columns_md }};
       --collection-products-columns-sm: {{ section.settings.columns_sm }};
     "
   >
-    {%- if show_filters or section.settings.show_sort -%}
+    {%- if show_filters or show_sort or section.settings.show_count -%}
       <div class="collection-products__top">
+        {%- if show_filters or show_sort -%}
         <div class="collection-products__controls">
           {%- if show_filters -%}
             <form
@@ -151,7 +223,7 @@
             </form>
           {%- endif -%}
 
-          {%- if section.settings.show_sort and collection.sort_options.size > 0 -%}
+          {%- if show_sort and collection.sort_options.size > 0 -%}
             {%- liquid
               assign current_sort = collection.sort_by | default: collection.default_sort_by
               assign current_sort_label = ''
@@ -189,7 +261,8 @@
           {%- endif -%}
         </div>
 
-        {%- if active_count > 0 -%}
+        {%- endif -%}
+        {%- if active_count > 0 and has_curated_products == false -%}
           <div class="collection-products__applied">
             {%- for group in collection.filters -%}
               {%- for value in group.active_values -%}
@@ -206,89 +279,39 @@
 
         {%- if section.settings.show_count -%}
           <p class="collection-products__count">
-            {{- collection.products_count }}
-            {% if collection.products_count == 1 %}product{% else %}products{% endif -%}
+            {{- visible_count }}
+            {% if visible_count == 1 %}product{% else %}products{% endif %}
+            {%- if count_is_partial %} on this page{% endif -%}
           </p>
         {%- endif -%}
       </div>
     {%- endif -%}
 
-    {% paginate collection.products by products_per_page %}
-      {%- if collection.products.size > 0 -%}
-        <ul class="collection-products__grid" role="list">
-          {%- for product in collection.products -%}
-            {%- comment -%}
-              A product belonging to another channel is not listed here — see
-              [channel-hidden]. Skipped rather than filtered out of the loop,
-              because `paginate` counts the page before Liquid ever sees it: a
-              page of twenty-four that holds two ReachDesk lines shows twenty-two,
-              and no arrangement inside the loop can change that. Whether a
-              collection should hold those products at all is a merchandising
-              question, not this file's — and two of them, congratulations and
-              get-well, hold nothing else.
-            {%- endcomment -%}
-            {%- capture off_channel -%}{% render 'channel-hidden', product: product, collection: collection %}{%- endcapture -%}
-            {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
-            {%- liquid
-              # The supporting line is the product's own description, cut to a length the
-              # card can hold. The empty second argument drops truncatewords' ellipsis,
-              # because the card clamps the line in CSS and adds its own.
-              assign tagline = product.description | strip_html | truncatewords: 15, ''
-
-              assign price = product.price | money
-
-              # The grid runs four across at its widest, so the first four are the
-              # row a visitor already has on screen. Deferring those would trade one
-              # fault for another: a lazy image is not merely delayed, it is dropped
-              # out of the browser's urgent queue, and the largest of them is
-              # usually what the page is measured on.
-              assign card_loading = 'lazy'
-              if forloop.index <= 4
-                assign card_loading = 'eager'
-              endif
-            -%}
-            {%- capture grid_badge -%}{% render 'ui-product-badge', product: product %}{%- endcapture -%}
-            {%- assign grid_badge_parts = grid_badge | strip | split: '|' -%}
-            {%- capture grid_season -%}{% render 'season-status', product: product %}{%- endcapture -%}
-            {%- liquid
-              assign grid_season_parts = grid_season | strip | split: '|'
-              assign grid_season_label = ''
-              if grid_season_parts[0] != 'available'
-                assign grid_season_label = grid_season_parts[1]
-              endif
-            -%}
-
-            {%- capture add_control -%}
-              {% render 'ui-product-card-add', product: product, section_id: section.id %}
-            {%- endcapture -%}
-            <li class="collection-products__item">
-              {% render 'ui-product-card',
-                title: product.title,
-                subtitle: tagline,
-                price: price,
-                image: product.featured_image,
-                link: product.url,
-                badge: grid_badge_parts[0],
-                badge_color: grid_badge_parts[1],
-                season_label: grid_season_label,
-                add_content: add_control,
-                loading: card_loading
-              %}
-            </li>
-          {%- endfor -%}
+      {%- if visible_count > 0 -%}
+        <ul class="collection-products__grid" role="list" data-collection-grid>
+          {{ product_cards }}
         </ul>
+        <p class="collection-products__progress" data-collection-progress aria-live="polite"></p>
+        <div class="collection-products__more" data-collection-more hidden>
+          {% render 'ui-button', variant: 'secondary', label: 'Show more treats', type: 'button', attributes: 'data-collection-more-button' %}
+        </div>
       {%- else -%}
         <p class="collection-products__empty">
-          {%- if active_count > 0 -%}
+          {%- if active_count > 0 and has_curated_products == false -%}
             {{ section.settings.empty_text }}
             {% render 'ui-button', variant: 'link', label: 'Clear all', link: collection.url %}
           {%- else -%}
-            {{ section.settings.empty_text_none | default: 'Nothing here right now. Check back soon.' }}
+            {%- if count_is_partial -%}
+              No retail treats on this page. Browse another page or shop all treats.
+            {%- else -%}
+              {{ section.settings.empty_text_none | default: 'Nothing here right now. Check back soon.' }}
+            {%- endif -%}
+            {% render 'ui-button', variant: 'link', label: 'Shop all treats', link: routes.all_products_collection_url %}
           {%- endif -%}
         </p>
       {%- endif -%}
 
-      {%- if paginate.pages > 1 -%}
+      {%- if count_is_partial -%}
         <nav class="collection-products__pagination" aria-label="Pagination">
           {%- liquid
             assign previous_disabled = true
@@ -321,12 +344,23 @@
           %}
         </nav>
       {%- endif -%}
-    {% endpaginate %}
-  </div>
+  </th-collection-products>
 </div>
+{% endpaginate %}
 
 {%- endif -%}
 {% stylesheet %}
+  .collection-products__item[hidden],
+  .collection-products__more[hidden],
+  .collection-products__progress:empty {
+    display: none;
+  }
+
+  .collection-products__more,
+  .collection-products__progress {
+    text-align: center;
+  }
+
   /* Collection products. Mobile first; the drawn four columns arrive at 1200px. */
   .collection-products {
     display: flex;
@@ -532,6 +566,13 @@
   "tag": "section",
   "settings": [
     {
+      "type": "product_list",
+      "id": "retail_products",
+      "label": "Retail products for this collection",
+      "info": "Optional curated selection for this template. Replaces collection membership in this draft, preserving retail and seasonal exclusions. Leave empty to use the collection and its filters and sorting.",
+      "limit": 50
+    },
+    {
       "type": "header",
       "content": "Filtering and sorting"
     },
@@ -609,7 +650,8 @@
     {
       "type": "range",
       "id": "products_per_page",
-      "label": "Products per page",
+      "label": "Products shown at a time",
+      "info": "Customers can reveal more treats. Without JavaScript, all retail products in the current batch are shown.",
       "min": 4,
       "max": 48,
       "step": 4,

@@ -171,6 +171,13 @@
         "limit": 50
       },
       {
+        "type": "product_list",
+        "id": "season_evergreen_products",
+        "label": "Year-round products in seasonal collections",
+        "info": "Keeps these products available when a collection closes. Explicit product season rules and the closed products list still take priority.",
+        "limit": 50
+      },
+      {
         "type": "collection_list",
         "id": "season_upcoming_collections",
         "label": "Coming soon collections",

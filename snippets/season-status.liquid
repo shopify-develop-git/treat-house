@@ -16,7 +16,7 @@
      (`Coming-Soon` reads as `coming_soon`).
   2. Product tags `season:coming-soon` or `season:closed` (any casing), for a
      shop working without the metafield definition.
-  3. Draft theme closed-product and closed/upcoming-collection settings.
+  3. Draft theme closed products, evergreen exceptions, and collection defaults.
   4. Otherwise `available`.
 
   The label is `product.metafields.custom.season_label` when filled (e.g. "Back
@@ -68,8 +68,12 @@
     assign closed_handles = settings.season_closed_collections | map: 'handle'
     assign upcoming_handles = settings.season_upcoming_collections | map: 'handle'
     assign closed_product_handles = settings.season_closed_products | map: 'handle'
+    assign evergreen_handles = settings.season_evergreen_products | map: 'handle'
     if closed_product_handles contains product.handle
       assign season_status = 'closed'
+    elsif evergreen_handles contains product.handle
+      # An evergreen gift may also be merchandised in a seasonal collection.
+      assign season_status = 'available'
     else
       for product_collection in product.collections
         if closed_handles contains product_collection.handle

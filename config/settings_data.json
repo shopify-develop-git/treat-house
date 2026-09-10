@@ -424,7 +424,11 @@
     "cart_order_cutoff_hour": 17,
     "cart_production_blackout_dates": "",
     "cart_transit_blackout_dates": "",
-    "cart_delivery_choose_label": "Request a later delivery date"
+    "cart_delivery_choose_label": "Request a later delivery date",
+    "season_evergreen_products": [
+      "congratulations-12-pack",
+      "congratulations-deluxe-gift-box"
+    ]
   },
   "presets": {
     "Horizon": {
