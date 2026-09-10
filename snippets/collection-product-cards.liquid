@@ -1,0 +1,58 @@
+{%- doc -%}
+  Shared retail cards for the initial page and layout-free catalog batch.
+  Card styling uses the UI kit; the caller retains section layout settings.
+  @param {product[]} products
+  @param {collection} collection
+  @param {string} section_id
+{%- enddoc -%}
+{%- assign visible_count = 0 -%}
+    {%- for product in products -%}
+      {%- capture off_channel -%}{% render 'channel-hidden', product: product, collection: collection %}{%- endcapture -%}
+      {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
+      {%- liquid
+        assign visible_count = visible_count | plus: 1
+        assign tagline = product.description | strip_html | truncatewords: 15, ''
+        assign price = product.price | money
+        assign pack_size = ''
+        assign pack_title = product.title | downcase | replace: '-', ' ' | replace: '–', ' ' | replace: '—', ' ' | prepend: ' '
+        assign sizes = '6,12,24,36' | split: ','
+        for size in sizes
+          assign size_pattern = size | prepend: ' ' | append: ' pack'
+          if pack_title contains size_pattern
+            assign pack_size = size
+            break
+          endif
+        endfor
+        assign card_loading = 'lazy'
+        if visible_count <= 4
+          assign card_loading = 'eager'
+        endif
+      -%}
+      {%- capture grid_badge -%}{% render 'ui-product-badge', product: product %}{%- endcapture -%}
+      {%- assign grid_badge_parts = grid_badge | strip | split: '|' -%}
+      {%- capture grid_season -%}{% render 'season-status', product: product %}{%- endcapture -%}
+      {%- liquid
+        assign grid_season_parts = grid_season | strip | split: '|'
+        assign grid_season_label = ''
+        if grid_season_parts[0] != 'available'
+          assign grid_season_label = grid_season_parts[1]
+        endif
+      -%}
+      {%- capture add_control -%}
+        {% render 'ui-product-card-add', product: product, section_id: section_id %}
+      {%- endcapture -%}
+      <li class="collection-products__item" data-product-id="{{ product.id }}" data-product-pack="{{ pack_size }}" data-product-price="{{ product.price }}">
+        {% render 'ui-product-card',
+          title: product.title,
+          subtitle: tagline,
+          price: price,
+          image: product.featured_image,
+          link: product.url,
+          badge: grid_badge_parts[0],
+          badge_color: grid_badge_parts[1],
+          season_label: grid_season_label,
+          add_content: add_control,
+          loading: card_loading
+        %}
+      </li>
+    {%- endfor -%}

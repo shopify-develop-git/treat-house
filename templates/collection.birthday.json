@@ -25,7 +25,7 @@
           "type": "_ui-text",
           "settings": {
             "source": "custom",
-            "text": "<p>A small spark of joy for their day. Birthday packs, custom photo treats, gift boxes, and choose-your-own options, all gift-ready on arrival.</p>",
+            "text": "<p>A small spark of joy for their day. Birthday packs, custom photo treats, gift boxes, and choose-your-own options.</p>",
             "text_size": 16,
             "text_size_mobile": 14
           }
@@ -159,8 +159,8 @@
           "type": "_ui-feature-card",
           "settings": {
             "icon": "gift",
-            "title": "Gift-Ready Packaging",
-            "body": "<p>Arrives ready to hand over. No wrapping needed.</p>"
+            "title": "Gift box options",
+            "body": "<p>Explore gift boxes and packaging options.</p>"
           }
         },
         "every_age": {

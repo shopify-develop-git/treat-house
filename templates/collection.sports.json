@@ -194,8 +194,8 @@
           "type": "_ui-feature-card",
           "settings": {
             "icon": "gift",
-            "title": "Gift-Ready Packaging",
-            "body": "<p>Beautifully packaged and ready for every game-day event.</p>"
+            "title": "Gift box options",
+            "body": "<p>Explore gift boxes and packaging options.</p>"
           }
         },
         "personal": {

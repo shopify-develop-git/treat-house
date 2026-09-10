@@ -12,7 +12,9 @@
   `<add-to-cart-component>`.
 
   **What it adds is the variant the card is priced at.** A card prints one price,
-  `product.price`, which is the cheapest variant's; the basket adds that variant.
+  `product.price`, which is the cheapest variant's; the basket adds the first
+  available variant at that price, preserving Shopify's option order. If none is
+  available at that price, the card opens the product's options instead.
   In this catalogue a treat box's options are paid extras — a gift box at $6,
   individual packs at $3, half or all of the treats made custom — so the default
   combination is the plain box at the price on the card, and there is nothing
@@ -56,9 +58,17 @@
   assign season_label = season_parts[1]
 
   assign variant = product.selected_or_first_available_variant
+  assign card_price_available = false
+  for priced_variant in product.variants
+    if priced_variant.available and priced_variant.price == product.price
+      assign variant = priced_variant
+      assign card_price_available = true
+      break
+    endif
+  endfor
 
   assign sold_out = true
-  if variant.available
+  if variant.available or product.available
     assign sold_out = false
   endif
 
@@ -108,6 +118,13 @@
   {% render 'ui-button',
     variant: 'basket',
     label: 'Customize these treats',
+    link: product.url,
+    class: host_classes
+  %}
+{%- elsif card_price_available == false -%}
+  {% render 'ui-button',
+    variant: 'basket',
+    label: 'Choose options',
     link: product.url,
     class: host_classes
   %}

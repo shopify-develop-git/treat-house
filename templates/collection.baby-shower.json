@@ -25,7 +25,7 @@
           "type": "_ui-text",
           "settings": {
             "source": "custom",
-            "text": "<p>A sweet way to welcome the little one. Handcrafted treats, personalized gift boxes, and shower favors, made to order and gift-ready on arrival.</p>",
+            "text": "<p>A sweet way to welcome the little one. Handcrafted treats, personalized gift boxes, and shower favors, made to order.</p>",
             "text_size": 16,
             "text_size_mobile": 14
           }
@@ -166,8 +166,8 @@
           "type": "_ui-feature-card",
           "settings": {
             "icon": "gift",
-            "title": "Gift-Ready Packaging",
-            "body": "<p>Arrives ready to hand over. No wrapping needed.</p>"
+            "title": "Gift box options",
+            "body": "<p>Explore gift boxes and packaging options.</p>"
           }
         },
         "personal": {

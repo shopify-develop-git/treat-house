@@ -1,6 +1,7 @@
 /**
- * Progressively reveals the products already rendered in this collection batch.
- * Without JavaScript every card stays visible and native pagination still works.
+ * Keeps the initial native page small, then enhances larger collections from a
+ * layout-free section response. Without JavaScript or on request failure, the
+ * server's honest page count, cards and native pagination remain available.
  */
 if (!customElements.get('th-collection-products')) {
   class THCollectionProducts extends HTMLElement {
@@ -14,6 +15,9 @@ if (!customElements.get('th-collection-products')) {
     #filters;
     #pack;
     #price;
+    #hydrationStarted = false;
+    #request;
+    #initialReveal = 0;
 
     connectedCallback() {
       if (this.#initialized) return;
@@ -57,6 +61,24 @@ if (!customElements.get('th-collection-products')) {
         }
       }
 
+      if (this.dataset.hydrateSection) {
+        this.#initialized = true;
+        this.dataset.hydrationState = 'loading';
+        if (document.readyState === 'complete') this.#hydrate();
+        else window.addEventListener('load', this.#hydrate, { once: true });
+        return;
+      }
+      if (this.dataset.nativePartial === 'true') {
+        // The theme editor deliberately keeps its native page. Partial data
+        // must never acquire full-catalog filter/count behavior.
+        this.#initialized = true;
+        this.dataset.hydrationState = 'fallback';
+        return;
+      }
+      this.#initializeProducts();
+    }
+
+    #initializeProducts() {
       const grid = this.querySelector('[data-collection-grid]');
       const button = this.querySelector('[data-collection-more-button]');
       this.#more = this.querySelector('[data-collection-more]');
@@ -82,14 +104,117 @@ if (!customElements.get('th-collection-products')) {
         window.addEventListener('popstate', this.#restoreFilters);
         this.#restoreFilters();
       } else {
-        this.#visibleCount = Math.min(this.#pageSize, this.#cards.length);
+        this.#visibleCount = Math.min(Math.max(this.#pageSize, this.#initialReveal), this.#cards.length);
+        this.#initialReveal = 0;
         this.#render();
       }
+      if (this.dataset.hydrationState !== 'complete') this.dataset.hydrationState = 'ready';
     }
 
     disconnectedCallback() {
       window.removeEventListener('popstate', this.#restoreFilters);
+      window.removeEventListener('load', this.#hydrate);
+      this.#request?.abort();
     }
+
+    #requestKey(href) {
+      const url = new URL(href);
+      url.hash = '';
+      // A back/forward local-filter change can be applied to the same batch.
+      url.searchParams.delete('th_pack');
+      url.searchParams.delete('th_price');
+      url.searchParams.sort();
+      return url.href;
+    }
+
+    #hydrate = async () => {
+      if (this.#hydrationStarted || !this.isConnected) return;
+      this.#hydrationStarted = true;
+      const originalUrl = new URL(window.location.href);
+      const requestKey = this.#requestKey(originalUrl.href);
+      const url = new URL(originalUrl);
+      url.searchParams.set('section_id', this.dataset.hydrateSection);
+      for (const key of ['sections', 'page', 'th_pack', 'th_price']) url.searchParams.delete(key);
+      const status = this.querySelector('[data-collection-load-status]');
+      if (status) {
+        status.textContent = 'Loading more treats and filters…';
+        status.hidden = false;
+      }
+      this.#request = new AbortController();
+      const timeout = setTimeout(() => this.#request?.abort(), 12000);
+      try {
+        const response = await fetch(url.href, { credentials: 'same-origin', signal: this.#request.signal });
+        if (!response.ok) throw new Error('Catalog request failed');
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const template = doc.querySelector('template[data-collection-batch]');
+        const grid = this.querySelector('[data-collection-grid]');
+        if (!template || !grid || template.dataset.complete !== 'true' ||
+            template.dataset.collectionHandle !== this.dataset.collectionHandle) {
+          throw new Error('Catalog batch incomplete');
+        }
+        const batchGrid = template.content.querySelector('[data-collection-grid]');
+        const cards = batchGrid ? [...batchGrid.children].filter(card => card.matches('li[data-product-id]')) : [];
+        const count = Number(template.dataset.count);
+        if (!batchGrid || !Number.isSafeInteger(count) || count < 0 || count !== cards.length ||
+            new Set(cards.map(card => card.dataset.productId)).size !== count) {
+          throw new Error('Catalog count mismatch');
+        }
+        const metadata = JSON.parse(template.content.querySelector('[data-collection-product-metadata]')?.textContent || '[]');
+        if (!Array.isArray(metadata) || metadata.length !== count ||
+            !cards.every(card => metadata.some(product => String(product.id) === card.dataset.productId && Array.isArray(product.variants)))) {
+          throw new Error('Catalog metadata incomplete');
+        }
+        if (!this.isConnected || this.#requestKey(window.location.href) !== requestKey) {
+          this.dataset.hydrationState = 'stale';
+          if (status) status.hidden = true;
+          return;
+        }
+
+        // Keep the original native page's products exposed when following an
+        // older page= link. Do not collapse the shopper back to the first batch.
+        const originalIds = new Set([...grid.children].map(card => card.dataset.productId));
+        if (Number(this.dataset.nativePage) > 1) {
+          this.#initialReveal = cards.reduce((last, card, index) => originalIds.has(card.dataset.productId) ? index + 1 : last, 0);
+        }
+        const nativeProducts = window.ShopifyAnalytics?.meta?.products;
+        if (Array.isArray(nativeProducts)) {
+          for (const product of metadata) {
+            if (!nativeProducts.some(entry => String(entry.id) === String(product.id))) nativeProducts.push(product);
+          }
+        }
+        // Scripts parsed in the response are data only. Existing theme modules
+        // upgrade the new custom elements; native page/pixel scripts never replay.
+        template.content.querySelectorAll('script').forEach(script => script.remove());
+        grid.replaceChildren(...cards);
+        grid.hidden = count === 0;
+        const filterSlot = this.querySelector('[data-collection-filter-slot]');
+        if (filterSlot) {
+          const filters = template.content.querySelector('[data-collection-filters]');
+          filterSlot.replaceChildren(...(filters ? [filters] : []));
+        }
+        this.querySelector('[data-collection-fallback-empty]')?.remove();
+        this.querySelector('.collection-products__pagination')?.remove();
+        const counter = this.querySelector('[data-collection-count]');
+        if (counter) counter.textContent = `${count} ${count === 1 ? 'product' : 'products'}`;
+        if (status) status.hidden = true;
+        this.dataset.hydrationState = 'complete';
+        this.#initializeProducts();
+        if (!count) {
+          const empty = this.querySelector('[data-collection-filter-empty]');
+          if (empty) empty.hidden = false;
+        }
+      } catch {
+        this.dataset.hydrationState = 'failed';
+        if (status) {
+          status.textContent = 'More filters could not load. Use the page links below to keep browsing.';
+          status.hidden = false;
+        }
+      } finally {
+        clearTimeout(timeout);
+        this.#request = null;
+      }
+    };
 
     #restoreFilters = () => {
       const params = new URL(window.location.href).searchParams;
@@ -123,7 +248,8 @@ if (!customElements.get('th-collection-products')) {
         return (!pack || card.dataset.productPack === pack) &&
           (!band || (Number.isFinite(price) && price >= band[0] && price < band[1]));
       });
-      this.#visibleCount = Math.min(this.#pageSize, this.#matching.length);
+      this.#visibleCount = Math.min(Math.max(this.#pageSize, !pack && !band ? this.#initialReveal : 0), this.#matching.length);
+      this.#initialReveal = 0;
       const url = new URL(window.location.href);
       for (const [key, value] of [['th_pack', pack ? `${pack}-pack` : ''], ['th_price', band ? this.#price.value : '']]) {
         if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);

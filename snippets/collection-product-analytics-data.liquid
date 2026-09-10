@@ -1,0 +1,40 @@
+{%- doc -%}
+  Non-executable metadata for eligible cards loaded after the initial document.
+  The controller only extends Shopify's variant lookup; it sends no events.
+  @param {product[]} products
+  @param {collection} collection
+{%- enddoc -%}
+{%- capture escaped_less_than -%}\u003c{%- endcapture -%}
+[
+  {%- assign needs_comma = false -%}
+  {%- for product in products -%}
+    {%- capture off_channel -%}{% render 'channel-hidden', product: product, collection: collection %}{%- endcapture -%}
+    {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
+    {%- if needs_comma -%},{%- endif -%}
+    {%- assign needs_comma = true -%}
+    {
+      "id": {{ product.id | json }},
+      "gid": {{ product.id | prepend: 'gid://shopify/Product/' | json }},
+      "vendor": {{ product.vendor | json | replace: '<', escaped_less_than }},
+      "type": {{ product.type | json | replace: '<', escaped_less_than }},
+      "handle": {{ product.handle | json | replace: '<', escaped_less_than }},
+      "remote": false,
+      "variants": [
+        {%- for variant in product.variants -%}
+          {%- unless forloop.first -%},{%- endunless -%}
+          {%- assign variant_name = product.title -%}
+          {%- unless product.has_only_default_variant -%}
+            {%- assign variant_name = variant.title | prepend: ' - ' | prepend: product.title -%}
+          {%- endunless -%}
+          {
+            "id": {{ variant.id | json }},
+            "price": {{ variant.price | json }},
+            "name": {{ variant_name | json | replace: '<', escaped_less_than }},
+            "public_title": {% if product.has_only_default_variant %}null{% else %}{{ variant.title | json | replace: '<', escaped_less_than }}{% endif %},
+            "sku": {{ variant.sku | json | replace: '<', escaped_less_than }}
+          }
+        {%- endfor -%}
+      ]
+    }
+  {%- endfor -%}
+]

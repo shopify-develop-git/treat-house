@@ -70,12 +70,11 @@
 {%- else -%}
 <script src="{{ 'th-collection-products.js' | asset_url }}" defer></script>
 {% comment %}
-  Fetch a complete native batch before retail exclusions. Count and render the
-  same cards, then progressively reveal the configured number. All current
-  collections fit one batch. For catalogs above Shopify's 250-item limit, keep
-  native batch navigation and explicitly scope the count to the current page.
+  Keep the document's native collection analytics bounded to 24 products. Larger
+  retail lists are enhanced through a layout-free Section Rendering response;
+  failed/no-JavaScript requests retain this honest page count and native links.
 {% endcomment %}
-{% paginate collection.products by 250 %}
+{% paginate collection.products by 24 %}
   {%- liquid
     assign grid_products = collection.products
     if has_curated_products
@@ -98,58 +97,28 @@
       assign count_is_partial = true
     endif
   -%}
+  {%- liquid
+    for product in grid_products
+      capture off_channel
+        render 'channel-hidden', product: product, collection: collection
+      endcapture
+      if off_channel != blank
+        continue
+      endif
+      assign visible_count = visible_count | plus: 1
+      assign pack_title = product.title | downcase | replace: '-', ' ' | replace: '–', ' ' | replace: '—', ' ' | prepend: ' '
+      assign sizes = '6,12,24,36' | split: ','
+      for size in sizes
+        assign size_pattern = size | prepend: ' ' | append: ' pack'
+        if pack_title contains size_pattern
+          assign pack_sizes = pack_sizes | append: size | append: ','
+          break
+        endif
+      endfor
+    endfor
+  -%}
   {%- capture product_cards -%}
-    {%- for product in grid_products -%}
-      {%- capture off_channel -%}{% render 'channel-hidden', product: product, collection: collection %}{%- endcapture -%}
-      {%- if off_channel != blank -%}{%- continue -%}{%- endif -%}
-      {%- liquid
-        assign visible_count = visible_count | plus: 1
-        assign tagline = product.description | strip_html | truncatewords: 15, ''
-        assign price = product.price | money
-        assign pack_size = ''
-        assign pack_title = product.title | downcase | replace: '-', ' ' | replace: '–', ' ' | replace: '—', ' ' | prepend: ' '
-        assign sizes = '6,12,24,36' | split: ','
-        for size in sizes
-          assign size_pattern = size | prepend: ' ' | append: ' pack'
-          if pack_title contains size_pattern
-            assign pack_size = size
-            assign pack_sizes = pack_sizes | append: size | append: ','
-            break
-          endif
-        endfor
-        assign card_loading = 'lazy'
-        if visible_count <= 4
-          assign card_loading = 'eager'
-        endif
-      -%}
-      {%- capture grid_badge -%}{% render 'ui-product-badge', product: product %}{%- endcapture -%}
-      {%- assign grid_badge_parts = grid_badge | strip | split: '|' -%}
-      {%- capture grid_season -%}{% render 'season-status', product: product %}{%- endcapture -%}
-      {%- liquid
-        assign grid_season_parts = grid_season | strip | split: '|'
-        assign grid_season_label = ''
-        if grid_season_parts[0] != 'available'
-          assign grid_season_label = grid_season_parts[1]
-        endif
-      -%}
-      {%- capture add_control -%}
-        {% render 'ui-product-card-add', product: product, section_id: section.id %}
-      {%- endcapture -%}
-      <li class="collection-products__item" data-product-id="{{ product.id }}" data-product-pack="{{ pack_size }}" data-product-price="{{ product.price }}">
-        {% render 'ui-product-card',
-          title: product.title,
-          subtitle: tagline,
-          price: price,
-          image: product.featured_image,
-          link: product.url,
-          badge: grid_badge_parts[0],
-          badge_color: grid_badge_parts[1],
-          season_label: grid_season_label,
-          add_content: add_control,
-          loading: card_loading
-        %}
-      </li>
-    {%- endfor -%}
+    {% render 'collection-product-cards', products: grid_products, collection: collection, section_id: section.id %}
   {%- endcapture -%}
   {%- if has_curated_products -%}
     {% render 'curated-product-analytics', products: grid_products, collection: collection %}
@@ -164,6 +133,12 @@
   <th-collection-products
     class="collection-products"
     data-page-size="{{ products_per_page }}"
+    data-collection-handle="{{ collection.handle | escape }}"
+    data-native-page="{{ paginate.current_page }}"
+    data-native-partial="{{ count_is_partial }}"
+    {%- if count_is_partial and has_curated_products == false and request.design_mode == false %}
+      data-hydrate-section="collection-products-data"
+    {%- endif %}
     {% if out_of_range %}data-first-page-url="{{ first_page_url | escape }}"{% endif %}
     style="
       --collection-products-columns: {{ section.settings.columns }};
@@ -175,8 +150,12 @@
       <div class="collection-products__top">
         {%- if show_filters or show_sort -%}
         <div class="collection-products__controls">
-          {%- if show_filters and count_is_partial == false and visible_count > 4 -%}
-            {% render 'ui-catalog-filters', section_id: section.id, pack_sizes: pack_sizes %}
+          {%- if show_filters -%}
+            <div data-collection-filter-slot>
+              {%- if count_is_partial or visible_count > 4 -%}
+                {% render 'ui-catalog-filters', section_id: section.id, pack_sizes: pack_sizes %}
+              {%- endif -%}
+            </div>
           {%- endif -%}
 
           {%- if show_sort and collection.sort_options.size > 0 -%}
@@ -244,17 +223,16 @@
       </div>
     {%- endif -%}
 
-      {%- if visible_count > 0 -%}
-        <ul class="collection-products__grid" role="list" data-collection-grid>
-          {{ product_cards }}
-        </ul>
-        <p class="collection-products__empty" data-collection-filter-empty hidden>No treats match these filters. Try another pack size or price.</p>
-        <p class="collection-products__progress" data-collection-progress aria-live="polite"></p>
-        <div class="collection-products__more" data-collection-more hidden>
-          {% render 'ui-button', variant: 'secondary', label: 'Show more treats', type: 'button', attributes: 'data-collection-more-button' %}
-        </div>
-      {%- else -%}
-        <p class="collection-products__empty">
+      <ul class="collection-products__grid" role="list" data-collection-grid{% if visible_count == 0 %} hidden{% endif %}>
+        {{ product_cards }}
+      </ul>
+      <p class="collection-products__empty" data-collection-filter-empty hidden>No treats match these filters. Try another pack size or price.</p>
+      <p class="collection-products__progress" data-collection-progress aria-live="polite"></p>
+      <div class="collection-products__more" data-collection-more hidden>
+        {% render 'ui-button', variant: 'secondary', label: 'Show more treats', type: 'button', attributes: 'data-collection-more-button' %}
+      </div>
+      {%- if visible_count == 0 -%}
+        <p class="collection-products__empty" data-collection-fallback-empty>
           {%- if out_of_range -%}
             This page has moved. View the collection to keep shopping.
             {% render 'ui-button', variant: 'link', label: 'View products', link: first_page_url %}
@@ -273,6 +251,7 @@
       {%- endif -%}
 
       {%- if count_is_partial -%}
+        <p class="collection-products__progress" data-collection-load-status role="status" hidden></p>
         <nav class="collection-products__pagination" aria-label="Pagination">
           {%- liquid
             assign previous_disabled = true
@@ -311,6 +290,8 @@
 
 {%- endif -%}
 {% stylesheet %}
+  .collection-products__grid[hidden],
+  .collection-products__progress[hidden],
   .collection-products__item[hidden],
   .collection-products__more[hidden],
   .collection-products__empty[hidden],
@@ -343,6 +324,10 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
+  }
+
+  .collection-products__controls > [data-collection-filter-slot] {
+    display: contents;
   }
 
   .collection-products__filters {
