@@ -1,0 +1,22 @@
+{%- doc -%}
+  Draft photo replacements for exact supplied product/legacy-image pairs.
+  Return blank when the merchant supplies another image or for any other SKU.
+  The native media ID remains unchanged for gallery and variant selection.
+
+  @param {string} handle - Exact Shopify product handle.
+  @param {object|string} image - Native Shopify image or source URL.
+{%- enddoc -%}
+{%- liquid
+  assign image_source = image.src | default: image
+  assign image_filename = image_source | split: '?' | first | split: '/' | last
+  case handle
+    when 'baby-shower-12-pack-boys'
+      if image_filename == 'BABY-SHOWER-BOY_112022-WP_8716301e-90df-457a-b92f-469ba75fcb12.jpg'
+        echo 'th-baby-shower-12-pack-boys-20260904.webp'
+      endif
+    when 'baby-shower-12-pack-girls'
+      if image_filename == 'BABY-SHOWER-GIRL-12-PACK_112022-WP_ea4d864e-7816-497a-bfc0-348f2e17b964.jpg'
+        echo 'th-baby-shower-12-pack-girls-20260904.webp'
+      endif
+  endcase
+-%}

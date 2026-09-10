@@ -54,6 +54,8 @@
   assign previous_label = 'accessibility.slideshow_previous' | t
   assign next_label = 'accessibility.slideshow_next' | t
 -%}
+{%- capture featured_image_asset -%}{% render 'product-image-asset', handle: product.handle, image: product.featured_media.preview_image %}{%- endcapture -%}
+{%- assign featured_image_asset = featured_image_asset | strip -%}
 
 <script src="{{ 'ui-product-gallery.js' | asset_url }}" type="module" fetchpriority="low"></script>
 
@@ -84,6 +86,16 @@
           data-ui-gallery-media="{{ media.id }}"
           {% unless is_selected %}hidden{% endunless %}
         >
+          {%- if featured_image_asset != blank and media.id == product.featured_media.id -%}
+            <img
+              src="{{ featured_image_asset | asset_url }}"
+              width="1200"
+              height="1200"
+              class="ui-product-gallery__image"
+              loading="{{ loading }}"
+              alt="{{ media_alt | default: product.title | escape }}"
+            >
+          {%- else -%}
           {{
             media.preview_image
             | image_url: width: 1200
@@ -94,6 +106,7 @@
               loading: loading,
               alt: media_alt
           }}
+          {%- endif -%}
         </div>
       {%- endfor -%}
     {%- else -%}
@@ -138,6 +151,16 @@
           data-ui-gallery-thumb="{{ media.id }}"
           aria-pressed="{{ is_selected }}"
         >
+          {%- if featured_image_asset != blank and media.id == product.featured_media.id -%}
+            <img
+              src="{{ featured_image_asset | asset_url }}"
+              width="1200"
+              height="1200"
+              class="ui-product-gallery__thumb-image"
+              loading="lazy"
+              alt="{{ media_alt | default: product.title | escape }}"
+            >
+          {%- else -%}
           {{
             media.preview_image
             | image_url: width: 236
@@ -148,6 +171,7 @@
               loading: 'lazy',
               alt: media_alt
           }}
+          {%- endif -%}
         </button>
       {%- endfor -%}
     </div>

@@ -80,10 +80,25 @@
 {%- endcomment -%}
 {%- capture image_alt -%}{% render 'strip-hidden-words', title: image.alt %}{%- endcapture -%}
 {%- assign image_alt = image_alt | strip -%}
+{%- assign card_product_handle = '' -%}
+{%- if link contains '/products/' -%}
+  {%- assign card_product_handle = link | split: '/products/' | last | split: '?' | first | split: '#' | first | split: '/' | first -%}
+{%- endif -%}
+{%- capture card_image_asset -%}{% render 'product-image-asset', handle: card_product_handle, image: image %}{%- endcapture -%}
+{%- assign card_image_asset = card_image_asset | strip -%}
 
 <article class="{{ card_classes }}"{% if attributes != blank %} {{ attributes }}{% endif %}>
   <div class="ui-product-card__media">
-    {%- if image != blank -%}
+    {%- if card_image_asset != blank -%}
+      <img
+        src="{{ card_image_asset | asset_url }}"
+        width="1200"
+        height="1200"
+        class="ui-product-card__image"
+        loading="{{ card_loading }}"
+        alt="{{ image_alt | default: title | escape }}"
+      >
+    {%- elsif image != blank -%}
       {%- comment -%}
         Width descriptors and `sizes`, not the 1x/2x/3x that [image] hands out. That
         srcset describes one drawn size, and this box has several: it is a share of
