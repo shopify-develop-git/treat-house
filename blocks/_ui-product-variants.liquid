@@ -41,6 +41,10 @@
     elsif has_custom_count and standard_flavor_option != ''
       assign use_standard_flavors = true
       assign custom_flavor_option = standard_flavor_option
+    elsif native_flavor_option == ''
+      if closest.product.handle == 'custom-school-deluxe' or closest.product.handle == 'custom-college-deluxe'
+        assign use_standard_flavors = true
+      endif
     endif
   -%}
   {%- if use_standard_flavors -%}
