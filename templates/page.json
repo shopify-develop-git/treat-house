@@ -67,7 +67,7 @@
               "type": "_ui-faq-item",
               "settings": {
                 "question": "Can I send corporate gifts to multiple addresses?",
-                "answer": "<p>Yes. Use our <a href=\"/pages/corporate-gifting-interim-draft\">corporate gifting form</a> to share your order details. Select multiple shipping addresses and upload the completed shipping template so our team can review your request.</p>",
+                "answer": "<p>Yes. Use our <a href=\"/pages/corporate-gifting#contact_form\">corporate gifting form</a> to share your order details. Select multiple shipping addresses and upload the completed shipping template so our team can review your request.</p>",
                 "open": false
               }
             },

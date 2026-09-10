@@ -1,7 +1,8 @@
 {%- doc -%}
   Resolves the draft theme's navigation placeholders without editing shared Shopify menus.
   Configured URLs win except known misroutes: All Seasonal uses the seasonal hub,
-  and Best Sellers pointing to the full catalog uses the curated homepage section.
+  Best Sellers pointing to the full catalog uses the curated homepage section,
+  and interim corporate/wholesale page links use their canonical application pages.
   Gift cards and gift wrapping are excluded because the business does not offer them.
   Blank output means a group heading; __hidden__ means an unresolved leaf or inactive offer.
   Keep these fallbacks until the native menus have been reviewed before launch.
@@ -19,6 +20,8 @@
   assign result = configured_url
   assign catalog_url = root_url | append: 'collections/all'
   assign parent_key = menu_parent | handleize
+  assign interim_corporate_path = root_url | append: 'pages/corporate-gifting-interim-draft'
+  assign interim_wholesale_path = root_url | append: 'pages/wholesale-1'
 
   if link.gift_card or link['gift_card?'] or key == 'gift-cards' or key == 'gift-card' or key == 'e-gift-cards' or key == 'e-gift-card' or gift_card_path == 'gift-card' or gift_card_path == 'gift-cards'
     assign result = '__hidden__'
@@ -30,6 +33,10 @@
     assign result = root_url | append: 'collections/custom-treats'
   elsif key == 'choose-your-own' or key == 'choose-your-own-treat' or key == 'choose-your-own-treats'
     assign result = root_url | append: 'pages/customize'
+  elsif normalized_path == '/pages/corporate-gifting-interim-draft' or normalized_path == interim_corporate_path
+    assign result = root_url | append: 'pages/corporate-gifting'
+  elsif normalized_path == '/pages/wholesale-1' or normalized_path == interim_wholesale_path
+    assign result = root_url | append: 'pages/wholesale'
   elsif key == 'all-seasonal'
     assign result = root_url | append: 'collections/holidays'
   elsif normalized_path == '/collections/all' or normalized_path == catalog_url

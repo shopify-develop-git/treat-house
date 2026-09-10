@@ -1,0 +1,459 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "hero": {
+      "type": "home-hero",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h1>Client and team gifts <br><em>that feel personal</em></h1>"
+          }
+        },
+        "copy": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Not a name on a list. When the box opens, they know someone stopped and thought about them, and the first bite tastes like being a kid again. For client appreciation, employee appreciation, welcome gifts for new hires, conferences, team offsites and client events.</p>"
+          }
+        },
+        "buttons": {
+          "type": "_ui-link-row",
+          "settings": {},
+          "blocks": {
+            "primary": {
+              "type": "_ui-link",
+              "settings": {
+                "label": "Plan a thoughtful client gift",
+                "variant": "primary",
+                "link": "#contact_form"
+              }
+            }
+          },
+          "block_order": [
+            "primary"
+          ]
+        },
+        "review-line": {
+          "type": "_ui-review-line",
+          "static": true,
+          "settings": {
+            "image": "shopify://shop_images/review-line-composite.webp",
+            "rating_text": "",
+            "reviews_text": ""
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "copy",
+        "buttons"
+      ],
+      "name": "Corporate hero",
+      "settings": {
+        "image": "shopify://shop_images/corporate-hero-image.webp",
+        "show_badge": false,
+        "show_reviews": false,
+        "show_marquee": false
+      }
+    },
+    "banner": {
+      "type": "corporate-banner",
+      "blocks": {
+        "winter-deluxe": {
+          "type": "gift_box",
+          "settings": {
+            "image_asset": "th-winter-deluxe-2026.webp",
+            "alt": "Winter Deluxe gift box"
+          }
+        },
+        "christmas-donuts": {
+          "type": "gift_box",
+          "settings": {
+            "image": "shopify://shop_images/CHRISTMASDONUTDELUXEABOVEWP.jpg",
+            "alt": "Christmas Donut Deluxe gift box"
+          }
+        },
+        "christmas-deluxe": {
+          "type": "gift_box",
+          "settings": {
+            "image_asset": "th-christmas-deluxe-2026.webp",
+            "alt": "Christmas Deluxe gift box"
+          }
+        },
+        "hanukkah-donuts": {
+          "type": "gift_box",
+          "settings": {
+            "image": "shopify://shop_images/DONUT_BOX_TOP_2025_WP_5f8f0f3b-9049-4743-b7dd-826aab074527.jpg",
+            "alt": "Hanukkah Deluxe Donut gift box"
+          }
+        }
+      },
+      "block_order": ["winter-deluxe", "christmas-donuts", "christmas-deluxe", "hanukkah-donuts"],
+      "settings": {
+        "image": ""
+      }
+    },
+    "reassurance": {
+      "type": "why-choose-us",
+      "blocks": {
+        "one": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "shipping-fast",
+            "title": "We ship straight to each recipient",
+            "body": "<p>Nationwide, with no repacking on your end.</p>"
+          }
+        },
+        "two": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "bolt",
+            "title": "Built around your date",
+            "body": "<p>Share your date and we confirm timing with your quote.</p>"
+          }
+        },
+        "three": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "box-add",
+            "title": "No minimum order",
+            "body": "<p>Order as few or as many as you need, in 1-, 2-, 4-, 6- and 12-packs.</p>"
+          }
+        },
+        "four": {
+          "type": "_ui-feature-card",
+          "settings": {
+            "icon": "headset",
+            "title": "A real person, start to finish",
+            "body": "<p>We handle every detail with care, from quote to delivery.</p>"
+          }
+        },
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": ""
+          }
+        },
+        "intro": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": ""
+          }
+        }
+      },
+      "block_order": [
+        "one",
+        "two",
+        "three",
+        "four"
+      ],
+      "name": "Why corporate teams choose us",
+      "settings": {
+        "show_lead": false,
+        "columns": 4,
+        "columns_md": 2,
+        "columns_sm": "1",
+        "card_background": "light-blue",
+        "background": "none"
+      }
+    },
+    "testimonials": {
+      "type": "testimonials",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2>What <em>customers say</em></h2>",
+            "max_width": 520
+          }
+        },
+        "rating": {
+          "type": "_ui-review-line",
+          "static": true,
+          "settings": {
+            "rating_text": "",
+            "reviews_text": "",
+            "layout": "inline",
+            "text_size": 16,
+            "text_size_mobile": 14
+          }
+        },
+        "one": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "rating": 5,
+            "quote": "<p>“Jen and Chris are a joy to work with. In the executive briefing space, where we host high volumes of C-level clients, Treat House creations are always a standout. Clients rave about the quality, creativity, and the personal touch that makes every experience memorable. I truly look forward to many more years of partnership.”</p>",
+            "name": "Jazmine D",
+            "role": "ServiceNow"
+          }
+        },
+        "two": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "rating": 5,
+            "quote": "<p>“We use Treat House for many corporate occasions because it’s a great way to showcase our logos. The print quality is excellent, and you are providing tasty, delicious treats! The owners are incredibly attentive and very pleasant to work with. Highly recommend!”</p>",
+            "name": "",
+            "role": "NBC"
+          }
+        },
+        "three": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "rating": 5,
+            "quote": "<p>“I’ve worked with Treat House for years, and they have been nothing short of exceptional. Whether it’s a last-minute request for a few hundred treats or a large-scale order of thousands shipped nationwide, they always deliver with consistency and care. Their branding and quality are unmatched (logo’d treats are so hard to find!), with endless flavor options that never fail to impress. Most importantly, Jen and Chris are so accommodating, reliable, and truly committed to making it work every single time. They always meet you where you’re at and will try anything you need to make it happen—they’re simply the best. Working in the hospitality industry myself, I deeply value their dedication to their customers—it’s what makes them the best in the business.”</p>",
+            "name": "Julia W",
+            "role": "Restaurant Associates"
+          }
+        },
+        "four": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "rating": 5,
+            "quote": "<p>“I’ve been working with the Treat House team for over two years and they have been amazing to work with. Their treats are always a hit with our clients- they’re very tasty, and our custom logos look great every time. Orders are always delivered quickly and reliably, which makes my life a lot easier. Highly recommend it if you're looking for a fun, unique treat that leaves a great impression!”</p>",
+            "name": "Alexa H",
+            "role": "VML"
+          }
+        },
+        "five": {
+          "type": "_ui-testimonial",
+          "settings": {
+            "rating": 5,
+            "quote": "<p>“I have been a loyal customer to the Treat House team for several years now and cannot applaud the team enough for their incredible customer service, ease of use ordering, and incredibly tasty treats! I frequently select these gourmet treats not just for family but as a high tech professional, I select these for thoughtful and unique client gifting! I am often given incredible feedback from my clients on the delicious taste, unique thought, and beautiful presentation. Treathouse never fails to impress with their exceptional quality and delightful flavor - red velvet being my favorite! Treat House has set a new standard for confectionery excellence, making their Rice Krispie Treats an ideal choice for premium gifting. I could not endorse them more!”</p>",
+            "name": "Larissa F.",
+            "role": "Large Software Company"
+          }
+        }
+      },
+      "block_order": [
+        "one",
+        "two",
+        "three",
+        "four",
+        "five"
+      ],
+      "settings": {
+        "show_rating": false
+      }
+    },
+    "cards": {
+      "type": "corporate-cards",
+      "blocks": {
+        "logo-treats": {
+          "type": "_ui-cta-card",
+          "settings": {
+            "image": "shopify://shop_images/th-corporate-logo-treat.jpg",
+            "title": "Your brand, made personal",
+            "description": "Your logo, custom colors or a printed photo on every treat.",
+            "link": "/collections/custom-treats",
+            "button_label": "Shop now"
+          }
+        },
+        "gift-boxes": {
+          "type": "_ui-cta-card",
+          "settings": {
+            "image": "shopify://shop_images/corporate-gift-holiday-6-pack.webp",
+            "title": "Gift boxes for clients and teams",
+            "description": "Client appreciation, new hires, teacher and healthcare gifts.",
+            "link": "/collections/deluxe-gift-box",
+            "button_label": "Shop now"
+          }
+        },
+        "bulk": {
+          "type": "_ui-cta-card",
+          "settings": {
+            "image": "",
+            "title": "Larger orders",
+            "description": "Custom quantities and personalization, with no minimum order.",
+            "link": "#contact_form",
+            "button_label": "Get a quote",
+            "image_asset": "th-approved-corporate-bulk.webp"
+          }
+        }
+      },
+      "block_order": [
+        "logo-treats",
+        "gift-boxes",
+        "bulk"
+      ],
+      "settings": {}
+    },
+    "band": {
+      "type": "corporate-band",
+      "settings": {
+        "label": "Email our client and team gifts specialist.",
+        "link": "mailto:jennifer@treathouse.com",
+        "form_link": "#contact_form"
+      }
+    },
+    "catalog": {
+      "type": "corporate-gifts",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Custom gifts for <em>every occasion</em></h2>"
+          }
+        },
+        "copy": {
+          "type": "_ui-text",
+          "settings": {
+            "text": "<p>Explore logo treats, gift boxes and bulk orders. Tell us what you need and we’ll help you choose the right option.</p>"
+          }
+        },
+        "button": {
+          "type": "_ui-link",
+          "settings": {
+            "label": "Request a quote",
+            "link": "#contact_form",
+            "variant": "primary",
+            "open_in_new_tab": false
+          }
+        },
+        "stat-row": {
+          "type": "_ui-stat-row",
+          "static": true,
+          "settings": {
+            "caption": "Trusted by:"
+          },
+          "blocks": {
+            "one": {
+              "type": "_ui-stat",
+              "settings": {
+                "value": "ServiceNow",
+                "label": ""
+              }
+            },
+            "two": {
+              "type": "_ui-stat",
+              "settings": {
+                "value": "",
+                "label": ""
+              }
+            },
+            "three": {
+              "type": "_ui-stat",
+              "settings": {
+                "value": "",
+                "label": ""
+              }
+            }
+          },
+          "block_order": [
+            "one",
+            "two",
+            "three"
+          ]
+        }
+      },
+      "block_order": [
+        "heading",
+        "copy",
+        "button"
+      ],
+      "name": "Corporate catalog",
+      "settings": {
+        "image_top_left": "",
+        "image_top_right": "",
+        "image_bottom_left": "",
+        "image_bottom_right": "",
+        "media_position": "left",
+        "show_star": true,
+        "image_top_left_asset": "th-approved-corporate-pinnacle.webp",
+        "image_top_right_asset": "th-approved-corporate-holiday.webp",
+        "image_bottom_left_asset": "th-approved-corporate-kay.webp",
+        "image_bottom_right_asset": "th-approved-corporate-recipient.webp",
+        "image_top_right_fit": "contain"
+      }
+    },
+    "quote": {
+      "type": "corporate-quote-form",
+      "blocks": {
+        "heading": {
+          "type": "_ui-heading",
+          "settings": {
+            "heading": "<h2>Tell us about <em>your gift</em></h2>"
+          }
+        },
+        "success-heading": {
+          "type": "_ui-heading",
+          "static": true,
+          "settings": {
+            "heading": "<h2><em>Thanks.</em><br> We have your note and will be in touch.</h2>",
+            "heading_size": 40,
+            "heading_size_mobile": 28
+          }
+        },
+        "success-copy": {
+          "type": "_ui-text",
+          "static": true,
+          "settings": {
+            "text": "<p>A real person will read it and reply by email.</p>"
+          }
+        },
+        "success-buttons": {
+          "type": "_ui-link-row",
+          "static": true,
+          "settings": {
+            "gap": 20
+          },
+          "blocks": {
+            "primary": {
+              "type": "_ui-link",
+              "settings": {
+                "label": "Shop treats",
+                "link": "shopify://collections/all",
+                "variant": "primary"
+              }
+            },
+            "secondary": {
+              "type": "_ui-link",
+              "settings": {
+                "label": "Return home",
+                "link": "/",
+                "variant": "secondary"
+              }
+            }
+          },
+          "block_order": [
+            "primary",
+            "secondary"
+          ]
+        }
+      },
+      "block_order": [
+        "heading"
+      ],
+      "settings": {
+        "customization_options": "Logo treats, Custom colors or theme, Printed photo, Gift message, Not sure yet",
+        "quantity_hint": "A rough number is fine.",
+        "date_hint": "Optional. We confirm timing with your quote.",
+        "date_min_days": 3,
+        "notes_placeholder": "Who is it for, and what would make it feel personal?",
+        "submit_label": "Send a note to our team",
+        "shipping_template_url": "https://cdn.shopify.com/s/files/1/0718/8234/2617/files/TREAT_HOUSE_SHIPPING_TEMPLATE_3_2.xlsx?v=1788796113",
+        "hulk_form_id": "MAEWaE4pH4iqFrYziOD7BQ"
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "banner",
+    "reassurance",
+    "testimonials",
+    "cards",
+    "band",
+    "catalog",
+    "quote"
+  ]
+}
