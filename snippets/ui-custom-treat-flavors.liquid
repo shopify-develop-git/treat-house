@@ -1,8 +1,8 @@
 {%- doc -%}
   Restores the published custom-treat flavor property, separate from the box builder.
-  The nine standard values and property key match the live product form read on
-  September 9, 2026. Its legacy script adds premium flavors from the native
-  "Premium flavor" option; preserve that relationship rather than assigning prices.
+  The nine standard values and property key match the published product form.
+  The September 10 client call confirms standard flavors only for custom treats.
+  Where present, the native Standard Flavor option remains the price authority.
   Existing packaging/customization variants remain the source of price and stock.
 
   @param {object} product_resource - The custom-treat product.
@@ -10,28 +10,18 @@
 {%- enddoc -%}
 {%- liquid
   assign standard_flavors = 'Assorted Treats|S’Mores|M&M|Caramel Sea Salt|Birthday Cake|Classic Salted Butter|Chocolate Peanut Butter|Nut Free Assortment|GF, NF, DF Assortment'
-  assign flavor_options = standard_flavors
   assign selected_flavor = ''
   assign native_flavor = product_resource.options_with_values | where: 'name', option_name | first
   assign flavor_index = native_flavor.position | minus: 1
-  for value in native_flavor.values
-    if value.name != 'Standard Flavor' and value.available
-      assign flavor_options = flavor_options | append: '|' | append: value.name
-      if value.selected
-        assign selected_flavor = value.name
-      endif
-    endif
-  endfor
   assign flavor_id = 'ui-custom-treat-flavor-' | append: section.id
   assign form_id = 'ui-product-form-' | append: section.id
   assign flavor_attributes = 'form="' | append: form_id | append: '" aria-describedby="' | append: flavor_id | append: '-status"'
 -%}
-{%- if native_flavor != blank -%}
-  <ui-custom-treat-flavors data-flavor-index="{{ flavor_index }}" data-standard-value="Standard Flavor">
+<ui-custom-treat-flavors{% if native_flavor != blank %} data-flavor-index="{{ flavor_index }}"{% endif %} data-standard-value="Standard Flavor">
     {% render 'ui-select',
-      label: 'Select your flavor',
-      placeholder: 'Select your flavor',
-      options: flavor_options,
+      label: 'Choose your flavor',
+      placeholder: 'Choose your flavor',
+      options: standard_flavors,
       option_delimiter: '|',
       selected: selected_flavor,
       name: 'properties[Standard Flavour]',
@@ -43,7 +33,6 @@
     <p id="{{ flavor_id }}-status" data-flavor-status role="status"></p>
   </ui-custom-treat-flavors>
   <script src="{{ 'ui-custom-treat-flavors.js' | asset_url }}" type="module"></script>
-{%- endif -%}
 
 {% stylesheet %}
   ui-custom-treat-flavors { display: block; }

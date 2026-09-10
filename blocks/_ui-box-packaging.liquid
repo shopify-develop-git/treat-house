@@ -1,17 +1,9 @@
 {%- doc -%}
   One packaging choice in the box builder.
 
-  It does not name a variant. The three pack sizes are three separate products
-  whose option values do not match — "Individual packs + ($3.00)" on the twelve,
-  "+ ($9.00)" on the thirty-six — so a choice written as a value string would
-  bind to one pack and miss the others. It is written as the two answers instead,
-  and the section finds the variant that gives them for whichever pack is
-  currently chosen.
-
-  The price is not a setting either. A choice that stands for a product takes that
-  product's price, multiplied by how many of it the pack needs. A choice with no
-  product behind it quotes nothing at all — a row that is still a placeholder has
-  no business naming a figure, even one the variants could supply.
+  Packaging uses an existing Shopify product as the charge carrier. The client
+  confirmed one gift-box charge per completed box at every pack size on September
+  10, 2026. Individual wrapping is not offered. Prices remain Shopify's own.
 {%- enddoc -%}
 
 {%- liquid
@@ -44,6 +36,19 @@
   endif
 
   for pack in packs
+    comment
+      <locksmith:3e52> Code added automatically by the Locksmith app. Do not modify or remove.
+    endcomment
+    capture var
+      render 'locksmith-variables', scope: 'subject', subject: pack, variable: 'transparent'
+    endcapture
+    if var == "true"
+    else
+      continue
+    endif
+    comment
+      </locksmith:3e52> End Locksmith code block.
+    endcomment
     assign option_one = pack.options_with_values[0]
     assign option_two = pack.options_with_values[1]
 
@@ -72,21 +77,16 @@
       continue
     endif
 
-    ##
-    # How many of this packaging the pack needs. A box that holds twelve is one
-    # box for a twelve and two for a twenty-four, so the figure the row shows is
-    # the product's price times that — and it is worked out per pack, which is
-    # why it lives in the loop rather than above it.
-    #
-    # Liquid divides integers by truncating, so the ceiling is taken by adding
-    # one less than the divisor first.
+    # Legacy non-gift packaging may have capacity-based units; gift boxes use
+    # one charge carrier for every pack size under the confirmed client rule.
     assign pack_size = pack.metafields.custom.pack_size.value | default: pack.metafields.custom.pack_size
     if pack_size == blank
       assign pack_size = pack.title | split: ' ' | first | times: 1
     endif
 
     assign units = 1
-    if capacity > 0 and pack_size > capacity
+    # September 10: one gift-box charge per order box, at every pack size.
+    if block.settings.gift_box == false and capacity > 0 and pack_size > capacity
       assign units = pack_size | plus: capacity | minus: 1 | divided_by: capacity
     endif
 
@@ -113,21 +113,7 @@
       endif
     endif
 
-    ##
-    # The figure shown has to be the figure the cart will reach, and the cart is
-    # never sent this pack product. What it gets is one line per flavour, whose
-    # sum is the pack's own base price, plus `units` of the packaging product.
-    #
-    # `chosen.price` stood in for that and agreed only while a pack needed one
-    # box. Shopify prices the gift box option as a flat +$6 at every size, while
-    # the cart is charged one box per twelve treats, so the two parted company
-    # the moment the pack went past twelve. Measured before this was written: a
-    # 24 with a gift box showed $78.00 and charged $84.00, and the row beneath it
-    # already said "+ $12.00" while the total had only counted $6.
-    #
-    # A choice with no product behind it charges nothing extra whatever its
-    # variant costs, because there is no line to carry the difference, so the
-    # base is the whole answer there.
+    # Match the flavor lines plus the actual packaging charge sent to Shopify.
     assign shown_price = base.price
     if linked_product != blank
       assign packaging_price = linked_product.price | times: units
@@ -219,7 +205,9 @@
   # The product's own name, when there is one. The typed title is what a choice
   # with no product behind it is called.
   assign row_title = block.settings.title
-  if row_product != blank
+  if block.settings.gift_box
+    assign row_title = 'Gift Box'
+  elsif row_product != blank
     capture row_title
       render 'strip-hidden-words', title: row_product.title
     endcapture
@@ -227,7 +215,7 @@
   endif
 -%}
 
-{%- if packaging_map != '{}' -%}
+{%- if packaging_map != '{}' and block.settings.individual_packs != true -%}
   {% capture packaging_attributes %}
     data-packaging="{{ block.id }}"
     data-packaging-map="{{ packaging_map | escape }}"
@@ -260,7 +248,7 @@
       "type": "number",
       "id": "capacity",
       "label": "Treats it holds",
-      "info": "How many treats fit in one. A box that holds 12 counts as two for a 24 pack, and both the price shown and the price charged follow. Set Pack size on the product itself and it is read from there instead, so a bigger box brings its own figure. This number is the fallback for a product that has none. Leave both empty for packaging that scales with the box rather than being counted."
+      "info": "How many treats fit in one. Gift Box choices always charge one unit for every pack size. For other packaging, a capacity of 12 counts as two for a 24 pack. Set Pack size on the product itself and it is read from there instead, so a bigger box brings its own figure. This number is the fallback for a product that has none. Leave both empty for packaging that scales with the box rather than being counted."
     },
     {
       "type": "text",
@@ -297,7 +285,7 @@
     {
       "type": "checkbox",
       "id": "individual_packs",
-      "label": "Individually wrapped",
+      "label": "Legacy individual wrapping (not offered)",
       "default": false
     }
   ],

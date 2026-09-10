@@ -27,7 +27,7 @@
           "type": "_ui-box-packaging",
           "settings": {
             "title": "Gift Box",
-            "description": "Our signature box, gift-ready on arrival",
+            "description": "Our signature gift box",
             "gift_box": true,
             "individual_packs": false,
             "product": "12-pack-gift-box-rd",
@@ -35,24 +35,11 @@
             "capacity": 12
           },
           "blocks": {}
-        },
-        "individual": {
-          "type": "_ui-box-packaging",
-          "disabled": true,
-          "settings": {
-            "title": "Individually Wrapped",
-            "description": "Wrapped one by one, for favors and sharing",
-            "gift_box": false,
-            "individual_packs": true,
-            "image": "shopify://shop_images/th-packaging-individual.jpg"
-          },
-          "blocks": {}
         }
       },
       "block_order": [
         "tray",
-        "gift",
-        "individual"
+        "gift"
       ],
       "settings": {
         "pack_collection": "choose-your-own-treat",
@@ -72,7 +59,7 @@
         ],
         "breadcrumb_parent_title": "Gift Boxes",
         "breadcrumb_parent_url": "shopify://collections/choose-your-own-treat",
-        "eyebrow": "Customize",
+        "eyebrow": "Choose your own",
         "heading": "Design",
         "heading_accent": "your box",
         "subheading": "Pick your flavors, choose the packaging, add a note, and review. Four short steps, and you can go back at any point.",

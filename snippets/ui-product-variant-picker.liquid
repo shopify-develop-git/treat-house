@@ -54,6 +54,13 @@
 {%- endcomment -%}
 {%- unless product_resource.has_only_default_variant -%}
   {%- liquid
+    assign has_custom_count = false
+    for native_option in product_resource.options_with_values
+      assign native_option_name = native_option.name | downcase
+      if native_option_name contains 'how many custom treats'
+        assign has_custom_count = true
+      endif
+    endfor
     assign normalize_custom_choices = false
     if product_resource.handle == '12-pack-of-custom-treats' and product_resource.options_with_values.size == 3
       assign normalize_custom_choices = true
@@ -67,7 +74,7 @@
     endif
   -%}
   <variant-picker
-    class="ui-product-variant-picker{% if normalize_custom_choices %} ui-product-variant-picker--custom{% endif %}{% if class != blank %} {{ class }}{% endif %}"
+    class="ui-product-variant-picker{% if has_custom_count %} ui-product-variant-picker--custom{% endif %}{% if class != blank %} {{ class }}{% endif %}"
     data-section-id="{{ section.id }}"
     data-product-id="{{ product_resource.id }}"
     data-product-url="{{ product_resource.url }}"
@@ -92,8 +99,13 @@
 
         assign trigger_label = product_option.selected_value
         assign trigger_image = ''
-        if normalize_custom_choices and product_option.position == 3
-          assign legend = 'Custom treats & individual boxes'
+        assign option_name_lower = product_option.name | downcase
+        assign custom_count_option = false
+        if option_name_lower contains 'how many custom treats'
+          assign custom_count_option = true
+          assign legend = 'How many treats would you like custom?'
+        elsif option_name_lower contains 'flavor' or option_name_lower contains 'flavour'
+          assign legend = 'Choose your flavor'
         endif
       -%}
 
@@ -105,6 +117,15 @@
             assign canonical_option_id = ''
             assign canonical_variant_id = ''
             assign custom_count_label = ''
+            assign choice_boxed = false
+            for selected_option in value.variant.options
+              assign selected_option_lower = selected_option | downcase
+              if selected_option_lower contains 'individual'
+                unless selected_option_lower contains 'no individual'
+                  assign choice_boxed = true
+                endunless
+              endif
+            endfor
             if value.name contains 'half of my treats'
               assign custom_count_label = '6 custom treats'
             elsif value.name contains 'all of my treats'
@@ -151,10 +172,31 @@
               endfor
             endif
           -%}
-          {%- if normalize_custom_choices and product_option.position == 3 and custom_count_label != blank -%}
+          {%- if custom_count_option and custom_count_label != blank -%}
+            {%- liquid
+              assign custom_extra = 0
+              if value.name contains 'all of my treats' and value.variant.price != blank
+                for half_value in product_option.values
+                  assign half_value_lower = half_value.name | downcase
+                  assign half_boxed = false
+                  for half_selected_option in half_value.variant.options
+                    assign half_selected_option_lower = half_selected_option | downcase
+                    if half_selected_option_lower contains 'individual'
+                      unless half_selected_option_lower contains 'no individual'
+                        assign half_boxed = true
+                      endunless
+                    endif
+                  endfor
+                  if half_value_lower contains 'half of my treats' and half_boxed == choice_boxed and half_value.variant.price != blank
+                    assign custom_extra = value.variant.price | minus: half_value.variant.price
+                    break
+                  endif
+                endfor
+              endif
+            -%}
             {%- capture row_label -%}
-              <span class="ui-product-variant-picker__choice-name">{{ custom_count_label }}</span>
-              <span class="ui-product-variant-picker__choice-detail">{% if value.name contains 'With Individual Box' %}Individually boxed{% else %}Standard pack{% endif %}{% if value.variant.price != blank %} · <span class="ui-product-variant-picker__choice-price">{{ value.variant.price | money }} total</span>{% endif %}</span>
+              <span class="ui-product-variant-picker__choice-name">{{ custom_count_label }}{% if custom_extra > 0 %} <span class="ui-product-variant-picker__choice-extra">(+ {{ custom_extra | money }} from half custom)</span>{% endif %}</span>
+              <span class="ui-product-variant-picker__choice-detail">{% if choice_boxed %}Individually boxed{% else %}Standard pack{% endif %}{% if value.variant.price != blank %} · <span class="ui-product-variant-picker__choice-price">{{ value.variant.price | money }} total</span>{% endif %}</span>
             {%- endcapture -%}
             {%- if value.selected -%}{%- assign trigger_label = row_label -%}{%- endif -%}
           {%- endif -%}

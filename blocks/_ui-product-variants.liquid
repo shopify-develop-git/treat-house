@@ -16,10 +16,41 @@
 {%- enddoc -%}
 
 <div class="ui-product-variants" {{ block.shopify_attributes }}>
+  {%- assign custom_flavor_option = '' -%}
+  {%- liquid
+    assign has_custom_count = false
+    assign native_flavor_option = ''
+    assign standard_flavor_option = ''
+    for product_option in closest.product.options_with_values
+      assign option_name_lower = product_option.name | downcase
+      if option_name_lower contains 'how many custom treats'
+        assign has_custom_count = true
+      endif
+      if option_name_lower contains 'flavor' or option_name_lower contains 'flavour'
+        assign native_flavor_option = product_option.name
+        for option_value in product_option.values
+          if option_value.name == 'Standard Flavor'
+            assign standard_flavor_option = product_option.name
+          endif
+        endfor
+      endif
+    endfor
+    assign use_standard_flavors = false
+    if has_custom_count and native_flavor_option == ''
+      assign use_standard_flavors = true
+    elsif has_custom_count and standard_flavor_option != ''
+      assign use_standard_flavors = true
+      assign custom_flavor_option = standard_flavor_option
+    endif
+  -%}
+  {%- if use_standard_flavors -%}
+    {% render 'ui-custom-treat-flavors', product_resource: closest.product, option_name: custom_flavor_option %}
+  {%- endif -%}
   {% render 'ui-product-variant-picker',
     product_resource: closest.product,
     label_prefix: block.settings.label_prefix,
-    gift_box_image: block.settings.image
+    gift_box_image: block.settings.image,
+    hide_option_name: custom_flavor_option
   %}
 </div>
 
@@ -27,7 +58,9 @@
   .ui-product-variants {
     /* Nothing to draw of its own. It exists so the theme editor has an element to
        outline when the block is selected, and so the picker fills the column. */
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
   }
 {% endstylesheet %}
 

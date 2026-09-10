@@ -1,21 +1,9 @@
 {%- comment -%}
-  The box builder: four steps that end in one line item.
-
-  What the store already knows, and what this therefore does not decide:
-
-  The three pack sizes are three products, not one product with a size option, so
-  step 1 chooses a product. Packaging is that product's own two options — a gift
-  box, individually wrapped — so step 3 chooses a variant of it. Between them
-  every combination is a variant Shopify has already priced, which is why nothing
-  here adds money up: each packaging block publishes the price of the variant it
-  resolves to for every pack, and the summary shows whichever one is currently
-  chosen. A builder that totalled its own prices would eventually disagree with
-  the cart, and the cart would be right.
-
-  Flavours and the gift message are not variants — they are what the box holds
-  and what is written on the card — so they travel as line item properties.
-
-  The result is one `/cart/add`, no app, and a price that is Shopify's throughout.
+  The box builder chooses a pack size, individual flavor quantities, optional gift
+  box, and gift message. It posts one cart line per flavor and one existing gift-box
+  charge carrier, with shared box metadata. Shopify supplies every price.
+  The September 10 client call confirms one gift-box charge for every pack size
+  and no individual wrapping. Flavor totals remain bounded by the chosen size.
 {%- endcomment -%}
 
 {%- liquid
@@ -1125,18 +1113,9 @@
           "type": "_ui-box-packaging",
           "settings": {
             "title": "Gift Box",
-            "description": "Our signature box, gift-ready on arrival",
+            "description": "Our signature gift box",
             "gift_box": true,
             "individual_packs": false
-          }
-        },
-        {
-          "type": "_ui-box-packaging",
-          "settings": {
-            "title": "Individually Wrapped",
-            "description": "Wrapped one by one, for favors and sharing",
-            "gift_box": false,
-            "individual_packs": true
           }
         }
       ]
