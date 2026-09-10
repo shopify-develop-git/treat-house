@@ -1,0 +1,785 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "order": [
+    "main",
+    "whats_inside",
+    "why_choose_us",
+    "1787728711a4fa833f",
+    "related_products",
+    "recently_viewed",
+    "faq",
+    "newsletter"
+  ],
+  "sections": {
+    "1787728711a4fa833f": {
+      "block_order": [
+        "judge_me_reviews_review_widget_7wfqVA"
+      ],
+      "blocks": {
+        "heading": {
+          "blocks": {},
+          "settings": {
+            "accent_color": "",
+            "color": "",
+            "heading": "<h2>What <em>customers</em> say</h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "heading_tag": "h1",
+            "max_width": 510,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "source": "custom"
+          },
+          "static": true,
+          "type": "_ui-heading"
+        },
+        "judge_me_reviews_review_widget_7wfqVA": {
+          "settings": {
+            "empty_state": "empty_widget",
+            "max_width": 1200,
+            "review_data": "real_data",
+            "show_shop_reviews": false
+          },
+          "type": "shopify://apps/judge-me-reviews/blocks/review_widget/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8"
+        }
+      },
+      "settings": {
+        "color_scheme": "scheme-1",
+        "gap": 48,
+        "gap_mobile": 32,
+        "padding-block-end": 80,
+        "padding-block-start": 80
+      },
+      "type": "product-reviews"
+    },
+    "faq": {
+      "block_order": [
+        "kinds",
+        "customize",
+        "allergies",
+        "lead_time",
+        "storage"
+      ],
+      "blocks": {
+        "allergies": {
+          "blocks": {},
+          "settings": {
+            "answer": "<p>Check the ingredient and allergen information on your specific product label. If you have a dietary restriction, contact <a href=\"mailto:info@treathouse.com\">info@treathouse.com</a> before ordering.</p>",
+            "open": false,
+            "question": "Do you accommodate food allergies or dietary restrictions?"
+          },
+          "type": "_ui-faq-item"
+        },
+        "customize": {
+          "blocks": {},
+          "settings": {
+            "answer": "<p>Yes. Choose your own mix of flavors, add a printed photo, and include a gift message at checkout. For client and team gifts we can add your logo and colors.</p>",
+            "open": false,
+            "question": "Can I customize my order?"
+          },
+          "type": "_ui-faq-item"
+        },
+        "heading": {
+          "blocks": {},
+          "settings": {
+            "accent_color": "",
+            "color": "",
+            "heading": "<h2>How can <em>we help?</em></h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "heading_tag": "h1",
+            "max_width": 0,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "source": "custom"
+          },
+          "static": true,
+          "type": "_ui-heading"
+        },
+        "kinds": {
+          "blocks": {},
+          "settings": {
+            "answer": "<p>Handcrafted Krispie treats in twelve-packs, gift boxes and party bars, plus custom photo treats.</p>",
+            "open": false,
+            "question": "What types of treats do you offer?"
+          },
+          "type": "_ui-faq-item"
+        },
+        "lead_time": {
+          "blocks": {},
+          "settings": {
+            "answer": "<p>Orders ship as soon as possible by default. Enter your destination ZIP code in the cart for an estimated ground arrival range. If you need a later date, choose an available day and save your request. Final timing depends on your address and shipping method. For an event or larger order, contact our team before ordering to confirm timing.</p>",
+            "open": false,
+            "question": "How far in advance should I place my order?"
+          },
+          "type": "_ui-faq-item"
+        },
+        "storage": {
+          "blocks": {},
+          "settings": {
+            "answer": "<p>Follow the storage instructions on your package. Contact <a href=\"mailto:info@treathouse.com\">info@treathouse.com</a> for guidance on a specific treat.</p>",
+            "open": false,
+            "question": "How do I store my treats after receiving them?"
+          },
+          "type": "_ui-faq-item"
+        }
+      },
+      "settings": {
+        "color_scheme": "scheme-1",
+        "exclusive": true,
+        "heading_gap": 48,
+        "padding-block-end": 80,
+        "padding-block-start": 80,
+        "section_width": "page-width"
+      },
+      "type": "faq"
+    },
+    "main": {
+      "block_order": [
+        "title",
+        "rating",
+        "price",
+        "description",
+        "chips",
+        "rule_variants",
+        "variants",
+        "prompt",
+        "artwork",
+        "gift_message",
+        "rule_buy",
+        "buy",
+        "assurances",
+        "rule_details",
+        "shipping",
+        "panels"
+      ],
+      "blocks": {
+        "artwork": {
+          "blocks": {},
+          "settings": {
+            "label": "Upload your logo or photo"
+          },
+          "type": "_ui-product-artwork"
+        },
+        "assurances": {
+          "block_order": [
+            "packaging",
+            "handcrafted",
+            "share_love"
+          ],
+          "blocks": {
+            "handcrafted": {
+              "blocks": {},
+              "settings": {
+                "icon": "cookie",
+                "label": "Handmade in small batches"
+              },
+              "type": "_ui-product-assurance"
+            },
+            "packaging": {
+              "blocks": {},
+              "settings": {
+                "icon": "gift",
+                "label": "Packed with care"
+              },
+              "type": "_ui-product-assurance"
+            },
+            "share_love": {
+              "blocks": {},
+              "settings": {
+                "icon": "hand-holding-heart",
+                "label": "Made for sharing"
+              },
+              "type": "_ui-product-assurance"
+            }
+          },
+          "settings": {
+            "gap": 20,
+            "gap_mobile": 12,
+            "min_width": 120
+          },
+          "type": "_ui-product-assurances"
+        },
+        "buy": {
+          "blocks": {},
+          "settings": {
+            "buy_now_label": "Buy now",
+            "label": "Add to cart",
+            "show_accelerated_checkout": false,
+            "show_buy_now": false,
+            "show_price": true,
+            "show_quantity": true
+          },
+          "type": "_ui-product-buy"
+        },
+        "chips": {
+          "block_order": [
+            "gift_ready"
+          ],
+          "blocks": {
+            "gift_ready": {
+              "blocks": {},
+              "settings": {
+                "icon": "gift",
+                "label": "Gift message available"
+              },
+              "type": "_ui-product-chip"
+            }
+          },
+          "settings": {
+            "gap": 12,
+            "metafield": "product_chips"
+          },
+          "type": "_ui-product-chips"
+        },
+        "description": {
+          "blocks": {},
+          "settings": {
+            "color": "",
+            "max_width": 420,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "source": "product_description",
+            "text": "<p>Add the sentence that explains the section.</p>",
+            "text_size": 14,
+            "text_size_mobile": 14
+          },
+          "type": "_ui-text"
+        },
+        "gift_message": {
+          "blocks": {},
+          "settings": {
+            "button_label": "Add gift message",
+            "maxlength": 200,
+            "note": "Add a complimentary personalized note, printed on our signature card.",
+            "placeholder": "Write a few words for them",
+            "property": "Gift message",
+            "title": "Gift message"
+          },
+          "type": "_ui-product-gift-message"
+        },
+        "panels": {
+          "block_order": [
+            "ingredients",
+            "storage"
+          ],
+          "blocks": {
+            "ingredients": {
+              "blocks": {},
+              "settings": {
+                "body": "<p>For ingredient or allergen questions, contact <a href=\"mailto:info@treathouse.com\">info@treathouse.com</a> before ordering.</p>",
+                "collapsible": true,
+                "icon": "info-circle",
+                "intro": "Check the label for your specific product.",
+                "padding": "default",
+                "rows_metafield": "",
+                "title": "Ingredients & allergens"
+              },
+              "type": "_ui-product-panel"
+            },
+            "storage": {
+              "blocks": {},
+              "settings": {
+                "body": "<p>Contact <a href=\"mailto:info@treathouse.com\">info@treathouse.com</a> if you need storage guidance for a specific treat.</p>",
+                "collapsible": true,
+                "icon": "thermometer",
+                "intro": "Follow the storage instructions on your package.",
+                "padding": "default",
+                "rows_metafield": "",
+                "title": "Storage"
+              },
+              "type": "_ui-product-panel"
+            }
+          },
+          "settings": {
+            "gap": 12,
+            "metafield": "detail_panels"
+          },
+          "type": "_ui-product-panels"
+        },
+        "price": {
+          "blocks": {},
+          "settings": {
+            "show_compare_at": true,
+            "size": 24,
+            "size_mobile": 20
+          },
+          "type": "_ui-product-price"
+        },
+        "prompt": {
+          "blocks": {},
+          "settings": {
+            "link": "/pages/customize",
+            "link_label": "Build your own box",
+            "text": "Choose your flavors and build your own box."
+          },
+          "type": "_ui-product-prompt"
+        },
+        "rating": {
+          "blocks": {},
+          "settings": {
+            "gap": 11,
+            "layout": "inline",
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "rating_stars": 5,
+            "rating_text": "",
+            "reviews_text": "",
+            "source": "product",
+            "text_size": 14,
+            "text_size_mobile": 14
+          },
+          "type": "_ui-review-line"
+        },
+        "rule_buy": {
+          "blocks": {},
+          "settings": {
+            "color": "light-blue",
+            "space": 20,
+            "thickness": 1
+          },
+          "type": "_ui-rule"
+        },
+        "rule_details": {
+          "blocks": {},
+          "settings": {
+            "color": "light-blue",
+            "space": 20,
+            "thickness": 1
+          },
+          "type": "_ui-rule"
+        },
+        "rule_variants": {
+          "blocks": {},
+          "settings": {
+            "color": "light-blue",
+            "space": 20,
+            "thickness": 1
+          },
+          "type": "_ui-rule"
+        },
+        "shipping": {
+          "blocks": {},
+          "settings": {
+            "body": "",
+            "collapsible": false,
+            "icon": "shipping-fast",
+            "intro": "Shipping timing and options are shown at checkout.",
+            "padding": "tight",
+            "rows_metafield": "shipping_rows",
+            "title": "Shipping"
+          },
+          "type": "_ui-product-panel"
+        },
+        "title": {
+          "blocks": {},
+          "settings": {
+            "accent_color": "",
+            "color": "",
+            "heading": "<h2>Section heading</h2>",
+            "heading_size": 40,
+            "heading_size_mobile": 30,
+            "heading_tag": "h1",
+            "max_width": 0,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "source": "product_title"
+          },
+          "type": "_ui-heading"
+        },
+        "variants": {
+          "blocks": {},
+          "settings": {
+            "label_prefix": "Choose your"
+          },
+          "type": "_ui-product-variants"
+        }
+      },
+      "settings": {
+        "color_scheme": "scheme-1",
+        "column_gap": 64,
+        "details_gap": 24,
+        "media_position": "left",
+        "padding-block-end": 64,
+        "padding-block-start": 32,
+        "section_width": "page-width",
+        "show_badge": true,
+        "show_breadcrumb": true
+      },
+      "type": "product-main"
+    },
+    "newsletter": {
+      "block_order": [
+        "heading",
+        "body"
+      ],
+      "blocks": {
+        "body": {
+          "blocks": {},
+          "settings": {
+            "color": "",
+            "max_width": 0,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "source": "custom",
+            "text": "<p>Be first to hear about new flavors and seasonal boxes, plus a few ideas for the moments worth marking.</p>",
+            "text_size": 16,
+            "text_size_mobile": 14
+          },
+          "type": "_ui-text"
+        },
+        "cta": {
+          "blocks": {},
+          "settings": {
+            "full_width": false,
+            "label": "Shop treats",
+            "link": "/collections/all",
+            "open_in_new_tab": false,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "variant": "primary"
+          },
+          "static": true,
+          "type": "_ui-link"
+        },
+        "heading": {
+          "blocks": {},
+          "settings": {
+            "accent_color": "",
+            "color": "",
+            "heading": "<h2>Stay in touch</h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "heading_tag": "h1",
+            "max_width": 0,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "source": "custom"
+          },
+          "type": "_ui-heading"
+        },
+        "signup": {
+          "blocks": {},
+          "settings": {
+            "button_label": "Subscribe",
+            "field_label": "",
+            "placeholder": "Your email"
+          },
+          "static": true,
+          "type": "_ui-newsletter-form"
+        }
+      },
+      "settings": {
+        "action": "form",
+        "background": "purple",
+        "vertical_padding": 80,
+        "vertical_padding_mobile": 64
+      },
+      "type": "newsletter"
+    },
+    "recently_viewed": {
+      "blocks": {
+        "cta": {
+          "blocks": {},
+          "settings": {
+            "full_width": false,
+            "label": "",
+            "link": "",
+            "open_in_new_tab": false,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "variant": "primary"
+          },
+          "static": true,
+          "type": "_ui-link"
+        },
+        "heading": {
+          "blocks": {},
+          "settings": {
+            "accent_color": "",
+            "color": "",
+            "heading": "<h2><em>Recently</em> Viewed</h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "heading_tag": "h1",
+            "max_width": 0,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "source": "custom"
+          },
+          "static": true,
+          "type": "_ui-heading"
+        }
+      },
+      "settings": {
+        "background": "white",
+        "collection": "",
+        "color_scheme": "scheme-1",
+        "columns": 5,
+        "columns_md": 4,
+        "columns_sm": 3,
+        "cta_position": "below",
+        "heading_alignment": "center",
+        "max_products": 5,
+        "media_ratio": "240 / 215",
+        "padding-block-end": 80,
+        "padding-block-start": 80,
+        "products": [],
+        "section_width": "page-width",
+        "source": "recently_viewed"
+      },
+      "type": "best-sellers"
+    },
+    "related_products": {
+      "blocks": {
+        "cta": {
+          "blocks": {},
+          "settings": {
+            "full_width": false,
+            "label": "View all products",
+            "link": "shopify://collections/all",
+            "open_in_new_tab": false,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "variant": "primary"
+          },
+          "static": true,
+          "type": "_ui-link"
+        },
+        "heading": {
+          "blocks": {},
+          "settings": {
+            "accent_color": "",
+            "color": "",
+            "heading": "<h2>You might also like</h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "heading_tag": "h1",
+            "max_width": 0,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "source": "custom"
+          },
+          "static": true,
+          "type": "_ui-heading"
+        }
+      },
+      "settings": {
+        "background": "light-blue",
+        "collection": "",
+        "color_scheme": "scheme-1",
+        "columns": 5,
+        "columns_md": 4,
+        "columns_sm": 3,
+        "cta_position": "heading",
+        "heading_alignment": "start",
+        "max_products": 5,
+        "media_ratio": "240 / 215",
+        "padding-block-end": 80,
+        "padding-block-start": 80,
+        "products": [],
+        "section_width": "page-width",
+        "source": "related"
+      },
+      "type": "best-sellers"
+    },
+    "whats_inside": {
+      "block_order": [
+        "heading",
+        "cards"
+      ],
+      "blocks": {
+        "cards": {
+          "block_order": [
+            "packaging"
+          ],
+          "blocks": {
+            "packaging": {
+              "blocks": {},
+              "settings": {
+                "body": "<p>Add a gift box to your order for $6.</p>",
+                "link": "",
+                "title": "Gift box option"
+              },
+              "type": "_ui-inclusion-card"
+            }
+          },
+          "settings": {
+            "columns": 2,
+            "gap": 20,
+            "metafield": "whats_inside",
+            "products": []
+          },
+          "type": "_ui-inclusion-cards"
+        },
+        "heading": {
+          "blocks": {},
+          "settings": {
+            "accent_color": "",
+            "color": "",
+            "heading": "<h2>What's <em>Inside</em></h2>",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "heading_tag": "h1",
+            "max_width": 0,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "source": "custom"
+          },
+          "type": "_ui-heading"
+        }
+      },
+      "settings": {
+        "color_scheme": "",
+        "gap": 32,
+        "heading_alignment": "center",
+        "padding-block-end": 80,
+        "padding-block-start": 80,
+        "section_width": "page-width"
+      },
+      "type": "whats-inside"
+    },
+    "why_choose_us": {
+      "block_order": [
+        "made_fresh",
+        "ready_to_delight",
+        "celebrate"
+      ],
+      "blocks": {
+        "celebrate": {
+          "blocks": {},
+          "settings": {
+            "badge": "",
+            "body": "<p>Birthday, get well, congratulations, thank you, thinking of you, just because. A box that says someone took a moment.</p>",
+            "icon": "hand-holding-heart",
+            "title": "Made for the moment"
+          },
+          "type": "_ui-feature-card"
+        },
+        "heading": {
+          "blocks": {},
+          "settings": {
+            "accent_color": "",
+            "color": "",
+            "heading": "",
+            "heading_size": 48,
+            "heading_size_mobile": 32,
+            "heading_tag": "h1",
+            "max_width": 0,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "source": "custom"
+          },
+          "static": true,
+          "type": "_ui-heading"
+        },
+        "intro": {
+          "blocks": {},
+          "settings": {
+            "color": "",
+            "max_width": 0,
+            "padding_block_end": 0,
+            "padding_block_start": 0,
+            "source": "custom",
+            "text": "",
+            "text_size": 16,
+            "text_size_mobile": 16
+          },
+          "static": true,
+          "type": "_ui-text"
+        },
+        "made_fresh": {
+          "blocks": {},
+          "settings": {
+            "badge": "",
+            "body": "<p>Every Krispie treat is handcrafted in small batches once your order comes in.</p>",
+            "icon": "gift",
+            "title": "Made fresh to order"
+          },
+          "type": "_ui-feature-card"
+        },
+        "panel": {
+          "block_order": [
+            "panel_heading",
+            "panel_text"
+          ],
+          "blocks": {
+            "panel_heading": {
+              "blocks": {},
+              "settings": {
+                "accent_color": "",
+                "color": "",
+                "heading": "<h3>Handcrafted <em>with care</em></h3>",
+                "heading_size": 40,
+                "heading_size_mobile": 28,
+                "heading_tag": "h1",
+                "max_width": 0,
+                "padding_block_end": 0,
+                "padding_block_start": 0,
+                "source": "custom"
+              },
+              "type": "_ui-heading"
+            },
+            "panel_text": {
+              "blocks": {},
+              "settings": {
+                "color": "",
+                "max_width": 0,
+                "padding_block_end": 0,
+                "padding_block_start": 0,
+                "source": "custom",
+                "text": "<p>A modern take on the Krispie treat you grew up with. Every box is handmade, packed with care, and sent to make someone feel celebrated.</p>",
+                "text_size": 16,
+                "text_size_mobile": 16
+              },
+              "type": "_ui-text"
+            }
+          },
+          "settings": {
+            "image": "shopify://shop_images/birthday-krispie-treat-candle.webp",
+            "show_logo": false
+          },
+          "static": true,
+          "type": "_ui-feature-panel"
+        },
+        "ready_to_delight": {
+          "blocks": {},
+          "settings": {
+            "badge": "",
+            "body": "<p>Packed with care. Choose the gift-box option on the product page when it is offered.</p>",
+            "icon": "cookie",
+            "title": "Packed with care"
+          },
+          "type": "_ui-feature-card"
+        }
+      },
+      "settings": {
+        "background": "purple",
+        "card_background": "white",
+        "card_gap": 20,
+        "card_radius": 20,
+        "card_title_size": 24,
+        "color_scheme": "scheme-1",
+        "columns": 3,
+        "columns_md": 3,
+        "columns_sm": "1",
+        "heading_gap": 48,
+        "image": "shopify://shop_images/image_28.webp",
+        "media_position": "end",
+        "padding-block-end": 80,
+        "padding-block-start": 80,
+        "section_width": "page-width",
+        "show_lead": true
+      },
+      "type": "why-choose-us"
+    }
+  }
+}
