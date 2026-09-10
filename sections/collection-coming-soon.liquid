@@ -7,6 +7,9 @@
     {%- assign teaser_count = 0 -%}
     {%- capture teaser_cards -%}
       {%- for block in section.blocks -%}
+        {%- comment %}<locksmith:1a92>{% endcomment -%}
+          {%- capture var %}{% render 'locksmith-variables', scope: 'subject', subject: block.settings.collection, subject_parent: section, variable: 'transparent' %}{% endcapture %}{% if var == "true" %}{% else %}{% continue %}{% endif -%}
+        {%- comment %}</locksmith:1a92>{% endcomment -%}
         {%- liquid
           if block.settings.collection_handle != collection.handle
             continue
