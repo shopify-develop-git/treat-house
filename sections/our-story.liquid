@@ -46,7 +46,12 @@
       {%- assign image_filename = section.settings.image.src | split: '?' | first | split: '/' | last -%}
       {%- if section.settings.media_style == 'cut-out' and image_filename == 'image-without-bg.png' -%}
         {%- comment -%}Client-selected logo treat replaces only the former image placeholder. A new image-picker selection wins.{%- endcomment -%}
-        <img src="{{ 'th-custom-your-logo-cutout.webp' | asset_url }}" width="600" height="660" class="our-story__image" loading="lazy" alt="A Treat House treat printed with Your Logo Here">
+        <img
+          src="{{ 'th-custom-your-logo-cutout.webp' | asset_url }}&amp;width=480"
+          srcset="{{ 'th-custom-your-logo-cutout.webp' | asset_url }}&amp;width=240 240w, {{ 'th-custom-your-logo-cutout.webp' | asset_url }}&amp;width=360 360w, {{ 'th-custom-your-logo-cutout.webp' | asset_url }}&amp;width=480 480w, {{ 'th-custom-your-logo-cutout.webp' | asset_url }}&amp;width=600 600w"
+          sizes="auto, (min-width: 990px) 50vw, min(618px, calc(100vw - 32px))"
+          width="600" height="660" class="our-story__image" loading="lazy" alt="A Treat House treat printed with Your Logo Here"
+        >
       {%- elsif section.settings.image != blank -%}
         {% render 'image', image: section.settings.image, height: 552, class: 'our-story__image' %}
       {%- else -%}

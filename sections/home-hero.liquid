@@ -83,7 +83,7 @@
         {%- if section.settings.image != blank -%}
           {% render 'image', image: section.settings.image, height: 600, class: 'home-hero__image', loading: 'eager' %}
         {%- else -%}
-          <img src="{{ 'th-home-hero-approved.webp' | asset_url }}" width="2600" height="978" alt="An assortment of handcrafted Treat House crispy treats" class="home-hero__image" loading="eager" fetchpriority="high">
+          {% render 'home-hero-approved-image', mobile_height: section.settings.height_mobile, desktop_height: section.settings.height %}
         {%- endif -%}
 
         {%- if section.settings.show_badge and section.settings.badge_text != blank -%}

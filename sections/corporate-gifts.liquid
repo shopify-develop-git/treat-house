@@ -37,10 +37,20 @@
         {%- assign image_fit = section.settings[fit_key] | default: 'cover' -%}
         <div class="corporate-gifts__tile{% if image_fit == 'contain' %} corporate-gifts__tile--contain{% endif %}">
           {%- if image != blank -%}
-            {% render 'image', image: image, class: 'corporate-gifts__image' %}
+            {{
+              image
+              | image_url: width: 960
+              | image_tag:
+                widths: '240, 360, 480, 640, 800, 960',
+                sizes: '(min-width: 990px) max(25vw, 320px), 50vw',
+                loading: 'lazy',
+                class: 'corporate-gifts__image'
+            }}
           {%- elsif image_asset != blank -%}
             <img
-              src="{{ image_asset | asset_url }}"
+              src="{{ image_asset | asset_url }}&amp;width=480"
+              srcset="{{ image_asset | asset_url }}&amp;width=240 240w, {{ image_asset | asset_url }}&amp;width=360 360w, {{ image_asset | asset_url }}&amp;width=480 480w, {{ image_asset | asset_url }}&amp;width=640 640w, {{ image_asset | asset_url }}&amp;width=720 720w"
+              sizes="(min-width: 990px) max(25vw, 320px), 50vw"
               class="corporate-gifts__image"
               width="720"
               height="720"
