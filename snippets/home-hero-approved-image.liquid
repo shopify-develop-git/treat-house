@@ -1,0 +1,93 @@
+{%- doc -%}
+  Responsive delivery of the approved 2600 × 978 hero photograph. CDN crops only
+  its unused right edge. The full original height and left-center composition
+  remain visible at the same scale as the existing object-fit: cover treatment.
+
+  @param {number} mobile_height - The mobile media height in CSS pixels.
+  @param {number} desktop_height - The desktop media height in CSS pixels.
+{%- enddoc -%}
+{%- liquid
+  assign mobile_height = mobile_height | default: 416
+  assign desktop_height = desktop_height | default: 600
+  assign desktop_slot = 630
+  case settings.page_width
+    when 'normal'
+      assign desktop_slot = 950
+    when 'wide'
+      assign desktop_slot = 1190
+  endcase
+  comment
+    Below 480px the largest slot is 448px; below 750px it is 718px.
+    Above it, reserve the widest column for the selected page-width setting.
+    Rounding the crop outwards retains every pixel that cover can expose.
+  endcomment
+  assign phone_crop_width = 448.0 | times: 978 | divided_by: mobile_height | ceil | at_most: 2600
+  assign mobile_crop_width = 718.0 | times: 978 | divided_by: mobile_height | ceil | at_most: 2600
+  assign desktop_crop_width = desktop_slot | times: 978.0 | divided_by: desktop_height | ceil | at_most: 2600
+  assign phone_effective_width = phone_crop_width | times: mobile_height | divided_by: 978.0
+  assign mobile_effective_width = mobile_crop_width | times: mobile_height | divided_by: 978.0
+  assign desktop_effective_width = desktop_crop_width | times: desktop_height | divided_by: 978.0
+  assign candidate_widths = '360,540,720,900,1080,1440,1920' | split: ','
+  assign hero_asset_url = 'th-home-hero-approved.webp' | asset_url
+-%}
+{%- capture phone_srcset -%}
+  {%- for candidate in candidate_widths -%}
+    {%- assign candidate_width = candidate | plus: 0 -%}
+    {%- if candidate_width < phone_crop_width -%}
+      {%- assign candidate_height = candidate_width | times: 978.0 | divided_by: phone_crop_width | round -%}
+      {{- hero_asset_url }}&amp;width={{ candidate_width }}&amp;height={{ candidate_height }}&amp;crop=left {{ candidate_width }}w,
+    {%- endif -%}
+  {%- endfor -%}
+  {{- hero_asset_url }}&amp;width={{ phone_crop_width }}&amp;height=978&amp;crop=left {{ phone_crop_width }}w
+{%- endcapture -%}
+{%- capture mobile_srcset -%}
+  {%- for candidate in candidate_widths -%}
+    {%- assign candidate_width = candidate | plus: 0 -%}
+    {%- if candidate_width < mobile_crop_width -%}
+      {%- assign candidate_height = candidate_width | times: 978.0 | divided_by: mobile_crop_width | round -%}
+      {{- hero_asset_url }}&amp;width={{ candidate_width }}&amp;height={{ candidate_height }}&amp;crop=left {{ candidate_width }}w,
+    {%- endif -%}
+  {%- endfor -%}
+  {{- hero_asset_url }}&amp;width={{ mobile_crop_width }}&amp;height=978&amp;crop=left {{ mobile_crop_width }}w
+{%- endcapture -%}
+{%- capture desktop_srcset -%}
+  {%- for candidate in candidate_widths -%}
+    {%- assign candidate_width = candidate | plus: 0 -%}
+    {%- if candidate_width < desktop_crop_width -%}
+      {%- assign candidate_height = candidate_width | times: 978.0 | divided_by: desktop_crop_width | round -%}
+      {{- hero_asset_url }}&amp;width={{ candidate_width }}&amp;height={{ candidate_height }}&amp;crop=left {{ candidate_width }}w,
+    {%- endif -%}
+  {%- endfor -%}
+  {{- hero_asset_url }}&amp;width={{ desktop_crop_width }}&amp;height=978&amp;crop=left {{ desktop_crop_width }}w
+{%- endcapture -%}
+{%- comment -%}
+  Preload only the compact phone source. Shopify promotes this to a responsive
+  HTTP Link header, so it is discovered before this section's HTML is parsed.
+  The media condition and identical srcset avoid fetching a desktop fallback.
+{%- endcomment -%}
+{%- assign phone_preload_srcset = phone_srcset | strip | replace: '&amp;', '&' -%}
+{%- capture phone_sizes -%}max(calc(100vw - 32px), {{ phone_effective_width }}px){%- endcapture -%}
+{{- hero_asset_url | preload_tag: as: 'image', media: '(max-width: 479px)', imagesrcset: phone_preload_srcset, imagesizes: phone_sizes, fetchpriority: 'high' -}}
+<picture>
+  <source
+    media="(max-width: 479px)"
+    srcset="{{ phone_srcset | strip }}"
+    sizes="{{ phone_sizes }}"
+  >
+  <source
+    media="(max-width: 749px)"
+    srcset="{{ mobile_srcset | strip }}"
+    sizes="max(calc(100vw - 32px), {{ mobile_effective_width }}px)"
+  >
+  <img
+    src="{{ hero_asset_url }}&amp;width={{ desktop_crop_width }}&amp;height=978&amp;crop=left"
+    srcset="{{ desktop_srcset | strip }}"
+    sizes="(min-width: 1200px) max(min(calc((100vw - 180px) / 2), {{ desktop_slot }}px), {{ desktop_effective_width }}px), (min-width: 990px) max(calc((100vw - 100px) / 2), {{ desktop_effective_width }}px), max(630px, {{ desktop_effective_width }}px)"
+    width="{{ desktop_crop_width }}"
+    height="978"
+    alt="An assortment of handcrafted Treat House crispy treats"
+    class="home-hero__image"
+    loading="eager"
+    fetchpriority="high"
+  >
+</picture>
