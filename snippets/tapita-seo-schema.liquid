@@ -1,4 +1,3 @@
-
 {%- comment -%} Start Tapita Meta Data {%- endcomment -%}
 {%- assign pageType = request.page_type -%}
 {%- if pageType == 'product' or pageType == 'collection' or pageType == 'article' or pageType == 'list-collections' -%}
@@ -37,6 +36,9 @@
           {%- elsif templateType == "products" -%}
             {%- assign productNotValid = true -%}
             {%- for current_product_collection_handle in current_product_collection_handles -%}
+              {%- comment %}<locksmith:11a1>{% endcomment -%}
+                {%- capture var %}{% render 'locksmith-variables', scope: 'subject', subject: current_product_collection_handle, variable: 'transparent' %}{% endcapture %}{% if var == "true" %}{% else %}{% continue %}{% endif -%}
+              {%- comment %}</locksmith:11a1>{% endcomment -%}
               {%- if meta_apply_to_handles contains current_product_collection_handle -%}{%- assign productNotValid = false -%}{%- endif -%}
             {%- endfor -%}
             {%- if productNotValid -%}{%- continue -%}{%- endif -%}

@@ -1,6 +1,6 @@
-{%- comment %}<locksmith:1168>{% endcomment -%}
+{%- comment %}<locksmith:59c0>{% endcomment -%}
   {%- include 'locksmith' -%}
-{%- comment %}</locksmith:1168>{% endcomment -%}
+{%- comment %}</locksmith:59c0>{% endcomment -%}
 
 <!doctype html>
 <html
@@ -10,7 +10,9 @@
   lang="{{ request.locale.iso_code }}"
 >
   <head>
-    {{ locksmith_initializations }}
+ {{ locksmith_initializations }}
+ {%- if content_for_header contains 'tapita-seo-script-tags' -%}{%- include 'tapita-seo-schema' -%}{%- endif -%} 
+
     {%- if settings.favicon != blank -%}
       <link
         rel="icon"
