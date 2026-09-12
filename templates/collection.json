@@ -57,6 +57,7 @@
           "settings": {
             "collection_handle": "halloween",
             "title": "Halloween 12-Pack",
+            "price": 42,
             "image_asset": "th-coming-soon-halloween-12-pack-2026.webp",
             "product_handle": "12-pack-of-halloween-themed-treats"
           }
@@ -66,6 +67,7 @@
           "settings": {
             "collection_handle": "halloween",
             "title": "Halloween Deluxe Assortment",
+            "price": 99,
             "image_asset": "th-coming-soon-halloween-deluxe-2026.webp",
             "product_handle": "deluxe-assortment-of-halloween-themed-treats"
           }
@@ -84,6 +86,7 @@
           "settings": {
             "collection_handle": "thanksgiving",
             "title": "Thanksgiving Deluxe Gift Box",
+            "price": 109,
             "image_asset": "th-coming-soon-thanksgiving-deluxe-2026.jpg",
             "product_handle": "thanksgiving-deluxe-gift-box"
           }

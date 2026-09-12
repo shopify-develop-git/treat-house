@@ -30,6 +30,29 @@
       {%- else -%}
         <span class="corporate-band__link">{{ band_label | escape }}</span>
       {%- endif -%}
+      {%- if email_address != blank -%}
+        <th-copy-email
+          class="corporate-band__copy"
+          data-email="{{ email_address | escape }}"
+          data-success-message="{{ section.settings.copy_email_success | escape }}"
+          data-fallback-message="{{ section.settings.copy_email_fallback | escape }}"
+        >
+          <button type="button" class="ui-button corporate-band__copy-button" data-copy-email hidden>
+            {{ section.settings.copy_email_label | escape }}
+          </button>
+          <p class="corporate-band__copy-status" data-copy-status role="status" aria-live="polite"></p>
+          <input
+            class="corporate-band__copy-field"
+            data-copy-field
+            type="text"
+            value="{{ email_address | escape }}"
+            aria-label="{{ 'blocks.contact_form.email' | t }}"
+            readonly
+            hidden
+          >
+        </th-copy-email>
+        <script type="module" src="{{ 'th-copy-email.js' | asset_url }}"></script>
+      {%- endif -%}
       {%- if section.settings.form_link != blank -%}
         <a class="corporate-band__form" href="{{ section.settings.form_link | escape }}">Prefer a form? Tell us about your gift</a>
       {%- endif -%}
@@ -107,6 +130,63 @@
     overflow-wrap: anywhere;
   }
 
+  .corporate-band__copy {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 420px;
+    color: var(--ui-color-white);
+    font-family: var(--font-body--family);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .corporate-band .corporate-band__copy-button {
+    --ui-button-background: var(--ui-color-white);
+    --ui-button-color: var(--ui-color-primary);
+    --ui-button-border-color: var(--ui-color-white);
+    --ui-button-border-width: 1px;
+    --ui-button-font-size: 16px;
+    min-height: 44px;
+    max-width: 100%;
+  }
+
+  .corporate-band .corporate-band__copy-button:not(:disabled):hover {
+    --ui-button-background: var(--ui-color-sky-blue);
+    --ui-button-border-color: var(--ui-color-sky-blue);
+  }
+
+  .corporate-band .corporate-band__copy-button:focus-visible {
+    outline: 2px solid var(--ui-color-white);
+    outline-offset: 4px;
+  }
+
+  .corporate-band__copy-status {
+    margin: 0;
+  }
+
+  .corporate-band__copy-status:empty {
+    display: none;
+  }
+
+  .corporate-band__copy-field {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    border: 1px solid var(--ui-color-white);
+    border-radius: var(--ui-radius-sm);
+    padding: 10px 12px;
+    background: var(--ui-color-white);
+    color: var(--ui-color-primary);
+    font: inherit;
+  }
+
+  .corporate-band__copy [hidden] {
+    display: none;
+  }
+
   .corporate-band__form {
     color: var(--ui-color-white);
     font-family: var(--font-body--family);
@@ -145,6 +225,24 @@
       "id": "form_link",
       "label": "Inquiry form link",
       "info": "An alternative for customers who do not use an email app."
+    },
+    {
+      "type": "text",
+      "id": "copy_email_label",
+      "label": "Copy email button label",
+      "default": "Copy email address"
+    },
+    {
+      "type": "text",
+      "id": "copy_email_success",
+      "label": "Email copied message",
+      "default": "Email address copied."
+    },
+    {
+      "type": "text",
+      "id": "copy_email_fallback",
+      "label": "Manual copy message",
+      "default": "Select and copy the email address below."
     },
     {
       "type": "header",

@@ -426,6 +426,7 @@
       "box-flavours"
     ],
     "seasonal_hub_collections": [
+      "fall",
       "halloween",
       "thanksgiving",
       "winter-treats",
@@ -445,7 +446,8 @@
     "season_evergreen_products": [
       "congratulations-12-pack",
       "congratulations-deluxe-gift-box",
-      "12-pack-of-fall-themed-treats"
+      "12-pack-of-fall-themed-treats",
+      "apples-and-honey-treats"
     ],
     "get_well_retail_products": [
       "get-well-soon-pack",

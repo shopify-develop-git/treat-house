@@ -72,14 +72,24 @@
   # not commission.
   assign ratio = section.settings.image_ratio
   assign ratio_value = ''
+  assign cover_max_width = hero_article.image.width | default: 0
+  assign cover_render_width = cover_max_width | at_most: 3840
+  assign cover_height = hero_article.image.height | default: 0
   case ratio
     when 'wide'
       assign ratio_value = '16 / 9'
+      assign cover_max_width = cover_height | times: 16 | divided_by: 9.0 | floor | at_most: cover_max_width
     when 'landscape'
       assign ratio_value = '3 / 2'
+      assign cover_max_width = cover_height | times: 3 | divided_by: 2.0 | floor | at_most: cover_max_width
     when 'square'
       assign ratio_value = '1 / 1'
+      assign cover_max_width = cover_height | at_most: cover_max_width
   endcase
+  assign cover_source_scale = 1
+  if cover_max_width > 0
+    assign cover_source_scale = hero_article.image.width | times: 1.0 | divided_by: cover_max_width | round: 4
+  endif
 -%}
 
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
@@ -157,21 +167,29 @@
     {%- if section.settings.show_image and hero_article.image != blank -%}
       <div
         class="article-hero__media{% if ratio_value != blank %} article-hero__media--fixed{% endif %}"
-        {% if ratio_value != blank %}style="--article-hero-ratio: {{ ratio_value }};"{% endif %}
+        style="--article-hero-media-max-width: {{ cover_max_width }}px;{% if ratio_value != blank %} --article-hero-ratio: {{ ratio_value }};{% endif %}"
       >
+        {%- assign cover_width_candidates = '160, 240, 320, 480, 720, 960, 1280, 1600, 1920, 2560, 3200, 3840' | split: ', ' -%}
+        {%- capture cover_widths -%}
+          {%- for candidate in cover_width_candidates -%}
+            {%- assign candidate_width = candidate | plus: 0 -%}
+            {%- if candidate_width < cover_render_width -%}{{ candidate_width }},{%- endif -%}
+          {%- endfor -%}
+          {{- cover_render_width -}}
+        {%- endcapture -%}
         {%- comment -%}
-          Width descriptors and a `sizes` cut from the gutter ladder in
-          `CLAUDE.md`, not the 1x/2x/3x [image] hands out — this box is the whole
-          page column, which is three different widths across the range. Eager,
-          and with `fetchpriority`: on an article page this is the largest thing
-          above the fold and what the page is measured on.
+          Do not upscale a small upload. For a fixed crop, sizes includes the
+          hidden horizontal pixels so wide originals remain sharp at full height.
         {%- endcomment -%}
+        {%- capture cover_sizes -%}
+          (min-width: 1440px) calc(min(1280px, {{ cover_max_width }}px) * {{ cover_source_scale }}), (min-width: 1200px) calc(min(calc(100vw - 160px), {{ cover_max_width }}px) * {{ cover_source_scale }}), (min-width: 750px) calc(min(calc(100vw - 80px), {{ cover_max_width }}px) * {{ cover_source_scale }}), calc(min(calc(100vw - 32px), {{ cover_max_width }}px) * {{ cover_source_scale }})
+        {%- endcapture -%}
         {{
           hero_article.image
-          | image_url: width: 2560
+          | image_url: width: cover_render_width
           | image_tag:
-            widths: '480, 720, 960, 1280, 1600, 1920, 2560',
-            sizes: '(min-width: 1440px) 1280px, (min-width: 1200px) calc(100vw - 160px), (min-width: 750px) calc(100vw - 80px), calc(100vw - 32px)',
+            widths: cover_widths,
+            sizes: cover_sizes,
             class: 'article-hero__image',
             loading: 'eager',
             fetchpriority: 'high',
@@ -282,9 +300,16 @@
    * keeps the corners.
    */
   .article-hero__media {
+    align-self: center;
+    inline-size: 100%;
+    max-inline-size: var(--article-hero-media-max-width, 100%);
     overflow: hidden;
     border-radius: var(--article-hero-media-radius, 20px);
     background-color: var(--ui-color-light-blue);
+  }
+
+  .article-hero--left .article-hero__media {
+    align-self: flex-start;
   }
 
   .article-hero__media--fixed {
@@ -294,12 +319,13 @@
   .article-hero__image {
     display: block;
     inline-size: 100%;
-    block-size: 100%;
+    block-size: auto;
     /* Square corners on the photograph; the box it sits in is what is rounded. */
     border-radius: 0;
   }
 
   .article-hero__media--fixed .article-hero__image {
+    block-size: 100%;
     object-fit: cover;
   }
 
@@ -444,7 +470,7 @@
       "type": "range",
       "id": "content_width",
       "label": "t:settings.content_width",
-      "info": "Where the title and the details wrap. The picture below them always fills the page column.",
+      "info": "Where the title and the details wrap. Large pictures fill the page column; smaller originals keep their natural size.",
       "min": 480,
       "max": 1280,
       "step": 20,

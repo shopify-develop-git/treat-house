@@ -43,6 +43,9 @@
           <div class="collection-coming-soon__details">
             <span class="collection-coming-soon__badge">{{ 'products.product.coming_soon' | t }}</span>
             <h3>{{ block.settings.title | escape }}</h3>
+            {%- if block.settings.price > 0 -%}
+              <p class="collection-coming-soon__price">{{ block.settings.price | times: 100 | money }}</p>
+            {%- endif -%}
           </div>
         </li>
       {%- endfor -%}
@@ -148,6 +151,14 @@
     line-height: 1.4;
     overflow-wrap: anywhere;
   }
+  .collection-coming-soon__price {
+    margin: 10px 0 0;
+    color: var(--ui-color-primary);
+    font-family: var(--ui-font-body);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
   @media (max-width: 749px) {
     .collection-coming-soon {
       padding-block: 32px 0;
@@ -193,6 +204,7 @@
       "settings": [
         {"type": "select", "id": "collection_handle", "label": "Collection", "options": [{"value": "halloween", "label": "Halloween"}, {"value": "thanksgiving", "label": "Thanksgiving"}], "default": "halloween"},
         {"type": "text", "id": "title", "label": "Title"},
+        {"type": "number", "id": "price", "label": "Confirmed price (USD)", "default": 0, "info": "Shown only when greater than zero. Leave at zero until the price is confirmed."},
         {"type": "image_picker", "id": "image", "label": "Image"},
         {"type": "text", "id": "image_asset", "label": "Theme image filename", "info": "Used only when no image is selected above."},
         {"type": "text", "id": "product_handle", "label": "Existing product handle", "info": "Optional. This preview hides when the associated product becomes published. Leave blank if no product exists."}
