@@ -312,6 +312,7 @@
   },
   "products": {
     "product": {
+      "ordering_opens": "Pedidos disponibles a partir del {{ date }}",
       "add_to_cart": "Agregar al carrito",
       "added_to_cart": "Agregado al carrito",
       "adding_to_cart": "Agregando...",

@@ -306,6 +306,7 @@
   },
   "products": {
     "product": {
+      "ordering_opens": "Поръчките започват на {{ date }}",
       "add_to_cart": "Добавяне към количката",
       "adding_to_cart": "Добавяне...",
       "added_to_cart": "Добавено в количката",

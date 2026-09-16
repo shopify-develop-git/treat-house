@@ -306,6 +306,7 @@
   },
   "products": {
     "product": {
+      "ordering_opens": "Οι παραγγελίες ξεκινούν στις {{ date }}",
       "add_to_cart": "Προσθήκη στο καλάθι",
       "added_to_cart": "Προστέθηκε στο καλάθι",
       "adding_to_cart": "Προσθήκη...",

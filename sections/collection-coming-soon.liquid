@@ -4,6 +4,7 @@
 {%- if collection_access == 'true' -%}
   {%- assign upcoming_handles = settings.season_upcoming_collections | map: 'handle' -%}
   {%- if upcoming_handles contains collection.handle -%}
+    {%- capture opening_label -%}{%- render 'season-opening-label', collection: collection -%}{%- endcapture -%}
     {%- assign teaser_count = 0 -%}
     {%- capture teaser_cards -%}
       {%- for block in section.blocks -%}
@@ -41,7 +42,7 @@
             {%- endif -%}
           </div>
           <div class="collection-coming-soon__details">
-            <span class="collection-coming-soon__badge">{{ 'products.product.coming_soon' | t }}</span>
+            <span class="collection-coming-soon__badge">{{ opening_label | escape }}</span>
             <h3>{{ block.settings.title | escape }}</h3>
             {%- if block.settings.price > 0 -%}
               <p class="collection-coming-soon__price">{{ block.settings.price | times: 100 | money }}</p>
@@ -54,7 +55,7 @@
       <div class="section section--page-width collection-coming-soon" data-seasonal-preview>
         <section class="collection-coming-soon__content" aria-labelledby="ComingSoon-{{ section.id }}">
           <div class="collection-coming-soon__intro">
-            <h2 id="ComingSoon-{{ section.id }}">{{ 'products.product.coming_soon' | t }}</h2>
+            <h2 id="ComingSoon-{{ section.id }}">{{ opening_label | escape }}</h2>
             {%- if section.settings.description != blank -%}
               <p>{{ section.settings.description | escape }}</p>
             {%- endif -%}

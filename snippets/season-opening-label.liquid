@@ -1,0 +1,53 @@
+{%- doc -%}
+  Formats the merchant's opening date without changing purchase availability.
+  Product dates override inherited collection dates. Conflicting collection
+  dates and stale or invalid dates retain the Coming soon fallback.
+
+  @param {object} [product] - Product with an optional opening date.
+  @param {object} [collection] - Collection with an optional opening date.
+  @param {string} [opening_date] - Explicit date for a reusable label.
+{%- enddoc -%}
+{%- liquid
+  assign date_value = opening_date | default: '' | append: '' | strip
+  if date_value == blank and product != blank
+    assign date_value = product.metafields.custom.season_ordering_opens.value | default: '' | append: '' | strip
+    if date_value == blank and product.metafields.custom.internal_vendor == blank
+      assign upcoming_handles = settings.season_upcoming_collections | map: 'handle'
+      assign conflicting_dates = false
+      for dated_collection in product.collections
+        unless upcoming_handles contains dated_collection.handle
+          continue
+        endunless
+        capture collection_visible
+          render 'locksmith-variables', scope: 'subject', subject: dated_collection, subject_parent: product, variable: 'transparent'
+        endcapture
+        unless collection_visible == 'true'
+          continue
+        endunless
+        assign candidate_date = dated_collection.metafields.custom.season_ordering_opens.value | default: '' | append: '' | strip
+        if candidate_date != blank
+          if date_value != blank and date_value != candidate_date
+            assign conflicting_dates = true
+            break
+          endif
+          assign date_value = candidate_date
+        endif
+      endfor
+      if conflicting_dates
+        assign date_value = ''
+      endif
+    endif
+  elsif date_value == blank and collection != blank
+    assign date_value = collection.metafields.custom.season_ordering_opens.value | default: '' | append: '' | strip
+  endif
+
+  assign label = 'products.product.coming_soon' | t
+  assign canonical_date = date_value | date: '%Y-%m-%d'
+  assign opening_day = date_value | date: '%Y%m%d' | plus: 0
+  assign current_day = 'now' | date: '%Y%m%d' | plus: 0
+  if date_value.size == 10 and canonical_date == date_value and opening_day >= current_day
+    assign readable_date = date_value | date: format: 'abbreviated_date'
+    assign label = 'products.product.ordering_opens' | t: date: readable_date
+  endif
+  echo label
+-%}

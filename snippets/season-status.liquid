@@ -20,8 +20,9 @@
   4. Otherwise `available`.
 
   The label is `product.metafields.custom.season_label` when filled (e.g. "Back
-  for Halloween"), else the locale's `products.product.coming_soon` or
-  `products.product.closed_season`. It is empty for an available product.
+  for Halloween"). Upcoming products otherwise show their configured product
+  or collection opening date, falling back to Coming soon. Closed products use
+  the closed-season label. Dates never change purchase availability.
 
   Outputs `status|label`. Liquid cannot hand a variable back out of `render`,
   so the caller captures and splits, in two lines:
@@ -106,7 +107,9 @@
     if meta_label != blank
       assign season_label = meta_label
     elsif season_status == 'coming_soon'
-      assign season_label = 'products.product.coming_soon' | t
+      capture season_label
+        render 'season-opening-label', product: product
+      endcapture
     else
       assign season_label = 'products.product.closed_season' | t
     endif

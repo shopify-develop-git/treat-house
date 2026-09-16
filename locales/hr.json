@@ -312,6 +312,7 @@
   },
   "products": {
     "product": {
+      "ordering_opens": "Narudžbe primamo od {{ date }}",
       "add_to_cart": "Dodaj u košaricu",
       "added_to_cart": "Dodano u košaricu",
       "adding_to_cart": "Dodavanje...",

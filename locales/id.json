@@ -306,6 +306,7 @@
   },
   "products": {
     "product": {
+      "ordering_opens": "Pemesanan dibuka pada {{ date }}",
       "add_to_cart": "Tambahkan ke keranjang",
       "added_to_cart": "Ditambahkan ke keranjang",
       "adding_to_cart": "Menambahkan...",

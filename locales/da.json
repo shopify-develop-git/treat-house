@@ -306,6 +306,7 @@
   },
   "products": {
     "product": {
+      "ordering_opens": "Der kan bestilles fra {{ date }}",
       "add_to_cart": "Læg i indkøbskurven",
       "added_to_cart": "Lagt i indkøbskurv",
       "adding_to_cart": "Tilføjer...",

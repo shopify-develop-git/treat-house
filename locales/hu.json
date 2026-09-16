@@ -329,6 +329,7 @@
   },
   "products": {
     "product": {
+      "ordering_opens": "Rendelésfelvétel kezdete: {{ date }}",
       "add_to_cart": "Hozzáadás a kosárhoz",
       "adding_to_cart": "Hozzáadás…",
       "added_to_cart": "Hozzáadva a kosárhoz",

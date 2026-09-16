@@ -375,6 +375,7 @@
   },
   "products": {
     "product": {
+      "ordering_opens": "Ordering opens {{ date }}",
       "add_to_cart": "Add to cart",
       "adding_to_cart": "Adding...",
       "added_to_cart": "Added to cart",

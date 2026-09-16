@@ -336,6 +336,7 @@
   },
   "products": {
     "product": {
+      "ordering_opens": "Ordini aperti dal {{ date }}",
       "add_to_cart": "Aggiungi al carrello",
       "adding_to_cart": "Aggiunta in corso...",
       "added_to_cart": "Aggiunto al carrello",

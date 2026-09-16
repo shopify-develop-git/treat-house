@@ -318,6 +318,7 @@
   },
   "products": {
     "product": {
+      "ordering_opens": "Objednávky přijímáme od {{ date }}",
       "add_to_cart": "Přidat do košíku",
       "adding_to_cart": "Přidávání do košíku...",
       "added_to_cart": "Přidáno do košíku",

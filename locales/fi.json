@@ -306,6 +306,7 @@
   },
   "products": {
     "product": {
+      "ordering_opens": "Tilauksia voi tehdä {{ date }} alkaen",
       "add_to_cart": "Lisää ostoskoriin",
       "added_to_cart": "Lisätty ostoskoriin",
       "adding_to_cart": "Lisätään...",

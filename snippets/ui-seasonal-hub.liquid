@@ -20,7 +20,7 @@
             {%- capture var %}{% render 'locksmith-variables', scope: 'subject', subject: upcoming_collection, subject_parent: settings, variable: 'transparent' %}{% endcapture %}{% if var == "true" %}{% else %}{% continue %}{% endif -%}
           {%- comment %}</locksmith:e90a>{% endcomment -%}
           {%- if upcoming_collection.handle == seasonal_collection.handle -%}
-            {%- assign seasonal_description = 'products.product.coming_soon' | t -%}
+            {%- capture seasonal_description -%}{%- render 'season-opening-label', collection: seasonal_collection -%}{%- endcapture -%}
             {%- break -%}
           {%- endif -%}
         {%- endfor -%}
