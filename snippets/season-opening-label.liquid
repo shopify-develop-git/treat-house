@@ -15,6 +15,19 @@
       assign upcoming_handles = settings.season_upcoming_collections | map: 'handle'
       assign conflicting_dates = false
       for dated_collection in product.collections
+        comment
+          <locksmith:725d> Code added automatically by the Locksmith app. Do not modify or remove.
+        endcomment
+        capture var
+          render 'locksmith-variables', scope: 'subject', subject: dated_collection, subject_parent: product, variable: 'transparent'
+        endcapture
+        if var == "true"
+        else
+          continue
+        endif
+        comment
+          </locksmith:725d> End Locksmith code block.
+        endcomment
         unless upcoming_handles contains dated_collection.handle
           continue
         endunless
