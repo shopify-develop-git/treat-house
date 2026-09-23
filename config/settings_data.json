@@ -12,6 +12,7 @@
     "logo": "shopify://shop_images/treat-house-logo.webp",
     "logo_height": 47,
     "logo_height_mobile": 62,
+    "ui_light_blue": "#acd9f0",
     "contact_phone": "212-799-7779",
     "contact_email": "info@treathouse.com",
     "social_facebook_url": "",
@@ -19,6 +20,43 @@
     "social_x_url": "",
     "social_pinterest_url": "",
     "channel_hide_enabled": true,
+    "channel_open_collections": "reachdesk, reachdesk-copy, wholesale-page, wholesale, overture-catalog, for-overture",
+    "title_hidden_words": "RD",
+    "seasonal_hub_collections": [
+      "fall",
+      "halloween",
+      "thanksgiving",
+      "winter-treats",
+      "christmas-treats",
+      "hanukkah",
+      "valentines-day"
+    ],
+    "season_closed_collections": [
+      "graduation",
+      "mothers-day-1",
+      "fathers-day-1",
+      "spring-holidays"
+    ],
+    "season_closed_products": [
+      "st-patricks-day-12-pack"
+    ],
+    "season_evergreen_products": [
+      "congratulations-12-pack",
+      "congratulations-deluxe-gift-box",
+      "12-pack-of-fall-themed-treats",
+      "apples-and-honey-treats"
+    ],
+    "season_upcoming_collections": [
+      "halloween",
+      "thanksgiving",
+      "winter-treats",
+      "christmas-treats",
+      "hanukkah",
+      "valentines-day"
+    ],
+    "retail_hidden_collections": [
+      "box-flavours"
+    ],
     "retail_hidden_products": [
       "12-pack-of-custom-treats-2",
       "mnmdonut",
@@ -28,8 +66,14 @@
       "baby-shower",
       "baby-shower-1"
     ],
-    "channel_open_collections": "reachdesk, reachdesk-copy, wholesale-page, wholesale, overture-catalog, for-overture",
-    "title_hidden_words": "RD",
+    "get_well_retail_products": [
+      "get-well-soon-pack",
+      "get-well-soon-deluxe-gift-box"
+    ],
+    "congratulations_retail_products": [
+      "congratulations-12-pack",
+      "congratulations-deluxe-gift-box"
+    ],
     "type_body_font": "nunito_n4",
     "type_subheading_font": "nunito_n6",
     "type_heading_font": "nunito_n7",
@@ -82,9 +126,14 @@
     "show_cart_shipping_estimate": true,
     "cart_shipping_from": "Long Island City, NY 11101",
     "cart_shipping_method": "FedEx or UPS",
+    "cart_production_business_days": 1,
+    "cart_order_cutoff_hour": 17,
+    "cart_production_blackout_dates": "",
+    "cart_transit_blackout_dates": "",
     "show_cart_delivery_date": true,
     "cart_delivery_disabled_weekdays": "0,6",
     "cart_delivery_blackout_dates": "",
+    "cart_delivery_choose_label": "Request a later delivery date",
     "drawer_drop_shadow": true,
     "icon_stroke": "default",
     "input_border_width": 1,
@@ -129,6 +178,11 @@
       },
       "319724205969189013": {
         "type": "shopify://apps/hulk-form-builder/blocks/app-embed/b6b8dd14-356b-4725-a4ed-77232212b3c3",
+        "disabled": false,
+        "settings": {}
+      },
+      "1513253815146976218": {
+        "type": "shopify://apps/omnisend-email-marketing-sms/blocks/app-embed/44704aa2-794f-4c5d-8c8e-039c841158e9",
         "disabled": false,
         "settings": {}
       }
@@ -407,56 +461,7 @@
           "selected_variant_hover_border_color": "#505050"
         }
       }
-    },
-    "season_closed_collections": [
-      "graduation",
-      "mothers-day-1",
-      "fathers-day-1",
-      "spring-holidays"
-    ],
-    "season_upcoming_collections": [
-      "halloween",
-      "thanksgiving",
-      "winter-treats",
-      "christmas-treats",
-      "hanukkah",
-      "valentines-day"
-    ],
-    "retail_hidden_collections": [
-      "box-flavours"
-    ],
-    "seasonal_hub_collections": [
-      "fall",
-      "halloween",
-      "thanksgiving",
-      "winter-treats",
-      "christmas-treats",
-      "hanukkah",
-      "valentines-day"
-    ],
-    "ui_light_blue": "#acd9f0",
-    "season_closed_products": [
-      "st-patricks-day-12-pack"
-    ],
-    "cart_production_business_days": 1,
-    "cart_order_cutoff_hour": 17,
-    "cart_production_blackout_dates": "",
-    "cart_transit_blackout_dates": "",
-    "cart_delivery_choose_label": "Request a later delivery date",
-    "season_evergreen_products": [
-      "congratulations-12-pack",
-      "congratulations-deluxe-gift-box",
-      "12-pack-of-fall-themed-treats",
-      "apples-and-honey-treats"
-    ],
-    "get_well_retail_products": [
-      "get-well-soon-pack",
-      "get-well-soon-deluxe-gift-box"
-    ],
-    "congratulations_retail_products": [
-      "congratulations-12-pack",
-      "congratulations-deluxe-gift-box"
-    ]
+    }
   },
   "presets": {
     "Horizon": {
