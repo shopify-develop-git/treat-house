@@ -166,6 +166,7 @@
       "name": "Home hero",
       "settings": {
         "mobile_product_focus": true,
+        "image": "shopify://shop_images/treat-house-halloween-hero-20260928.png",
         "color_scheme": "",
         "show_badge": true,
         "badge_figure": "Certified",
