@@ -65,6 +65,7 @@
   {%- render 'locksmith-variables', scope: 'subject', subject: product_resource, variable: 'access_granted' -%}
 {%- endcapture -%}
 {%- if product_access == 'true' -%}
+{% render 'th-product-structured-data', product: product_resource %}
 {%- comment -%}
   The gallery badge reads the same tag list the product cards read, so a product
   tagged Bestsellers says so on the card and again on its own page without the

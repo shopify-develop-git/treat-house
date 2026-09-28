@@ -93,11 +93,23 @@ async function removeBox(keys) {
   });
 
   if (!response.ok) return;
+  const cart = await response.json();
 
   // The same event Horizon raises after its own cart writes, so the drawer, the
   // count and the summary refresh the way they do everywhere else rather than
   // this needing to know how any of them are built.
-  document.dispatchEvent(new CustomEvent('cart:update', { bubbles: true, detail: { source: 'cart-box-lines' } }));
+  document.dispatchEvent(new CustomEvent('cart:update', {
+    bubbles: true,
+    detail: {
+      resource: cart,
+      sourceId: 'cart-box-lines',
+      data: {
+        source: 'cart-box-lines',
+        itemCount: cart.item_count,
+        sections: cart.sections,
+      },
+    },
+  }));
 }
 
 document.addEventListener(

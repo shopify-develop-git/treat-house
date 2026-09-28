@@ -1,0 +1,53 @@
+{%- doc -%}
+  Renders native Shopify product schema only for public retail purchase paths.
+  Restricted variants, seasonal closures and custom-box ingredients are excluded.
+
+  @param {product} product - The product whose page is being rendered.
+{%- enddoc -%}
+{%- liquid
+  assign render_schema = true
+  if product == blank or request.visual_preview_mode
+    assign render_schema = false
+  endif
+
+  capture off_channel
+    render 'channel-hidden', product: product
+  endcapture
+  capture purchase_path
+    render 'product-purchase-path', product: product
+  endcapture
+  capture season
+    render 'season-status', product: product
+  endcapture
+  assign purchase_path = purchase_path | strip
+  assign season_status = season | strip | split: '|' | first
+  if off_channel != blank or purchase_path == 'builder' or season_status != 'available'
+    assign render_schema = false
+  endif
+
+  assign ingredient_collections = product.collections | map: 'handle'
+  if ingredient_collections contains 'box-flavours'
+    assign render_schema = false
+  endif
+  assign ingredient_handles = 'triple-threat,caramel-sea-salt,birthday-cake,bubble-gum,funn-fruity,chocolate-peanut-butter,hot-cocoa,mm,smores,chocolate-chip,salted-butter-dot' | split: ','
+  if ingredient_handles contains product.handle
+    assign render_schema = false
+  endif
+
+  if render_schema
+    for variant in product.variants
+      capture restriction
+        render 'variant-purchase-restriction', product: product, variant: variant
+      endcapture
+      if restriction != blank
+        assign render_schema = false
+        break
+      endif
+    endfor
+  endif
+-%}
+{%- if render_schema -%}
+  <script type="application/ld+json">
+    {{ product | structured_data }}
+  </script>
+{%- endif -%}
