@@ -41,7 +41,7 @@
           "settings": {
             "source": "custom",
             "max_words": 0,
-            "text": "<p>A modern take on the crispy treat you grew up with. Handcrafted and perfect for birthdays, thank yous, and just because.</p>",
+            "text": "<p>Handcrafted Krispie treats for birthdays, thank yous, client gifting, and just because.</p>",
             "text_size": 16,
             "text_size_mobile": 16,
             "max_width": 0,
@@ -172,6 +172,7 @@
         "badge_text": "gluten-free",
         "height": 600,
         "height_mobile": 416,
+        "mobile_product_focus": true,
         "content_position": "center",
         "show_reviews": false,
         "show_marquee": false,
