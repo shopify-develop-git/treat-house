@@ -87,7 +87,7 @@
         {%- if section.settings.image != blank -%}
           {%- if mobile_product_focus -%}
             <picture>
-              <source media="(max-width: 749px)" srcset="{{ 'th-home-hero-mm-20260928.webp' | asset_url }}" width="720" height="720">
+              <source media="(max-width: 749px)" srcset="{{ 'th-home-hero-mm-transparent-20260928.webp' | asset_url }}" width="600" height="600">
           {%- endif -%}
           {% render 'image', image: section.settings.image, height: 600, class: 'home-hero__image', loading: 'eager' %}
           {%- if mobile_product_focus -%}</picture>{%- endif -%}
@@ -603,7 +603,7 @@
       width: clamp(140px, 27svh, 190px);
       height: clamp(140px, 27svh, 190px);
       margin-inline: auto;
-      border-radius: 50%;
+      border-radius: 0;
       object-fit: contain;
       object-position: center;
     }
