@@ -85,11 +85,15 @@ function keysForBox(root, boxId) {
 async function removeBox(keys) {
   const updates = {};
   for (const key of keys) updates[key] = 0;
+  const sections = [...new Set(
+    Array.from(document.querySelectorAll('cart-items-component'), component => component.dataset.sectionId)
+      .filter(Boolean)
+  )].slice(0, 5);
 
   const response = await fetch('/cart/update.js', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ updates }),
+    body: JSON.stringify({ updates, sections, sections_url: window.location.pathname }),
   });
 
   if (!response.ok) return;
