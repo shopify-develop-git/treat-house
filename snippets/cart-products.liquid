@@ -421,12 +421,14 @@
                         A box comes out whole. Removing one flavour from it would leave
                         a packed box with nothing in it, or treats with nothing to go
                         in, so the button carries the box's mark and [cart-box-lines]
-                        clears every line wearing it. Horizon's own handler stays on
-                        the button for every other line, and for the box it is the
-                        fallback if the script never loads.
+                        clears every line wearing it. Horizon's own handler is
+                        reserved for ordinary cart lines.
                       {%- endcomment -%}
-                      {%- if line_box != blank %} data-cart-box-remove="{{ line_box | escape }}"{% endif -%}
-                      on:click="/onLineItemRemove/{{ item.index | plus: 1 }}"
+                      {%- if line_box != blank %}
+                        data-cart-box-remove="{{ line_box | escape }}"
+                      {% else %}
+                        on:click="/onLineItemRemove/{{ item.index | plus: 1 }}"
+                      {% endif -%}
                       {% assign can_remove = item.instructions.can_remove | default: true, allow_false: true %}
                       {% if can_remove == false %}
                         hidden

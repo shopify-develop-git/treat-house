@@ -20,12 +20,8 @@
  * re-rendered by the Section Rendering API on every change, so anything bound to
  * a button is bound to a button that is about to be replaced.
  *
- * It runs in the capture phase and stops the event there. Horizon's own
- * `on:click="/onLineItemRemove/…"` is still on the button and would remove the
- * one line the shopper clicked; letting it run as well would fire two cart writes
- * for one click. Leaving it in the markup is deliberate all the same — with the
- * script absent the button still removes something, which is better than a button
- * that does nothing.
+ * Box remove buttons are owned by this script. Only ordinary cart lines carry
+ * Horizon's native remove action, so one click cannot start two cart writes.
  *
  * And the line keys are read from the DOM, not from a cart fetch. Every row
  * already prints `data-key`, so the set is known without asking the server what
@@ -133,9 +129,7 @@ document.addEventListener(
     const boxId = button.dataset.cartBoxRemove;
     const keys = keysForBox(button.getRootNode?.() ?? document, boxId);
 
-    // One line and no siblings is not a box worth intercepting — let Horizon
-    // handle it, so a half-removed box still behaves like an ordinary cart.
-    if (keys.length < 2) return;
+    if (keys.length === 0) return;
 
     event.preventDefault();
     event.stopImmediatePropagation();
