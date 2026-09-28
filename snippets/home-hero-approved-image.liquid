@@ -5,6 +5,7 @@
 
   @param {number} mobile_height - The mobile media height in CSS pixels.
   @param {number} desktop_height - The desktop media height in CSS pixels.
+  @param {boolean} [mobile_product_focus] - Use the approved M&M photograph on phones.
 {%- enddoc -%}
 {%- liquid
   assign mobile_height = mobile_height | default: 416
@@ -67,8 +68,13 @@
 {%- endcomment -%}
 {%- assign phone_preload_srcset = phone_srcset | strip | replace: '&amp;', '&' -%}
 {%- capture phone_sizes -%}max(calc(100vw - 32px), {{ phone_effective_width }}px){%- endcapture -%}
+{%- unless mobile_product_focus -%}
 {{- hero_asset_url | preload_tag: as: 'image', media: '(max-width: 479px)', imagesrcset: phone_preload_srcset, imagesizes: phone_sizes, fetchpriority: 'high' -}}
+{%- endunless -%}
 <picture>
+  {%- if mobile_product_focus -%}
+    <source media="(max-width: 749px)" srcset="{{ 'th-home-hero-mm-20260928.webp' | asset_url }}" width="720" height="720">
+  {%- else -%}
   <source
     media="(max-width: 479px)"
     srcset="{{ phone_srcset | strip }}"
@@ -79,13 +85,14 @@
     srcset="{{ mobile_srcset | strip }}"
     sizes="max(calc(100vw - 32px), {{ mobile_effective_width }}px)"
   >
+  {%- endif -%}
   <img
     src="{{ hero_asset_url }}&amp;width={{ desktop_crop_width }}&amp;height=978&amp;crop=left&amp;quality=80"
     srcset="{{ desktop_srcset | strip }}"
     sizes="(min-width: 1200px) max(min(calc((100vw - 180px) / 2), {{ desktop_slot }}px), {{ desktop_effective_width }}px), (min-width: 990px) max(calc((100vw - 100px) / 2), {{ desktop_effective_width }}px), max(630px, {{ desktop_effective_width }}px)"
     width="{{ desktop_crop_width }}"
     height="978"
-    alt="An assortment of handcrafted Treat House crispy treats"
+    alt="Handcrafted Treat House crispy treats"
     class="home-hero__image"
     loading="eager"
     fetchpriority="high"

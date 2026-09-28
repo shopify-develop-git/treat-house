@@ -27,6 +27,10 @@
 {%- liquid
   assign marquee_word = section.settings.marquee_text | default: 'krispie treat'
   assign marquee_repeat = section.settings.marquee_repeat | default: 8
+  assign mobile_product_focus = false
+  if request.page_type == 'index' and section.settings.mobile_product_focus
+    assign mobile_product_focus = true
+  endif
 -%}
 
 {%- comment -%}
@@ -46,7 +50,7 @@
 
 <div class="section-background color-{{ section.settings.color_scheme }}"></div>
 <div
-  class="home-hero color-{{ section.settings.color_scheme }}"
+  class="home-hero{% if mobile_product_focus %} home-hero--product-focus{% endif %} color-{{ section.settings.color_scheme }}"
   {% comment %}
     The height is written as two properties, one per breakpoint, rather than as
     --home-hero-media-height itself. An inline style outweighs any rule in the
@@ -81,9 +85,14 @@
 
       <div class="home-hero__media">
         {%- if section.settings.image != blank -%}
+          {%- if mobile_product_focus -%}
+            <picture>
+              <source media="(max-width: 749px)" srcset="{{ 'th-home-hero-mm-20260928.webp' | asset_url }}" width="720" height="720">
+          {%- endif -%}
           {% render 'image', image: section.settings.image, height: 600, class: 'home-hero__image', loading: 'eager' %}
+          {%- if mobile_product_focus -%}</picture>{%- endif -%}
         {%- else -%}
-          {% render 'home-hero-approved-image', mobile_height: section.settings.height_mobile, desktop_height: section.settings.height %}
+          {% render 'home-hero-approved-image', mobile_height: section.settings.height_mobile, desktop_height: section.settings.height, mobile_product_focus: mobile_product_focus %}
         {%- endif -%}
 
         {%- if section.settings.show_badge and section.settings.badge_text != blank -%}
@@ -552,6 +561,114 @@
     height: var(--home-hero-marquee-star);
     color: var(--ui-color-sky-blue);
   }
+
+  /* Homepage only: keep a real treat and the primary shopping action together
+     in the first mobile view. Shared wholesale/corporate heroes stay unchanged. */
+  @media screen and (max-width: 749px) {
+    .home-hero--product-focus {
+      --home-hero-space-start: 12px;
+    }
+
+    .home-hero--product-focus .home-hero__grid {
+      gap: 8px;
+      padding: 16px;
+      border-radius: var(--home-hero-radius);
+      background: var(--ui-color-light-blue);
+      text-align: center;
+    }
+
+    .home-hero--product-focus .home-hero__panel,
+    .home-hero--product-focus .home-hero__body {
+      display: contents;
+    }
+
+    .home-hero--product-focus .home-hero__sparkle,
+    .home-hero--product-focus .home-hero__body > .ui-tag {
+      display: none;
+    }
+
+    .home-hero--product-focus .home-hero__body > .ui-heading {
+      grid-row: 1;
+      justify-self: center;
+      --ui-heading-max-width: 100%;
+    }
+
+    .home-hero--product-focus .home-hero__media {
+      grid-row: 2;
+      overflow: visible;
+      border-radius: 0;
+    }
+
+    .home-hero--product-focus .home-hero__image {
+      width: clamp(140px, 27svh, 190px);
+      height: clamp(140px, 27svh, 190px);
+      margin-inline: auto;
+      border-radius: 50%;
+      object-fit: contain;
+      object-position: center;
+    }
+
+    .home-hero--product-focus .home-hero__badge {
+      position: static;
+      translate: none;
+      flex-direction: row;
+      gap: 4px;
+      padding: 4px 0 0;
+      background: transparent;
+      white-space: normal;
+    }
+
+    .home-hero--product-focus .home-hero__badge::after,
+    .home-hero--product-focus .home-hero__badge-icon {
+      display: none;
+    }
+
+    .home-hero--product-focus .home-hero__badge-figure,
+    .home-hero--product-focus .home-hero__badge-label {
+      font-family: var(--ui-font-body);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .home-hero--product-focus .home-hero__body > .ui-text {
+      grid-row: 3;
+      justify-self: center;
+      --ui-text-max-width: 340px;
+    }
+
+    .home-hero--product-focus .home-hero__body > .ui-link-row {
+      grid-row: 4;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      width: 100%;
+      padding: 4px 0 0;
+      gap: 4px 12px;
+    }
+
+    .home-hero--product-focus .ui-link-row > .ui-link:first-child {
+      grid-column: 1 / -1;
+    }
+
+    .home-hero--product-focus .ui-link-row > .ui-link:first-child .ui-button {
+      min-height: 48px;
+      font-size: 14px;
+    }
+
+    .home-hero--product-focus .home-hero__body .ui-link-row > .ui-link:not(:first-child) .ui-button {
+      --ui-button-background: transparent;
+      --ui-button-border-width: 0;
+      width: 100%;
+      min-height: 44px;
+      padding: 4px 0;
+      border: 0;
+      border-radius: 0;
+      font-size: 12px;
+      line-height: 1.3;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
 {% endstylesheet %}
 
 {% schema %}
@@ -576,6 +693,13 @@
     }
   ],
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "mobile_product_focus",
+      "label": "Compact mobile hero with M&M treat",
+      "info": "Homepage only. Shows the M&M treat and shopping button together on mobile.",
+      "default": false
+    },
     {
       "type": "color_scheme",
       "id": "color_scheme",
