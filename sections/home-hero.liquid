@@ -85,15 +85,29 @@
 
       <div class="home-hero__media">
         {%- if mobile_product_focus -%}
-          <img
-            src="{{ 'th-home-hero-mm-transparent-20260928.webp' | asset_url }}"
-            width="600"
-            height="600"
-            alt="Handcrafted M&amp;M Krispie treat"
-            class="home-hero__image"
-            loading="eager"
-            fetchpriority="high"
-          >
+          {%- if section.settings.image != blank -%}
+            {%- assign hero_image_alt = section.settings.image.alt | default: 'Treat House Krispie treats' -%}
+            {{- section.settings.image
+              | image_url: width: 900
+              | image_tag:
+                widths: '240, 360, 540, 720, 900',
+                sizes: '(min-width: 750px) 360px, 190px',
+                alt: hero_image_alt,
+                class: 'home-hero__image',
+                loading: 'eager',
+                fetchpriority: 'high'
+            -}}
+          {%- else -%}
+            <img
+              src="{{ 'th-home-hero-mm-transparent-20260928.webp' | asset_url }}"
+              width="600"
+              height="600"
+              alt="Handcrafted M&amp;M Krispie treat"
+              class="home-hero__image"
+              loading="eager"
+              fetchpriority="high"
+            >
+          {%- endif -%}
         {%- elsif section.settings.image != blank -%}
           {% render 'image', image: section.settings.image, height: 600, class: 'home-hero__image', loading: 'eager' %}
         {%- else -%}
@@ -808,7 +822,7 @@
       "type": "checkbox",
       "id": "mobile_product_focus",
       "label": "Product-focused homepage hero",
-      "info": "Homepage only. Shows the M&M treat on blue with clear shopping links on desktop and mobile.",
+      "info": "Homepage only. Shows the selected product image on blue with clear shopping links on desktop and mobile.",
       "default": false
     },
     {
@@ -825,7 +839,7 @@
       "type": "image_picker",
       "id": "image",
       "label": "t:settings.image",
-      "info": "Left empty, the frame is held with a placeholder."
+      "info": "Used on desktop and mobile. For the product-focused homepage, upload a tightly cropped transparent PNG or WebP."
     },
     {
       "type": "checkbox",
