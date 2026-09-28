@@ -52,6 +52,10 @@
 {%- enddoc -%}
 
 {%- liquid
+  if product != blank and product.id != blank and product.published_at == blank
+    echo 'hidden'
+  endif
+
   assign channel = product.metafields.custom.internal_vendor.value | default: product.metafields.custom.internal_vendor
 
   # The switch is `true` unless the merchant has turned it off, which is what
