@@ -603,7 +603,7 @@
       ],
       "custom_css": [
         ".jdgm-title {height: auto !important; overflow: visible !important; text-overflow: clip;}",
-        "@media (max-width: 600px) {.jdgm-title {font-size: 32px !important; line-height: 1.2 !important; }}"
+        "@media (max-width: 600px) {.jdgm-title {font-size: clamp(24px, 8vw, 32px) !important; line-height: 1.2 !important; }}"
       ],
       "settings": {
         "content_direction": "column",
